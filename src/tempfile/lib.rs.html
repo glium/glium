@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/tempfile-1.1.3/src/lib.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/tempfile-2.2.0/src/lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -83,49 +85,79 @@
 <span id="40">40</span>
 <span id="41">41</span>
 <span id="42">42</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! Securely create and manage temporary files. Temporary files created by this create are</span>
-<span class='doccomment'>//! automatically deleted.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! This crate provides two temporary file variants: `TempFile` and `NamedTempFile`. When choosing</span>
-<span class='doccomment'>//! between the variants, prefer `TempFile` unless you either need to know the file&#39;s path or to be</span>
-<span class='doccomment'>//! able to persist it.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! # Differences</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! ## Resource Leaking</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! `TempFile` will (almost) never fail to cleanup temporary files but `NamedTempFile` will if its</span>
-<span class='doccomment'>//! destructor doesn&#39;t run. This is because `TempFile` relies on the OS to cleanup the underlying</span>
-<span class='doccomment'>//! file so the file while `NamedTempFile` relies on its destructor to do so.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! ## Security</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! In the presence of pathological temporary file cleaner, relying on file paths is unsafe because</span>
-<span class='doccomment'>//! a temporary file cleaner could delete the temporary file which an attacker could then replace.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! `TempFile` doesn&#39;t rely on file paths so this isn&#39;t an issue. However, `NamedTempFile` does</span>
-<span class='doccomment'>//! rely on file paths.</span>
-<span class='doccomment'>//!</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>rand</span>;
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Securely create and manage temporary files. Temporary files created by this create are</span>
+<span class="doccomment">//! automatically deleted.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This crate provides two temporary file variants: a `tempfile()` function that returns standard</span>
+<span class="doccomment">//! `File` objects and `NamedTempFile`. When choosing between the variants, prefer `tempfile()`</span>
+<span class="doccomment">//! unless you either need to know the file&#39;s path or to be able to persist it.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Example</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//! use tempfile::tempfile;</span>
+<span class="doccomment">//! use std::fs::File;</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! let mut file: File = tempfile().expect(&quot;failed to create temporary file&quot;);</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Differences</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Resource Leaking</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! `tempfile()` will (almost) never fail to cleanup temporary files but `NamedTempFile` will if</span>
+<span class="doccomment">//! its destructor doesn&#39;t run. This is because `tempfile()` relies on the OS to cleanup the</span>
+<span class="doccomment">//! underlying file so the file while `NamedTempFile` relies on its destructor to do so.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Security</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In the presence of pathological temporary file cleaner, relying on file paths is unsafe because</span>
+<span class="doccomment">//! a temporary file cleaner could delete the temporary file which an attacker could then replace.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! `tempfile()` doesn&#39;t rely on file paths so this isn&#39;t an issue. However, `NamedTempFile` does</span>
+<span class="doccomment">//! rely on file paths.</span>
+<span class="doccomment">//!</span>
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>windows</span>)]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>winapi</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">rand</span>;
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>windows</span>)]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>kernel32</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libc</span>;
 
-<span class='kw'>const</span> <span class='ident'>NUM_RETRIES</span>: <span class='ident'>u32</span> <span class='op'>=</span> <span class='number'>1</span> <span class='op'>&lt;&lt;</span> <span class='number'>31</span>;
-<span class='kw'>const</span> <span class='ident'>NUM_RAND_CHARS</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>12</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">winapi</span>;
 
-<span class='kw'>mod</span> <span class='ident'>imp</span>;
-<span class='kw'>mod</span> <span class='ident'>util</span>;
-<span class='kw'>mod</span> <span class='ident'>named</span>;
-<span class='kw'>mod</span> <span class='ident'>unnamed</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">windows</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">kernel32</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> ::<span class='ident'>named</span>::<span class='ident'>NamedTempFile</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> ::<span class='ident'>unnamed</span>::<span class='ident'>TempFile</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;redox&quot;</span>)]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">syscall</span>;
+
+<span class="kw">const</span> <span class="ident">NUM_RETRIES</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span> <span class="op">&lt;&lt;</span> <span class="number">31</span>;
+<span class="kw">const</span> <span class="ident">NUM_RAND_CHARS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">6</span>;
+
+<span class="kw">mod</span> <span class="ident">util</span>;
+<span class="kw">mod</span> <span class="ident">imp</span>;
+<span class="kw">mod</span> <span class="ident">named</span>;
+<span class="kw">mod</span> <span class="ident">unnamed</span>;
+
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">named</span>::{<span class="ident">NamedTempFile</span>, <span class="ident">NamedTempFileOptions</span>, <span class="ident">PersistError</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">unnamed</span>::{<span class="ident">tempfile</span>, <span class="ident">tempfile_in</span>};
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -144,12 +176,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -170,7 +206,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -181,11 +217,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "tempfile";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/linux-dmabuf-v1_client_api.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>linux-dmabuf-v1_client_api.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../../../../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc source">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+</pre><pre class="rust ">
+<span class="comment">//</span>
+<span class="comment">// This file was auto-generated, do not edit directly</span>
+<span class="comment">//</span>
+
+<span class="comment">/*
+Copyright © 2014, 2015 Collabora, Ltd.
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the &quot;Software&quot;),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+*/</span>
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">zwp_linux_dmabuf_v1</span> {
+    <span class="doccomment">//! factory for creating dmabuf-based wl_buffers</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! Following the interfaces from:</span>
+    <span class="doccomment">//! https://www.khronos.org/registry/egl/extensions/EXT/EGL_EXT_image_dma_buf_import.txt</span>
+    <span class="doccomment">//! and the Linux DRM sub-system&#39;s AddFb2 ioctl.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! This interface offers ways to create generic dmabuf-based</span>
+    <span class="doccomment">//! wl_buffers. Immediately after a client binds to this interface,</span>
+    <span class="doccomment">//! the set of supported formats and format modifiers is sent with</span>
+    <span class="doccomment">//! &#39;format&#39; and &#39;modifier&#39; events.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! The following are required from clients:</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! - Clients must ensure that either all data in the dma-buf is</span>
+    <span class="doccomment">//! coherent for all subsequent read access or that coherency is</span>
+    <span class="doccomment">//! correctly handled by the underlying kernel-side dma-buf</span>
+    <span class="doccomment">//! implementation.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! - Don&#39;t make any more attachments after sending the buffer to the</span>
+    <span class="doccomment">//! compositor. Making more attachments later increases the risk of</span>
+    <span class="doccomment">//! the compositor not being able to use (re-import) an existing</span>
+    <span class="doccomment">//! dmabuf-based wl_buffer.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! The underlying graphics stack must ensure the following:</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! - The dmabuf file descriptors relayed to the server will stay valid</span>
+    <span class="doccomment">//! for the whole lifetime of the wl_buffer. This means the server may</span>
+    <span class="doccomment">//! at any time use those fds to import the dmabuf into any kernel</span>
+    <span class="doccomment">//! sub-system that might accept it.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! To create a wl_buffer from one or more dmabufs, a client creates a</span>
+    <span class="doccomment">//! zwp_linux_dmabuf_params_v1 object with a zwp_linux_dmabuf_v1.create_params</span>
+    <span class="doccomment">//! request. All planes required by the intended format are added with</span>
+    <span class="doccomment">//! the &#39;add&#39; request. Finally, a &#39;create&#39; or &#39;create_immed&#39; request is</span>
+    <span class="doccomment">//! issued, which has the following outcome depending on the import success.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! The &#39;create&#39; request,</span>
+    <span class="doccomment">//! - on success, triggers a &#39;created&#39; event which provides the final</span>
+    <span class="doccomment">//! wl_buffer to the client.</span>
+    <span class="doccomment">//! - on failure, triggers a &#39;failed&#39; event to convey that the server</span>
+    <span class="doccomment">//! cannot use the dmabufs received from the client.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! For the &#39;create_immed&#39; request,</span>
+    <span class="doccomment">//! - on success, the server immediately imports the added dmabufs to</span>
+    <span class="doccomment">//! create a wl_buffer. No event is sent from the server in this case.</span>
+    <span class="doccomment">//! - on failure, the server can choose to either:</span>
+    <span class="doccomment">//! - terminate the client by raising a fatal error.</span>
+    <span class="doccomment">//! - mark the wl_buffer as failed, and send a &#39;failed&#39; event to the</span>
+    <span class="doccomment">//! client. If the client uses a failed wl_buffer as an argument to any</span>
+    <span class="doccomment">//! request, the behaviour is compositor implementation-defined.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! Warning! The protocol described in this file is experimental and</span>
+    <span class="doccomment">//! backward incompatible changes may be made. Backward compatible changes</span>
+    <span class="doccomment">//! may be added together with the corresponding interface version bump.</span>
+    <span class="doccomment">//! Backward incompatible changes are done by bumping the version number in</span>
+    <span class="doccomment">//! the protocol and interface names and resetting the interface version.</span>
+    <span class="doccomment">//! Once the protocol is to be declared stable, the &#39;z&#39; prefix and the</span>
+    <span class="doccomment">//! version number in the protocol and interface names are removed and the</span>
+    <span class="doccomment">//! interface version number is reset.</span>
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">EventQueueHandle</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Proxy</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">RequestResult</span>;
+
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Liveness</span>, <span class="ident">Implementable</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">interfaces</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">wayland_sys</span>::<span class="ident">common</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::<span class="ident">Any</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::{<span class="ident">CString</span>,<span class="ident">CStr</span>};
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_void</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">AtomicPtr</span>, <span class="ident">Ordering</span>};
+    <span class="kw">use</span> <span class="ident">wayland_sys</span>::<span class="ident">RUST_MANAGED</span>;
+    <span class="kw">use</span> <span class="ident">wayland_sys</span>::<span class="ident">client</span>::<span class="kw-2">*</span>;
+    <span class="kw">type</span> <span class="ident">UserData</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">EventQueueHandle</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Any</span><span class="op">&gt;&gt;</span>, <span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">AtomicBool</span>, <span class="ident">AtomicPtr</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;</span>);
+
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZwpLinuxDmabufV1</span> {
+        <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span>,
+        <span class="ident">data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">AtomicBool</span>, <span class="ident">AtomicPtr</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;&gt;</span>
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">ZwpLinuxDmabufV1</span> {}
+    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">ZwpLinuxDmabufV1</span> {}
+    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Proxy</span> <span class="kw">for</span> <span class="ident">ZwpLinuxDmabufV1</span> {
+        <span class="kw">fn</span> <span class="ident">ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span> { <span class="self">self</span>.<span class="ident">ptr</span> }
+
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_ptr_new</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span>) <span class="op">-&gt;</span> <span class="ident">ZwpLinuxDmabufV1</span> {
+            <span class="kw">let</span> <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>((
+                <span class="ident">ptr</span>::<span class="ident">null_mut</span>(),
+                <span class="prelude-ty">Option</span>::<span class="prelude-val">None</span>,
+                <span class="ident">Arc</span>::<span class="ident">new</span>((<span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">true</span>), <span class="ident">AtomicPtr</span>::<span class="ident">new</span>(<span class="ident">ptr</span>::<span class="ident">null_mut</span>()))),
+            )));
+            <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_set_user_data</span>, <span class="ident">ptr</span>, <span class="ident">data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>);
+            <span class="ident">ZwpLinuxDmabufV1</span> { <span class="ident">ptr</span>: <span class="ident">ptr</span>, <span class="ident">data</span>: <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">data</span>).<span class="number">2</span>.<span class="ident">clone</span>()) }
+        }
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_ptr_initialized</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span>) <span class="op">-&gt;</span> <span class="ident">ZwpLinuxDmabufV1</span> {
+
+            <span class="kw">let</span> <span class="ident">implem</span> <span class="op">=</span> <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_listener</span>, <span class="ident">ptr</span>);
+            <span class="kw">let</span> <span class="ident">rust_managed</span> <span class="op">=</span> <span class="ident">implem</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">RUST_MANAGED</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _ <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _;
+
+            <span class="kw">if</span> <span class="ident">rust_managed</span> {
+                <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_user_data</span>, <span class="ident">ptr</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span>;
+                <span class="ident">ZwpLinuxDmabufV1</span> { <span class="ident">ptr</span>: <span class="ident">ptr</span>, <span class="ident">data</span>: <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">data</span>).<span class="number">2</span>.<span class="ident">clone</span>()) }
+            } <span class="kw">else</span> {
+                <span class="ident">ZwpLinuxDmabufV1</span> { <span class="ident">ptr</span>: <span class="ident">ptr</span>, <span class="ident">data</span>: <span class="prelude-ty">Option</span>::<span class="prelude-val">None</span> }
+            }
+        }
+
+        <span class="kw">fn</span> <span class="ident">interface_ptr</span>() <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wl_interface</span> { <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="ident">zwp_linux_dmabuf_v1_interface</span> } }
+        <span class="kw">fn</span> <span class="ident">interface_name</span>() <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> { <span class="string">&quot;zwp_linux_dmabuf_v1&quot;</span>  }
+        <span class="kw">fn</span> <span class="ident">supported_version</span>() <span class="op">-&gt;</span> <span class="ident">u32</span> { <span class="number">3</span> }
+        <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> { <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_version</span>, <span class="self">self</span>.<span class="ident">ptr</span>()) } }
+
+        <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Liveness</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="kw">if</span> <span class="ident">data</span>.<span class="number">0</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>) {
+                    <span class="ident">Liveness</span>::<span class="ident">Alive</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">Liveness</span>::<span class="ident">Dead</span>
+                }
+            } <span class="kw">else</span> {
+                <span class="ident">Liveness</span>::<span class="ident">Unmanaged</span>
+            }
+        }
+
+        <span class="kw">fn</span> <span class="ident">equals</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ZwpLinuxDmabufV1</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+            <span class="self">self</span>.<span class="ident">status</span>() <span class="op">!=</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> <span class="op">&amp;&amp;</span> <span class="ident">other</span>.<span class="ident">status</span>() <span class="op">!=</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">ptr</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">ptr</span>
+        }
+
+        <span class="kw">fn</span> <span class="ident">set_user_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> ()) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">store</span>(<span class="ident">ptr</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+            }
+        }
+        <span class="kw">fn</span> <span class="ident">get_user_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> () {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>)
+            } <span class="kw">else</span> {
+                ::<span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>()
+            }
+        }
+
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clone_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ZwpLinuxDmabufV1</span> {
+            <span class="ident">ZwpLinuxDmabufV1</span> {
+                <span class="ident">ptr</span>: <span class="self">self</span>.<span class="ident">ptr</span>,
+                <span class="ident">data</span>: <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>()
+            }
+        }
+    }
+    <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Implementable</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ZwpLinuxDmabufV1</span> {
+        <span class="kw">type</span> <span class="ident">Implementation</span> <span class="op">=</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>;
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>,<span class="ident">unused_assignments</span>)]</span>
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__dispatch_msg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,  <span class="ident">opcode</span>: <span class="ident">u32</span>, <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wl_argument</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(),()<span class="op">&gt;</span> {
+
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_user_data</span>, <span class="self">self</span>.<span class="ident">ptr</span>()) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span>);
+        <span class="kw">let</span> <span class="ident">evq</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="ident">data</span>.<span class="number">0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kill</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        {
+            <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">ref</span> <span class="ident">implementation</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">idata</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">downcast_mut</span>::<span class="op">&lt;</span>(<span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>, <span class="ident">ID</span>)<span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+            <span class="kw">match</span> <span class="ident">opcode</span> {
+                <span class="number">0</span> <span class="op">=&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> {<span class="kw-2">*</span>(<span class="ident">args</span>.<span class="ident">offset</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u32</span>)};
+                    (<span class="ident">implementation</span>.<span class="ident">format</span>)(<span class="ident">evq</span>, <span class="ident">idata</span>,  <span class="self">self</span>, <span class="ident">format</span>);
+                },
+                <span class="number">1</span> <span class="op">=&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> {<span class="kw-2">*</span>(<span class="ident">args</span>.<span class="ident">offset</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u32</span>)};
+                    <span class="kw">let</span> <span class="ident">modifier_hi</span> <span class="op">=</span> {<span class="kw-2">*</span>(<span class="ident">args</span>.<span class="ident">offset</span>(<span class="number">1</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u32</span>)};
+                    <span class="kw">let</span> <span class="ident">modifier_lo</span> <span class="op">=</span> {<span class="kw-2">*</span>(<span class="ident">args</span>.<span class="ident">offset</span>(<span class="number">2</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">u32</span>)};
+                    (<span class="ident">implementation</span>.<span class="ident">modifier</span>)(<span class="ident">evq</span>, <span class="ident">idata</span>,  <span class="self">self</span>, <span class="ident">format</span>, <span class="ident">modifier_hi</span>, <span class="ident">modifier_lo</span>);
+                },
+                _ <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(())
+            }
+        }
+
+        <span class="kw">if</span> <span class="ident">kill</span> {
+            <span class="kw">let</span> <span class="ident">_impl</span> <span class="op">=</span> <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">take</span>();
+            ::<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">drop</span>(<span class="ident">_impl</span>);
+        }
+            <span class="prelude-val">Ok</span>(())
+        }
+    }
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="doccomment">/// supported buffer format</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This event advertises one buffer format that the server supports.</span>
+        <span class="doccomment">/// All the supported formats are advertised once when the client</span>
+        <span class="doccomment">/// binds to this interface. A roundtrip after binding guarantees</span>
+        <span class="doccomment">/// that the client has received all supported formats.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// For the definition of the format codes, see the</span>
+        <span class="doccomment">/// zwp_linux_buffer_params_v1::create request.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// Warning: the &#39;format&#39; event is likely to be deprecated and replaced</span>
+        <span class="doccomment">/// with the &#39;modifier&#39; event introduced in zwp_linux_dmabuf_v1</span>
+        <span class="doccomment">/// version 3, described below. Please refrain from using the information</span>
+        <span class="doccomment">/// received from this event.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// **Arguments:** event_queue_handle, interface_data, zwp_linux_dmabuf_v1, format</span>
+        <span class="kw">pub</span> <span class="ident">format</span>: <span class="kw">fn</span>(<span class="ident">evqh</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventQueueHandle</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ID</span>,  <span class="ident">zwp_linux_dmabuf_v1</span>: <span class="kw-2">&amp;</span><span class="ident">ZwpLinuxDmabufV1</span>, <span class="ident">format</span>: <span class="ident">u32</span>),
+        <span class="doccomment">/// supported buffer format modifier</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This event advertises the formats that the server supports, along with</span>
+        <span class="doccomment">/// the modifiers supported for each format. All the supported modifiers</span>
+        <span class="doccomment">/// for all the supported formats are advertised once when the client</span>
+        <span class="doccomment">/// binds to this interface. A roundtrip after binding guarantees that</span>
+        <span class="doccomment">/// the client has received all supported format-modifier pairs.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// For the definition of the format and modifier codes, see the</span>
+        <span class="doccomment">/// zwp_linux_buffer_params_v1::create request.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// **Arguments:** event_queue_handle, interface_data, zwp_linux_dmabuf_v1, format, modifier_hi, modifier_lo</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This request only exists since version 3 of the interface</span>
+        <span class="kw">pub</span> <span class="ident">modifier</span>: <span class="kw">fn</span>(<span class="ident">evqh</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventQueueHandle</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ID</span>,  <span class="ident">zwp_linux_dmabuf_v1</span>: <span class="kw-2">&amp;</span><span class="ident">ZwpLinuxDmabufV1</span>, <span class="ident">format</span>: <span class="ident">u32</span>, <span class="ident">modifier_hi</span>: <span class="ident">u32</span>, <span class="ident">modifier_lo</span>: <span class="ident">u32</span>),
+    }
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {}
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+            <span class="kw-2">*</span><span class="self">self</span>
+        }
+    }
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+            <span class="bool-val">true</span>
+            <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">format</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">format</span> <span class="kw">as</span> <span class="ident">usize</span>)
+            <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">modifier</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">modifier</span> <span class="kw">as</span> <span class="ident">usize</span>)
+
+        }
+    }
+
+    <span class="kw">const</span> <span class="ident">ZWP_LINUX_DMABUF_V1_DESTROY</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">const</span> <span class="ident">ZWP_LINUX_DMABUF_V1_CREATE_PARAMS</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">impl</span> <span class="ident">ZwpLinuxDmabufV1</span> {
+        <span class="doccomment">/// unbind the factory</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Objects created through this interface, especially wl_buffers, will</span>
+        <span class="doccomment">/// remain valid.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This is a destructor, you cannot send requests to this object once this method is called.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span><span class="ident">RequestResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> { <span class="kw">return</span> <span class="ident">RequestResult</span>::<span class="ident">Destroyed</span> }
+            <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_marshal</span>, <span class="self">self</span>.<span class="ident">ptr</span>(), <span class="ident">ZWP_LINUX_DMABUF_V1_DESTROY</span>) };
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="ident">data</span>.<span class="number">0</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, ::<span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+            }
+            <span class="kw">let</span> <span class="ident">udata</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_user_data</span>, <span class="self">self</span>.<span class="ident">ptr</span>()) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span>) };
+            <span class="kw">let</span> <span class="ident">_impl</span> <span class="op">=</span> <span class="ident">udata</span>.<span class="number">1</span>.<span class="ident">take</span>();
+            ::<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">drop</span>(<span class="ident">_impl</span>);
+            <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_destroy</span>, <span class="self">self</span>.<span class="ident">ptr</span>()); }
+            <span class="ident">RequestResult</span>::<span class="ident">Sent</span>(())
+        }
+        <span class="doccomment">/// create a temporary object for buffer parameters</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This temporary object is used to collect multiple dmabuf handles into</span>
+        <span class="doccomment">/// a single batch to create a wl_buffer. It can only be used once and</span>
+        <span class="doccomment">/// should be destroyed after a &#39;created&#39; or &#39;failed&#39; event has been</span>
+        <span class="doccomment">/// received.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span><span class="ident">RequestResult</span><span class="op">&lt;</span><span class="kw">super</span>::<span class="ident">zwp_linux_buffer_params_v1</span>::<span class="ident">ZwpLinuxBufferParamsV1</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> { <span class="kw">return</span> <span class="ident">RequestResult</span>::<span class="ident">Destroyed</span> }
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_marshal_constructor</span>, <span class="self">self</span>.<span class="ident">ptr</span>(), <span class="ident">ZWP_LINUX_DMABUF_V1_CREATE_PARAMS</span>, <span class="kw-2">&amp;</span><span class="ident">zwp_linux_buffer_params_v1_interface</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>::<span class="op">&lt;</span><span class="ident">wl_proxy</span><span class="op">&gt;</span>()) };
+            <span class="kw">let</span> <span class="ident">proxy</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Proxy</span>::<span class="ident">from_ptr_new</span>(<span class="ident">ptr</span>) };
+            <span class="ident">RequestResult</span>::<span class="ident">Sent</span>(<span class="ident">proxy</span>)
+        }
+    }
+}
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">zwp_linux_buffer_params_v1</span> {
+    <span class="doccomment">//! parameters for creating a dmabuf-based wl_buffer</span>
+    <span class="doccomment">//!</span>
+    <span class="doccomment">//! This temporary object is a collection of dmabufs and other</span>
+    <span class="doccomment">//! parameters that together form a single logical buffer. The temporary</span>
+    <span class="doccomment">//! object may eventually create one wl_buffer unless cancelled by</span>
+    <span class="doccomment">//! destroying it before requesting &#39;create&#39;.</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! Single-planar formats only require one dmabuf, however</span>
+    <span class="doccomment">//! multi-planar formats may require more than one dmabuf. For all</span>
+    <span class="doccomment">//! formats, an &#39;add&#39; request must be called once per plane (even if the</span>
+    <span class="doccomment">//! underlying dmabuf fd is identical).</span>
+    <span class="doccomment">//! </span>
+    <span class="doccomment">//! You must use consecutive plane indices (&#39;plane_idx&#39; argument for &#39;add&#39;)</span>
+    <span class="doccomment">//! from zero to the number of planes used by the drm_fourcc format code.</span>
+    <span class="doccomment">//! All planes required by the format must be given exactly once, but can</span>
+    <span class="doccomment">//! be given in any order. Each plane index can be set only once.</span>
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">EventQueueHandle</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">Proxy</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">RequestResult</span>;
+
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Liveness</span>, <span class="ident">Implementable</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">interfaces</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">wayland_sys</span>::<span class="ident">common</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">any</span>::<span class="ident">Any</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::{<span class="ident">CString</span>,<span class="ident">CStr</span>};
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_void</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ptr</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Arc</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::{<span class="ident">AtomicBool</span>, <span class="ident">AtomicPtr</span>, <span class="ident">Ordering</span>};
+    <span class="kw">use</span> <span class="ident">wayland_sys</span>::<span class="ident">RUST_MANAGED</span>;
+    <span class="kw">use</span> <span class="ident">wayland_sys</span>::<span class="ident">client</span>::<span class="kw-2">*</span>;
+    <span class="kw">type</span> <span class="ident">UserData</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">EventQueueHandle</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Any</span><span class="op">&gt;&gt;</span>, <span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">AtomicBool</span>, <span class="ident">AtomicPtr</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;</span>);
+
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {
+        <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span>,
+        <span class="ident">data</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Arc</span><span class="op">&lt;</span>(<span class="ident">AtomicBool</span>, <span class="ident">AtomicPtr</span><span class="op">&lt;</span>()<span class="op">&gt;</span>)<span class="op">&gt;&gt;</span>
+    }
+
+    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {}
+    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Sync</span> <span class="kw">for</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {}
+    <span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Proxy</span> <span class="kw">for</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {
+        <span class="kw">fn</span> <span class="ident">ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span> { <span class="self">self</span>.<span class="ident">ptr</span> }
+
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_ptr_new</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span>) <span class="op">-&gt;</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {
+            <span class="kw">let</span> <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">into_raw</span>(<span class="ident">Box</span>::<span class="ident">new</span>((
+                <span class="ident">ptr</span>::<span class="ident">null_mut</span>(),
+                <span class="prelude-ty">Option</span>::<span class="prelude-val">None</span>,
+                <span class="ident">Arc</span>::<span class="ident">new</span>((<span class="ident">AtomicBool</span>::<span class="ident">new</span>(<span class="bool-val">true</span>), <span class="ident">AtomicPtr</span>::<span class="ident">new</span>(<span class="ident">ptr</span>::<span class="ident">null_mut</span>()))),
+            )));
+            <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_set_user_data</span>, <span class="ident">ptr</span>, <span class="ident">data</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>);
+            <span class="ident">ZwpLinuxBufferParamsV1</span> { <span class="ident">ptr</span>: <span class="ident">ptr</span>, <span class="ident">data</span>: <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">data</span>).<span class="number">2</span>.<span class="ident">clone</span>()) }
+        }
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">from_ptr_initialized</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span>) <span class="op">-&gt;</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {
+
+            <span class="kw">let</span> <span class="ident">implem</span> <span class="op">=</span> <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_listener</span>, <span class="ident">ptr</span>);
+            <span class="kw">let</span> <span class="ident">rust_managed</span> <span class="op">=</span> <span class="ident">implem</span> <span class="op">==</span> <span class="kw-2">&amp;</span><span class="ident">RUST_MANAGED</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _ <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _;
+
+            <span class="kw">if</span> <span class="ident">rust_managed</span> {
+                <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_user_data</span>, <span class="ident">ptr</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span>;
+                <span class="ident">ZwpLinuxBufferParamsV1</span> { <span class="ident">ptr</span>: <span class="ident">ptr</span>, <span class="ident">data</span>: <span class="prelude-val">Some</span>((<span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">data</span>).<span class="number">2</span>.<span class="ident">clone</span>()) }
+            } <span class="kw">else</span> {
+                <span class="ident">ZwpLinuxBufferParamsV1</span> { <span class="ident">ptr</span>: <span class="ident">ptr</span>, <span class="ident">data</span>: <span class="prelude-ty">Option</span>::<span class="prelude-val">None</span> }
+            }
+        }
+
+        <span class="kw">fn</span> <span class="ident">interface_ptr</span>() <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wl_interface</span> { <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="ident">zwp_linux_buffer_params_v1_interface</span> } }
+        <span class="kw">fn</span> <span class="ident">interface_name</span>() <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> { <span class="string">&quot;zwp_linux_buffer_params_v1&quot;</span>  }
+        <span class="kw">fn</span> <span class="ident">supported_version</span>() <span class="op">-&gt;</span> <span class="ident">u32</span> { <span class="number">3</span> }
+        <span class="kw">fn</span> <span class="ident">version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> { <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_version</span>, <span class="self">self</span>.<span class="ident">ptr</span>()) } }
+
+        <span class="kw">fn</span> <span class="ident">status</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Liveness</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="kw">if</span> <span class="ident">data</span>.<span class="number">0</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>) {
+                    <span class="ident">Liveness</span>::<span class="ident">Alive</span>
+                } <span class="kw">else</span> {
+                    <span class="ident">Liveness</span>::<span class="ident">Dead</span>
+                }
+            } <span class="kw">else</span> {
+                <span class="ident">Liveness</span>::<span class="ident">Unmanaged</span>
+            }
+        }
+
+        <span class="kw">fn</span> <span class="ident">equals</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">ZwpLinuxBufferParamsV1</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+            <span class="self">self</span>.<span class="ident">status</span>() <span class="op">!=</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> <span class="op">&amp;&amp;</span> <span class="ident">other</span>.<span class="ident">status</span>() <span class="op">!=</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">ptr</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">ptr</span>
+        }
+
+        <span class="kw">fn</span> <span class="ident">set_user_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> ()) {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">store</span>(<span class="ident">ptr</span>, <span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+            }
+        }
+        <span class="kw">fn</span> <span class="ident">get_user_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> () {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">load</span>(<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>)
+            } <span class="kw">else</span> {
+                ::<span class="ident">std</span>::<span class="ident">ptr</span>::<span class="ident">null_mut</span>()
+            }
+        }
+
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">clone_unchecked</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {
+            <span class="ident">ZwpLinuxBufferParamsV1</span> {
+                <span class="ident">ptr</span>: <span class="self">self</span>.<span class="ident">ptr</span>,
+                <span class="ident">data</span>: <span class="self">self</span>.<span class="ident">data</span>.<span class="ident">clone</span>()
+            }
+        }
+    }
+    <span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span>: <span class="lifetime">&#39;static</span><span class="op">&gt;</span> <span class="ident">Implementable</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {
+        <span class="kw">type</span> <span class="ident">Implementation</span> <span class="op">=</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>;
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_mut</span>,<span class="ident">unused_assignments</span>)]</span>
+        <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">__dispatch_msg</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,  <span class="ident">opcode</span>: <span class="ident">u32</span>, <span class="ident">args</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">wl_argument</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(),()<span class="op">&gt;</span> {
+
+        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_user_data</span>, <span class="self">self</span>.<span class="ident">ptr</span>()) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span>);
+        <span class="kw">let</span> <span class="ident">evq</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="ident">data</span>.<span class="number">0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">kill</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        {
+            <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> (<span class="kw-2">ref</span> <span class="ident">implementation</span>, <span class="kw-2">ref</span> <span class="kw-2">mut</span> <span class="ident">idata</span>) <span class="op">=</span> <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>().<span class="ident">downcast_mut</span>::<span class="op">&lt;</span>(<span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>, <span class="ident">ID</span>)<span class="op">&gt;</span>().<span class="ident">unwrap</span>();
+            <span class="kw">match</span> <span class="ident">opcode</span> {
+                <span class="number">0</span> <span class="op">=&gt;</span> {
+                    <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> {<span class="ident">Proxy</span>::<span class="ident">from_ptr_new</span>(<span class="kw-2">*</span>(<span class="ident">args</span>.<span class="ident">offset</span>(<span class="number">0</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">wl_proxy</span>))};
+                    (<span class="ident">implementation</span>.<span class="ident">created</span>)(<span class="ident">evq</span>, <span class="ident">idata</span>,  <span class="self">self</span>, <span class="ident">buffer</span>);
+                },
+                <span class="number">1</span> <span class="op">=&gt;</span> {
+                    (<span class="ident">implementation</span>.<span class="ident">failed</span>)(<span class="ident">evq</span>, <span class="ident">idata</span>,  <span class="self">self</span>);
+                },
+                _ <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(())
+            }
+        }
+
+        <span class="kw">if</span> <span class="ident">kill</span> {
+            <span class="kw">let</span> <span class="ident">_impl</span> <span class="op">=</span> <span class="ident">data</span>.<span class="number">1</span>.<span class="ident">take</span>();
+            ::<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">drop</span>(<span class="ident">_impl</span>);
+        }
+            <span class="prelude-val">Ok</span>(())
+        }
+    }
+    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>,<span class="ident">Clone</span>,<span class="ident">Debug</span>,<span class="ident">PartialEq</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Error</span> {
+        <span class="doccomment">/// the dmabuf_batch object has already been used to create a wl_buffer</span>
+        <span class="ident">AlreadyUsed</span> <span class="op">=</span> <span class="number">0</span>,
+        <span class="doccomment">/// plane index out of bounds</span>
+        <span class="ident">PlaneIdx</span> <span class="op">=</span> <span class="number">1</span>,
+        <span class="doccomment">/// the plane index was already set</span>
+        <span class="ident">PlaneSet</span> <span class="op">=</span> <span class="number">2</span>,
+        <span class="doccomment">/// missing or too many planes to create a buffer</span>
+        <span class="ident">Incomplete</span> <span class="op">=</span> <span class="number">3</span>,
+        <span class="doccomment">/// format not supported</span>
+        <span class="ident">InvalidFormat</span> <span class="op">=</span> <span class="number">4</span>,
+        <span class="doccomment">/// invalid width or height</span>
+        <span class="ident">InvalidDimensions</span> <span class="op">=</span> <span class="number">5</span>,
+        <span class="doccomment">/// offset + stride * height goes out of dmabuf bounds</span>
+        <span class="ident">OutOfBounds</span> <span class="op">=</span> <span class="number">6</span>,
+        <span class="doccomment">/// invalid wl_buffer resulted from importing dmabufs via the create_immed request on given buffer_params</span>
+        <span class="ident">InvalidWlBuffer</span> <span class="op">=</span> <span class="number">7</span>,
+    }
+    <span class="kw">impl</span> <span class="ident">Error</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Error</span><span class="op">&gt;</span> {
+            <span class="kw">match</span> <span class="ident">n</span> {
+                <span class="number">0</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">AlreadyUsed</span>),
+                <span class="number">1</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">PlaneIdx</span>),
+                <span class="number">2</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">PlaneSet</span>),
+                <span class="number">3</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">Incomplete</span>),
+                <span class="number">4</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">InvalidFormat</span>),
+                <span class="number">5</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">InvalidDimensions</span>),
+                <span class="number">6</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">OutOfBounds</span>),
+                <span class="number">7</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Error</span>::<span class="ident">InvalidWlBuffer</span>),
+                _ <span class="op">=&gt;</span> <span class="prelude-ty">Option</span>::<span class="prelude-val">None</span>
+            }
+        }
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
+            <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u32</span>
+        }
+    }
+    <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>,<span class="ident">Clone</span>,<span class="ident">Debug</span>,<span class="ident">PartialEq</span>)]</span>
+    <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Flags</span> {
+        <span class="doccomment">/// contents are y-inverted</span>
+        <span class="ident">YInvert</span> <span class="op">=</span> <span class="number">1</span>,
+        <span class="doccomment">/// content is interlaced</span>
+        <span class="ident">Interlaced</span> <span class="op">=</span> <span class="number">2</span>,
+        <span class="doccomment">/// bottom field first</span>
+        <span class="ident">BottomFirst</span> <span class="op">=</span> <span class="number">4</span>,
+    }
+    <span class="kw">impl</span> <span class="ident">Flags</span> {
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_raw</span>(<span class="ident">n</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Flags</span><span class="op">&gt;</span> {
+            <span class="kw">match</span> <span class="ident">n</span> {
+                <span class="number">1</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Flags</span>::<span class="ident">YInvert</span>),
+                <span class="number">2</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Flags</span>::<span class="ident">Interlaced</span>),
+                <span class="number">4</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">Flags</span>::<span class="ident">BottomFirst</span>),
+                _ <span class="op">=&gt;</span> <span class="prelude-ty">Option</span>::<span class="prelude-val">None</span>
+            }
+        }
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_raw</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
+            <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">u32</span>
+        }
+    }
+    <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="doccomment">/// buffer creation succeeded</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This event indicates that the attempted buffer creation was</span>
+        <span class="doccomment">/// successful. It provides the new wl_buffer referencing the dmabuf(s).</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// Upon receiving this event, the client should destroy the</span>
+        <span class="doccomment">/// zlinux_dmabuf_params object.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// **Arguments:** event_queue_handle, interface_data, zwp_linux_buffer_params_v1, buffer</span>
+        <span class="kw">pub</span> <span class="ident">created</span>: <span class="kw">fn</span>(<span class="ident">evqh</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventQueueHandle</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ID</span>,  <span class="ident">zwp_linux_buffer_params_v1</span>: <span class="kw-2">&amp;</span><span class="ident">ZwpLinuxBufferParamsV1</span>, <span class="ident">buffer</span>: <span class="kw">super</span>::<span class="ident">wl_buffer</span>::<span class="ident">WlBuffer</span>),
+        <span class="doccomment">/// buffer creation failed</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This event indicates that the attempted buffer creation has</span>
+        <span class="doccomment">/// failed. It usually means that one of the dmabuf constraints</span>
+        <span class="doccomment">/// has not been fulfilled.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// Upon receiving this event, the client should destroy the</span>
+        <span class="doccomment">/// zlinux_buffer_params object.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// **Arguments:** event_queue_handle, interface_data, zwp_linux_buffer_params_v1</span>
+        <span class="kw">pub</span> <span class="ident">failed</span>: <span class="kw">fn</span>(<span class="ident">evqh</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">EventQueueHandle</span>, <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ID</span>,  <span class="ident">zwp_linux_buffer_params_v1</span>: <span class="kw-2">&amp;</span><span class="ident">ZwpLinuxBufferParamsV1</span>),
+    }
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {}
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+            <span class="kw-2">*</span><span class="self">self</span>
+        }
+    }
+
+    <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">eq</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Implementation</span><span class="op">&lt;</span><span class="ident">ID</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+            <span class="bool-val">true</span>
+            <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">created</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">created</span> <span class="kw">as</span> <span class="ident">usize</span>)
+            <span class="op">&amp;&amp;</span> (<span class="self">self</span>.<span class="ident">failed</span> <span class="kw">as</span> <span class="ident">usize</span> <span class="op">==</span> <span class="ident">other</span>.<span class="ident">failed</span> <span class="kw">as</span> <span class="ident">usize</span>)
+
+        }
+    }
+
+    <span class="kw">const</span> <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_DESTROY</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
+    <span class="kw">const</span> <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_ADD</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">1</span>;
+    <span class="kw">const</span> <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_CREATE</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">2</span>;
+    <span class="kw">const</span> <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_CREATE_IMMED</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">3</span>;
+    <span class="kw">impl</span> <span class="ident">ZwpLinuxBufferParamsV1</span> {
+        <span class="doccomment">/// delete this object, used or not</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Cleans up the temporary data sent to the server for dmabuf-based</span>
+        <span class="doccomment">/// wl_buffer creation.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This is a destructor, you cannot send requests to this object once this method is called.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">destroy</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span><span class="ident">RequestResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> { <span class="kw">return</span> <span class="ident">RequestResult</span>::<span class="ident">Destroyed</span> }
+            <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_marshal</span>, <span class="self">self</span>.<span class="ident">ptr</span>(), <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_DESTROY</span>) };
+
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">data</span> {
+                <span class="ident">data</span>.<span class="number">0</span>.<span class="ident">store</span>(<span class="bool-val">false</span>, ::<span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">atomic</span>::<span class="ident">Ordering</span>::<span class="ident">SeqCst</span>);
+            }
+            <span class="kw">let</span> <span class="ident">udata</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span>(<span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_get_user_data</span>, <span class="self">self</span>.<span class="ident">ptr</span>()) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">UserData</span>) };
+            <span class="kw">let</span> <span class="ident">_impl</span> <span class="op">=</span> <span class="ident">udata</span>.<span class="number">1</span>.<span class="ident">take</span>();
+            ::<span class="ident">std</span>::<span class="ident">mem</span>::<span class="ident">drop</span>(<span class="ident">_impl</span>);
+            <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_destroy</span>, <span class="self">self</span>.<span class="ident">ptr</span>()); }
+            <span class="ident">RequestResult</span>::<span class="ident">Sent</span>(())
+        }
+        <span class="doccomment">/// add a dmabuf to the temporary set</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This request adds one dmabuf to the set in this</span>
+        <span class="doccomment">/// zwp_linux_buffer_params_v1.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// The 64-bit unsigned value combined from modifier_hi and modifier_lo</span>
+        <span class="doccomment">/// is the dmabuf layout modifier. DRM AddFB2 ioctl calls this the</span>
+        <span class="doccomment">/// fb modifier, which is defined in drm_mode.h of Linux UAPI.</span>
+        <span class="doccomment">/// This is an opaque token. Drivers use this token to express tiling,</span>
+        <span class="doccomment">/// compression, etc. driver-specific modifications to the base format</span>
+        <span class="doccomment">/// defined by the DRM fourcc code.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// This request raises the PLANE_IDX error if plane_idx is too large.</span>
+        <span class="doccomment">/// The error PLANE_SET is raised if attempting to set a plane that</span>
+        <span class="doccomment">/// was already set.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fd</span>: ::<span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">unix</span>::<span class="ident">io</span>::<span class="ident">RawFd</span>, <span class="ident">plane_idx</span>: <span class="ident">u32</span>, <span class="ident">offset</span>: <span class="ident">u32</span>, <span class="ident">stride</span>: <span class="ident">u32</span>, <span class="ident">modifier_hi</span>: <span class="ident">u32</span>, <span class="ident">modifier_lo</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span><span class="ident">RequestResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> { <span class="kw">return</span> <span class="ident">RequestResult</span>::<span class="ident">Destroyed</span> }
+            <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_marshal</span>, <span class="self">self</span>.<span class="ident">ptr</span>(), <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_ADD</span>, <span class="ident">fd</span>, <span class="ident">plane_idx</span>, <span class="ident">offset</span>, <span class="ident">stride</span>, <span class="ident">modifier_hi</span>, <span class="ident">modifier_lo</span>) };
+            <span class="ident">RequestResult</span>::<span class="ident">Sent</span>(())
+        }
+        <span class="doccomment">/// create a wl_buffer from the given dmabufs</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This asks for creation of a wl_buffer from the added dmabuf</span>
+        <span class="doccomment">/// buffers. The wl_buffer is not created immediately but returned via</span>
+        <span class="doccomment">/// the &#39;created&#39; event if the dmabuf sharing succeeds. The sharing</span>
+        <span class="doccomment">/// may fail at runtime for reasons a client cannot predict, in</span>
+        <span class="doccomment">/// which case the &#39;failed&#39; event is triggered.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// The &#39;format&#39; argument is a DRM_FORMAT code, as defined by the</span>
+        <span class="doccomment">/// libdrm&#39;s drm_fourcc.h. The Linux kernel&#39;s DRM sub-system is the</span>
+        <span class="doccomment">/// authoritative source on how the format codes should work.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// The &#39;flags&#39; is a bitfield of the flags defined in enum &quot;flags&quot;.</span>
+        <span class="doccomment">/// &#39;y_invert&#39; means the that the image needs to be y-flipped.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// Flag &#39;interlaced&#39; means that the frame in the buffer is not</span>
+        <span class="doccomment">/// progressive as usual, but interlaced. An interlaced buffer as</span>
+        <span class="doccomment">/// supported here must always contain both top and bottom fields.</span>
+        <span class="doccomment">/// The top field always begins on the first pixel row. The temporal</span>
+        <span class="doccomment">/// ordering between the two fields is top field first, unless</span>
+        <span class="doccomment">/// &#39;bottom_first&#39; is specified. It is undefined whether &#39;bottom_first&#39;</span>
+        <span class="doccomment">/// is ignored if &#39;interlaced&#39; is not set.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// This protocol does not convey any information about field rate,</span>
+        <span class="doccomment">/// duration, or timing, other than the relative ordering between the</span>
+        <span class="doccomment">/// two fields in one buffer. A compositor may have to estimate the</span>
+        <span class="doccomment">/// intended field rate from the incoming buffer rate. It is undefined</span>
+        <span class="doccomment">/// whether the time of receiving wl_surface.commit with a new buffer</span>
+        <span class="doccomment">/// attached, applying the wl_surface state, wl_surface.frame callback</span>
+        <span class="doccomment">/// trigger, presentation, or any other point in the compositor cycle</span>
+        <span class="doccomment">/// is used to measure the frame or field times. There is no support</span>
+        <span class="doccomment">/// for detecting missed or late frames/fields/buffers either, and</span>
+        <span class="doccomment">/// there is no support whatsoever for cooperating with interlaced</span>
+        <span class="doccomment">/// compositor output.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// The composited image quality resulting from the use of interlaced</span>
+        <span class="doccomment">/// buffers is explicitly undefined. A compositor may use elaborate</span>
+        <span class="doccomment">/// hardware features or software to deinterlace and create progressive</span>
+        <span class="doccomment">/// output frames from a sequence of interlaced input buffers, or it</span>
+        <span class="doccomment">/// may produce substandard image quality. However, compositors that</span>
+        <span class="doccomment">/// cannot guarantee reasonable image quality in all cases are recommended</span>
+        <span class="doccomment">/// to just reject all interlaced buffers.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// Any argument errors, including non-positive width or height,</span>
+        <span class="doccomment">/// mismatch between the number of planes and the format, bad</span>
+        <span class="doccomment">/// format, bad offset or stride, may be indicated by fatal protocol</span>
+        <span class="doccomment">/// errors: INCOMPLETE, INVALID_FORMAT, INVALID_DIMENSIONS,</span>
+        <span class="doccomment">/// OUT_OF_BOUNDS.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// Dmabuf import errors in the server that are not obvious client</span>
+        <span class="doccomment">/// bugs are returned via the &#39;failed&#39; event as non-fatal. This</span>
+        <span class="doccomment">/// allows attempting dmabuf sharing and falling back in the client</span>
+        <span class="doccomment">/// if it fails.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// This request can be sent only once in the object&#39;s lifetime, after</span>
+        <span class="doccomment">/// which the only legal request is destroy. This object should be</span>
+        <span class="doccomment">/// destroyed after issuing a &#39;create&#39; request. Attempting to use this</span>
+        <span class="doccomment">/// object after issuing &#39;create&#39; raises ALREADY_USED protocol error.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// It is not mandatory to issue &#39;create&#39;. If a client wants to</span>
+        <span class="doccomment">/// cancel the buffer creation, it can just destroy this object.</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">i32</span>, <span class="ident">height</span>: <span class="ident">i32</span>, <span class="ident">format</span>: <span class="ident">u32</span>, <span class="ident">flags</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span><span class="ident">RequestResult</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> { <span class="kw">return</span> <span class="ident">RequestResult</span>::<span class="ident">Destroyed</span> }
+            <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_marshal</span>, <span class="self">self</span>.<span class="ident">ptr</span>(), <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_CREATE</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">format</span>, <span class="ident">flags</span>) };
+            <span class="ident">RequestResult</span>::<span class="ident">Sent</span>(())
+        }
+        <span class="doccomment">/// immediately create a wl_buffer from the given dmabufs</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This asks for immediate creation of a wl_buffer by importing the</span>
+        <span class="doccomment">/// added dmabufs.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// In case of import success, no event is sent from the server, and the</span>
+        <span class="doccomment">/// wl_buffer is ready to be used by the client.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// Upon import failure, either of the following may happen, as seen fit</span>
+        <span class="doccomment">/// by the implementation:</span>
+        <span class="doccomment">/// - the client is terminated with one of the following fatal protocol</span>
+        <span class="doccomment">/// errors:</span>
+        <span class="doccomment">/// - INCOMPLETE, INVALID_FORMAT, INVALID_DIMENSIONS, OUT_OF_BOUNDS,</span>
+        <span class="doccomment">/// in case of argument errors such as mismatch between the number</span>
+        <span class="doccomment">/// of planes and the format, bad format, non-positive width or</span>
+        <span class="doccomment">/// height, or bad offset or stride.</span>
+        <span class="doccomment">/// - INVALID_WL_BUFFER, in case the cause for failure is unknown or</span>
+        <span class="doccomment">/// plaform specific.</span>
+        <span class="doccomment">/// - the server creates an invalid wl_buffer, marks it as failed and</span>
+        <span class="doccomment">/// sends a &#39;failed&#39; event to the client. The result of using this</span>
+        <span class="doccomment">/// invalid wl_buffer as an argument in any request by the client is</span>
+        <span class="doccomment">/// defined by the compositor implementation.</span>
+        <span class="doccomment">/// </span>
+        <span class="doccomment">/// This takes the same arguments as a &#39;create&#39; request, and obeys the</span>
+        <span class="doccomment">/// same restrictions.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// This request is only available since version 2 of the interface</span>
+        <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">create_immed</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">width</span>: <span class="ident">i32</span>, <span class="ident">height</span>: <span class="ident">i32</span>, <span class="ident">format</span>: <span class="ident">u32</span>, <span class="ident">flags</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span><span class="ident">RequestResult</span><span class="op">&lt;</span><span class="kw">super</span>::<span class="ident">wl_buffer</span>::<span class="ident">WlBuffer</span><span class="op">&gt;</span> {
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">status</span>() <span class="op">==</span> <span class="ident">Liveness</span>::<span class="ident">Dead</span> { <span class="kw">return</span> <span class="ident">RequestResult</span>::<span class="ident">Destroyed</span> }
+            <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="macro">ffi_dispatch</span><span class="macro">!</span>(<span class="ident">WAYLAND_CLIENT_HANDLE</span>, <span class="ident">wl_proxy_marshal_constructor</span>, <span class="self">self</span>.<span class="ident">ptr</span>(), <span class="ident">ZWP_LINUX_BUFFER_PARAMS_V1_CREATE_IMMED</span>, <span class="kw-2">&amp;</span><span class="ident">wl_buffer_interface</span>, <span class="ident">ptr</span>::<span class="ident">null_mut</span>::<span class="op">&lt;</span><span class="ident">wl_proxy</span><span class="op">&gt;</span>(), <span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">format</span>, <span class="ident">flags</span>) };
+            <span class="kw">let</span> <span class="ident">proxy</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">Proxy</span>::<span class="ident">from_ptr_new</span>(<span class="ident">ptr</span>) };
+            <span class="ident">RequestResult</span>::<span class="ident">Sent</span>(<span class="ident">proxy</span>)
+        }
+    }
+}
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../../../../../../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../../../../../../../../../main.js"></script>
+    <script defer src="../../../../../../../../../../../../search-index.js"></script>
+</body>
+</html>

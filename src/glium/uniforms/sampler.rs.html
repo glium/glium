@@ -9,13 +9,15 @@
 
     <title>sampler.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -218,181 +220,181 @@
 <span id="175">175</span>
 <span id="176">176</span>
 <span id="177">177</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>ToGlEnum</span>;
-<span class='kw'>use</span> <span class='ident'>gl</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">ToGlEnum</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
 
-<span class='doccomment'>/// Function to use for out-of-bounds samples.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// This is how GL must handle samples that are outside the texture.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Hash</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>SamplerWrapFunction</span> {
-    <span class='doccomment'>/// Samples at coord `x + 1` map to coord `x`.</span>
-    <span class='ident'>Repeat</span>,
+<span class="doccomment">/// Function to use for out-of-bounds samples.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This is how GL must handle samples that are outside the texture.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">SamplerWrapFunction</span> {
+    <span class="doccomment">/// Samples at coord `x + 1` map to coord `x`.</span>
+    <span class="ident">Repeat</span>,
 
-    <span class='doccomment'>/// Samples at coord `x + 1` map to coord `1 - x`.</span>
-    <span class='ident'>Mirror</span>,
+    <span class="doccomment">/// Samples at coord `x + 1` map to coord `1 - x`.</span>
+    <span class="ident">Mirror</span>,
 
-    <span class='doccomment'>/// Samples at coord `x + 1` map to coord `1`.</span>
-    <span class='ident'>Clamp</span>,
+    <span class="doccomment">/// Samples at coord `x + 1` map to coord `1`.</span>
+    <span class="ident">Clamp</span>,
 
-    <span class='doccomment'>/// Same as Mirror, but only for one repetition,</span>
-    <span class='ident'>MirrorClamp</span>
+    <span class="doccomment">/// Same as Mirror, but only for one repetition,</span>
+    <span class="ident">MirrorClamp</span>
 }
 
-<span class='kw'>impl</span> <span class='ident'>ToGlEnum</span> <span class='kw'>for</span> <span class='ident'>SamplerWrapFunction</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>SamplerWrapFunction</span>::<span class='ident'>Repeat</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>REPEAT</span>,
-            <span class='ident'>SamplerWrapFunction</span>::<span class='ident'>Mirror</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>MIRRORED_REPEAT</span>,
-            <span class='ident'>SamplerWrapFunction</span>::<span class='ident'>Clamp</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>CLAMP_TO_EDGE</span>,
-            <span class='ident'>SamplerWrapFunction</span>::<span class='ident'>MirrorClamp</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>MIRROR_CLAMP_TO_EDGE</span>,
+<span class="kw">impl</span> <span class="ident">ToGlEnum</span> <span class="kw">for</span> <span class="ident">SamplerWrapFunction</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">SamplerWrapFunction</span>::<span class="ident">Repeat</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">REPEAT</span>,
+            <span class="ident">SamplerWrapFunction</span>::<span class="ident">Mirror</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">MIRRORED_REPEAT</span>,
+            <span class="ident">SamplerWrapFunction</span>::<span class="ident">Clamp</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">CLAMP_TO_EDGE</span>,
+            <span class="ident">SamplerWrapFunction</span>::<span class="ident">MirrorClamp</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">MIRROR_CLAMP_TO_EDGE</span>,
         }
     }
 }
 
-<span class='doccomment'>/// The function that the GPU will use when loading the value of a texel.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Hash</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>MagnifySamplerFilter</span> {
-    <span class='doccomment'>/// The nearest texel will be loaded.</span>
-    <span class='ident'>Nearest</span>,
+<span class="doccomment">/// The function that the GPU will use when loading the value of a texel.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MagnifySamplerFilter</span> {
+    <span class="doccomment">/// The nearest texel will be loaded.</span>
+    <span class="ident">Nearest</span>,
 
-    <span class='doccomment'>/// All nearby texels will be loaded and their values will be merged.</span>
-    <span class='ident'>Linear</span>,
+    <span class="doccomment">/// All nearby texels will be loaded and their values will be merged.</span>
+    <span class="ident">Linear</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>ToGlEnum</span> <span class='kw'>for</span> <span class='ident'>MagnifySamplerFilter</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>MagnifySamplerFilter</span>::<span class='ident'>Nearest</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>NEAREST</span>,
-            <span class='ident'>MagnifySamplerFilter</span>::<span class='ident'>Linear</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINEAR</span>,
+<span class="kw">impl</span> <span class="ident">ToGlEnum</span> <span class="kw">for</span> <span class="ident">MagnifySamplerFilter</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">MagnifySamplerFilter</span>::<span class="ident">Nearest</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">NEAREST</span>,
+            <span class="ident">MagnifySamplerFilter</span>::<span class="ident">Linear</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINEAR</span>,
         }
     }
 }
 
-<span class='doccomment'>/// The function that the GPU will use when loading the value of a texel.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Hash</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>MinifySamplerFilter</span> {
-    <span class='doccomment'>/// The nearest texel will be loaded.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only uses the main texture, mipmaps are totally ignored.</span>
-    <span class='ident'>Nearest</span>,
+<span class="doccomment">/// The function that the GPU will use when loading the value of a texel.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">MinifySamplerFilter</span> {
+    <span class="doccomment">/// The nearest texel will be loaded.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only uses the main texture, mipmaps are totally ignored.</span>
+    <span class="ident">Nearest</span>,
 
-    <span class='doccomment'>/// All nearby texels will be loaded and their values will be merged.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only uses the main texture, mipmaps are totally ignored.</span>
-    <span class='ident'>Linear</span>,
+    <span class="doccomment">/// All nearby texels will be loaded and their values will be merged.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only uses the main texture, mipmaps are totally ignored.</span>
+    <span class="ident">Linear</span>,
 
-    <span class='doccomment'>/// The nearest texel of the nearest mipmap will be loaded.</span>
-    <span class='ident'>NearestMipmapNearest</span>,
+    <span class="doccomment">/// The nearest texel of the nearest mipmap will be loaded.</span>
+    <span class="ident">NearestMipmapNearest</span>,
 
-    <span class='doccomment'>/// Takes the nearest texel from the two nearest mipmaps, and merges them.</span>
-    <span class='ident'>LinearMipmapNearest</span>,
+    <span class="doccomment">/// Takes the nearest texel from the two nearest mipmaps, and merges them.</span>
+    <span class="ident">LinearMipmapNearest</span>,
 
-    <span class='doccomment'>/// Same as `Linear`, but from the nearest mipmap.</span>
-    <span class='ident'>NearestMipmapLinear</span>,
+    <span class="doccomment">/// Same as `Linear`, but from the nearest mipmap.</span>
+    <span class="ident">NearestMipmapLinear</span>,
 
-    <span class='doccomment'>/// Same as `Linear`, but from the two nearest mipmaps.</span>
-    <span class='ident'>LinearMipmapLinear</span>,
+    <span class="doccomment">/// Same as `Linear`, but from the two nearest mipmaps.</span>
+    <span class="ident">LinearMipmapLinear</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>ToGlEnum</span> <span class='kw'>for</span> <span class='ident'>MinifySamplerFilter</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>MinifySamplerFilter</span>::<span class='ident'>Nearest</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>NEAREST</span>,
-            <span class='ident'>MinifySamplerFilter</span>::<span class='ident'>Linear</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINEAR</span>,
-            <span class='ident'>MinifySamplerFilter</span>::<span class='ident'>NearestMipmapNearest</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>NEAREST_MIPMAP_NEAREST</span>,
-            <span class='ident'>MinifySamplerFilter</span>::<span class='ident'>LinearMipmapNearest</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINEAR_MIPMAP_NEAREST</span>,
-            <span class='ident'>MinifySamplerFilter</span>::<span class='ident'>NearestMipmapLinear</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>NEAREST_MIPMAP_LINEAR</span>,
-            <span class='ident'>MinifySamplerFilter</span>::<span class='ident'>LinearMipmapLinear</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINEAR_MIPMAP_LINEAR</span>,
+<span class="kw">impl</span> <span class="ident">ToGlEnum</span> <span class="kw">for</span> <span class="ident">MinifySamplerFilter</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">MinifySamplerFilter</span>::<span class="ident">Nearest</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">NEAREST</span>,
+            <span class="ident">MinifySamplerFilter</span>::<span class="ident">Linear</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINEAR</span>,
+            <span class="ident">MinifySamplerFilter</span>::<span class="ident">NearestMipmapNearest</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">NEAREST_MIPMAP_NEAREST</span>,
+            <span class="ident">MinifySamplerFilter</span>::<span class="ident">LinearMipmapNearest</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINEAR_MIPMAP_NEAREST</span>,
+            <span class="ident">MinifySamplerFilter</span>::<span class="ident">NearestMipmapLinear</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">NEAREST_MIPMAP_LINEAR</span>,
+            <span class="ident">MinifySamplerFilter</span>::<span class="ident">LinearMipmapLinear</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINEAR_MIPMAP_LINEAR</span>,
         }
     }
 }
 
-<span class='doccomment'>/// A sampler.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Hash</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span>: <span class='lifetime'>&#39;t</span><span class='op'>&gt;</span>(<span class='kw'>pub</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;t</span> <span class='ident'>T</span>, <span class='kw'>pub</span> <span class='ident'>SamplerBehavior</span>);
+<span class="doccomment">/// A sampler.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span>: <span class="lifetime">&#39;t</span><span class="op">&gt;</span>(<span class="kw">pub</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;t</span> <span class="ident">T</span>, <span class="kw">pub</span> <span class="ident">SamplerBehavior</span>);
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span>: <span class='lifetime'>&#39;t</span><span class='op'>&gt;</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Builds a new `Sampler` with default parameters.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>texture</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;t</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='ident'>Sampler</span>(<span class='ident'>texture</span>, <span class='ident'>Default</span>::<span class='ident'>default</span>())
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span>: <span class="lifetime">&#39;t</span><span class="op">&gt;</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Builds a new `Sampler` with default parameters.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">texture</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;t</span> <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="ident">Sampler</span>(<span class="ident">texture</span>, <span class="ident">Default</span>::<span class="ident">default</span>())
     }
 
-    <span class='doccomment'>/// Changes the wrap functions of all three coordinates.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>wrap_function</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>function</span>: <span class='ident'>SamplerWrapFunction</span>) <span class='op'>-&gt;</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='number'>1</span>.<span class='ident'>wrap_function</span> <span class='op'>=</span> (<span class='ident'>function</span>, <span class='ident'>function</span>, <span class='ident'>function</span>);
-        <span class='self'>self</span>
+    <span class="doccomment">/// Changes the wrap functions of all three coordinates.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap_function</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">function</span>: <span class="ident">SamplerWrapFunction</span>) <span class="op">-&gt;</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">wrap_function</span> <span class="op">=</span> (<span class="ident">function</span>, <span class="ident">function</span>, <span class="ident">function</span>);
+        <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Changes the minifying filter of the sampler.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>minify_filter</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>filter</span>: <span class='ident'>MinifySamplerFilter</span>) <span class='op'>-&gt;</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='number'>1</span>.<span class='ident'>minify_filter</span> <span class='op'>=</span> <span class='ident'>filter</span>;
-        <span class='self'>self</span>
+    <span class="doccomment">/// Changes the minifying filter of the sampler.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">minify_filter</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">filter</span>: <span class="ident">MinifySamplerFilter</span>) <span class="op">-&gt;</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">minify_filter</span> <span class="op">=</span> <span class="ident">filter</span>;
+        <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Changes the magnifying filter of the sampler.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>magnify_filter</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>filter</span>: <span class='ident'>MagnifySamplerFilter</span>) <span class='op'>-&gt;</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='number'>1</span>.<span class='ident'>magnify_filter</span> <span class='op'>=</span> <span class='ident'>filter</span>;
-        <span class='self'>self</span>
+    <span class="doccomment">/// Changes the magnifying filter of the sampler.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">magnify_filter</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">filter</span>: <span class="ident">MagnifySamplerFilter</span>) <span class="op">-&gt;</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">magnify_filter</span> <span class="op">=</span> <span class="ident">filter</span>;
+        <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Changes the magnifying filter of the sampler.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>anisotropy</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>level</span>: <span class='ident'>u16</span>) <span class='op'>-&gt;</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='number'>1</span>.<span class='ident'>max_anisotropy</span> <span class='op'>=</span> <span class='ident'>level</span>;
-        <span class='self'>self</span>
-    }
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span>: <span class='lifetime'>&#39;t</span><span class='op'>&gt;</span> <span class='ident'>Copy</span> <span class='kw'>for</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span>: <span class='lifetime'>&#39;t</span><span class='op'>&gt;</span> <span class='ident'>Clone</span> <span class='kw'>for</span> <span class='ident'>Sampler</span><span class='op'>&lt;</span><span class='lifetime'>&#39;t</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>clone</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
-        <span class='op'>*</span><span class='self'>self</span>
+    <span class="doccomment">/// Changes the magnifying filter of the sampler.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">anisotropy</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">level</span>: <span class="ident">u16</span>) <span class="op">-&gt;</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="number">1</span>.<span class="ident">max_anisotropy</span> <span class="op">=</span> <span class="ident">level</span>;
+        <span class="self">self</span>
     }
 }
 
-<span class='doccomment'>/// Behavior of a sampler.</span>
-<span class='comment'>// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS,</span>
-<span class='comment'>//       GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Hash</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SamplerBehavior</span> {
-    <span class='doccomment'>/// Functions to use for the X, Y, and Z coordinates.</span>
-    <span class='kw'>pub</span> <span class='ident'>wrap_function</span>: (<span class='ident'>SamplerWrapFunction</span>, <span class='ident'>SamplerWrapFunction</span>, <span class='ident'>SamplerWrapFunction</span>),
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span>: <span class="lifetime">&#39;t</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {}
 
-    <span class='doccomment'>/// Filter to use when minifying the texture.</span>
-    <span class='kw'>pub</span> <span class='ident'>minify_filter</span>: <span class='ident'>MinifySamplerFilter</span>,
-
-    <span class='doccomment'>/// Filter to use when magnifying the texture.</span>
-    <span class='kw'>pub</span> <span class='ident'>magnify_filter</span>: <span class='ident'>MagnifySamplerFilter</span>,
-
-    <span class='doccomment'>/// `1` means no anisotropic filtering, any value above `1` sets the max anisotropy.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Compatibility</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This parameter is always available. However it is ignored on hardware that does</span>
-    <span class='doccomment'>/// not support anisotropic filtering.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If you set the value to a value higher than what the hardware supports, it will</span>
-    <span class='doccomment'>/// be clamped.</span>
-    <span class='kw'>pub</span> <span class='ident'>max_anisotropy</span>: <span class='ident'>u16</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span>: <span class="lifetime">&#39;t</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">Sampler</span><span class="op">&lt;</span><span class="lifetime">&#39;t</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> {
+        <span class="kw-2">*</span><span class="self">self</span>
+    }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>SamplerBehavior</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='ident'>SamplerBehavior</span> {
-        <span class='ident'>SamplerBehavior</span> {
-            <span class='ident'>wrap_function</span>: (
-                <span class='ident'>SamplerWrapFunction</span>::<span class='ident'>Mirror</span>,
-                <span class='ident'>SamplerWrapFunction</span>::<span class='ident'>Mirror</span>,
-                <span class='ident'>SamplerWrapFunction</span>::<span class='ident'>Mirror</span>
+<span class="doccomment">/// Behavior of a sampler.</span>
+<span class="comment">// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS,</span>
+<span class="comment">//       GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Hash</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SamplerBehavior</span> {
+    <span class="doccomment">/// Functions to use for the X, Y, and Z coordinates.</span>
+    <span class="kw">pub</span> <span class="ident">wrap_function</span>: (<span class="ident">SamplerWrapFunction</span>, <span class="ident">SamplerWrapFunction</span>, <span class="ident">SamplerWrapFunction</span>),
+
+    <span class="doccomment">/// Filter to use when minifying the texture.</span>
+    <span class="kw">pub</span> <span class="ident">minify_filter</span>: <span class="ident">MinifySamplerFilter</span>,
+
+    <span class="doccomment">/// Filter to use when magnifying the texture.</span>
+    <span class="kw">pub</span> <span class="ident">magnify_filter</span>: <span class="ident">MagnifySamplerFilter</span>,
+
+    <span class="doccomment">/// `1` means no anisotropic filtering, any value above `1` sets the max anisotropy.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Compatibility</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This parameter is always available. However it is ignored on hardware that does</span>
+    <span class="doccomment">/// not support anisotropic filtering.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If you set the value to a value higher than what the hardware supports, it will</span>
+    <span class="doccomment">/// be clamped.</span>
+    <span class="kw">pub</span> <span class="ident">max_anisotropy</span>: <span class="ident">u16</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SamplerBehavior</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">SamplerBehavior</span> {
+        <span class="ident">SamplerBehavior</span> {
+            <span class="ident">wrap_function</span>: (
+                <span class="ident">SamplerWrapFunction</span>::<span class="ident">Mirror</span>,
+                <span class="ident">SamplerWrapFunction</span>::<span class="ident">Mirror</span>,
+                <span class="ident">SamplerWrapFunction</span>::<span class="ident">Mirror</span>
             ),
-            <span class='ident'>minify_filter</span>: <span class='ident'>MinifySamplerFilter</span>::<span class='ident'>LinearMipmapLinear</span>,
-            <span class='ident'>magnify_filter</span>: <span class='ident'>MagnifySamplerFilter</span>::<span class='ident'>Linear</span>,
-            <span class='ident'>max_anisotropy</span>: <span class='number'>1</span>,
+            <span class="ident">minify_filter</span>: <span class="ident">MinifySamplerFilter</span>::<span class="ident">LinearMipmapLinear</span>,
+            <span class="ident">magnify_filter</span>: <span class="ident">MagnifySamplerFilter</span>::<span class="ident">Linear</span>,
+            <span class="ident">max_anisotropy</span>: <span class="number">1</span>,
         }
     }
 }
@@ -414,12 +416,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -440,7 +446,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -451,11 +457,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

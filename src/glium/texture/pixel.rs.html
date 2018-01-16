@@ -9,13 +9,15 @@
 
     <title>pixel.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -309,273 +311,273 @@
 <span id="266">266</span>
 <span id="267">267</span>
 <span id="268">268</span>
-</pre><pre class='rust '>
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>use</span> <span class='ident'>image</span>;
+</pre><pre class="rust ">
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">use</span> <span class="ident">image</span>;
 
-<span class='doccomment'>/// A trait that must be implemented for any type that can represent the value of a pixel.</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>trait</span> <span class='ident'>PixelValue</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Clone</span> <span class='op'>+</span> <span class='ident'>Send</span> <span class='op'>+</span> <span class='lifetime'>&#39;static</span> {
-    <span class='doccomment'>/// Returns corresponding client format.</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>;
+<span class="doccomment">/// A trait that must be implemented for any type that can represent the value of a pixel.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">PixelValue</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Clone</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
+    <span class="doccomment">/// Returns corresponding client format.</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span>;
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>i8</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">i8</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i8</span>, <span class='ident'>i8</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I8I8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i8</span>, <span class="ident">i8</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I8I8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i8</span>, <span class='ident'>i8</span>, <span class='ident'>i8</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I8I8I8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I8I8I8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i8</span>, <span class='ident'>i8</span>, <span class='ident'>i8</span>, <span class='ident'>i8</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I8I8I8I8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>, <span class="ident">i8</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I8I8I8I8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>u8</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">u8</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u8</span>, <span class='ident'>u8</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8U8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u8</span>, <span class="ident">u8</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8U8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u8</span>, <span class='ident'>u8</span>, <span class='ident'>u8</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8U8U8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8U8U8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u8</span>, <span class='ident'>u8</span>, <span class='ident'>u8</span>, <span class='ident'>u8</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8U8U8U8</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>, <span class="ident">u8</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8U8U8U8</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>i16</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">i16</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i16</span>, <span class='ident'>i16</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I16I16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i16</span>, <span class="ident">i16</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I16I16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i16</span>, <span class='ident'>i16</span>, <span class='ident'>i16</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I16I16I16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I16I16I16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i16</span>, <span class='ident'>i16</span>, <span class='ident'>i16</span>, <span class='ident'>i16</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I16I16I16I16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>, <span class="ident">i16</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I16I16I16I16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>u16</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">u16</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u16</span>, <span class='ident'>u16</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U16U16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u16</span>, <span class="ident">u16</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U16U16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u16</span>, <span class='ident'>u16</span>, <span class='ident'>u16</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U16U16U16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U16U16U16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u16</span>, <span class='ident'>u16</span>, <span class='ident'>u16</span>, <span class='ident'>u16</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U16U16U16U16</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>, <span class="ident">u16</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U16U16U16U16</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>i32</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">i32</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i32</span>, <span class='ident'>i32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I32I32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i32</span>, <span class="ident">i32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I32I32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i32</span>, <span class='ident'>i32</span>, <span class='ident'>i32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I32I32I32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I32I32I32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>i32</span>, <span class='ident'>i32</span>, <span class='ident'>i32</span>, <span class='ident'>i32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>I32I32I32I32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">i32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>, <span class="ident">i32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">I32I32I32I32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>u32</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">u32</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u32</span>, <span class='ident'>u32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U32U32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u32</span>, <span class="ident">u32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U32U32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u32</span>, <span class='ident'>u32</span>, <span class='ident'>u32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U32U32U32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U32U32U32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>u32</span>, <span class='ident'>u32</span>, <span class='ident'>u32</span>, <span class='ident'>u32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U32U32U32U32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>, <span class="ident">u32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U32U32U32U32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>f32</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>F32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">f32</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">F32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>f32</span>, <span class='ident'>f32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>F32F32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">f32</span>, <span class="ident">f32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">F32F32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>f32</span>, <span class='ident'>f32</span>, <span class='ident'>f32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>F32F32F32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">f32</span>, <span class="ident">f32</span>, <span class="ident">f32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">F32F32F32</span>
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> (<span class='ident'>f32</span>, <span class='ident'>f32</span>, <span class='ident'>f32</span>, <span class='ident'>f32</span>) {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>F32F32F32F32</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> (<span class="ident">f32</span>, <span class="ident">f32</span>, <span class="ident">f32</span>, <span class="ident">f32</span>) {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">F32F32F32F32</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>Rgb</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8U8U8</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">Rgb</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8U8U8</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>Rgba</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8U8U8U8</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">Rgba</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8U8U8U8</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>Luma</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">Luma</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>Luma</span><span class='op'>&lt;</span><span class='ident'>u16</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U16</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">Luma</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U16</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>Luma</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>F32</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">Luma</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">F32</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>LumaA</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U8U8</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">LumaA</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U8U8</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>LumaA</span><span class='op'>&lt;</span><span class='ident'>u16</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>U16U16</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">LumaA</span><span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">U16U16</span>
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;image&quot;</span>)]</span>
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>PixelValue</span> <span class='kw'>for</span> <span class='ident'>image</span>::<span class='ident'>LumaA</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_format</span>() <span class='op'>-&gt;</span> <span class='ident'>super</span>::<span class='ident'>ClientFormat</span> {
-        <span class='ident'>super</span>::<span class='ident'>ClientFormat</span>::<span class='ident'>F32F32</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;image&quot;</span>)]</span>
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">PixelValue</span> <span class="kw">for</span> <span class="ident">image</span>::<span class="ident">LumaA</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_format</span>() <span class="op">-&gt;</span> <span class="kw">super</span>::<span class="ident">ClientFormat</span> {
+        <span class="kw">super</span>::<span class="ident">ClientFormat</span>::<span class="ident">F32F32</span>
     }
 }
 </pre>
@@ -596,12 +598,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -622,7 +628,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -633,11 +639,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

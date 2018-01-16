@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/backtrace-sys-0.1.3/src/lib.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/backtrace-sys-0.1.16/src/lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -82,47 +84,53 @@
 <span id="39">39</span>
 <span id="40">40</span>
 <span id="41">41</span>
-</pre><pre class='rust '>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>bad_style</span>)]</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+</pre><pre class="rust ">
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">bad_style</span>)]</span>
 
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libc</span>;
 
-<span class='kw'>use</span> <span class='ident'>libc</span>::<span class='ident'>uintptr_t</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>os</span>::<span class='ident'>raw</span>::{<span class='ident'>c_void</span>, <span class='ident'>c_char</span>, <span class='ident'>c_int</span>};
+<span class="kw">use</span> <span class="ident">libc</span>::<span class="ident">uintptr_t</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::{<span class="ident">c_void</span>, <span class="ident">c_char</span>, <span class="ident">c_int</span>};
 
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>backtrace_syminfo_callback</span> <span class='op'>=</span>
-    <span class='kw'>extern</span> <span class='kw'>fn</span>(<span class='ident'>data</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>,
-              <span class='ident'>pc</span>: <span class='ident'>uintptr_t</span>,
-              <span class='ident'>symname</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>,
-              <span class='ident'>symval</span>: <span class='ident'>uintptr_t</span>,
-              <span class='ident'>symsize</span>: <span class='ident'>uintptr_t</span>);
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>backtrace_full_callback</span> <span class='op'>=</span>
-    <span class='kw'>extern</span> <span class='kw'>fn</span>(<span class='ident'>data</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>,
-              <span class='ident'>pc</span>: <span class='ident'>uintptr_t</span>,
-              <span class='ident'>filename</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>,
-              <span class='ident'>lineno</span>: <span class='ident'>c_int</span>,
-              <span class='ident'>function</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>backtrace_error_callback</span> <span class='op'>=</span>
-    <span class='kw'>extern</span> <span class='kw'>fn</span>(<span class='ident'>data</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>,
-              <span class='ident'>msg</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>,
-              <span class='ident'>errnum</span>: <span class='ident'>c_int</span>);
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>backtrace_state</span> {}
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">backtrace_syminfo_callback</span> <span class="op">=</span>
+    <span class="kw">extern</span> <span class="kw">fn</span>(<span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+              <span class="ident">pc</span>: <span class="ident">uintptr_t</span>,
+              <span class="ident">symname</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+              <span class="ident">symval</span>: <span class="ident">uintptr_t</span>,
+              <span class="ident">symsize</span>: <span class="ident">uintptr_t</span>);
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">backtrace_full_callback</span> <span class="op">=</span>
+    <span class="kw">extern</span> <span class="kw">fn</span>(<span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+              <span class="ident">pc</span>: <span class="ident">uintptr_t</span>,
+              <span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+              <span class="ident">lineno</span>: <span class="ident">c_int</span>,
+              <span class="ident">function</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">backtrace_error_callback</span> <span class="op">=</span>
+    <span class="kw">extern</span> <span class="kw">fn</span>(<span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+              <span class="ident">msg</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+              <span class="ident">errnum</span>: <span class="ident">c_int</span>);
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">backtrace_state</span> {}
 
-<span class='kw'>extern</span> {
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>backtrace_create_state</span>(<span class='ident'>filename</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>,
-                                  <span class='ident'>threaded</span>: <span class='ident'>c_int</span>,
-                                  <span class='ident'>error</span>: <span class='ident'>backtrace_error_callback</span>,
-                                  <span class='ident'>data</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>backtrace_state</span>;
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>backtrace_syminfo</span>(<span class='ident'>state</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>backtrace_state</span>,
-                             <span class='ident'>addr</span>: <span class='ident'>uintptr_t</span>,
-                             <span class='ident'>cb</span>: <span class='ident'>backtrace_syminfo_callback</span>,
-                             <span class='ident'>error</span>: <span class='ident'>backtrace_error_callback</span>,
-                             <span class='ident'>data</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>backtrace_pcinfo</span>(<span class='ident'>state</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>backtrace_state</span>,
-                            <span class='ident'>addr</span>: <span class='ident'>uintptr_t</span>,
-                            <span class='ident'>cb</span>: <span class='ident'>backtrace_full_callback</span>,
-                            <span class='ident'>error</span>: <span class='ident'>backtrace_error_callback</span>,
-                            <span class='ident'>data</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>;
+<span class="kw">extern</span> {
+    <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;__rbt_backtrace_create_state&quot;</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">backtrace_create_state</span>(<span class="ident">filename</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+                                  <span class="ident">threaded</span>: <span class="ident">c_int</span>,
+                                  <span class="ident">error</span>: <span class="ident">backtrace_error_callback</span>,
+                                  <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">backtrace_state</span>;
+    <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;__rbt_backtrace_syminfo&quot;</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">backtrace_syminfo</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">backtrace_state</span>,
+                             <span class="ident">addr</span>: <span class="ident">uintptr_t</span>,
+                             <span class="ident">cb</span>: <span class="ident">backtrace_syminfo_callback</span>,
+                             <span class="ident">error</span>: <span class="ident">backtrace_error_callback</span>,
+                             <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>;
+    <span class="attribute">#[<span class="ident">link_name</span> <span class="op">=</span> <span class="string">&quot;__rbt_backtrace_pcinfo&quot;</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">backtrace_pcinfo</span>(<span class="ident">state</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">backtrace_state</span>,
+                            <span class="ident">addr</span>: <span class="ident">uintptr_t</span>,
+                            <span class="ident">cb</span>: <span class="ident">backtrace_full_callback</span>,
+                            <span class="ident">error</span>: <span class="ident">backtrace_error_callback</span>,
+                            <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>;
 }
 </pre>
 </section>
@@ -142,12 +150,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -168,7 +180,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -179,11 +191,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "backtrace_sys";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

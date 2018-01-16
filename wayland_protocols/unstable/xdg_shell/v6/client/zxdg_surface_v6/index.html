@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `zxdg_surface_v6` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, zxdg_surface_v6">
+
+    <title>wayland_protocols::unstable::xdg_shell::v6::client::zxdg_surface_v6 - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module zxdg_surface_v6</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><p class='location'><a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>xdg_shell</a>::<wbr><a href='../../index.html'>v6</a>::<wbr><a href='../index.html'>client</a></p><script>window.sidebarCurrent = {name: 'zxdg_surface_v6', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>xdg_shell</a>::<wbr><a href='../../index.html'>v6</a>::<wbr><a href='../index.html'>client</a>::<wbr><a class="mod" href=''>zxdg_surface_v6</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/xdg-shell-v6_client_api.rs.html#678-995' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>desktop user interface surface base interface</p>
+
+<p>An interface that may be implemented by a wl_surface, for
+implementations that provide a desktop-style user interface.</p>
+
+<p>It provides a base set of functionality required to construct user
+interface elements requiring management by the compositor, such as
+toplevel windows, menus, etc. The types of functionality are split into
+xdg_surface roles.</p>
+
+<p>Creating an xdg_surface does not set the role for a wl_surface. In order
+to map an xdg_surface, the client must create a role-specific object
+using, e.g., get_toplevel, get_popup. The wl_surface for any given
+xdg_surface can have at most one role, and may not be assigned any role
+not based on xdg_surface.</p>
+
+<p>A role must be assigned before any other requests are made to the
+xdg_surface object.</p>
+
+<p>The client must call wl_surface.commit on the corresponding wl_surface
+for the xdg_surface state to take effect.</p>
+
+<p>Creating an xdg_surface from a wl_surface which has a buffer attached or
+committed is a client error, and any attempts by a client to attach or
+manipulate a buffer prior to the first xdg_surface.configure call must
+also be treated as errors.</p>
+
+<p>For a surface to be mapped by the compositor, the following conditions
+must be met: (1) the client has assigned a xdg_surface based role to the
+surface, (2) the client has set and committed the xdg_surface state and
+the role dependent state to the surface and (3) the client has committed a
+buffer to the surface.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Implementation.html"
+                                  title='struct wayland_protocols::unstable::xdg_shell::v6::client::zxdg_surface_v6::Implementation'>Implementation</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ZxdgSurfaceV6.html"
+                                  title='struct wayland_protocols::unstable::xdg_shell::v6::client::zxdg_surface_v6::ZxdgSurfaceV6'>ZxdgSurfaceV6</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Error.html"
+                                  title='enum wayland_protocols::unstable::xdg_shell::v6::client::zxdg_surface_v6::Error'>Error</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../../../main.js"></script>
+    <script defer src="../../../../../../search-index.js"></script>
+</body>
+</html>

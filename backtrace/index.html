@@ -9,13 +9,15 @@
 
     <title>backtrace - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'backtrace', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate backtrace</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'backtrace', ty: 'mod', relpath: '../'};</script>
     </nav>
 
     <nav class="sub">
@@ -41,12 +43,12 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>backtrace</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='../src/backtrace/lib.rs.html#1-159' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>backtrace</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/backtrace/lib.rs.html#1-177' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>A library for acquiring a backtrace at runtime</p>
 
 <p>This library is meant to supplement the <code>RUST_BACKTRACE=1</code> support of the
@@ -58,8 +60,8 @@ implementations.</p>
 <h1 id='implementation' class='section-header'><a href='#implementation'>Implementation</a></h1>
 <p>This library makes use of a number of strategies for actually acquiring a
 backtrace. For example unix uses libgcc&#39;s libunwind bindings by default to
-acquir a backtrace, but dladdr is used on OSX to acquire symbol names while
-linux uses gcc&#39;s libbacktrace.</p>
+acquire a backtrace, but coresymbolication or dladdr is used on OSX to
+acquire symbol names while linux uses gcc&#39;s libbacktrace.</p>
 
 <p>When using the default feature set of this library the &quot;most reasonable&quot; set
 of defaults is chosen for the current platform, but the features activated
@@ -71,7 +73,7 @@ it may work on other platforms as well. Note that the quality of the
 backtrace may vary across platforms.</p>
 
 <h1 id='api-principles' class='section-header'><a href='#api-principles'>API Principles</a></h1>
-<p>This library attempts to be as flexible as possible to accomodate different
+<p>This library attempts to be as flexible as possible to accommodate different
 backend implementations of acquiring a backtrace. Consequently the currently
 exported functions are closure-based as opposed to the likely expected
 iterator-based versions. This is done due to limitations of the underlying
@@ -81,82 +83,95 @@ APIs used from the system.</p>
 <p>First, add this to your Cargo.toml</p>
 
 <pre><code class="language-toml">[dependencies]
-backtrace = &quot;0.1&quot;
+backtrace = &quot;0.2&quot;
 </code></pre>
 
 <p>Next:</p>
-<pre class='rust rust-example-rendered'>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>backtrace</span>;
 
-<span class='kw'>fn</span> <span class='ident'>main</span>() {
-    <span class='ident'>backtrace</span>::<span class='ident'>trace</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>|</span><span class='ident'>frame</span><span class='op'>|</span> {
-        <span class='kw'>let</span> <span class='ident'>ip</span> <span class='op'>=</span> <span class='ident'>frame</span>.<span class='ident'>ip</span>();
-        <span class='kw'>let</span> <span class='ident'>symbol_address</span> <span class='op'>=</span> <span class='ident'>frame</span>.<span class='ident'>symbol_address</span>();
+<pre class="rust rust-example-rendered">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">backtrace</span>;
 
-        <span class='comment'>// Resolve this instruction pointer to a symbol name</span>
-        <span class='ident'>backtrace</span>::<span class='ident'>resolve</span>(<span class='ident'>ip</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>|</span><span class='ident'>symbol</span><span class='op'>|</span> {
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>name</span>) <span class='op'>=</span> <span class='ident'>symbol</span>.<span class='ident'>name</span>() {
-                <span class='comment'>// ...</span>
+<span class="kw">fn</span> <span class="ident">main</span>() {
+    <span class="ident">backtrace</span>::<span class="ident">trace</span>(<span class="op">|</span><span class="ident">frame</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">ip</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">ip</span>();
+        <span class="kw">let</span> <span class="ident">symbol_address</span> <span class="op">=</span> <span class="ident">frame</span>.<span class="ident">symbol_address</span>();
+
+        <span class="comment">// Resolve this instruction pointer to a symbol name</span>
+        <span class="ident">backtrace</span>::<span class="ident">resolve</span>(<span class="ident">ip</span>, <span class="op">|</span><span class="ident">symbol</span><span class="op">|</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">name</span>) <span class="op">=</span> <span class="ident">symbol</span>.<span class="ident">name</span>() {
+                <span class="comment">// ...</span>
             }
-            <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>filename</span>) <span class='op'>=</span> <span class='ident'>symbol</span>.<span class='ident'>filename</span>() {
-                <span class='comment'>// ...</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">filename</span>) <span class="op">=</span> <span class="ident">symbol</span>.<span class="ident">filename</span>() {
+                <span class="comment">// ...</span>
             }
         });
 
-        <span class='boolval'>true</span> <span class='comment'>// keep going to the next frame</span>
+        <span class="bool-val">true</span> <span class="comment">// keep going to the next frame</span>
     });
 }</pre>
-</div><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.Frame.html'
-                               title='backtrace::Frame'>Frame</a></td>
-                        <td class='docblock short'>
-                             <p>A trait representing one frame of a backtrace, yielded to the <code>trace</code>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Backtrace.html"
+                                  title='struct backtrace::Backtrace'>Backtrace</a></td>
+                           <td class='docblock-short'>
+                                <p>Representation of an owned and self-contained backtrace.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.BacktraceFrame.html"
+                                  title='struct backtrace::BacktraceFrame'>BacktraceFrame</a></td>
+                           <td class='docblock-short'>
+                                <p>Captured version of a frame in a backtrace.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.BacktraceSymbol.html"
+                                  title='struct backtrace::BacktraceSymbol'>BacktraceSymbol</a></td>
+                           <td class='docblock-short'>
+                                <p>Captured version of a symbol in a backtrace.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Frame.html"
+                                  title='struct backtrace::Frame'>Frame</a></td>
+                           <td class='docblock-short'>
+                                <p>A trait representing one frame of a backtrace, yielded to the <code>trace</code>
 function of this crate.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.Symbol.html'
-                               title='backtrace::Symbol'>Symbol</a></td>
-                        <td class='docblock short'>
-                             <p>A trait representing the resolution of a symbol in a file.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Symbol.html"
+                                  title='struct backtrace::Symbol'>Symbol</a></td>
+                           <td class='docblock-short'>
+                                <p>A trait representing the resolution of a symbol in a file.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SymbolName.html"
+                                  title='struct backtrace::SymbolName'>SymbolName</a></td>
+                           <td class='docblock-short'>
+                                <p>A wrapper around a symbol name to provide ergonomic accessors to the
+demangled name, the raw bytes, the raw string, etc.</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.demangle.html'
-                               title='backtrace::demangle'>demangle</a></td>
-                        <td class='docblock short'>
-                             <p>De-mangles a Rust symbol into a more readable version</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.resolve.html'
-                               title='backtrace::resolve'>resolve</a></td>
-                        <td class='docblock short'>
-                             <p>Resolve an address to a symbol, passing the symbol to the specified
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.resolve.html"
+                                  title='fn backtrace::resolve'>resolve</a></td>
+                           <td class='docblock-short'>
+                                <p>Resolve an address to a symbol, passing the symbol to the specified
 closure.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.trace.html'
-                               title='backtrace::trace'>trace</a></td>
-                        <td class='docblock short'>
-                             <p>Inspects the current call-stack, passing all active frames into the closure
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.trace.html"
+                                  title='fn backtrace::trace'>trace</a></td>
+                           <td class='docblock-short'>
+                                <p>Inspects the current call-stack, passing all active frames into the closure
 provided to calculate a stack trace.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -173,12 +188,16 @@ provided to calculate a stack trace.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -199,7 +218,7 @@ provided to calculate a stack trace.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -210,11 +229,8 @@ provided to calculate a stack trace.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "backtrace";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

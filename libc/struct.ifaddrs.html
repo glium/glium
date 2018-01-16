@@ -9,13 +9,15 @@
 
     <title>libc::ifaddrs - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     <link rel="shortcut icon" href="https://doc.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,8 +28,8 @@
     
 
     <nav class="sidebar">
-        <a href='../libc/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='' width='100'></a>
-        <p class='location'><a href='index.html'>libc</a></p><script>window.sidebarCurrent = {name: 'ifaddrs', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <a href='../libc/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a>
+        <p class='location'>Struct ifaddrs</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.ifa_next">ifa_next</a><a href="#structfield.ifa_name">ifa_name</a><a href="#structfield.ifa_flags">ifa_flags</a><a href="#structfield.ifa_addr">ifa_addr</a><a href="#structfield.ifa_netmask">ifa_netmask</a><a href="#structfield.ifa_ifu">ifa_ifu</a><a href="#structfield.ifa_data">ifa_data</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a></div></div><p class='location'><a href='index.html'>libc</a></p><script>window.sidebarCurrent = {name: 'ifaddrs', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,31 +43,61 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>libc</a>::<wbr><a class='struct' href=''>ifaddrs</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1268' class='srclink' href='../src/libc/macros.rs.html#41' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct ifaddrs {
-    pub ifa_next: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../libc/struct.ifaddrs.html' title='libc::ifaddrs'>ifaddrs</a></a>,
-    pub ifa_name: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='type' href='../libc/type.c_char.html' title='libc::c_char'>c_char</a></a>,
-    pub ifa_flags: <a class='type' href='../libc/type.c_uint.html' title='libc::c_uint'>c_uint</a>,
-    pub ifa_addr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../libc/struct.sockaddr.html' title='libc::sockaddr'>sockaddr</a></a>,
-    pub ifa_netmask: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../libc/struct.sockaddr.html' title='libc::sockaddr'>sockaddr</a></a>,
-    pub ifa_ifu: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../libc/struct.sockaddr.html' title='libc::sockaddr'>sockaddr</a></a>,
-    pub ifa_data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a>,
-}</pre><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.ifa_next'><code>ifa_next</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.ifa_name'><code>ifa_name</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.ifa_flags'><code>ifa_flags</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.ifa_addr'><code>ifa_addr</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.ifa_netmask'><code>ifa_netmask</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.ifa_ifu'><code>ifa_ifu</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.ifa_data'><code>ifa_data</code></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../libc/struct.ifaddrs.html' title='libc::ifaddrs'>ifaddrs</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='../core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../libc/struct.ifaddrs.html' title='libc::ifaddrs'>ifaddrs</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='../core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../libc/struct.ifaddrs.html' title='libc::ifaddrs'>ifaddrs</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='../core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>libc</a>::<wbr><a class="struct" href=''>ifaddrs</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/libc/macros.rs.html#42' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C)]
+</div>pub struct ifaddrs {
+    pub ifa_next: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.ifaddrs.html" title="struct libc::ifaddrs">ifaddrs</a>,
+    pub ifa_name: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../libc/type.c_char.html" title="type libc::c_char">c_char</a>,
+    pub ifa_flags: <a class="type" href="../libc/type.c_uint.html" title="type libc::c_uint">c_uint</a>,
+    pub ifa_addr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.sockaddr.html" title="struct libc::sockaddr">sockaddr</a>,
+    pub ifa_netmask: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.sockaddr.html" title="struct libc::sockaddr">sockaddr</a>,
+    pub ifa_ifu: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.sockaddr.html" title="struct libc::sockaddr">sockaddr</a>,
+    pub ifa_data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../libc/enum.c_void.html" title="enum libc::c_void">c_void</a>,
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.ifa_next" class="structfield small-section-header">
+                           <a href="#structfield.ifa_next" class="anchor field"></a>
+                           <span id="ifa_next.v" class='invisible'>
+                           <code>ifa_next: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.ifaddrs.html" title="struct libc::ifaddrs">ifaddrs</a></code>
+                           </span></span><span id="structfield.ifa_name" class="structfield small-section-header">
+                           <a href="#structfield.ifa_name" class="anchor field"></a>
+                           <span id="ifa_name.v" class='invisible'>
+                           <code>ifa_name: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../libc/type.c_char.html" title="type libc::c_char">c_char</a></code>
+                           </span></span><span id="structfield.ifa_flags" class="structfield small-section-header">
+                           <a href="#structfield.ifa_flags" class="anchor field"></a>
+                           <span id="ifa_flags.v" class='invisible'>
+                           <code>ifa_flags: <a class="type" href="../libc/type.c_uint.html" title="type libc::c_uint">c_uint</a></code>
+                           </span></span><span id="structfield.ifa_addr" class="structfield small-section-header">
+                           <a href="#structfield.ifa_addr" class="anchor field"></a>
+                           <span id="ifa_addr.v" class='invisible'>
+                           <code>ifa_addr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.sockaddr.html" title="struct libc::sockaddr">sockaddr</a></code>
+                           </span></span><span id="structfield.ifa_netmask" class="structfield small-section-header">
+                           <a href="#structfield.ifa_netmask" class="anchor field"></a>
+                           <span id="ifa_netmask.v" class='invisible'>
+                           <code>ifa_netmask: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.sockaddr.html" title="struct libc::sockaddr">sockaddr</a></code>
+                           </span></span><span id="structfield.ifa_ifu" class="structfield small-section-header">
+                           <a href="#structfield.ifa_ifu" class="anchor field"></a>
+                           <span id="ifa_ifu.v" class='invisible'>
+                           <code>ifa_ifu: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../libc/struct.sockaddr.html" title="struct libc::sockaddr">sockaddr</a></code>
+                           </span></span><span id="structfield.ifa_data" class="structfield small-section-header">
+                           <a href="#structfield.ifa_data" class="anchor field"></a>
+                           <span id="ifa_data.v" class='invisible'>
+                           <code>ifa_data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../libc/enum.c_void.html" title="enum libc::c_void">c_void</a></code>
+                           </span></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../libc/struct.ifaddrs.html" title="struct libc::ifaddrs">ifaddrs</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/libc/macros.rs.html#44' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../libc/struct.ifaddrs.html" title="struct libc::ifaddrs">ifaddrs</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/libc/macros.rs.html#45-47' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../libc/struct.ifaddrs.html" title="struct libc::ifaddrs">ifaddrs</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/libc/macros.rs.html#46' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -82,12 +114,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -108,7 +144,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -119,11 +155,8 @@
     <script>
         window.rootPath = "../";
         window.currentCrate = "libc";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

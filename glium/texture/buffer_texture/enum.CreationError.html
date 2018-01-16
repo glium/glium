@@ -9,13 +9,15 @@
 
     <title>glium::texture::buffer_texture::CreationError - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>buffer_texture</a></p><script>window.sidebarCurrent = {name: 'CreationError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum CreationError</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.BufferCreationError">BufferCreationError</a><a href="#variant.TextureCreationError">TextureCreationError</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-Display">Display</a><a href="#impl-Error">Error</a><a href="#impl-From%3CBufferCreationError%3E">From&lt;BufferCreationError&gt;</a><a href="#impl-From%3CTextureCreationError%3E">From&lt;TextureCreationError&gt;</a></div></div><p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>buffer_texture</a></p><script>window.sidebarCurrent = {name: 'CreationError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,25 +43,48 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>buffer_texture</a>::<wbr><a class='enum' href=''>CreationError</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-10136' class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#95-101' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>buffer_texture</a>::<wbr><a class="enum" href=''>CreationError</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#117-123' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum CreationError {
-    BufferCreationError(<a class='enum' href='../../../glium/buffer/enum.BufferCreationError.html' title='glium::buffer::BufferCreationError'>BufferCreationError</a>),
-    TextureCreationError(<a class='enum' href='../../../glium/texture/buffer_texture/enum.TextureCreationError.html' title='glium::texture::buffer_texture::TextureCreationError'>TextureCreationError</a>),
+    BufferCreationError(<a class="enum" href="../../../glium/buffer/enum.BufferCreationError.html" title="enum glium::buffer::BufferCreationError">BufferCreationError</a>),
+    TextureCreationError(<a class="enum" href="../../../glium/texture/buffer_texture/enum.TextureCreationError.html" title="enum glium::texture::buffer_texture::TextureCreationError">TextureCreationError</a>),
 }</pre><div class='docblock'><p>Error that can happen while building a buffer texture.</p>
-</div><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.BufferCreationError'><code>BufferCreationError</code></td><td><div class='docblock'><p>Failed to create the buffer.</p>
-</div></td></tr><tr><td id='variant.TextureCreationError'><code>TextureCreationError</code></td><td><div class='docblock'><p>Failed to create the texture.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html' title='core::convert::From'>From</a>&lt;<a class='enum' href='../../../glium/buffer/enum.BufferCreationError.html' title='glium::buffer::BufferCreationError'>BufferCreationError</a>&gt; for <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h3><div class='impl-items'><h4 id='method.from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#method.from' class='fnname'>from</a>(err: <a class='enum' href='../../../glium/buffer/enum.BufferCreationError.html' title='glium::buffer::BufferCreationError'>BufferCreationError</a>) -&gt; <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html' title='core::convert::From'>From</a>&lt;<a class='enum' href='../../../glium/texture/buffer_texture/enum.TextureCreationError.html' title='glium::texture::buffer_texture::TextureCreationError'>TextureCreationError</a>&gt; for <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h3><div class='impl-items'><h4 id='method.from-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#method.from' class='fnname'>from</a>(err: <a class='enum' href='../../../glium/texture/buffer_texture/enum.TextureCreationError.html' title='glium::texture::buffer_texture::TextureCreationError'>TextureCreationError</a>) -&gt; <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../../glium/texture/buffer_texture/enum.CreationError.html' title='glium::texture::buffer_texture::CreationError'>CreationError</a></code></h3><div class='impl-items'></div></section>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.BufferCreationError" class="variant small-section-header"><a href="#variant.BufferCreationError" class="anchor field"></a><span id='BufferCreationError.v' class='invisible'><code>BufferCreationError(<a class="enum" href="../../../glium/buffer/enum.BufferCreationError.html" title="enum glium::buffer::BufferCreationError">BufferCreationError</a>)</code></span></span><div class='docblock'><p>Failed to create the buffer.</p>
+</div><span id="variant.TextureCreationError" class="variant small-section-header"><a href="#variant.TextureCreationError" class="anchor field"></a><span id='TextureCreationError.v' class='invisible'><code>TextureCreationError(<a class="enum" href="../../../glium/texture/buffer_texture/enum.TextureCreationError.html" title="enum glium::texture::buffer_texture::TextureCreationError">TextureCreationError</a>)</code></span></span><div class='docblock'><p>Failed to create the texture.</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#116' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#116' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#116' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#116' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#116' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Display' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code><a href='#impl-Display' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#125-129' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class="method"><span id='fmt.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#126-128' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Error' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> for <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code><a href='#impl-Error' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#131-149' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.description' class="method"><span id='description.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description' class='fnname'>description</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#132-140' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>A short description of the error. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description">Read more</a></p>
+</div><h4 id='method.cause' class="method"><span id='cause.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause' class='fnname'>cause</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#142-148' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The lower-level cause of this error, if any. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause">Read more</a></p>
+</div></div><h3 id='impl-From%3CBufferCreationError%3E' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="enum" href="../../../glium/buffer/enum.BufferCreationError.html" title="enum glium::buffer::BufferCreationError">BufferCreationError</a>&gt; for <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code><a href='#impl-From%3CBufferCreationError%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#151-156' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from' class="method"><span id='from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(err: <a class="enum" href="../../../glium/buffer/enum.BufferCreationError.html" title="enum glium::buffer::BufferCreationError">BufferCreationError</a>) -&gt; <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#153-155' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 id='impl-From%3CTextureCreationError%3E' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="enum" href="../../../glium/texture/buffer_texture/enum.TextureCreationError.html" title="enum glium::texture::buffer_texture::TextureCreationError">TextureCreationError</a>&gt; for <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code><a href='#impl-From%3CTextureCreationError%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#158-163' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from-1' class="method"><span id='from.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(err: <a class="enum" href="../../../glium/texture/buffer_texture/enum.TextureCreationError.html" title="enum glium::texture::buffer_texture::TextureCreationError">TextureCreationError</a>) -&gt; <a class="enum" href="../../../glium/texture/buffer_texture/enum.CreationError.html" title="enum glium::texture::buffer_texture::CreationError">CreationError</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#160-162' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -76,12 +101,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -102,7 +131,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -113,11 +142,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

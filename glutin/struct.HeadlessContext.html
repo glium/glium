@@ -9,13 +9,15 @@
 
     <title>glutin::HeadlessContext - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'HeadlessContext', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct HeadlessContext</p><div class="block items"><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-GlContext">GlContext</a><a href="#impl-GlContextExt">GlContextExt</a></div></div><p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'HeadlessContext', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,36 +43,43 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glutin</a>::<wbr><a class='struct' href=''>HeadlessContext</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-4968' class='srclink' href='../src/glutin/headless.rs.html#81-83' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct HeadlessContext {
-    // some fields omitted
-}</pre><div class='docblock'><p>Represents a headless OpenGL context.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../glutin/struct.HeadlessContext.html' title='glutin::HeadlessContext'>HeadlessContext</a></code></h3><div class='impl-items'><h4 id='method.make_current' class='method'><code>unsafe fn <a href='#method.make_current' class='fnname'>make_current</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glutin/enum.ContextError.html' title='glutin::ContextError'>ContextError</a>&gt;</code></h4>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glutin</a>::<wbr><a class="struct" href=''>HeadlessContext</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/glutin/headless.rs.html#98-100' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct HeadlessContext { /* fields omitted */ }</pre><div class='docblock'><p>Represents a headless OpenGL context.</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-GlContext' class='impl'><span class='in-band'><code>impl <a class="trait" href="../glutin/trait.GlContext.html" title="trait glutin::GlContext">GlContext</a> for <a class="struct" href="../glutin/struct.HeadlessContext.html" title="struct glutin::HeadlessContext">HeadlessContext</a></code><a href='#impl-GlContext' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#102-147' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.make_current' class="method"><span id='make_current.v' class='invisible'><code>unsafe fn <a href='../glutin/trait.GlContext.html#tymethod.make_current' class='fnname'>make_current</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="enum" href="../glutin/enum.ContextError.html" title="enum glutin::ContextError">ContextError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#106-108' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Creates a new OpenGL context
 Sets the context as the current context.</p>
-</div><h4 id='method.is_current' class='method'><code>fn <a href='#method.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+</div><h4 id='method.is_current' class="method"><span id='is_current.v' class='invisible'><code>fn <a href='../glutin/trait.GlContext.html#tymethod.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns true if this context is the current one in this thread.</p>
-</div><h4 id='method.get_proc_address' class='method'><code>fn <a href='#method.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, addr: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a></code></h4>
+</div><h4 id='method.get_proc_address' class="method"><span id='get_proc_address.v' class='invisible'><code>fn <a href='../glutin/trait.GlContext.html#tymethod.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, addr: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#120-122' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the address of an OpenGL function.</p>
 
 <p>Contrary to <code>wglGetProcAddress</code>, all available OpenGL functions return an address.</p>
-</div><h4 id='method.get_api' class='method'><code>fn <a href='#method.get_api' class='fnname'>get_api</a>(&amp;self) -&gt; <a class='enum' href='../glutin/enum.Api.html' title='glutin::Api'>Api</a></code></h4>
+</div><h4 id='method.get_api' class="method"><span id='get_api.v' class='invisible'><code>fn <a href='../glutin/trait.GlContext.html#tymethod.get_api' class='fnname'>get_api</a>(&amp;self) -&gt; <a class="enum" href="../glutin/enum.Api.html" title="enum glutin::Api">Api</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#128-130' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the API that is currently provided by this window.</p>
 
 <p>See <code>Window::get_api</code> for more infos.</p>
-</div><h4 id='method.set_window_resize_callback' class='method'><code>fn <a href='#method.set_window_resize_callback' class='fnname'>set_window_resize_callback</a>(&amp;mut self, _: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;fn(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>)&gt;)</code></h4>
-</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../glutin/trait.GlContext.html' title='glutin::GlContext'>GlContext</a> for <a class='struct' href='../glutin/struct.HeadlessContext.html' title='glutin::HeadlessContext'>HeadlessContext</a></code></h3><div class='impl-items'><h4 id='method.make_current-1' class='method'><code>unsafe fn <a href='../glutin/trait.GlContext.html#method.make_current' class='fnname'>make_current</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glutin/enum.ContextError.html' title='glutin::ContextError'>ContextError</a>&gt;</code></h4>
-<h4 id='method.is_current-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.get_proc_address-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, addr: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a></code></h4>
-<h4 id='method.swap_buffers' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.swap_buffers' class='fnname'>swap_buffers</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../glutin/enum.ContextError.html' title='glutin::ContextError'>ContextError</a>&gt;</code></h4>
-<h4 id='method.get_api-1' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.get_api' class='fnname'>get_api</a>(&amp;self) -&gt; <a class='enum' href='../glutin/enum.Api.html' title='glutin::Api'>Api</a></code></h4>
-<h4 id='method.get_pixel_format' class='method'><code>fn <a href='../glutin/trait.GlContext.html#method.get_pixel_format' class='fnname'>get_pixel_format</a>(&amp;self) -&gt; <a class='struct' href='../glutin/struct.PixelFormat.html' title='glutin::PixelFormat'>PixelFormat</a></code></h4>
-</div></section>
+</div><h4 id='method.swap_buffers' class="method"><span id='swap_buffers.v' class='invisible'><code>fn <a href='../glutin/trait.GlContext.html#tymethod.swap_buffers' class='fnname'>swap_buffers</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="enum" href="../glutin/enum.ContextError.html" title="enum glutin::ContextError">ContextError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#133-135' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Swaps the buffers in case of double or triple buffering. <a href="../glutin/trait.GlContext.html#tymethod.swap_buffers">Read more</a></p>
+</div><h4 id='method.get_pixel_format' class="method"><span id='get_pixel_format.v' class='invisible'><code>fn <a href='../glutin/trait.GlContext.html#tymethod.get_pixel_format' class='fnname'>get_pixel_format</a>(&amp;self) -&gt; <a class="struct" href="../glutin/struct.PixelFormat.html" title="struct glutin::PixelFormat">PixelFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#138-140' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the pixel format of the main framebuffer of the context.</p>
+</div><h4 id='method.resize' class="method"><span id='resize.v' class='invisible'><code>fn <a href='../glutin/trait.GlContext.html#tymethod.resize' class='fnname'>resize</a>(&amp;self, _width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, _height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/headless.rs.html#143-146' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Resize the GL context. <a href="../glutin/trait.GlContext.html#tymethod.resize">Read more</a></p>
+</div></div><h3 id='impl-GlContextExt' class='impl'><span class='in-band'><code>impl <a class="trait" href="../glutin/os/trait.GlContextExt.html" title="trait glutin::os::GlContextExt">GlContextExt</a> for <a class="struct" href="../glutin/struct.HeadlessContext.html" title="struct glutin::HeadlessContext">HeadlessContext</a></code><a href='#impl-GlContextExt' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/os/unix.rs.html#27-34' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Handle' class="type"><span id='Handle.t' class='invisible'><code>type <a href='../glutin/os/trait.GlContextExt.html#associatedtype.Handle' class="type">Handle</a> = <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a></code></span></h4>
+<div class='docblock'><p>Raw context handle.</p>
+</div><h4 id='method.raw_handle' class="method"><span id='raw_handle.v' class='invisible'><code>unsafe fn <a href='../glutin/os/trait.GlContextExt.html#tymethod.raw_handle' class='fnname'>raw_handle</a>(&amp;self) -&gt; Self::<a class="type" href="../glutin/os/trait.GlContextExt.html#associatedtype.Handle" title="type glutin::os::GlContextExt::Handle">Handle</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glutin/os/unix.rs.html#31-33' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the raw context handle.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -87,12 +96,16 @@ Sets the context as the current context.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -113,7 +126,7 @@ Sets the context as the current context.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -124,11 +137,8 @@ Sets the context as the current context.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "glutin";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

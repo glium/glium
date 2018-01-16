@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/rand-0.3.12/src/distributions/mod.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/rand-0.3.20/src/distributions/mod.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     <link rel="shortcut icon" href="https://www.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +28,7 @@
     
 
     <nav class="sidebar">
-        <a href='../../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='' width='100'></a>
+        <a href='../../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='logo' width='100'></a>
         
     </nav>
 
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -442,412 +444,406 @@
 <span id="399">399</span>
 <span id="400">400</span>
 <span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-</pre><pre class='rust '>
-<span class='comment'>// Copyright 2013 The Rust Project Developers. See the COPYRIGHT</span>
-<span class='comment'>// file at the top-level directory of this distribution and at</span>
-<span class='comment'>// http://rust-lang.org/COPYRIGHT.</span>
-<span class='comment'>//</span>
-<span class='comment'>// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
-<span class='comment'>// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
-<span class='comment'>// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
-<span class='comment'>// option. This file may not be copied, modified, or distributed</span>
-<span class='comment'>// except according to those terms.</span>
+</pre><pre class="rust ">
+<span class="comment">// Copyright 2013 The Rust Project Developers. See the COPYRIGHT</span>
+<span class="comment">// file at the top-level directory of this distribution and at</span>
+<span class="comment">// http://rust-lang.org/COPYRIGHT.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
 
-<span class='doccomment'>//! Sampling from random distributions.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! This is a generalization of `Rand` to allow parameters to control the</span>
-<span class='doccomment'>//! exact properties of the generated values, e.g. the mean and standard</span>
-<span class='doccomment'>//! deviation of a normal distribution. The `Sample` trait is the most</span>
-<span class='doccomment'>//! general, and allows for generating values that change some state</span>
-<span class='doccomment'>//! internally. The `IndependentSample` trait is for generating values</span>
-<span class='doccomment'>//! that do not need to record state.</span>
+<span class="doccomment">//! Sampling from random distributions.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This is a generalization of `Rand` to allow parameters to control the</span>
+<span class="doccomment">//! exact properties of the generated values, e.g. the mean and standard</span>
+<span class="doccomment">//! deviation of a normal distribution. The `Sample` trait is the most</span>
+<span class="doccomment">//! general, and allows for generating values that change some state</span>
+<span class="doccomment">//! internally. The `IndependentSample` trait is for generating values</span>
+<span class="doccomment">//! that do not need to record state.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>marker</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>;
 
-<span class='kw'>use</span> {<span class='ident'>Rng</span>, <span class='ident'>Rand</span>};
+<span class="kw">use</span> {<span class="ident">Rng</span>, <span class="ident">Rand</span>};
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>range</span>::<span class='ident'>Range</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>gamma</span>::{<span class='ident'>Gamma</span>, <span class='ident'>ChiSquared</span>, <span class='ident'>FisherF</span>, <span class='ident'>StudentT</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>normal</span>::{<span class='ident'>Normal</span>, <span class='ident'>LogNormal</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>exponential</span>::<span class='ident'>Exp</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">range</span>::<span class="ident">Range</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">gamma</span>::{<span class="ident">Gamma</span>, <span class="ident">ChiSquared</span>, <span class="ident">FisherF</span>, <span class="ident">StudentT</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">normal</span>::{<span class="ident">Normal</span>, <span class="ident">LogNormal</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">exponential</span>::<span class="ident">Exp</span>;
 
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>range</span>;
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>gamma</span>;
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>normal</span>;
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>exponential</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">range</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">gamma</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">normal</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">exponential</span>;
 
-<span class='doccomment'>/// Types that can be used to create a random instance of `Support`.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>Support</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Generate a random value of `Support`, using `rng` as the</span>
-    <span class='doccomment'>/// source of randomness.</span>
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>Support</span>;
+<span class="doccomment">/// Types that can be used to create a random instance of `Support`.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">Support</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Generate a random value of `Support`, using `rng` as the</span>
+    <span class="doccomment">/// source of randomness.</span>
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">Support</span>;
 }
 
-<span class='doccomment'>/// `Sample`s that do not require keeping track of state.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Since no state is recorded, each sample is (statistically)</span>
-<span class='doccomment'>/// independent of all others, assuming the `Rng` used has this</span>
-<span class='doccomment'>/// property.</span>
-<span class='comment'>// FIXME maybe having this separate is overkill (the only reason is to</span>
-<span class='comment'>// take &amp;self rather than &amp;mut self)? or maybe this should be the</span>
-<span class='comment'>// trait called `Sample` and the other should be `DependentSample`.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>Support</span><span class='op'>&gt;</span>: <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>Support</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Generate a random value.</span>
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>Support</span>;
+<span class="doccomment">/// `Sample`s that do not require keeping track of state.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Since no state is recorded, each sample is (statistically)</span>
+<span class="doccomment">/// independent of all others, assuming the `Rng` used has this</span>
+<span class="doccomment">/// property.</span>
+<span class="comment">// FIXME maybe having this separate is overkill (the only reason is to</span>
+<span class="comment">// take &amp;self rather than &amp;mut self)? or maybe this should be the</span>
+<span class="comment">// trait called `Sample` and the other should be `DependentSample`.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">Support</span><span class="op">&gt;</span>: <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">Support</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Generate a random value.</span>
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">Support</span>;
 }
 
-<span class='doccomment'>/// A wrapper for generating types that implement `Rand` via the</span>
-<span class='doccomment'>/// `Sample` &amp; `IndependentSample` traits.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>RandSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> {
-    <span class='ident'>_marker</span>: <span class='ident'>marker</span>::<span class='ident'>PhantomData</span><span class='op'>&lt;</span><span class='kw'>fn</span>() <span class='op'>-&gt;</span> <span class='ident'>Sup</span><span class='op'>&gt;</span>,
+<span class="doccomment">/// A wrapper for generating types that implement `Rand` via the</span>
+<span class="doccomment">/// `Sample` &amp; `IndependentSample` traits.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RandSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> {
+    <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw">fn</span>() <span class="op">-&gt;</span> <span class="ident">Sup</span><span class="op">&gt;</span>,
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> <span class='ident'>Copy</span> <span class='kw'>for</span> <span class='ident'>RandSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> {}
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> <span class='ident'>Clone</span> <span class='kw'>for</span> <span class='ident'>RandSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>clone</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> { <span class='op'>*</span><span class='self'>self</span> }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> <span class="ident">Copy</span> <span class="kw">for</span> <span class="ident">RandSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> {}
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> <span class="ident">Clone</span> <span class="kw">for</span> <span class="ident">RandSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span> { <span class="kw-2">*</span><span class="self">self</span> }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>Sup</span>: <span class='ident'>Rand</span><span class='op'>&gt;</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RandSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>Sup</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Sup</span>: <span class="ident">Rand</span><span class="op">&gt;</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RandSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">Sup</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>Sup</span>: <span class='ident'>Rand</span><span class='op'>&gt;</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>RandSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>Sup</span> {
-        <span class='ident'>rng</span>.<span class='ident'>gen</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Sup</span>: <span class="ident">Rand</span><span class="op">&gt;</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">RandSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">Sup</span> {
+        <span class="ident">rng</span>.<span class="ident">gen</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> <span class='ident'>RandSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> {
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='ident'>RandSample</span><span class='op'>&lt;</span><span class='ident'>Sup</span><span class='op'>&gt;</span> {
-        <span class='ident'>RandSample</span> { <span class='ident'>_marker</span>: <span class='ident'>marker</span>::<span class='ident'>PhantomData</span> }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> <span class="ident">RandSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() <span class="op">-&gt;</span> <span class="ident">RandSample</span><span class="op">&lt;</span><span class="ident">Sup</span><span class="op">&gt;</span> {
+        <span class="ident">RandSample</span> { <span class="ident">_marker</span>: <span class="ident">marker</span>::<span class="ident">PhantomData</span> }
     }
 }
 
-<span class='doccomment'>/// A value with a particular weight for use with `WeightedChoice`.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>)]</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Weighted</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The numerical weight of this item</span>
-    <span class='kw'>pub</span> <span class='ident'>weight</span>: <span class='ident'>u32</span>,
-    <span class='doccomment'>/// The actual item which is being weighted</span>
-    <span class='kw'>pub</span> <span class='ident'>item</span>: <span class='ident'>T</span>,
+<span class="doccomment">/// A value with a particular weight for use with `WeightedChoice`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Weighted</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The numerical weight of this item</span>
+    <span class="kw">pub</span> <span class="ident">weight</span>: <span class="ident">u32</span>,
+    <span class="doccomment">/// The actual item which is being weighted</span>
+    <span class="kw">pub</span> <span class="ident">item</span>: <span class="ident">T</span>,
 }
 
-<span class='doccomment'>/// A distribution that selects from a finite collection of weighted items.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Each item has an associated weight that influences how likely it</span>
-<span class='doccomment'>/// is to be chosen: higher weight is more likely.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The `Clone` restriction is a limitation of the `Sample` and</span>
-<span class='doccomment'>/// `IndependentSample` traits. Note that `&amp;T` is (cheaply) `Clone` for</span>
-<span class='doccomment'>/// all `T`, as is `u32`, so one can store references or indices into</span>
-<span class='doccomment'>/// another vector.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Example</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// use rand::distributions::{Weighted, WeightedChoice, IndependentSample};</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// let mut items = vec!(Weighted { weight: 2, item: &#39;a&#39; },</span>
-<span class='doccomment'>///                      Weighted { weight: 4, item: &#39;b&#39; },</span>
-<span class='doccomment'>///                      Weighted { weight: 1, item: &#39;c&#39; });</span>
-<span class='doccomment'>/// let wc = WeightedChoice::new(&amp;mut items);</span>
-<span class='doccomment'>/// let mut rng = rand::thread_rng();</span>
-<span class='doccomment'>/// for _ in 0..16 {</span>
-<span class='doccomment'>///      // on average prints &#39;a&#39; 4 times, &#39;b&#39; 8 and &#39;c&#39; twice.</span>
-<span class='doccomment'>///      println!(&quot;{}&quot;, wc.ind_sample(&amp;mut rng));</span>
-<span class='doccomment'>/// }</span>
-<span class='doccomment'>/// ```</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>WeightedChoice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>:<span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='ident'>items</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> [<span class='ident'>Weighted</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>],
-    <span class='ident'>weight_range</span>: <span class='ident'>Range</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>
+<span class="doccomment">/// A distribution that selects from a finite collection of weighted items.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Each item has an associated weight that influences how likely it</span>
+<span class="doccomment">/// is to be chosen: higher weight is more likely.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The `Clone` restriction is a limitation of the `Sample` and</span>
+<span class="doccomment">/// `IndependentSample` traits. Note that `&amp;T` is (cheaply) `Clone` for</span>
+<span class="doccomment">/// all `T`, as is `u32`, so one can store references or indices into</span>
+<span class="doccomment">/// another vector.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use rand::distributions::{Weighted, WeightedChoice, IndependentSample};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let mut items = vec!(Weighted { weight: 2, item: &#39;a&#39; },</span>
+<span class="doccomment">///                      Weighted { weight: 4, item: &#39;b&#39; },</span>
+<span class="doccomment">///                      Weighted { weight: 1, item: &#39;c&#39; });</span>
+<span class="doccomment">/// let wc = WeightedChoice::new(&amp;mut items);</span>
+<span class="doccomment">/// let mut rng = rand::thread_rng();</span>
+<span class="doccomment">/// for _ in 0..16 {</span>
+<span class="doccomment">///      // on average prints &#39;a&#39; 4 times, &#39;b&#39; 8 and &#39;c&#39; twice.</span>
+<span class="doccomment">///      println!(&quot;{}&quot;, wc.ind_sample(&amp;mut rng));</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">WeightedChoice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>:<span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">items</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">Weighted</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>],
+    <span class="ident">weight_range</span>: <span class="ident">Range</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>Clone</span><span class='op'>&gt;</span> <span class='ident'>WeightedChoice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Create a new `WeightedChoice`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Panics if:</span>
-    <span class='doccomment'>/// - `v` is empty</span>
-    <span class='doccomment'>/// - the total weight is 0</span>
-    <span class='doccomment'>/// - the total weight is larger than a `u32` can contain.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>items</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> [<span class='ident'>Weighted</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>]) <span class='op'>-&gt;</span> <span class='ident'>WeightedChoice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='comment'>// strictly speaking, this is subsumed by the total weight == 0 case</span>
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='op'>!</span><span class='ident'>items</span>.<span class='ident'>is_empty</span>(), <span class='string'>&quot;WeightedChoice::new called with no items&quot;</span>);
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">WeightedChoice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Create a new `WeightedChoice`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Panics if:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - `v` is empty</span>
+    <span class="doccomment">/// - the total weight is 0</span>
+    <span class="doccomment">/// - the total weight is larger than a `u32` can contain.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">items</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> [<span class="ident">Weighted</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>]) <span class="op">-&gt;</span> <span class="ident">WeightedChoice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="comment">// strictly speaking, this is subsumed by the total weight == 0 case</span>
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">items</span>.<span class="ident">is_empty</span>(), <span class="string">&quot;WeightedChoice::new called with no items&quot;</span>);
 
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>running_total</span>: <span class='ident'>u32</span> <span class='op'>=</span> <span class='number'>0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">running_total</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0</span>;
 
-        <span class='comment'>// we convert the list from individual weights to cumulative</span>
-        <span class='comment'>// weights so we can binary search. This *could* drop elements</span>
-        <span class='comment'>// with weight == 0 as an optimisation.</span>
-        <span class='kw'>for</span> <span class='ident'>item</span> <span class='kw'>in</span> <span class='ident'>items</span>.<span class='ident'>iter_mut</span>() {
-            <span class='ident'>running_total</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>running_total</span>.<span class='ident'>checked_add</span>(<span class='ident'>item</span>.<span class='ident'>weight</span>) {
-                <span class='prelude-val'>Some</span>(<span class='ident'>n</span>) <span class='op'>=&gt;</span> <span class='ident'>n</span>,
-                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;WeightedChoice::new called with a total weight \
+        <span class="comment">// we convert the list from individual weights to cumulative</span>
+        <span class="comment">// weights so we can binary search. This *could* drop elements</span>
+        <span class="comment">// with weight == 0 as an optimisation.</span>
+        <span class="kw">for</span> <span class="ident">item</span> <span class="kw">in</span> <span class="ident">items</span>.<span class="ident">iter_mut</span>() {
+            <span class="ident">running_total</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">running_total</span>.<span class="ident">checked_add</span>(<span class="ident">item</span>.<span class="ident">weight</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">n</span>) <span class="op">=&gt;</span> <span class="ident">n</span>,
+                <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;WeightedChoice::new called with a total weight \
                                larger than a u32 can contain&quot;</span>)
             };
 
-            <span class='ident'>item</span>.<span class='ident'>weight</span> <span class='op'>=</span> <span class='ident'>running_total</span>;
+            <span class="ident">item</span>.<span class="ident">weight</span> <span class="op">=</span> <span class="ident">running_total</span>;
         }
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>running_total</span> <span class='op'>!=</span> <span class='number'>0</span>, <span class='string'>&quot;WeightedChoice::new called with a total weight of 0&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">running_total</span> <span class="op">!=</span> <span class="number">0</span>, <span class="string">&quot;WeightedChoice::new called with a total weight of 0&quot;</span>);
 
-        <span class='ident'>WeightedChoice</span> {
-            <span class='ident'>items</span>: <span class='ident'>items</span>,
-            <span class='comment'>// we&#39;re likely to be generating numbers in this range</span>
-            <span class='comment'>// relatively often, so might as well cache it</span>
-            <span class='ident'>weight_range</span>: <span class='ident'>Range</span>::<span class='ident'>new</span>(<span class='number'>0</span>, <span class='ident'>running_total</span>)
+        <span class="ident">WeightedChoice</span> {
+            <span class="ident">items</span>: <span class="ident">items</span>,
+            <span class="comment">// we&#39;re likely to be generating numbers in this range</span>
+            <span class="comment">// relatively often, so might as well cache it</span>
+            <span class="ident">weight_range</span>: <span class="ident">Range</span>::<span class="ident">new</span>(<span class="number">0</span>, <span class="ident">running_total</span>)
         }
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>Clone</span><span class='op'>&gt;</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>WeightedChoice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">WeightedChoice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">T</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: <span class='ident'>Clone</span><span class='op'>&gt;</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>WeightedChoice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>T</span> {
-        <span class='comment'>// we want to find the first element that has cumulative</span>
-        <span class='comment'>// weight &gt; sample_weight, which we do by binary since the</span>
-        <span class='comment'>// cumulative weights of self.items are sorted.</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="ident">Clone</span><span class="op">&gt;</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">WeightedChoice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">T</span> {
+        <span class="comment">// we want to find the first element that has cumulative</span>
+        <span class="comment">// weight &gt; sample_weight, which we do by binary since the</span>
+        <span class="comment">// cumulative weights of self.items are sorted.</span>
 
-        <span class='comment'>// choose a weight in [0, total_weight)</span>
-        <span class='kw'>let</span> <span class='ident'>sample_weight</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>weight_range</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>);
+        <span class="comment">// choose a weight in [0, total_weight)</span>
+        <span class="kw">let</span> <span class="ident">sample_weight</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">weight_range</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>);
 
-        <span class='comment'>// short circuit when it&#39;s the first item</span>
-        <span class='kw'>if</span> <span class='ident'>sample_weight</span> <span class='op'>&lt;</span> <span class='self'>self</span>.<span class='ident'>items</span>[<span class='number'>0</span>].<span class='ident'>weight</span> {
-            <span class='kw'>return</span> <span class='self'>self</span>.<span class='ident'>items</span>[<span class='number'>0</span>].<span class='ident'>item</span>.<span class='ident'>clone</span>();
+        <span class="comment">// short circuit when it&#39;s the first item</span>
+        <span class="kw">if</span> <span class="ident">sample_weight</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">items</span>[<span class="number">0</span>].<span class="ident">weight</span> {
+            <span class="kw">return</span> <span class="self">self</span>.<span class="ident">items</span>[<span class="number">0</span>].<span class="ident">item</span>.<span class="ident">clone</span>();
         }
 
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>idx</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>modifier</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>items</span>.<span class='ident'>len</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">idx</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">modifier</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">items</span>.<span class="ident">len</span>();
 
-        <span class='comment'>// now we know that every possibility has an element to the</span>
-        <span class='comment'>// left, so we can just search for the last element that has</span>
-        <span class='comment'>// cumulative weight &lt;= sample_weight, then the next one will</span>
-        <span class='comment'>// be &quot;it&quot;. (Note that this greatest element will never be the</span>
-        <span class='comment'>// last element of the vector, since sample_weight is chosen</span>
-        <span class='comment'>// in [0, total_weight) and the cumulative weight of the last</span>
-        <span class='comment'>// one is exactly the total weight.)</span>
-        <span class='kw'>while</span> <span class='ident'>modifier</span> <span class='op'>&gt;</span> <span class='number'>1</span> {
-            <span class='kw'>let</span> <span class='ident'>i</span> <span class='op'>=</span> <span class='ident'>idx</span> <span class='op'>+</span> <span class='ident'>modifier</span> <span class='op'>/</span> <span class='number'>2</span>;
-            <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>items</span>[<span class='ident'>i</span>].<span class='ident'>weight</span> <span class='op'>&lt;=</span> <span class='ident'>sample_weight</span> {
-                <span class='comment'>// we&#39;re small, so look to the right, but allow this</span>
-                <span class='comment'>// exact element still.</span>
-                <span class='ident'>idx</span> <span class='op'>=</span> <span class='ident'>i</span>;
-                <span class='comment'>// we need the `/ 2` to round up otherwise we&#39;ll drop</span>
-                <span class='comment'>// the trailing elements when `modifier` is odd.</span>
-                <span class='ident'>modifier</span> <span class='op'>+=</span> <span class='number'>1</span>;
-            } <span class='kw'>else</span> {
-                <span class='comment'>// otherwise we&#39;re too big, so go left. (i.e. do</span>
-                <span class='comment'>// nothing)</span>
+        <span class="comment">// now we know that every possibility has an element to the</span>
+        <span class="comment">// left, so we can just search for the last element that has</span>
+        <span class="comment">// cumulative weight &lt;= sample_weight, then the next one will</span>
+        <span class="comment">// be &quot;it&quot;. (Note that this greatest element will never be the</span>
+        <span class="comment">// last element of the vector, since sample_weight is chosen</span>
+        <span class="comment">// in [0, total_weight) and the cumulative weight of the last</span>
+        <span class="comment">// one is exactly the total weight.)</span>
+        <span class="kw">while</span> <span class="ident">modifier</span> <span class="op">&gt;</span> <span class="number">1</span> {
+            <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">idx</span> <span class="op">+</span> <span class="ident">modifier</span> <span class="op">/</span> <span class="number">2</span>;
+            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">items</span>[<span class="ident">i</span>].<span class="ident">weight</span> <span class="op">&lt;=</span> <span class="ident">sample_weight</span> {
+                <span class="comment">// we&#39;re small, so look to the right, but allow this</span>
+                <span class="comment">// exact element still.</span>
+                <span class="ident">idx</span> <span class="op">=</span> <span class="ident">i</span>;
+                <span class="comment">// we need the `/ 2` to round up otherwise we&#39;ll drop</span>
+                <span class="comment">// the trailing elements when `modifier` is odd.</span>
+                <span class="ident">modifier</span> <span class="op">+=</span> <span class="number">1</span>;
+            } <span class="kw">else</span> {
+                <span class="comment">// otherwise we&#39;re too big, so go left. (i.e. do</span>
+                <span class="comment">// nothing)</span>
             }
-            <span class='ident'>modifier</span> <span class='op'>/=</span> <span class='number'>2</span>;
+            <span class="ident">modifier</span> <span class="op">/=</span> <span class="number">2</span>;
         }
-        <span class='kw'>return</span> <span class='self'>self</span>.<span class='ident'>items</span>[<span class='ident'>idx</span> <span class='op'>+</span> <span class='number'>1</span>].<span class='ident'>item</span>.<span class='ident'>clone</span>();
+        <span class="kw">return</span> <span class="self">self</span>.<span class="ident">items</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>].<span class="ident">item</span>.<span class="ident">clone</span>();
     }
 }
 
-<span class='kw'>mod</span> <span class='ident'>ziggurat_tables</span>;
+<span class="kw">mod</span> <span class="ident">ziggurat_tables</span>;
 
-<span class='doccomment'>/// Sample a random number using the Ziggurat method (specifically the</span>
-<span class='doccomment'>/// ZIGNOR variant from Doornik 2005). Most of the arguments are</span>
-<span class='doccomment'>/// directly from the paper:</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// * `rng`: source of randomness</span>
-<span class='doccomment'>/// * `symmetric`: whether this is a symmetric distribution, or one-sided with P(x &lt; 0) = 0.</span>
-<span class='doccomment'>/// * `X`: the $x_i$ abscissae.</span>
-<span class='doccomment'>/// * `F`: precomputed values of the PDF at the $x_i$, (i.e. $f(x_i)$)</span>
-<span class='doccomment'>/// * `F_DIFF`: precomputed values of $f(x_i) - f(x_{i+1})$</span>
-<span class='doccomment'>/// * `pdf`: the probability density function</span>
-<span class='doccomment'>/// * `zero_case`: manual sampling from the tail when we chose the</span>
-<span class='doccomment'>///    bottom box (i.e. i == 0)</span>
+<span class="doccomment">/// Sample a random number using the Ziggurat method (specifically the</span>
+<span class="doccomment">/// ZIGNOR variant from Doornik 2005). Most of the arguments are</span>
+<span class="doccomment">/// directly from the paper:</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * `rng`: source of randomness</span>
+<span class="doccomment">/// * `symmetric`: whether this is a symmetric distribution, or one-sided with P(x &lt; 0) = 0.</span>
+<span class="doccomment">/// * `X`: the $x_i$ abscissae.</span>
+<span class="doccomment">/// * `F`: precomputed values of the PDF at the $x_i$, (i.e. $f(x_i)$)</span>
+<span class="doccomment">/// * `F_DIFF`: precomputed values of $f(x_i) - f(x_{i+1})$</span>
+<span class="doccomment">/// * `pdf`: the probability density function</span>
+<span class="doccomment">/// * `zero_case`: manual sampling from the tail when we chose the</span>
+<span class="doccomment">///    bottom box (i.e. i == 0)</span>
 
-<span class='comment'>// the perf improvement (25-50%) is definitely worth the extra code</span>
-<span class='comment'>// size from force-inlining.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-<span class='kw'>fn</span> <span class='ident'>ziggurat</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span>, <span class='ident'>P</span>, <span class='ident'>Z</span><span class='op'>&gt;</span>(
-            <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>,
-            <span class='ident'>symmetric</span>: <span class='ident'>bool</span>,
-            <span class='ident'>x_tab</span>: <span class='ident'>ziggurat_tables</span>::<span class='ident'>ZigTable</span>,
-            <span class='ident'>f_tab</span>: <span class='ident'>ziggurat_tables</span>::<span class='ident'>ZigTable</span>,
-            <span class='kw-2'>mut</span> <span class='ident'>pdf</span>: <span class='ident'>P</span>,
-            <span class='kw-2'>mut</span> <span class='ident'>zero_case</span>: <span class='ident'>Z</span>)
-            <span class='op'>-&gt;</span> <span class='ident'>f64</span> <span class='kw'>where</span> <span class='ident'>P</span>: <span class='ident'>FnMut</span>(<span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span>, <span class='ident'>Z</span>: <span class='ident'>FnMut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>, <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> {
-    <span class='kw'>const</span> <span class='ident'>SCALE</span>: <span class='ident'>f64</span> <span class='op'>=</span> (<span class='number'>1u64</span> <span class='op'>&lt;&lt;</span> <span class='number'>53</span>) <span class='kw'>as</span> <span class='ident'>f64</span>;
-    <span class='kw'>loop</span> {
-        <span class='comment'>// reimplement the f64 generation as an optimisation suggested</span>
-        <span class='comment'>// by the Doornik paper: we have a lot of precision-space</span>
-        <span class='comment'>// (i.e. there are 11 bits of the 64 of a u64 to use after</span>
-        <span class='comment'>// creating a f64), so we might as well reuse some to save</span>
-        <span class='comment'>// generating a whole extra random number. (Seems to be 15%</span>
-        <span class='comment'>// faster.)</span>
-        <span class='comment'>//</span>
-        <span class='comment'>// This unfortunately misses out on the benefits of direct</span>
-        <span class='comment'>// floating point generation if an RNG like dSMFT is</span>
-        <span class='comment'>// used. (That is, such RNGs create floats directly, highly</span>
-        <span class='comment'>// efficiently and overload next_f32/f64, so by not calling it</span>
-        <span class='comment'>// this may be slower than it would be otherwise.)</span>
-        <span class='comment'>// FIXME: investigate/optimise for the above.</span>
-        <span class='kw'>let</span> <span class='ident'>bits</span>: <span class='ident'>u64</span> <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>();
-        <span class='kw'>let</span> <span class='ident'>i</span> <span class='op'>=</span> (<span class='ident'>bits</span> <span class='kw-2'>&amp;</span> <span class='number'>0xff</span>) <span class='kw'>as</span> <span class='ident'>usize</span>;
-        <span class='kw'>let</span> <span class='ident'>f</span> <span class='op'>=</span> (<span class='ident'>bits</span> <span class='op'>&gt;&gt;</span> <span class='number'>11</span>) <span class='kw'>as</span> <span class='ident'>f64</span> <span class='op'>/</span> <span class='ident'>SCALE</span>;
+<span class="comment">// the perf improvement (25-50%) is definitely worth the extra code</span>
+<span class="comment">// size from force-inlining.</span>
+<span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+<span class="kw">fn</span> <span class="ident">ziggurat</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span>, <span class="ident">P</span>, <span class="ident">Z</span><span class="op">&gt;</span>(
+            <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>,
+            <span class="ident">symmetric</span>: <span class="ident">bool</span>,
+            <span class="ident">x_tab</span>: <span class="ident">ziggurat_tables</span>::<span class="ident">ZigTable</span>,
+            <span class="ident">f_tab</span>: <span class="ident">ziggurat_tables</span>::<span class="ident">ZigTable</span>,
+            <span class="kw-2">mut</span> <span class="ident">pdf</span>: <span class="ident">P</span>,
+            <span class="kw-2">mut</span> <span class="ident">zero_case</span>: <span class="ident">Z</span>)
+            <span class="op">-&gt;</span> <span class="ident">f64</span> <span class="kw">where</span> <span class="ident">P</span>: <span class="ident">FnMut</span>(<span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">f64</span>, <span class="ident">Z</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>, <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+    <span class="kw">const</span> <span class="ident">SCALE</span>: <span class="ident">f64</span> <span class="op">=</span> (<span class="number">1u64</span> <span class="op">&lt;&lt;</span> <span class="number">53</span>) <span class="kw">as</span> <span class="ident">f64</span>;
+    <span class="kw">loop</span> {
+        <span class="comment">// reimplement the f64 generation as an optimisation suggested</span>
+        <span class="comment">// by the Doornik paper: we have a lot of precision-space</span>
+        <span class="comment">// (i.e. there are 11 bits of the 64 of a u64 to use after</span>
+        <span class="comment">// creating a f64), so we might as well reuse some to save</span>
+        <span class="comment">// generating a whole extra random number. (Seems to be 15%</span>
+        <span class="comment">// faster.)</span>
+        <span class="comment">//</span>
+        <span class="comment">// This unfortunately misses out on the benefits of direct</span>
+        <span class="comment">// floating point generation if an RNG like dSMFT is</span>
+        <span class="comment">// used. (That is, such RNGs create floats directly, highly</span>
+        <span class="comment">// efficiently and overload next_f32/f64, so by not calling it</span>
+        <span class="comment">// this may be slower than it would be otherwise.)</span>
+        <span class="comment">// FIXME: investigate/optimise for the above.</span>
+        <span class="kw">let</span> <span class="ident">bits</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+        <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> (<span class="ident">bits</span> <span class="op">&amp;</span> <span class="number">0xff</span>) <span class="kw">as</span> <span class="ident">usize</span>;
+        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> (<span class="ident">bits</span> <span class="op">&gt;&gt;</span> <span class="number">11</span>) <span class="kw">as</span> <span class="ident">f64</span> <span class="op">/</span> <span class="ident">SCALE</span>;
 
-        <span class='comment'>// u is either U(-1, 1) or U(0, 1) depending on if this is a</span>
-        <span class='comment'>// symmetric distribution or not.</span>
-        <span class='kw'>let</span> <span class='ident'>u</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>symmetric</span> {<span class='number'>2.0</span> <span class='op'>*</span> <span class='ident'>f</span> <span class='op'>-</span> <span class='number'>1.0</span>} <span class='kw'>else</span> {<span class='ident'>f</span>};
-        <span class='kw'>let</span> <span class='ident'>x</span> <span class='op'>=</span> <span class='ident'>u</span> <span class='op'>*</span> <span class='ident'>x_tab</span>[<span class='ident'>i</span>];
+        <span class="comment">// u is either U(-1, 1) or U(0, 1) depending on if this is a</span>
+        <span class="comment">// symmetric distribution or not.</span>
+        <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">symmetric</span> {<span class="number">2.0</span> <span class="op">*</span> <span class="ident">f</span> <span class="op">-</span> <span class="number">1.0</span>} <span class="kw">else</span> {<span class="ident">f</span>};
+        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">u</span> <span class="op">*</span> <span class="ident">x_tab</span>[<span class="ident">i</span>];
 
-        <span class='kw'>let</span> <span class='ident'>test_x</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>symmetric</span> { <span class='ident'>x</span>.<span class='ident'>abs</span>() } <span class='kw'>else</span> {<span class='ident'>x</span>};
+        <span class="kw">let</span> <span class="ident">test_x</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">symmetric</span> { <span class="ident">x</span>.<span class="ident">abs</span>() } <span class="kw">else</span> {<span class="ident">x</span>};
 
-        <span class='comment'>// algebraically equivalent to |u| &lt; x_tab[i+1]/x_tab[i] (or u &lt; x_tab[i+1]/x_tab[i])</span>
-        <span class='kw'>if</span> <span class='ident'>test_x</span> <span class='op'>&lt;</span> <span class='ident'>x_tab</span>[<span class='ident'>i</span> <span class='op'>+</span> <span class='number'>1</span>] {
-            <span class='kw'>return</span> <span class='ident'>x</span>;
+        <span class="comment">// algebraically equivalent to |u| &lt; x_tab[i+1]/x_tab[i] (or u &lt; x_tab[i+1]/x_tab[i])</span>
+        <span class="kw">if</span> <span class="ident">test_x</span> <span class="op">&lt;</span> <span class="ident">x_tab</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>] {
+            <span class="kw">return</span> <span class="ident">x</span>;
         }
-        <span class='kw'>if</span> <span class='ident'>i</span> <span class='op'>==</span> <span class='number'>0</span> {
-            <span class='kw'>return</span> <span class='ident'>zero_case</span>(<span class='ident'>rng</span>, <span class='ident'>u</span>);
+        <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> {
+            <span class="kw">return</span> <span class="ident">zero_case</span>(<span class="ident">rng</span>, <span class="ident">u</span>);
         }
-        <span class='comment'>// algebraically equivalent to f1 + DRanU()*(f0 - f1) &lt; 1</span>
-        <span class='kw'>if</span> <span class='ident'>f_tab</span>[<span class='ident'>i</span> <span class='op'>+</span> <span class='number'>1</span>] <span class='op'>+</span> (<span class='ident'>f_tab</span>[<span class='ident'>i</span>] <span class='op'>-</span> <span class='ident'>f_tab</span>[<span class='ident'>i</span> <span class='op'>+</span> <span class='number'>1</span>]) <span class='op'>*</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>() <span class='op'>&lt;</span> <span class='ident'>pdf</span>(<span class='ident'>x</span>) {
-            <span class='kw'>return</span> <span class='ident'>x</span>;
+        <span class="comment">// algebraically equivalent to f1 + DRanU()*(f0 - f1) &lt; 1</span>
+        <span class="kw">if</span> <span class="ident">f_tab</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>] <span class="op">+</span> (<span class="ident">f_tab</span>[<span class="ident">i</span>] <span class="op">-</span> <span class="ident">f_tab</span>[<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>]) <span class="op">*</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>() <span class="op">&lt;</span> <span class="ident">pdf</span>(<span class="ident">x</span>) {
+            <span class="kw">return</span> <span class="ident">x</span>;
         }
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>tests</span> {
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
 
-    <span class='kw'>use</span> {<span class='ident'>Rng</span>, <span class='ident'>Rand</span>};
-    <span class='kw'>use</span> <span class='ident'>super</span>::{<span class='ident'>RandSample</span>, <span class='ident'>WeightedChoice</span>, <span class='ident'>Weighted</span>, <span class='ident'>Sample</span>, <span class='ident'>IndependentSample</span>};
+    <span class="kw">use</span> {<span class="ident">Rng</span>, <span class="ident">Rand</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">RandSample</span>, <span class="ident">WeightedChoice</span>, <span class="ident">Weighted</span>, <span class="ident">Sample</span>, <span class="ident">IndependentSample</span>};
 
-    <span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>PartialEq</span>, <span class='ident'>Debug</span>)]</span>
-    <span class='kw'>struct</span> <span class='ident'>ConstRand</span>(<span class='ident'>usize</span>);
-    <span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>ConstRand</span> {
-        <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(_: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>ConstRand</span> {
-            <span class='ident'>ConstRand</span>(<span class='number'>0</span>)
+    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+    <span class="kw">struct</span> <span class="ident">ConstRand</span>(<span class="ident">usize</span>);
+    <span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">ConstRand</span> {
+        <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(_: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">ConstRand</span> {
+            <span class="ident">ConstRand</span>(<span class="number">0</span>)
         }
     }
 
-    <span class='comment'>// 0, 1, 2, 3, ...</span>
-    <span class='kw'>struct</span> <span class='ident'>CountingRng</span> { <span class='ident'>i</span>: <span class='ident'>u32</span> }
-    <span class='kw'>impl</span> <span class='ident'>Rng</span> <span class='kw'>for</span> <span class='ident'>CountingRng</span> {
-        <span class='kw'>fn</span> <span class='ident'>next_u32</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u32</span> {
-            <span class='self'>self</span>.<span class='ident'>i</span> <span class='op'>+=</span> <span class='number'>1</span>;
-            <span class='self'>self</span>.<span class='ident'>i</span> <span class='op'>-</span> <span class='number'>1</span>
+    <span class="comment">// 0, 1, 2, 3, ...</span>
+    <span class="kw">struct</span> <span class="ident">CountingRng</span> { <span class="ident">i</span>: <span class="ident">u32</span> }
+    <span class="kw">impl</span> <span class="ident">Rng</span> <span class="kw">for</span> <span class="ident">CountingRng</span> {
+        <span class="kw">fn</span> <span class="ident">next_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
+            <span class="self">self</span>.<span class="ident">i</span> <span class="op">+=</span> <span class="number">1</span>;
+            <span class="self">self</span>.<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>
         }
-        <span class='kw'>fn</span> <span class='ident'>next_u64</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
-            <span class='self'>self</span>.<span class='ident'>next_u32</span>() <span class='kw'>as</span> <span class='ident'>u64</span>
+        <span class="kw">fn</span> <span class="ident">next_u64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> {
+            <span class="self">self</span>.<span class="ident">next_u32</span>() <span class="kw">as</span> <span class="ident">u64</span>
         }
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_rand_sample</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rand_sample</span> <span class='op'>=</span> <span class='ident'>RandSample</span>::<span class='op'>&lt;</span><span class='ident'>ConstRand</span><span class='op'>&gt;</span>::<span class='ident'>new</span>();
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_rand_sample</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rand_sample</span> <span class="op">=</span> <span class="ident">RandSample</span>::<span class="op">&lt;</span><span class="ident">ConstRand</span><span class="op">&gt;</span>::<span class="ident">new</span>();
 
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>rand_sample</span>.<span class='ident'>sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> ::<span class='ident'>test</span>::<span class='ident'>rng</span>()), <span class='ident'>ConstRand</span>(<span class='number'>0</span>));
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>rand_sample</span>.<span class='ident'>ind_sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> ::<span class='ident'>test</span>::<span class='ident'>rng</span>()), <span class='ident'>ConstRand</span>(<span class='number'>0</span>));
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rand_sample</span>.<span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> ::<span class="ident">test</span>::<span class="ident">rng</span>()), <span class="ident">ConstRand</span>(<span class="number">0</span>));
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rand_sample</span>.<span class="ident">ind_sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> ::<span class="ident">test</span>::<span class="ident">rng</span>()), <span class="ident">ConstRand</span>(<span class="number">0</span>));
     }
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_weighted_choice</span>() {
-        <span class='comment'>// this makes assumptions about the internal implementation of</span>
-        <span class='comment'>// WeightedChoice, specifically: it doesn&#39;t reorder the items,</span>
-        <span class='comment'>// it doesn&#39;t do weird things to the RNG (so 0 maps to 0, 1 to</span>
-        <span class='comment'>// 1, internally; modulo a modulo operation).</span>
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_weighted_choice</span>() {
+        <span class="comment">// this makes assumptions about the internal implementation of</span>
+        <span class="comment">// WeightedChoice, specifically: it doesn&#39;t reorder the items,</span>
+        <span class="comment">// it doesn&#39;t do weird things to the RNG (so 0 maps to 0, 1 to</span>
+        <span class="comment">// 1, internally; modulo a modulo operation).</span>
 
-        <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>t</span> {
-            (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>items</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>expected</span>:<span class='ident'>expr</span>) <span class='op'>=&gt;</span> {{
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>items</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>items</span>;
-                <span class='kw'>let</span> <span class='ident'>wc</span> <span class='op'>=</span> <span class='ident'>WeightedChoice</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>items</span>);
-                <span class='kw'>let</span> <span class='ident'>expected</span> <span class='op'>=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>expected</span>;
+        <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">t</span> {
+            (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">items</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> {{
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">items</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">items</span>;
+                <span class="kw">let</span> <span class="ident">wc</span> <span class="op">=</span> <span class="ident">WeightedChoice</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">items</span>);
+                <span class="kw">let</span> <span class="ident">expected</span> <span class="op">=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">expected</span>;
 
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> <span class='ident'>CountingRng</span> { <span class='ident'>i</span>: <span class='number'>0</span> };
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">CountingRng</span> { <span class="ident">i</span>: <span class="number">0</span> };
 
-                <span class='kw'>for</span> <span class='kw-2'>&amp;</span><span class='ident'>val</span> <span class='kw'>in</span> <span class='ident'>expected</span>.<span class='ident'>iter</span>() {
-                    <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>wc</span>.<span class='ident'>ind_sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>), <span class='ident'>val</span>)
+                <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">val</span> <span class="kw">in</span> <span class="ident">expected</span>.<span class="ident">iter</span>() {
+                    <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">wc</span>.<span class="ident">ind_sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>), <span class="ident">val</span>)
                 }
             }}
         }
 
-        <span class='macro'>t</span><span class='macro'>!</span>(<span class='macro'>vec</span><span class='macro'>!</span>(<span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>10</span>}), [<span class='number'>10</span>]);
+        <span class="macro">t</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>(<span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">10</span>}), [<span class="number">10</span>]);
 
-        <span class='comment'>// skip some</span>
-        <span class='macro'>t</span><span class='macro'>!</span>(<span class='macro'>vec</span><span class='macro'>!</span>(<span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>0</span>, <span class='ident'>item</span>: <span class='number'>20</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>2</span>, <span class='ident'>item</span>: <span class='number'>21</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>0</span>, <span class='ident'>item</span>: <span class='number'>22</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>23</span>}),
-           [<span class='number'>21</span>,<span class='number'>21</span>, <span class='number'>23</span>]);
+        <span class="comment">// skip some</span>
+        <span class="macro">t</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>(<span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">0</span>, <span class="ident">item</span>: <span class="number">20</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">2</span>, <span class="ident">item</span>: <span class="number">21</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">0</span>, <span class="ident">item</span>: <span class="number">22</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">23</span>}),
+           [<span class="number">21</span>,<span class="number">21</span>, <span class="number">23</span>]);
 
-        <span class='comment'>// different weights</span>
-        <span class='macro'>t</span><span class='macro'>!</span>(<span class='macro'>vec</span><span class='macro'>!</span>(<span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>4</span>, <span class='ident'>item</span>: <span class='number'>30</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>3</span>, <span class='ident'>item</span>: <span class='number'>31</span>}),
-           [<span class='number'>30</span>,<span class='number'>30</span>,<span class='number'>30</span>,<span class='number'>30</span>, <span class='number'>31</span>,<span class='number'>31</span>,<span class='number'>31</span>]);
+        <span class="comment">// different weights</span>
+        <span class="macro">t</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>(<span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">4</span>, <span class="ident">item</span>: <span class="number">30</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">3</span>, <span class="ident">item</span>: <span class="number">31</span>}),
+           [<span class="number">30</span>,<span class="number">30</span>,<span class="number">30</span>,<span class="number">30</span>, <span class="number">31</span>,<span class="number">31</span>,<span class="number">31</span>]);
 
-        <span class='comment'>// check that we&#39;re binary searching</span>
-        <span class='comment'>// correctly with some vectors of odd</span>
-        <span class='comment'>// length.</span>
-        <span class='macro'>t</span><span class='macro'>!</span>(<span class='macro'>vec</span><span class='macro'>!</span>(<span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>40</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>41</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>42</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>43</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>44</span>}),
-           [<span class='number'>40</span>, <span class='number'>41</span>, <span class='number'>42</span>, <span class='number'>43</span>, <span class='number'>44</span>]);
-        <span class='macro'>t</span><span class='macro'>!</span>(<span class='macro'>vec</span><span class='macro'>!</span>(<span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>50</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>51</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>52</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>53</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>54</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>55</span>},
-                <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>56</span>}),
-           [<span class='number'>50</span>, <span class='number'>51</span>, <span class='number'>52</span>, <span class='number'>53</span>, <span class='number'>54</span>, <span class='number'>55</span>, <span class='number'>56</span>]);
+        <span class="comment">// check that we&#39;re binary searching</span>
+        <span class="comment">// correctly with some vectors of odd</span>
+        <span class="comment">// length.</span>
+        <span class="macro">t</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>(<span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">40</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">41</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">42</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">43</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">44</span>}),
+           [<span class="number">40</span>, <span class="number">41</span>, <span class="number">42</span>, <span class="number">43</span>, <span class="number">44</span>]);
+        <span class="macro">t</span><span class="macro">!</span>(<span class="macro">vec</span><span class="macro">!</span>(<span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">50</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">51</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">52</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">53</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">54</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">55</span>},
+                <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">56</span>}),
+           [<span class="number">50</span>, <span class="number">51</span>, <span class="number">52</span>, <span class="number">53</span>, <span class="number">54</span>, <span class="number">55</span>, <span class="number">56</span>]);
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_weighted_clone_initialization</span>() {
-        <span class='kw'>let</span> <span class='ident'>initial</span> : <span class='ident'>Weighted</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Weighted</span> {<span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>1</span>};
-        <span class='kw'>let</span> <span class='ident'>clone</span> <span class='op'>=</span> <span class='ident'>initial</span>.<span class='ident'>clone</span>();
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>initial</span>.<span class='ident'>weight</span>, <span class='ident'>clone</span>.<span class='ident'>weight</span>);
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>initial</span>.<span class='ident'>item</span>, <span class='ident'>clone</span>.<span class='ident'>item</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_weighted_clone_initialization</span>() {
+        <span class="kw">let</span> <span class="ident">initial</span> : <span class="ident">Weighted</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Weighted</span> {<span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">1</span>};
+        <span class="kw">let</span> <span class="ident">clone</span> <span class="op">=</span> <span class="ident">initial</span>.<span class="ident">clone</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">initial</span>.<span class="ident">weight</span>, <span class="ident">clone</span>.<span class="ident">weight</span>);
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">initial</span>.<span class="ident">item</span>, <span class="ident">clone</span>.<span class="ident">item</span>);
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span> <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>target_env</span> <span class='op'>=</span> <span class='string'>&quot;msvc&quot;</span>, <span class='ident'>ignore</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_weighted_clone_change_weight</span>() {
-        <span class='kw'>let</span> <span class='ident'>initial</span> : <span class='ident'>Weighted</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Weighted</span> {<span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>1</span>};
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>clone</span> <span class='op'>=</span> <span class='ident'>initial</span>.<span class='ident'>clone</span>();
-        <span class='ident'>clone</span>.<span class='ident'>weight</span> <span class='op'>=</span> <span class='number'>5</span>;
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>initial</span>.<span class='ident'>weight</span>, <span class='ident'>clone</span>.<span class='ident'>weight</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span> <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_weighted_clone_change_weight</span>() {
+        <span class="kw">let</span> <span class="ident">initial</span> : <span class="ident">Weighted</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Weighted</span> {<span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">1</span>};
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">clone</span> <span class="op">=</span> <span class="ident">initial</span>.<span class="ident">clone</span>();
+        <span class="ident">clone</span>.<span class="ident">weight</span> <span class="op">=</span> <span class="number">5</span>;
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">initial</span>.<span class="ident">weight</span>, <span class="ident">clone</span>.<span class="ident">weight</span>);
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span> <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>target_env</span> <span class='op'>=</span> <span class='string'>&quot;msvc&quot;</span>, <span class='ident'>ignore</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_weighted_clone_change_item</span>() {
-        <span class='kw'>let</span> <span class='ident'>initial</span> : <span class='ident'>Weighted</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Weighted</span> {<span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>1</span>};
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>clone</span> <span class='op'>=</span> <span class='ident'>initial</span>.<span class='ident'>clone</span>();
-        <span class='ident'>clone</span>.<span class='ident'>item</span> <span class='op'>=</span> <span class='number'>5</span>;
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>initial</span>.<span class='ident'>item</span>, <span class='ident'>clone</span>.<span class='ident'>item</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span> <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_weighted_clone_change_item</span>() {
+        <span class="kw">let</span> <span class="ident">initial</span> : <span class="ident">Weighted</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Weighted</span> {<span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">1</span>};
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">clone</span> <span class="op">=</span> <span class="ident">initial</span>.<span class="ident">clone</span>();
+        <span class="ident">clone</span>.<span class="ident">item</span> <span class="op">=</span> <span class="number">5</span>;
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">initial</span>.<span class="ident">item</span>, <span class="ident">clone</span>.<span class="ident">item</span>);
 
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span> <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>target_env</span> <span class='op'>=</span> <span class='string'>&quot;msvc&quot;</span>, <span class='ident'>ignore</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_weighted_choice_no_items</span>() {
-        <span class='ident'>WeightedChoice</span>::<span class='op'>&lt;</span><span class='ident'>isize</span><span class='op'>&gt;</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> []);
+    <span class="attribute">#[<span class="ident">test</span>]</span> <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_weighted_choice_no_items</span>() {
+        <span class="ident">WeightedChoice</span>::<span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> []);
     }
-    <span class='attribute'>#[<span class='ident'>test</span>]</span> <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>target_env</span> <span class='op'>=</span> <span class='string'>&quot;msvc&quot;</span>, <span class='ident'>ignore</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_weighted_choice_zero_weight</span>() {
-        <span class='ident'>WeightedChoice</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>0</span>, <span class='ident'>item</span>: <span class='number'>0</span>},
-                                  <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>0</span>, <span class='ident'>item</span>: <span class='number'>1</span>}]);
+    <span class="attribute">#[<span class="ident">test</span>]</span> <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_weighted_choice_zero_weight</span>() {
+        <span class="ident">WeightedChoice</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">0</span>, <span class="ident">item</span>: <span class="number">0</span>},
+                                  <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">0</span>, <span class="ident">item</span>: <span class="number">1</span>}]);
     }
-    <span class='attribute'>#[<span class='ident'>test</span>]</span> <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>target_env</span> <span class='op'>=</span> <span class='string'>&quot;msvc&quot;</span>, <span class='ident'>ignore</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_weighted_choice_weight_overflows</span>() {
-        <span class='kw'>let</span> <span class='ident'>x</span> <span class='op'>=</span> ::<span class='ident'>std</span>::<span class='ident'>u32</span>::<span class='ident'>MAX</span> <span class='op'>/</span> <span class='number'>2</span>; <span class='comment'>// x + x + 2 is the overflow</span>
-        <span class='ident'>WeightedChoice</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='ident'>x</span>, <span class='ident'>item</span>: <span class='number'>0</span> },
-                                  <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>1</span> },
-                                  <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='ident'>x</span>, <span class='ident'>item</span>: <span class='number'>2</span> },
-                                  <span class='ident'>Weighted</span> { <span class='ident'>weight</span>: <span class='number'>1</span>, <span class='ident'>item</span>: <span class='number'>3</span> }]);
+    <span class="attribute">#[<span class="ident">test</span>]</span> <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_weighted_choice_weight_overflows</span>() {
+        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> ::<span class="ident">std</span>::<span class="ident">u32</span>::<span class="ident">MAX</span> <span class="op">/</span> <span class="number">2</span>; <span class="comment">// x + x + 2 is the overflow</span>
+        <span class="ident">WeightedChoice</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="ident">x</span>, <span class="ident">item</span>: <span class="number">0</span> },
+                                  <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">1</span> },
+                                  <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="ident">x</span>, <span class="ident">item</span>: <span class="number">2</span> },
+                                  <span class="ident">Weighted</span> { <span class="ident">weight</span>: <span class="number">1</span>, <span class="ident">item</span>: <span class="number">3</span> }]);
     }
 }
 </pre>
@@ -868,12 +864,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -894,7 +894,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -905,11 +905,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "rand";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

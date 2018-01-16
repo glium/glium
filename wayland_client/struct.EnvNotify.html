@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `EnvNotify` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, EnvNotify">
+
+    <title>wayland_client::EnvNotify - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct EnvNotify</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.new_global">new_global</a><a href="#structfield.del_global">del_global</a><a href="#structfield.ready">ready</a></div></div><p class='location'><a href='index.html'>wayland_client</a></p><script>window.sidebarCurrent = {name: 'EnvNotify', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>wayland_client</a>::<wbr><a class="struct" href=''>EnvNotify</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/wayland_client/env.rs.html#193-232' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct EnvNotify&lt;ID&gt; {
+    pub new_global: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, idata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a>, id: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, interface: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, version: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub del_global: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, idata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a>, id: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub ready: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, idata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a>),
+}</pre><div class='docblock'><p>An implementation to receive globals notifications for the EnvHandler</p>
+
+<p>You can provide this implementation to have the EnvHandler notify you
+about new globals in addition to processing them.</p>
+
+<p>See <code>EnvHandler::init_with_notify(..)</code>.</p>
+</div><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.new_global" class="structfield small-section-header">
+                           <a href="#structfield.new_global" class="anchor field"></a>
+                           <span id="new_global.v" class='invisible'>
+                           <code>new_global: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, idata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a>, id: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, interface: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, version: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>A new global was advertized by the server</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>The <code>&amp;mut EventQueueHandle</code></li>
+<li>A mutable reference to the implementation data you provided</li>
+<li>A handle to the wayland registry</li>
+<li>the id of this new global</li>
+<li>the interface of this global</li>
+<li>the version of this global</li>
+</ul>
+</div><span id="structfield.del_global" class="structfield small-section-header">
+                           <a href="#structfield.del_global" class="anchor field"></a>
+                           <span id="del_global.v" class='invisible'>
+                           <code>del_global: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, idata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a>, id: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>A global was removed by the server</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>The <code>&amp;mut EventQueueHandle</code></li>
+<li>A mutable reference to the implementation data you provided</li>
+<li>A handle to the wayland registry</li>
+<li>the id of the removed global</li>
+</ul>
+</div><span id="structfield.ready" class="structfield small-section-header">
+                           <a href="#structfield.ready" class="anchor field"></a>
+                           <span id="ready.v" class='invisible'>
+                           <code>ready: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, idata: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a>)</code>
+                           </span></span><div class='docblock'><p>The EnvHandler is ready</p>
+
+<p>This is called once all necessary globals defined with the <code>wayland_env!()</code>
+macro were advertized and instanciated.</p>
+
+<p>Arguments are:</p>
+
+<ul>
+<li>The <code>&amp;mut EventQueueHandle</code></li>
+<li>A mutable reference to the implementation data you provided</li>
+<li>A handle to the wayland registry</li>
+</ul>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

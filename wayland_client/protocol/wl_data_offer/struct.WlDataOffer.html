@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlDataOffer` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlDataOffer">
+
+    <title>wayland_client::protocol::wl_data_offer::WlDataOffer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct WlDataOffer</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.accept">accept</a><a href="#method.receive">receive</a><a href="#method.destroy">destroy</a><a href="#method.finish">finish</a><a href="#method.set_actions">set_actions</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Send">Send</a><a href="#impl-Sync">Sync</a><a href="#impl-Proxy">Proxy</a><a href="#impl-Implementable%3CID%3E">Implementable&lt;ID&gt;</a></div></div><p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_data_offer</a></p><script>window.sidebarCurrent = {name: 'WlDataOffer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_data_offer</a>::<wbr><a class="struct" href=''>WlDataOffer</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1425-1428' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WlDataOffer { /* fields omitted */ }</pre>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1642-1766' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.accept' class="method"><span id='accept.v' class='invisible'><code>pub fn <a href='#method.accept' class='fnname'>accept</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;mime_type: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;<br>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1659-1664' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>accept one of the offered mime types</p>
+
+<p>Indicate that the client can accept the given mime type, or
+NULL for not accepted.</p>
+
+<p>For objects of version 2 or older, this request is used by the
+client to give feedback whether the client can receive the given
+mime type, or NULL if none is accepted; the feedback does not
+determine whether the drag-and-drop operation succeeds or not.</p>
+
+<p>For objects of version 3 or newer, this request determines the
+final result of the drag-and-drop operation. If the end result
+is that no mime types were accepted, the drag-and-drop operation
+will be cancelled and the corresponding drag source will receive
+wl_data_source.cancelled. Clients may still use this event in
+conjunction with wl_data_source.action for feedback.</p>
+</div><h4 id='method.receive' class="method"><span id='receive.v' class='invisible'><code>pub fn <a href='#method.receive' class='fnname'>receive</a>(&amp;self, mime_type: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, fd: <a class="type" href="https://doc.rust-lang.org/nightly/std/sys/imp/ext/io/type.RawFd.html" title="type std::sys::imp::ext::io::RawFd">RawFd</a>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1682-1687' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>request that the data is transferred</p>
+
+<p>To transfer the offered data, the client issues this request
+and indicates the mime type it wants to receive.  The transfer
+happens through the passed file descriptor (typically created
+with the pipe system call).  The source client writes the data
+in the mime type representation requested and then closes the
+file descriptor.</p>
+
+<p>The receiving client reads from the read end of the pipe until
+EOF and then closes its end, at which point the transfer is
+complete.</p>
+
+<p>This request may happen multiple times for different mime types,
+both before and after wl_data_device.drop. Drag-and-drop destination
+clients may preemptively fetch data or examine it more closely to
+determine acceptance.</p>
+</div><h4 id='method.destroy' class="method"><span id='destroy.v' class='invisible'><code>pub fn <a href='#method.destroy' class='fnname'>destroy</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1693-1705' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>destroy data offer</p>
+
+<p>Destroy the data offer.</p>
+
+<p>This is a destructor, you cannot send requests to this object once this method is called.</p>
+</div><h4 id='method.finish' class="method"><span id='finish.v' class='invisible'><code>pub fn <a href='#method.finish' class='fnname'>finish</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1721-1725' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>the offer will no longer be used</p>
+
+<p>Notifies the compositor that the drag destination successfully
+finished the drag-and-drop operation.</p>
+
+<p>Upon receiving this request, the compositor will emit
+wl_data_source.dnd_finished on the drag source client.</p>
+
+<p>It is a client error to perform other requests than
+wl_data_offer.destroy after this one. It is also an error to perform
+this request after a NULL mime type has been set in
+wl_data_offer.accept or no action was received through
+wl_data_offer.action.</p>
+
+<p>This request is only available since version 3 of the interface</p>
+</div><h4 id='method.set_actions' class="method"><span id='set_actions.v' class='invisible'><code>pub fn <a href='#method.set_actions' class='fnname'>set_actions</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;dnd_actions: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;preferred_action: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a><br>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1761-1765' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>set the available/preferred drag-and-drop actions</p>
+
+<p>Sets the actions that the destination side client supports for
+this operation. This request may trigger the emission of
+wl_data_source.action and wl_data_offer.action events if the compositor
+needs to change the selected action.</p>
+
+<p>This request can be called multiple times throughout the
+drag-and-drop operation, typically in response to wl_data_device.enter
+or wl_data_device.motion events.</p>
+
+<p>This request determines the final result of the drag-and-drop
+operation. If the end result is that no action is accepted,
+the drag source will receive wl_drag_source.cancelled.</p>
+
+<p>The dnd_actions argument must contain only values expressed in the
+wl_data_device_manager.dnd_actions enum, and the preferred_action
+argument must only contain one of those values set, otherwise it
+will result in a protocol error.</p>
+
+<p>While managing an &quot;ask&quot; action, the destination drag-and-drop client
+may perform further wl_data_offer.receive requests, and is expected
+to perform one last wl_data_offer.set_actions request with a preferred
+action other than &quot;ask&quot; (and optionally wl_data_offer.accept) before
+requesting wl_data_offer.finish, in order to convey the action selected
+by the user. If the preferred action is not in the
+wl_data_offer.source_actions mask, an error will be raised.</p>
+
+<p>If the &quot;ask&quot; action is dismissed (e.g. user cancellation), the client
+is expected to perform wl_data_offer.destroy right away.</p>
+
+<p>This request can only be made on drag-and-drop offers, a protocol error
+will be raised otherwise.</p>
+
+<p>This request is only available since version 3 of the interface</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Send' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code><a href='#impl-Send' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1430' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Sync' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code><a href='#impl-Sync' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1431' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Proxy' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../../wayland_client/trait.Proxy.html" title="trait wayland_client::Proxy">Proxy</a> for <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code><a href='#impl-Proxy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1432-1497' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.ptr' class="method"><span id='ptr.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../../../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1433' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Pointer to the underlying wayland proxy object</p>
+</div><h4 id='method.from_ptr_new' class="method"><span id='from_ptr_new.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_new' class='fnname'>from_ptr_new</a>(ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../../../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1435-1443' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an instance from a wayland pointer <a href="../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_new">Read more</a></p>
+</div><h4 id='method.from_ptr_initialized' class="method"><span id='from_ptr_initialized.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_initialized' class='fnname'>from_ptr_initialized</a>(ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../../../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1444-1455' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an instance from a wayland pointer <a href="../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_initialized">Read more</a></p>
+</div><h4 id='method.interface_ptr' class="method"><span id='interface_ptr.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.interface_ptr' class='fnname'>interface_ptr</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../../wayland_sys/common/struct.wl_interface.html" title="struct wayland_sys::common::wl_interface">wl_interface</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1457' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Pointer to the interface representation</p>
+</div><h4 id='method.interface_name' class="method"><span id='interface_name.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.interface_name' class='fnname'>interface_name</a>() -&gt; &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1458' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Internal wayland name of this interface</p>
+</div><h4 id='method.supported_version' class="method"><span id='supported_version.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.supported_version' class='fnname'>supported_version</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1459' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Max version of this interface supported</p>
+</div><h4 id='method.version' class="method"><span id='version.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.version' class='fnname'>version</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1460' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Current version of the interface this proxy is instantiated with</p>
+</div><h4 id='method.status' class="method"><span id='status.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.status' class='fnname'>status</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/enum.Liveness.html" title="enum wayland_client::Liveness">Liveness</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1462-1472' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Check if the proxy behind this handle is actually still alive</p>
+</div><h4 id='method.equals' class="method"><span id='equals.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.equals' class='fnname'>equals</a>(&amp;self, other: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1474-1476' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Check of two handles are actually the same wayland object <a href="../../../wayland_client/trait.Proxy.html#tymethod.equals">Read more</a></p>
+</div><h4 id='method.set_user_data' class="method"><span id='set_user_data.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.set_user_data' class='fnname'>set_user_data</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1478-1482' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set a pointer associated as user data on this proxy <a href="../../../wayland_client/trait.Proxy.html#tymethod.set_user_data">Read more</a></p>
+</div><h4 id='method.get_user_data' class="method"><span id='get_user_data.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.get_user_data' class='fnname'>get_user_data</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1483-1489' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Get the pointer associated as user data on this proxy <a href="../../../wayland_client/trait.Proxy.html#tymethod.get_user_data">Read more</a></p>
+</div><h4 id='method.clone_unchecked' class="method"><span id='clone_unchecked.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.clone_unchecked' class='fnname'>clone_unchecked</a>(&amp;self) -&gt; <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1491-1496' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Unsafely clone this proxy handle <a href="../../../wayland_client/trait.Proxy.html#tymethod.clone_unchecked">Read more</a></p>
+</div><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/lib.rs.html#170-179' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Clone this proxy handle <a href="../../../wayland_client/trait.Proxy.html#method.clone">Read more</a></p>
+</div></div><h3 id='impl-Implementable%3CID%3E' class='impl'><span class='in-band'><code>impl&lt;ID:&nbsp;'static&gt; <a class="trait" href="../../../wayland_client/trait.Implementable.html" title="trait wayland_client::Implementable">Implementable</a>&lt;ID&gt; for <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code><a href='#impl-Implementable%3CID%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1498-1531' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Implementation' class="type"><span id='Implementation.t' class='invisible'><code>type <a href='../../../wayland_client/trait.Implementable.html#associatedtype.Implementation' class="type">Implementation</a> = <a class="struct" href="../../../wayland_client/protocol/wl_data_offer/struct.Implementation.html" title="struct wayland_client::protocol::wl_data_offer::Implementation">Implementation</a>&lt;ID&gt;</code></span></h4>
+<div class='docblock'><p>The type containing the implementation for the event callbacks</p>
+</div><h4 id='method.__dispatch_msg' class="method"><span id='__dispatch_msg.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Implementable.html#tymethod.__dispatch_msg' class='fnname'>__dispatch_msg</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;opcode: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;args: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../../wayland_sys/common/struct.wl_argument.html" title="struct wayland_sys::common::wl_argument">wl_argument</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1501-1530' title='goto source code'>[src]</a></span></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

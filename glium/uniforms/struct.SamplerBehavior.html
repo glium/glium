@@ -9,13 +9,15 @@
 
     <title>glium::uniforms::SamplerBehavior - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'SamplerBehavior', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct SamplerBehavior</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.wrap_function">wrap_function</a><a href="#structfield.minify_filter">minify_filter</a><a href="#structfield.magnify_filter">magnify_filter</a><a href="#structfield.max_anisotropy">max_anisotropy</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Clone">Clone</a><a href="#impl-Copy">Copy</a><a href="#impl-Hash">Hash</a><a href="#impl-PartialEq">PartialEq</a><a href="#impl-Eq">Eq</a><a href="#impl-Default">Default</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'SamplerBehavior', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,27 +43,39 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class='struct' href=''>SamplerBehavior</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-6855' class='srclink' href='../../src/glium/uniforms/sampler.rs.html#141-161' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class="struct" href=''>SamplerBehavior</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#141-161' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct SamplerBehavior {
-    pub wrap_function: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='enum' href='../../glium/uniforms/enum.SamplerWrapFunction.html' title='glium::uniforms::SamplerWrapFunction'>SamplerWrapFunction</a>, <a class='enum' href='../../glium/uniforms/enum.SamplerWrapFunction.html' title='glium::uniforms::SamplerWrapFunction'>SamplerWrapFunction</a>, <a class='enum' href='../../glium/uniforms/enum.SamplerWrapFunction.html' title='glium::uniforms::SamplerWrapFunction'>SamplerWrapFunction</a>)</a>,
-    pub minify_filter: <a class='enum' href='../../glium/uniforms/enum.MinifySamplerFilter.html' title='glium::uniforms::MinifySamplerFilter'>MinifySamplerFilter</a>,
-    pub magnify_filter: <a class='enum' href='../../glium/uniforms/enum.MagnifySamplerFilter.html' title='glium::uniforms::MagnifySamplerFilter'>MagnifySamplerFilter</a>,
-    pub max_anisotropy: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u16.html'>u16</a>,
+    pub wrap_function: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="enum" href="../../glium/uniforms/enum.SamplerWrapFunction.html" title="enum glium::uniforms::SamplerWrapFunction">SamplerWrapFunction</a>, <a class="enum" href="../../glium/uniforms/enum.SamplerWrapFunction.html" title="enum glium::uniforms::SamplerWrapFunction">SamplerWrapFunction</a>, <a class="enum" href="../../glium/uniforms/enum.SamplerWrapFunction.html" title="enum glium::uniforms::SamplerWrapFunction">SamplerWrapFunction</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>,
+    pub minify_filter: <a class="enum" href="../../glium/uniforms/enum.MinifySamplerFilter.html" title="enum glium::uniforms::MinifySamplerFilter">MinifySamplerFilter</a>,
+    pub magnify_filter: <a class="enum" href="../../glium/uniforms/enum.MagnifySamplerFilter.html" title="enum glium::uniforms::MagnifySamplerFilter">MagnifySamplerFilter</a>,
+    pub max_anisotropy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a>,
 }</pre><div class='docblock'><p>Behavior of a sampler.</p>
-</div><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.wrap_function'><code>wrap_function</code></td><td><div class='docblock'><p>Functions to use for the X, Y, and Z coordinates.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.minify_filter'><code>minify_filter</code></td><td><div class='docblock'><p>Filter to use when minifying the texture.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.magnify_filter'><code>magnify_filter</code></td><td><div class='docblock'><p>Filter to use when magnifying the texture.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.max_anisotropy'><code>max_anisotropy</code></td><td><div class='docblock'><p><code>1</code> means no anisotropic filtering, any value above <code>1</code> sets the max anisotropy.</p>
+</div><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.wrap_function" class="structfield small-section-header">
+                           <a href="#structfield.wrap_function" class="anchor field"></a>
+                           <span id="wrap_function.v" class='invisible'>
+                           <code>wrap_function: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="enum" href="../../glium/uniforms/enum.SamplerWrapFunction.html" title="enum glium::uniforms::SamplerWrapFunction">SamplerWrapFunction</a>, <a class="enum" href="../../glium/uniforms/enum.SamplerWrapFunction.html" title="enum glium::uniforms::SamplerWrapFunction">SamplerWrapFunction</a>, <a class="enum" href="../../glium/uniforms/enum.SamplerWrapFunction.html" title="enum glium::uniforms::SamplerWrapFunction">SamplerWrapFunction</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code>
+                           </span></span><div class='docblock'><p>Functions to use for the X, Y, and Z coordinates.</p>
+</div><span id="structfield.minify_filter" class="structfield small-section-header">
+                           <a href="#structfield.minify_filter" class="anchor field"></a>
+                           <span id="minify_filter.v" class='invisible'>
+                           <code>minify_filter: <a class="enum" href="../../glium/uniforms/enum.MinifySamplerFilter.html" title="enum glium::uniforms::MinifySamplerFilter">MinifySamplerFilter</a></code>
+                           </span></span><div class='docblock'><p>Filter to use when minifying the texture.</p>
+</div><span id="structfield.magnify_filter" class="structfield small-section-header">
+                           <a href="#structfield.magnify_filter" class="anchor field"></a>
+                           <span id="magnify_filter.v" class='invisible'>
+                           <code>magnify_filter: <a class="enum" href="../../glium/uniforms/enum.MagnifySamplerFilter.html" title="enum glium::uniforms::MagnifySamplerFilter">MagnifySamplerFilter</a></code>
+                           </span></span><div class='docblock'><p>Filter to use when magnifying the texture.</p>
+</div><span id="structfield.max_anisotropy" class="structfield small-section-header">
+                           <a href="#structfield.max_anisotropy" class="anchor field"></a>
+                           <span id="max_anisotropy.v" class='invisible'>
+                           <code>max_anisotropy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a></code>
+                           </span></span><div class='docblock'><p><code>1</code> means no anisotropic filtering, any value above <code>1</code> sets the max anisotropy.</p>
 
 <h2 id='compatibility' class='section-header'><a href='#compatibility'>Compatibility</a></h2>
 <p>This parameter is always available. However it is ignored on hardware that does
@@ -69,15 +83,34 @@ not support anisotropic filtering.</p>
 
 <p>If you set the value to a value higher than what the hardware supports, it will
 be clamped.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html' title='core::hash::Hash'>Hash</a> for <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h3><div class='impl-items'><h4 id='method.hash' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash' class='fnname'>hash</a>&lt;__H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a>&gt;(&amp;self, __arg_0: &amp;mut __H)</code></h4>
-<h4 id='method.hash_slice' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[Self]</a>, state: &amp;mut H) <span class='where'>where H: <a class='trait' href='https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html' title='core::hash::Hasher'>Hasher</a></span></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div></section>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Hash' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> for <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code><a href='#impl-Hash' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.hash' class="method"><span id='hash.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash' class='fnname'>hash</a>&lt;__H:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>&gt;(&amp;self, __arg_0: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>__H)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Feeds this value into the given [<code>Hasher</code>]. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash">Read more</a></p>
+</div><h4 id='method.hash_slice' class="method"><span id='hash_slice.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[Self]</a>, state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>H) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;H: <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.3.0'>1.3.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/hash/mod.rs.html#202-208' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Feeds a slice of this type into the given [<code>Hasher</code>]. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-Eq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code><a href='#impl-Eq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#140' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Default' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code><a href='#impl-Default' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#163-177' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class="struct" href="../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/sampler.rs.html#165-176' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -94,12 +127,16 @@ be clamped.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -120,7 +157,7 @@ be clamped.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -131,11 +168,8 @@ be clamped.</p>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

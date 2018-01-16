@@ -9,13 +9,15 @@
 
     <title>glium::buffer::Content - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc trait">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a></p><script>window.sidebarCurrent = {name: 'Content', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait Content</p><div class="block items"><a class="sidebar-title" href="#associated-types">Associated Types</a><div class="sidebar-links"><a href="#associatedtype.Owned">Owned</a></div><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.read">read</a><a href="#tymethod.get_elements_size">get_elements_size</a><a href="#tymethod.to_void_ptr">to_void_ptr</a><a href="#tymethod.ref_from_ptr">ref_from_ptr</a><a href="#tymethod.is_size_suitable">is_size_suitable</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-Content">[T]</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a></p><script>window.sidebarCurrent = {name: 'Content', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,39 +43,56 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a>::<wbr><a class='trait' href=''>Content</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1526' class='srclink' href='../../src/glium/buffer/mod.rs.html#75-94' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a>::<wbr><a class="trait" href=''>Content</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/buffer/mod.rs.html#75-94' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub unsafe trait Content {
-    type Owned;
-    fn <a href='#tymethod.read' class='fnname'>read</a>&lt;F, E&gt;(size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, F) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;Self::<a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Owned</a>, E&gt; <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnOnce.html' title='core::ops::FnOnce'>FnOnce</a>(&amp;mut Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, E&gt;</span>;
-    fn <a href='#tymethod.get_elements_size' class='fnname'>get_elements_size</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>;
-    fn <a href='#tymethod.to_void_ptr' class='fnname'>to_void_ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a>;
-    fn <a href='#tymethod.ref_from_ptr' class='fnname'>ref_from_ptr</a>&lt;'a&gt;(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a>, size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut Self</a>&gt;;
-    fn <a href='#tymethod.is_size_suitable' class='fnname'>is_size_suitable</a>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>;
+    type <a href='#associatedtype.Owned' class="type">Owned</a>;
+    fn <a href='#tymethod.read' class='fnname'>read</a>&lt;F, E&gt;(size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, _: F) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self::<a class="type" href="../../glium/buffer/trait.Content.html#associatedtype.Owned" title="type glium::buffer::Content::Owned">Owned</a>, E&gt;<br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>Self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, E&gt;</span>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_elements_size' class='fnname'>get_elements_size</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.to_void_ptr' class='fnname'>to_void_ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.ref_from_ptr' class='fnname'>ref_from_ptr</a>&lt;'a&gt;(ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut Self</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.is_size_suitable' class='fnname'>is_size_suitable</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
 }</pre><div class='docblock'><p>Trait for types of data that can be put inside buffers.</p>
 </div>
-            <h2 id='associated-types'>Associated Types</h2>
+            <h2 id='associated-types' class='small-section-header'>
+              Associated Types<a href='#associated-types' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='associatedtype.Owned' class='method stab '><code>type Owned</code></h3><div class='docblock'><p>A type that holds a sized version of the content.</p>
+        <h3 id='associatedtype.Owned' class='method'><span id='Owned.t' class='invisible'><code>type <a href='#associatedtype.Owned' class="type">Owned</a></code></span></h3><div class='docblock'><p>A type that holds a sized version of the content.</p>
 </div></div>
-            <h2 id='required-methods'>Required Methods</h2>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='tymethod.read' class='method stab '><code>fn <a href='#tymethod.read' class='fnname'>read</a>&lt;F, E&gt;(size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, F) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;Self::<a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Owned</a>, E&gt; <span class='where'>where F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnOnce.html' title='core::ops::FnOnce'>FnOnce</a>(&amp;mut Self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, E&gt;</span></code></h3><div class='docblock'><p>Prepares an output buffer, then turns this buffer into an <code>Owned</code>.</p>
-</div><h3 id='tymethod.get_elements_size' class='method stab '><code>fn <a href='#tymethod.get_elements_size' class='fnname'>get_elements_size</a>() -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h3><div class='docblock'><p>Returns the size of each element.</p>
-</div><h3 id='tymethod.to_void_ptr' class='method stab '><code>fn <a href='#tymethod.to_void_ptr' class='fnname'>to_void_ptr</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*const <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a></code></h3><div class='docblock'><p>Produces a pointer to the data.</p>
-</div><h3 id='tymethod.ref_from_ptr' class='method stab '><code>fn <a href='#tymethod.ref_from_ptr' class='fnname'>ref_from_ptr</a>&lt;'a&gt;(ptr: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a></a>, size: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut Self</a>&gt;</code></h3><div class='docblock'><p>Builds a pointer to this type from a raw pointer.</p>
-</div><h3 id='tymethod.is_size_suitable' class='method stab '><code>fn <a href='#tymethod.is_size_suitable' class='fnname'>is_size_suitable</a>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h3><div class='docblock'><p>Returns true if the size is suitable to store a type like this.</p>
+        <h3 id='tymethod.read' class='method'><span id='read.v' class='invisible'><code>fn <a href='#tymethod.read' class='fnname'>read</a>&lt;F, E&gt;(size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, _: F) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;Self::<a class="type" href="../../glium/buffer/trait.Content.html#associatedtype.Owned" title="type glium::buffer::Content::Owned">Owned</a>, E&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>Self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, E&gt;,&nbsp;</span></code></span></h3><div class='docblock'><p>Prepares an output buffer, then turns this buffer into an <code>Owned</code>.</p>
+</div><h3 id='tymethod.get_elements_size' class='method'><span id='get_elements_size.v' class='invisible'><code>fn <a href='#tymethod.get_elements_size' class='fnname'>get_elements_size</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></h3><div class='docblock'><p>Returns the size of each element.</p>
+</div><h3 id='tymethod.to_void_ptr' class='method'><span id='to_void_ptr.v' class='invisible'><code>fn <a href='#tymethod.to_void_ptr' class='fnname'>to_void_ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></code></span></h3><div class='docblock'><p>Produces a pointer to the data.</p>
+</div><h3 id='tymethod.ref_from_ptr' class='method'><span id='ref_from_ptr.v' class='invisible'><code>fn <a href='#tymethod.ref_from_ptr' class='fnname'>ref_from_ptr</a>&lt;'a&gt;(ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut Self</a>&gt;</code></span></h3><div class='docblock'><p>Builds a pointer to this type from a raw pointer.</p>
+</div><h3 id='tymethod.is_size_suitable' class='method'><span id='is_size_suitable.v' class='invisible'><code>fn <a href='#tymethod.is_size_suitable' class='fnname'>is_size_suitable</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span></h3><div class='docblock'><p>Returns true if the size is suitable to store a type like this.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+                <h2 id='foreign-impls' class='small-section-header'>
+                  Implementations on Foreign Types<a href='#foreign-impls' class='anchor'></a>
+                </h2>
+            <h3 id='impl-Content' class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class="trait" href="../../glium/buffer/trait.Content.html" title="trait glium::buffer::Content">Content</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">[</a>T<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a>,&nbsp;</span></code><a href='#impl-Content' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/mod.rs.html#132-172' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='associatedtype.Owned-1' class="type"><span id='Owned.t-1' class='invisible'><code>type <a href='#associatedtype.Owned' class="type">Owned</a> = <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;T&gt;</code></span></h4>
+<h4 id='method.read' class="method"><span id='read.v-1' class='invisible'><code>fn <a href='#method.read' class='fnname'>read</a>&lt;F, E&gt;(size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, f: F) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;T&gt;, E&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;mut [T]</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, E&gt;,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/mod.rs.html#136-145' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.get_elements_size' class="method"><span id='get_elements_size.v-1' class='invisible'><code>fn <a href='#method.get_elements_size' class='fnname'>get_elements_size</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/mod.rs.html#148-150' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.to_void_ptr' class="method"><span id='to_void_ptr.v-1' class='invisible'><code>fn <a href='#method.to_void_ptr' class='fnname'>to_void_ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/mod.rs.html#153-155' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.ref_from_ptr' class="method"><span id='ref_from_ptr.v-1' class='invisible'><code>fn <a href='#method.ref_from_ptr' class='fnname'>ref_from_ptr</a>&lt;'a&gt;(ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">[</a>T<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/mod.rs.html#158-166' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.is_size_suitable' class="method"><span id='is_size_suitable.v-1' class='invisible'><code>fn <a href='#method.is_size_suitable' class='fnname'>is_size_suitable</a>(size: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/mod.rs.html#169-171' title='goto source code'>[src]</a></span></h4>
+</div></span>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;T&gt; <a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Content</a> for <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[T]</a> <span class='where'>where T: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></code></li>
+    <li><code>impl&lt;T&gt; Content for T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a>,&nbsp;</span><span class="where fmt-newline">  type <a href='#associatedtype.Owned' class="type">Owned</a> = T;</span></code></li>
 </ul><script type="text/javascript" async
-                              src="../../implementors/glium/buffer/trait.Content.js">
-                      </script></section>
+                         src="../../implementors/glium/buffer/trait.Content.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -90,12 +109,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -116,7 +139,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -127,11 +150,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

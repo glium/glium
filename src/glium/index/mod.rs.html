@@ -9,13 +9,15 @@
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -380,8 +382,8 @@
 <span id="337">337</span>
 <span id="338">338</span>
 <span id="339">339</span>
-</pre><pre class='rust '>
-<span class='doccomment'>/*!
+</pre><pre class="rust ">
+<span class="doccomment">/*!
 In order to draw, you need to provide a way for the video card to know how to link primitives
 together.
 
@@ -412,312 +414,312 @@ In addition to indices, you can also use **multidraw indirect** rendering.
 The idea is to put a list of things to render in a buffer, and pass that buffer to OpenGL.
 
 */</span>
-<span class='kw'>use</span> <span class='ident'>gl</span>;
-<span class='kw'>use</span> <span class='ident'>ToGlEnum</span>;
-<span class='kw'>use</span> <span class='ident'>CapabilitiesSource</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Api</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Version</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
+<span class="kw">use</span> <span class="ident">ToGlEnum</span>;
+<span class="kw">use</span> <span class="ident">CapabilitiesSource</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Api</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 
-<span class='kw'>use</span> <span class='ident'>buffer</span>::<span class='ident'>BufferAnySlice</span>;
+<span class="kw">use</span> <span class="ident">buffer</span>::<span class="ident">BufferAnySlice</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>buffer</span>::{<span class='ident'>IndexBuffer</span>, <span class='ident'>IndexBufferSlice</span>, <span class='ident'>IndexBufferAny</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>buffer</span>::<span class='ident'>CreationError</span> <span class='kw'>as</span> <span class='ident'>BufferCreationError</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>multidraw</span>::{<span class='ident'>DrawCommandsNoIndicesBuffer</span>, <span class='ident'>DrawCommandNoIndices</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>multidraw</span>::{<span class='ident'>DrawCommandsIndicesBuffer</span>, <span class='ident'>DrawCommandIndices</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">buffer</span>::{<span class="ident">IndexBuffer</span>, <span class="ident">IndexBufferSlice</span>, <span class="ident">IndexBufferAny</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">buffer</span>::<span class="ident">CreationError</span> <span class="kw">as</span> <span class="ident">BufferCreationError</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">multidraw</span>::{<span class="ident">DrawCommandsNoIndicesBuffer</span>, <span class="ident">DrawCommandNoIndices</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">multidraw</span>::{<span class="ident">DrawCommandsIndicesBuffer</span>, <span class="ident">DrawCommandIndices</span>};
 
-<span class='kw'>mod</span> <span class='ident'>buffer</span>;
-<span class='kw'>mod</span> <span class='ident'>multidraw</span>;
+<span class="kw">mod</span> <span class="ident">buffer</span>;
+<span class="kw">mod</span> <span class="ident">multidraw</span>;
 
-<span class='doccomment'>/// Describes a source of indices used for drawing.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>IndicesSource</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// A buffer uploaded in video memory.</span>
-    <span class='ident'>IndexBuffer</span> {
-        <span class='doccomment'>/// The buffer.</span>
-        <span class='ident'>buffer</span>: <span class='ident'>BufferAnySlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>,
-        <span class='doccomment'>/// Type of indices in the buffer.</span>
-        <span class='ident'>data_type</span>: <span class='ident'>IndexType</span>,
-        <span class='doccomment'>/// Type of primitives contained in the vertex source.</span>
-        <span class='ident'>primitives</span>: <span class='ident'>PrimitiveType</span>,
+<span class="doccomment">/// Describes a source of indices used for drawing.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">IndicesSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// A buffer uploaded in video memory.</span>
+    <span class="ident">IndexBuffer</span> {
+        <span class="doccomment">/// The buffer.</span>
+        <span class="ident">buffer</span>: <span class="ident">BufferAnySlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// Type of indices in the buffer.</span>
+        <span class="ident">data_type</span>: <span class="ident">IndexType</span>,
+        <span class="doccomment">/// Type of primitives contained in the vertex source.</span>
+        <span class="ident">primitives</span>: <span class="ident">PrimitiveType</span>,
     },
 
-    <span class='doccomment'>/// Use a multidraw indirect buffer without indices.</span>
-    <span class='ident'>MultidrawArray</span> {
-        <span class='doccomment'>/// The buffer.</span>
-        <span class='ident'>buffer</span>: <span class='ident'>BufferAnySlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>,
-        <span class='doccomment'>/// Type of primitives contained in the vertex source.</span>
-        <span class='ident'>primitives</span>: <span class='ident'>PrimitiveType</span>,
+    <span class="doccomment">/// Use a multidraw indirect buffer without indices.</span>
+    <span class="ident">MultidrawArray</span> {
+        <span class="doccomment">/// The buffer.</span>
+        <span class="ident">buffer</span>: <span class="ident">BufferAnySlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// Type of primitives contained in the vertex source.</span>
+        <span class="ident">primitives</span>: <span class="ident">PrimitiveType</span>,
     },
 
-    <span class='doccomment'>/// Use a multidraw indirect buffer with indices.</span>
-    <span class='ident'>MultidrawElement</span> {
-        <span class='doccomment'>/// The buffer of the commands.</span>
-        <span class='ident'>commands</span>: <span class='ident'>BufferAnySlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>,
-        <span class='doccomment'>/// The buffer of the indices.</span>
-        <span class='ident'>indices</span>: <span class='ident'>BufferAnySlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>,
-        <span class='doccomment'>/// Type of indices in the buffer.</span>
-        <span class='ident'>data_type</span>: <span class='ident'>IndexType</span>,
-        <span class='doccomment'>/// Type of primitives contained in the vertex source.</span>
-        <span class='ident'>primitives</span>: <span class='ident'>PrimitiveType</span>,
+    <span class="doccomment">/// Use a multidraw indirect buffer with indices.</span>
+    <span class="ident">MultidrawElement</span> {
+        <span class="doccomment">/// The buffer of the commands.</span>
+        <span class="ident">commands</span>: <span class="ident">BufferAnySlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// The buffer of the indices.</span>
+        <span class="ident">indices</span>: <span class="ident">BufferAnySlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+        <span class="doccomment">/// Type of indices in the buffer.</span>
+        <span class="ident">data_type</span>: <span class="ident">IndexType</span>,
+        <span class="doccomment">/// Type of primitives contained in the vertex source.</span>
+        <span class="ident">primitives</span>: <span class="ident">PrimitiveType</span>,
     },
 
-    <span class='doccomment'>/// Don&#39;t use indices. Assemble primitives by using the order in which the vertices are in</span>
-    <span class='doccomment'>/// the vertices source.</span>
-    <span class='ident'>NoIndices</span> {
-        <span class='doccomment'>/// Type of primitives contained in the vertex source.</span>
-        <span class='ident'>primitives</span>: <span class='ident'>PrimitiveType</span>,
+    <span class="doccomment">/// Don&#39;t use indices. Assemble primitives by using the order in which the vertices are in</span>
+    <span class="doccomment">/// the vertices source.</span>
+    <span class="ident">NoIndices</span> {
+        <span class="doccomment">/// Type of primitives contained in the vertex source.</span>
+        <span class="ident">primitives</span>: <span class="ident">PrimitiveType</span>,
     },
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>IndicesSource</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Returns the type of the primitives.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_primitives_type</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>PrimitiveType</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>IndicesSource</span>::<span class='ident'>IndexBuffer</span> { <span class='ident'>primitives</span>, .. } <span class='op'>=&gt;</span> <span class='ident'>primitives</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>IndicesSource</span>::<span class='ident'>MultidrawArray</span> { <span class='ident'>primitives</span>, .. } <span class='op'>=&gt;</span> <span class='ident'>primitives</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>IndicesSource</span>::<span class='ident'>MultidrawElement</span> { <span class='ident'>primitives</span>, .. } <span class='op'>=&gt;</span> <span class='ident'>primitives</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>IndicesSource</span>::<span class='ident'>NoIndices</span> { <span class='ident'>primitives</span> } <span class='op'>=&gt;</span> <span class='ident'>primitives</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IndicesSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Returns the type of the primitives.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_primitives_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PrimitiveType</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="kw-2">&amp;</span><span class="ident">IndicesSource</span>::<span class="ident">IndexBuffer</span> { <span class="ident">primitives</span>, .. } <span class="op">=&gt;</span> <span class="ident">primitives</span>,
+            <span class="kw-2">&amp;</span><span class="ident">IndicesSource</span>::<span class="ident">MultidrawArray</span> { <span class="ident">primitives</span>, .. } <span class="op">=&gt;</span> <span class="ident">primitives</span>,
+            <span class="kw-2">&amp;</span><span class="ident">IndicesSource</span>::<span class="ident">MultidrawElement</span> { <span class="ident">primitives</span>, .. } <span class="op">=&gt;</span> <span class="ident">primitives</span>,
+            <span class="kw-2">&amp;</span><span class="ident">IndicesSource</span>::<span class="ident">NoIndices</span> { <span class="ident">primitives</span> } <span class="op">=&gt;</span> <span class="ident">primitives</span>,
         }
     }
 }
 
-<span class='doccomment'>/// List of available primitives.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// See [this page for a visual representation of each primitive</span>
-<span class='doccomment'>/// type](https://msdn.microsoft.com/en-us/library/windows/desktop/bb205124%28v=vs.85%29.aspx).</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>PrimitiveType</span> {
-    <span class='doccomment'>/// Each vertex is an invidiual point.</span>
-    <span class='ident'>Points</span>,
+<span class="doccomment">/// List of available primitives.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See [this page for a visual representation of each primitive</span>
+<span class="doccomment">/// type](https://msdn.microsoft.com/en-us/library/windows/desktop/bb205124%28v=vs.85%29.aspx).</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PrimitiveType</span> {
+    <span class="doccomment">/// Each vertex is an individual point.</span>
+    <span class="ident">Points</span>,
 
-    <span class='doccomment'>/// Vertices are grouped by chunks of two vertices. Each chunk represents a line.</span>
-    <span class='ident'>LinesList</span>,
+    <span class="doccomment">/// Vertices are grouped by chunks of two vertices. Each chunk represents a line.</span>
+    <span class="ident">LinesList</span>,
 
-    <span class='doccomment'>/// Vertices are grouped by chunks of four vertices. The second and third vertices of each</span>
-    <span class='doccomment'>/// chunk represents the line.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
-    <span class='doccomment'>/// there is any.</span>
-    <span class='doccomment'>/// The first vertex represents the vertex adjacent to the second vertex. The fourth vertex</span>
-    <span class='doccomment'>/// represents the vertex adjacent to the third vertex.</span>
-    <span class='ident'>LinesListAdjacency</span>,
+    <span class="doccomment">/// Vertices are grouped by chunks of four vertices. The second and third vertices of each</span>
+    <span class="doccomment">/// chunk represents the line.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
+    <span class="doccomment">/// there is any.</span>
+    <span class="doccomment">/// The first vertex represents the vertex adjacent to the second vertex. The fourth vertex</span>
+    <span class="doccomment">/// represents the vertex adjacent to the third vertex.</span>
+    <span class="ident">LinesListAdjacency</span>,
 
-    <span class='doccomment'>/// Each vertex (except the last one) forms a line with the next vertex.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// For example vertices 0 and 1 form a line, vertices 1 and 2 form a line, vertices 2 and 3</span>
-    <span class='doccomment'>/// form a line, etc.</span>
-    <span class='ident'>LineStrip</span>,
+    <span class="doccomment">/// Each vertex (except the last one) forms a line with the next vertex.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example vertices 0 and 1 form a line, vertices 1 and 2 form a line, vertices 2 and 3</span>
+    <span class="doccomment">/// form a line, etc.</span>
+    <span class="ident">LineStrip</span>,
 
-    <span class='doccomment'>/// Similar to `LineStrip`, but with an additional vertex at the beginning and at the end</span>
-    <span class='doccomment'>/// that represent the vertices adjacent to the first and last ones.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
-    <span class='doccomment'>/// there is any.</span>
-    <span class='ident'>LineStripAdjacency</span>,
+    <span class="doccomment">/// Similar to `LineStrip`, but with an additional vertex at the beginning and at the end</span>
+    <span class="doccomment">/// that represent the vertices adjacent to the first and last ones.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
+    <span class="doccomment">/// there is any.</span>
+    <span class="ident">LineStripAdjacency</span>,
 
-    <span class='doccomment'>/// Each vertex forms a line with the next vertex. The last vertex form a line with the first</span>
-    <span class='doccomment'>/// one.</span>
-    <span class='ident'>LineLoop</span>,
+    <span class="doccomment">/// Each vertex forms a line with the next vertex. The last vertex form a line with the first</span>
+    <span class="doccomment">/// one.</span>
+    <span class="ident">LineLoop</span>,
 
-    <span class='doccomment'>/// Vertices are grouped by chunks of three vertices. Each chunk represents a triangle.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The order of the vertices is important, as it determines whether the triangle will be</span>
-    <span class='doccomment'>/// clockwise or counter-clockwise. See `BackfaceCulling` for more infos.</span>
-    <span class='ident'>TrianglesList</span>,
+    <span class="doccomment">/// Vertices are grouped by chunks of three vertices. Each chunk represents a triangle.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The order of the vertices is important, as it determines whether the triangle will be</span>
+    <span class="doccomment">/// clockwise or counter-clockwise. See `BackfaceCulling` for more infos.</span>
+    <span class="ident">TrianglesList</span>,
 
-    <span class='doccomment'>/// Vertices are grouped by chunks of six vertices. The first, third and fifth vertices</span>
-    <span class='doccomment'>/// represent a triangle.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The order of the vertices is important, as it determines whether the triangle will be</span>
-    <span class='doccomment'>/// clockwise or counter-clockwise. See `BackfaceCulling` for more infos.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
-    <span class='doccomment'>/// there is any.</span>
-    <span class='doccomment'>/// The second vertex represents the vertex adjacent to the first and third vertices. The</span>
-    <span class='doccomment'>/// fourth vertex represents the vertex adjacent to the third and fifth vertices. The sixth</span>
-    <span class='doccomment'>/// vertex represents the vertex adjacent to the first and fifth vertices.</span>
-    <span class='ident'>TrianglesListAdjacency</span>,
+    <span class="doccomment">/// Vertices are grouped by chunks of six vertices. The first, third and fifth vertices</span>
+    <span class="doccomment">/// represent a triangle.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The order of the vertices is important, as it determines whether the triangle will be</span>
+    <span class="doccomment">/// clockwise or counter-clockwise. See `BackfaceCulling` for more infos.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
+    <span class="doccomment">/// there is any.</span>
+    <span class="doccomment">/// The second vertex represents the vertex adjacent to the first and third vertices. The</span>
+    <span class="doccomment">/// fourth vertex represents the vertex adjacent to the third and fifth vertices. The sixth</span>
+    <span class="doccomment">/// vertex represents the vertex adjacent to the first and fifth vertices.</span>
+    <span class="ident">TrianglesListAdjacency</span>,
 
-    <span class='doccomment'>/// Each vertex (except the first one and the last one) forms a triangle with the previous</span>
-    <span class='doccomment'>/// and the next vertices.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// For example vertices `0, 1, 2` form a triangle, `1, 2, 3` form a triangle, `2, 3, 4` form a</span>
-    <span class='doccomment'>/// triangle, `3, 4, 5` form a triangle, etc.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Each uneven triangle is reversed so that all triangles are facing the same</span>
-    <span class='doccomment'>/// direction.</span>
-    <span class='ident'>TriangleStrip</span>,
+    <span class="doccomment">/// Each vertex (except the first one and the last one) forms a triangle with the previous</span>
+    <span class="doccomment">/// and the next vertices.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example vertices `0, 1, 2` form a triangle, `1, 2, 3` form a triangle, `2, 3, 4` form a</span>
+    <span class="doccomment">/// triangle, `3, 4, 5` form a triangle, etc.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Each uneven triangle is reversed so that all triangles are facing the same</span>
+    <span class="doccomment">/// direction.</span>
+    <span class="ident">TriangleStrip</span>,
 
-    <span class='doccomment'>/// Each even vertex forms a triangle with vertices `n+2` and `n+4`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Each uneven vertex is adjacent to the previous and next ones.</span>
-    <span class='doccomment'>/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
-    <span class='doccomment'>/// there is any.</span>
-    <span class='ident'>TriangleStripAdjacency</span>,
+    <span class="doccomment">/// Each even vertex forms a triangle with vertices `n+2` and `n+4`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Each uneven vertex is adjacent to the previous and next ones.</span>
+    <span class="doccomment">/// Adjacency information doesn&#39;t do anything per-se, but is passed to the geometry shader if</span>
+    <span class="doccomment">/// there is any.</span>
+    <span class="ident">TriangleStripAdjacency</span>,
 
-    <span class='doccomment'>/// Starting at the second vertex, each vertex forms a triangle with the next and the first</span>
-    <span class='doccomment'>/// vertices.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// For example vertices `0, 1, 2` form a triangle, `0, 2, 3` form a triangle, `0, 3, 4` form a</span>
-    <span class='doccomment'>/// triangle, `0, 4, 5` form a triangle, etc.</span>
-    <span class='ident'>TriangleFan</span>,
+    <span class="doccomment">/// Starting at the second vertex, each vertex forms a triangle with the next and the first</span>
+    <span class="doccomment">/// vertices.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example vertices `0, 1, 2` form a triangle, `0, 2, 3` form a triangle, `0, 3, 4` form a</span>
+    <span class="doccomment">/// triangle, `0, 4, 5` form a triangle, etc.</span>
+    <span class="ident">TriangleFan</span>,
 
-    <span class='doccomment'>/// Vertices are grouped by chunks of `vertices_per_patch` vertices.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This primitives type can only be used in conjunction with a tessellation shader. The</span>
-    <span class='doccomment'>/// tessellation shader will indicate how each patch will be divided into lines or triangles.</span>
-    <span class='ident'>Patches</span> {
-        <span class='doccomment'>/// Number of vertices per patch.</span>
-        <span class='ident'>vertices_per_patch</span>: <span class='ident'>u16</span>,
+    <span class="doccomment">/// Vertices are grouped by chunks of `vertices_per_patch` vertices.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This primitives type can only be used in conjunction with a tessellation shader. The</span>
+    <span class="doccomment">/// tessellation shader will indicate how each patch will be divided into lines or triangles.</span>
+    <span class="ident">Patches</span> {
+        <span class="doccomment">/// Number of vertices per patch.</span>
+        <span class="ident">vertices_per_patch</span>: <span class="ident">u16</span>,
     },
 }
 
-<span class='kw'>impl</span> <span class='ident'>PrimitiveType</span> {
-    <span class='doccomment'>/// Returns true if the backend supports this type of primitives.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_supported</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>caps</span>: <span class='kw-2'>&amp;</span><span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> <span class='kw'>where</span> <span class='ident'>C</span>: <span class='ident'>CapabilitiesSource</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>Points</span> <span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LinesList</span> <span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LineStrip</span> <span class='op'>|</span>
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LineLoop</span> <span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TrianglesList</span> <span class='op'>|</span>
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TriangleStrip</span> <span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TriangleFan</span> <span class='op'>=&gt;</span> <span class='boolval'>true</span>,
+<span class="kw">impl</span> <span class="ident">PrimitiveType</span> {
+    <span class="doccomment">/// Returns true if the backend supports this type of primitives.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">caps</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">Points</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LinesList</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LineStrip</span> <span class="op">|</span>
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LineLoop</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TrianglesList</span> <span class="op">|</span>
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TriangleStrip</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TriangleFan</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
 
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LinesListAdjacency</span> <span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LineStripAdjacency</span> <span class='op'>|</span>
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TrianglesListAdjacency</span> <span class='op'>|</span> <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TriangleStripAdjacency</span> <span class='op'>=&gt;</span> {
-                <span class='ident'>caps</span>.<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                <span class='ident'>caps</span>.<span class='ident'>get_extensions</span>().<span class='ident'>gl_arb_geometry_shader4</span> <span class='op'>||</span>
-                <span class='ident'>caps</span>.<span class='ident'>get_extensions</span>().<span class='ident'>gl_ext_geometry_shader4</span> <span class='op'>||</span>
-                <span class='ident'>caps</span>.<span class='ident'>get_extensions</span>().<span class='ident'>gl_ext_geometry_shader</span>
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LinesListAdjacency</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LineStripAdjacency</span> <span class="op">|</span>
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TrianglesListAdjacency</span> <span class="op">|</span> <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TriangleStripAdjacency</span> <span class="op">=&gt;</span> {
+                <span class="ident">caps</span>.<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span>
+                <span class="ident">caps</span>.<span class="ident">get_extensions</span>().<span class="ident">gl_arb_geometry_shader4</span> <span class="op">||</span>
+                <span class="ident">caps</span>.<span class="ident">get_extensions</span>().<span class="ident">gl_ext_geometry_shader4</span> <span class="op">||</span>
+                <span class="ident">caps</span>.<span class="ident">get_extensions</span>().<span class="ident">gl_ext_geometry_shader</span>
             },
 
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>Patches</span> { .. } <span class='op'>=&gt;</span> {
-                <span class='ident'>caps</span>.<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>4</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                <span class='ident'>caps</span>.<span class='ident'>get_extensions</span>().<span class='ident'>gl_arb_tessellation_shader</span>
-            },
-        }
-    }
-}
-
-<span class='kw'>impl</span> <span class='ident'>ToGlEnum</span> <span class='kw'>for</span> <span class='ident'>PrimitiveType</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>Points</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>POINTS</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LinesList</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINES</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LinesListAdjacency</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINES_ADJACENCY</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LineStrip</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINE_STRIP</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LineStripAdjacency</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINE_STRIP_ADJACENCY</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>LineLoop</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>LINE_LOOP</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TrianglesList</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>TRIANGLES</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TrianglesListAdjacency</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>TRIANGLES_ADJACENCY</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TriangleStrip</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>TRIANGLE_STRIP</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TriangleStripAdjacency</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>TRIANGLE_STRIP_ADJACENCY</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>TriangleFan</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>TRIANGLE_FAN</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>PrimitiveType</span>::<span class='ident'>Patches</span> { .. } <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>PATCHES</span>,
-        }
-    }
-}
-
-<span class='doccomment'>/// Marker that can be used as an indices source when you don&#39;t need indices.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// If you use this, then the primitives will be constructed using the order in which the</span>
-<span class='doccomment'>/// vertices are in the vertices sources.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>NoIndices</span>(<span class='kw'>pub</span> <span class='ident'>PrimitiveType</span>);
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>NoIndices</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>IndicesSource</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>marker</span>: <span class='ident'>NoIndices</span>) <span class='op'>-&gt;</span> <span class='ident'>IndicesSource</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>IndicesSource</span>::<span class='ident'>NoIndices</span> {
-            <span class='ident'>primitives</span>: <span class='ident'>marker</span>.<span class='number'>0</span>
-        }
-    }
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='lifetime'>&#39;b</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>NoIndices</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>IndicesSource</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>marker</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;b</span> <span class='ident'>NoIndices</span>) <span class='op'>-&gt;</span> <span class='ident'>IndicesSource</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>IndicesSource</span>::<span class='ident'>NoIndices</span> {
-            <span class='ident'>primitives</span>: <span class='ident'>marker</span>.<span class='number'>0</span>
-        }
-    }
-}
-
-<span class='doccomment'>/// Type of the indices in an index source.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>u32</span>)]</span>    <span class='comment'>// GLenum</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>IndexType</span> {
-    <span class='doccomment'>/// u8</span>
-    <span class='ident'>U8</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>UNSIGNED_BYTE</span>,
-    <span class='doccomment'>/// u16</span>
-    <span class='ident'>U16</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>UNSIGNED_SHORT</span>,
-    <span class='doccomment'>/// u32</span>
-    <span class='ident'>U32</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>UNSIGNED_INT</span>,
-}
-
-<span class='kw'>impl</span> <span class='ident'>IndexType</span> {
-    <span class='doccomment'>/// Returns the size in bytes of each index of this type.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_size</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>IndexType</span>::<span class='ident'>U8</span> <span class='op'>=&gt;</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>(),
-            <span class='ident'>IndexType</span>::<span class='ident'>U16</span> <span class='op'>=&gt;</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>u16</span><span class='op'>&gt;</span>(),
-            <span class='ident'>IndexType</span>::<span class='ident'>U32</span> <span class='op'>=&gt;</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>(),
-        }
-    }
-
-    <span class='doccomment'>/// Returns true if the backend supports this type of index.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_supported</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>caps</span>: <span class='kw-2'>&amp;</span><span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> <span class='kw'>where</span> <span class='ident'>C</span>: <span class='ident'>CapabilitiesSource</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>IndexType</span>::<span class='ident'>U8</span> <span class='op'>=&gt;</span> <span class='boolval'>true</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>IndexType</span>::<span class='ident'>U16</span> <span class='op'>=&gt;</span> <span class='boolval'>true</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>IndexType</span>::<span class='ident'>U32</span> <span class='op'>=&gt;</span> {
-                <span class='ident'>caps</span>.<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>1</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                <span class='ident'>caps</span>.<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                <span class='ident'>caps</span>.<span class='ident'>get_extensions</span>().<span class='ident'>gl_oes_element_index_uint</span>
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">Patches</span> { .. } <span class="op">=&gt;</span> {
+                <span class="ident">caps</span>.<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">4</span>, <span class="number">0</span>) <span class="op">||</span>
+                <span class="ident">caps</span>.<span class="ident">get_extensions</span>().<span class="ident">gl_arb_tessellation_shader</span>
             },
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>ToGlEnum</span> <span class='kw'>for</span> <span class='ident'>IndexType</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span>
+<span class="kw">impl</span> <span class="ident">ToGlEnum</span> <span class="kw">for</span> <span class="ident">PrimitiveType</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">Points</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">POINTS</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LinesList</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINES</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LinesListAdjacency</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINES_ADJACENCY</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LineStrip</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINE_STRIP</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LineStripAdjacency</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINE_STRIP_ADJACENCY</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">LineLoop</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">LINE_LOOP</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TrianglesList</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">TRIANGLES</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TrianglesListAdjacency</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">TRIANGLES_ADJACENCY</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TriangleStrip</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">TRIANGLE_STRIP</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TriangleStripAdjacency</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">TRIANGLE_STRIP_ADJACENCY</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">TriangleFan</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">TRIANGLE_FAN</span>,
+            <span class="kw-2">&amp;</span><span class="ident">PrimitiveType</span>::<span class="ident">Patches</span> { .. } <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">PATCHES</span>,
+        }
     }
 }
 
-<span class='doccomment'>/// An index from the index buffer.</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>trait</span> <span class='ident'>Index</span>: <span class='ident'>Copy</span> <span class='op'>+</span> <span class='ident'>Send</span> <span class='op'>+</span> <span class='lifetime'>&#39;static</span> {
-    <span class='doccomment'>/// Returns the `IndexType` corresponding to this type.</span>
-    <span class='kw'>fn</span> <span class='ident'>get_type</span>() <span class='op'>-&gt;</span> <span class='ident'>IndexType</span>;
+<span class="doccomment">/// Marker that can be used as an indices source when you don&#39;t need indices.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If you use this, then the primitives will be constructed using the order in which the</span>
+<span class="doccomment">/// vertices are in the vertices sources.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">NoIndices</span>(<span class="kw">pub</span> <span class="ident">PrimitiveType</span>);
 
-    <span class='doccomment'>/// Returns true if this type of index is supported by the backend.</span>
-    <span class='kw'>fn</span> <span class='ident'>is_supported</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='ident'>caps</span>: <span class='kw-2'>&amp;</span><span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> <span class='kw'>where</span> <span class='ident'>C</span>: <span class='ident'>CapabilitiesSource</span> {
-        <span class='ident'>Self</span>::<span class='ident'>get_type</span>().<span class='ident'>is_supported</span>(<span class='ident'>caps</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">NoIndices</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IndicesSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">marker</span>: <span class="ident">NoIndices</span>) <span class="op">-&gt;</span> <span class="ident">IndicesSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">IndicesSource</span>::<span class="ident">NoIndices</span> {
+            <span class="ident">primitives</span>: <span class="ident">marker</span>.<span class="number">0</span>
+        }
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>Index</span> <span class='kw'>for</span> <span class='ident'>u8</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_type</span>() <span class='op'>-&gt;</span> <span class='ident'>IndexType</span> {
-        <span class='ident'>IndexType</span>::<span class='ident'>U8</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="lifetime">&#39;b</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">NoIndices</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">IndicesSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">marker</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;b</span> <span class="ident">NoIndices</span>) <span class="op">-&gt;</span> <span class="ident">IndicesSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">IndicesSource</span>::<span class="ident">NoIndices</span> {
+            <span class="ident">primitives</span>: <span class="ident">marker</span>.<span class="number">0</span>
+        }
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>Index</span> <span class='kw'>for</span> <span class='ident'>u16</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_type</span>() <span class='op'>-&gt;</span> <span class='ident'>IndexType</span> {
-        <span class='ident'>IndexType</span>::<span class='ident'>U16</span>
+<span class="doccomment">/// Type of the indices in an index source.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>    <span class="comment">// GLenum</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">IndexType</span> {
+    <span class="doccomment">/// u8</span>
+    <span class="ident">U8</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">UNSIGNED_BYTE</span>,
+    <span class="doccomment">/// u16</span>
+    <span class="ident">U16</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">UNSIGNED_SHORT</span>,
+    <span class="doccomment">/// u32</span>
+    <span class="ident">U32</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">UNSIGNED_INT</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">IndexType</span> {
+    <span class="doccomment">/// Returns the size in bytes of each index of this type.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">IndexType</span>::<span class="ident">U8</span> <span class="op">=&gt;</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>(),
+            <span class="ident">IndexType</span>::<span class="ident">U16</span> <span class="op">=&gt;</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u16</span><span class="op">&gt;</span>(),
+            <span class="ident">IndexType</span>::<span class="ident">U32</span> <span class="op">=&gt;</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>(),
+        }
+    }
+
+    <span class="doccomment">/// Returns true if the backend supports this type of index.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">caps</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="kw-2">&amp;</span><span class="ident">IndexType</span>::<span class="ident">U8</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw-2">&amp;</span><span class="ident">IndexType</span>::<span class="ident">U16</span> <span class="op">=&gt;</span> <span class="bool-val">true</span>,
+            <span class="kw-2">&amp;</span><span class="ident">IndexType</span>::<span class="ident">U32</span> <span class="op">=&gt;</span> {
+                <span class="ident">caps</span>.<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">1</span>, <span class="number">0</span>) <span class="op">||</span>
+                <span class="ident">caps</span>.<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span>
+                <span class="ident">caps</span>.<span class="ident">get_extensions</span>().<span class="ident">gl_oes_element_index_uint</span>
+            },
+        }
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>Index</span> <span class='kw'>for</span> <span class='ident'>u32</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_type</span>() <span class='op'>-&gt;</span> <span class='ident'>IndexType</span> {
-        <span class='ident'>IndexType</span>::<span class='ident'>U32</span>
+<span class="kw">impl</span> <span class="ident">ToGlEnum</span> <span class="kw">for</span> <span class="ident">IndexType</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span>
+    }
+}
+
+<span class="doccomment">/// An index from the index buffer.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">Index</span>: <span class="ident">Copy</span> <span class="op">+</span> <span class="ident">Send</span> <span class="op">+</span> <span class="lifetime">&#39;static</span> {
+    <span class="doccomment">/// Returns the `IndexType` corresponding to this type.</span>
+    <span class="kw">fn</span> <span class="ident">get_type</span>() <span class="op">-&gt;</span> <span class="ident">IndexType</span>;
+
+    <span class="doccomment">/// Returns true if this type of index is supported by the backend.</span>
+    <span class="kw">fn</span> <span class="ident">is_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">caps</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+        <span class="self">Self</span>::<span class="ident">get_type</span>().<span class="ident">is_supported</span>(<span class="ident">caps</span>)
+    }
+}
+
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Index</span> <span class="kw">for</span> <span class="ident">u8</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_type</span>() <span class="op">-&gt;</span> <span class="ident">IndexType</span> {
+        <span class="ident">IndexType</span>::<span class="ident">U8</span>
+    }
+}
+
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Index</span> <span class="kw">for</span> <span class="ident">u16</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_type</span>() <span class="op">-&gt;</span> <span class="ident">IndexType</span> {
+        <span class="ident">IndexType</span>::<span class="ident">U16</span>
+    }
+}
+
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Index</span> <span class="kw">for</span> <span class="ident">u32</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_type</span>() <span class="op">-&gt;</span> <span class="ident">IndexType</span> {
+        <span class="ident">IndexType</span>::<span class="ident">U32</span>
     }
 }
 </pre>
@@ -738,12 +740,16 @@ The idea is to put a list of things to render in a buffer, and pass that buffer 
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -764,7 +770,7 @@ The idea is to put a list of things to render in a buffer, and pass that buffer 
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -775,11 +781,8 @@ The idea is to put a list of things to render in a buffer, and pass that buffer 
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

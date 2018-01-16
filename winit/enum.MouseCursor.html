@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `MouseCursor` enum in crate `winit`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, MouseCursor">
+
+    <title>winit::MouseCursor - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc enum">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Enum MouseCursor</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.Default">Default</a><a href="#variant.Crosshair">Crosshair</a><a href="#variant.Hand">Hand</a><a href="#variant.Arrow">Arrow</a><a href="#variant.Move">Move</a><a href="#variant.Text">Text</a><a href="#variant.Wait">Wait</a><a href="#variant.Help">Help</a><a href="#variant.Progress">Progress</a><a href="#variant.NotAllowed">NotAllowed</a><a href="#variant.ContextMenu">ContextMenu</a><a href="#variant.NoneCursor">NoneCursor</a><a href="#variant.Cell">Cell</a><a href="#variant.VerticalText">VerticalText</a><a href="#variant.Alias">Alias</a><a href="#variant.Copy">Copy</a><a href="#variant.NoDrop">NoDrop</a><a href="#variant.Grab">Grab</a><a href="#variant.Grabbing">Grabbing</a><a href="#variant.AllScroll">AllScroll</a><a href="#variant.ZoomIn">ZoomIn</a><a href="#variant.ZoomOut">ZoomOut</a><a href="#variant.EResize">EResize</a><a href="#variant.NResize">NResize</a><a href="#variant.NeResize">NeResize</a><a href="#variant.NwResize">NwResize</a><a href="#variant.SResize">SResize</a><a href="#variant.SeResize">SeResize</a><a href="#variant.SwResize">SwResize</a><a href="#variant.WResize">WResize</a><a href="#variant.EwResize">EwResize</a><a href="#variant.NsResize">NsResize</a><a href="#variant.NeswResize">NeswResize</a><a href="#variant.NwseResize">NwseResize</a><a href="#variant.ColResize">ColResize</a><a href="#variant.RowResize">RowResize</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='index.html'>winit</a></p><script>window.sidebarCurrent = {name: 'MouseCursor', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>winit</a>::<wbr><a class="enum" href=''>MouseCursor</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/winit/lib.rs.html#318-371' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum MouseCursor {
+    Default,
+    Crosshair,
+    Hand,
+    Arrow,
+    Move,
+    Text,
+    Wait,
+    Help,
+    Progress,
+    NotAllowed,
+    ContextMenu,
+    NoneCursor,
+    Cell,
+    VerticalText,
+    Alias,
+    Copy,
+    NoDrop,
+    Grab,
+    Grabbing,
+    AllScroll,
+    ZoomIn,
+    ZoomOut,
+    EResize,
+    NResize,
+    NeResize,
+    NwResize,
+    SResize,
+    SeResize,
+    SwResize,
+    WResize,
+    EwResize,
+    NsResize,
+    NeswResize,
+    NwseResize,
+    ColResize,
+    RowResize,
+}</pre><div class='docblock'><p>Describes the appearance of the mouse cursor.</p>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.Default" class="variant small-section-header"><a href="#variant.Default" class="anchor field"></a><span id='Default.v' class='invisible'><code>Default</code></span></span><div class='docblock'><p>The platform-dependent default cursor.</p>
+</div><span id="variant.Crosshair" class="variant small-section-header"><a href="#variant.Crosshair" class="anchor field"></a><span id='Crosshair.v' class='invisible'><code>Crosshair</code></span></span><div class='docblock'><p>A simple crosshair.</p>
+</div><span id="variant.Hand" class="variant small-section-header"><a href="#variant.Hand" class="anchor field"></a><span id='Hand.v' class='invisible'><code>Hand</code></span></span><div class='docblock'><p>A hand (often used to indicate links in web browsers).</p>
+</div><span id="variant.Arrow" class="variant small-section-header"><a href="#variant.Arrow" class="anchor field"></a><span id='Arrow.v' class='invisible'><code>Arrow</code></span></span><div class='docblock'><p>Self explanatory.</p>
+</div><span id="variant.Move" class="variant small-section-header"><a href="#variant.Move" class="anchor field"></a><span id='Move.v' class='invisible'><code>Move</code></span></span><div class='docblock'><p>Indicates something is to be moved.</p>
+</div><span id="variant.Text" class="variant small-section-header"><a href="#variant.Text" class="anchor field"></a><span id='Text.v' class='invisible'><code>Text</code></span></span><div class='docblock'><p>Indicates text that may be selected or edited.</p>
+</div><span id="variant.Wait" class="variant small-section-header"><a href="#variant.Wait" class="anchor field"></a><span id='Wait.v' class='invisible'><code>Wait</code></span></span><div class='docblock'><p>Program busy indicator.</p>
+</div><span id="variant.Help" class="variant small-section-header"><a href="#variant.Help" class="anchor field"></a><span id='Help.v' class='invisible'><code>Help</code></span></span><div class='docblock'><p>Help indicator (often rendered as a &quot;?&quot;)</p>
+</div><span id="variant.Progress" class="variant small-section-header"><a href="#variant.Progress" class="anchor field"></a><span id='Progress.v' class='invisible'><code>Progress</code></span></span><div class='docblock'><p>Progress indicator. Shows that processing is being done. But in contrast
+with &quot;Wait&quot; the user may still interact with the program. Often rendered
+as a spinning beach ball, or an arrow with a watch or hourglass.</p>
+</div><span id="variant.NotAllowed" class="variant small-section-header"><a href="#variant.NotAllowed" class="anchor field"></a><span id='NotAllowed.v' class='invisible'><code>NotAllowed</code></span></span><div class='docblock'><p>Cursor showing that something cannot be done.</p>
+</div><span id="variant.ContextMenu" class="variant small-section-header"><a href="#variant.ContextMenu" class="anchor field"></a><span id='ContextMenu.v' class='invisible'><code>ContextMenu</code></span></span><span id="variant.NoneCursor" class="variant small-section-header"><a href="#variant.NoneCursor" class="anchor field"></a><span id='NoneCursor.v' class='invisible'><code>NoneCursor</code></span></span><span id="variant.Cell" class="variant small-section-header"><a href="#variant.Cell" class="anchor field"></a><span id='Cell.v' class='invisible'><code>Cell</code></span></span><span id="variant.VerticalText" class="variant small-section-header"><a href="#variant.VerticalText" class="anchor field"></a><span id='VerticalText.v' class='invisible'><code>VerticalText</code></span></span><span id="variant.Alias" class="variant small-section-header"><a href="#variant.Alias" class="anchor field"></a><span id='Alias.v' class='invisible'><code>Alias</code></span></span><span id="variant.Copy" class="variant small-section-header"><a href="#variant.Copy" class="anchor field"></a><span id='Copy.v' class='invisible'><code>Copy</code></span></span><span id="variant.NoDrop" class="variant small-section-header"><a href="#variant.NoDrop" class="anchor field"></a><span id='NoDrop.v' class='invisible'><code>NoDrop</code></span></span><span id="variant.Grab" class="variant small-section-header"><a href="#variant.Grab" class="anchor field"></a><span id='Grab.v' class='invisible'><code>Grab</code></span></span><span id="variant.Grabbing" class="variant small-section-header"><a href="#variant.Grabbing" class="anchor field"></a><span id='Grabbing.v' class='invisible'><code>Grabbing</code></span></span><span id="variant.AllScroll" class="variant small-section-header"><a href="#variant.AllScroll" class="anchor field"></a><span id='AllScroll.v' class='invisible'><code>AllScroll</code></span></span><span id="variant.ZoomIn" class="variant small-section-header"><a href="#variant.ZoomIn" class="anchor field"></a><span id='ZoomIn.v' class='invisible'><code>ZoomIn</code></span></span><span id="variant.ZoomOut" class="variant small-section-header"><a href="#variant.ZoomOut" class="anchor field"></a><span id='ZoomOut.v' class='invisible'><code>ZoomOut</code></span></span><span id="variant.EResize" class="variant small-section-header"><a href="#variant.EResize" class="anchor field"></a><span id='EResize.v' class='invisible'><code>EResize</code></span></span><div class='docblock'><p>Indicate that some edge is to be moved. For example, the &#39;SeResize&#39; cursor
+is used when the movement starts from the south-east corner of the box.</p>
+</div><span id="variant.NResize" class="variant small-section-header"><a href="#variant.NResize" class="anchor field"></a><span id='NResize.v' class='invisible'><code>NResize</code></span></span><span id="variant.NeResize" class="variant small-section-header"><a href="#variant.NeResize" class="anchor field"></a><span id='NeResize.v' class='invisible'><code>NeResize</code></span></span><span id="variant.NwResize" class="variant small-section-header"><a href="#variant.NwResize" class="anchor field"></a><span id='NwResize.v' class='invisible'><code>NwResize</code></span></span><span id="variant.SResize" class="variant small-section-header"><a href="#variant.SResize" class="anchor field"></a><span id='SResize.v' class='invisible'><code>SResize</code></span></span><span id="variant.SeResize" class="variant small-section-header"><a href="#variant.SeResize" class="anchor field"></a><span id='SeResize.v' class='invisible'><code>SeResize</code></span></span><span id="variant.SwResize" class="variant small-section-header"><a href="#variant.SwResize" class="anchor field"></a><span id='SwResize.v' class='invisible'><code>SwResize</code></span></span><span id="variant.WResize" class="variant small-section-header"><a href="#variant.WResize" class="anchor field"></a><span id='WResize.v' class='invisible'><code>WResize</code></span></span><span id="variant.EwResize" class="variant small-section-header"><a href="#variant.EwResize" class="anchor field"></a><span id='EwResize.v' class='invisible'><code>EwResize</code></span></span><span id="variant.NsResize" class="variant small-section-header"><a href="#variant.NsResize" class="anchor field"></a><span id='NsResize.v' class='invisible'><code>NsResize</code></span></span><span id="variant.NeswResize" class="variant small-section-header"><a href="#variant.NeswResize" class="anchor field"></a><span id='NeswResize.v' class='invisible'><code>NeswResize</code></span></span><span id="variant.NwseResize" class="variant small-section-header"><a href="#variant.NwseResize" class="anchor field"></a><span id='NwseResize.v' class='invisible'><code>NwseResize</code></span></span><span id="variant.ColResize" class="variant small-section-header"><a href="#variant.ColResize" class="anchor field"></a><span id='ColResize.v' class='invisible'><code>ColResize</code></span></span><span id="variant.RowResize" class="variant small-section-header"><a href="#variant.RowResize" class="anchor field"></a><span id='RowResize.v' class='invisible'><code>RowResize</code></span></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../winit/enum.MouseCursor.html" title="enum winit::MouseCursor">MouseCursor</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/lib.rs.html#317' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/lib.rs.html#317' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="enum" href="../winit/enum.MouseCursor.html" title="enum winit::MouseCursor">MouseCursor</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/lib.rs.html#317' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../winit/enum.MouseCursor.html" title="enum winit::MouseCursor">MouseCursor</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/lib.rs.html#317' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../winit/enum.MouseCursor.html" title="enum winit::MouseCursor">MouseCursor</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/lib.rs.html#317' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="enum" href="../winit/enum.MouseCursor.html" title="enum winit::MouseCursor">MouseCursor</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/lib.rs.html#317' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../winit/enum.MouseCursor.html" title="enum winit::MouseCursor">MouseCursor</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/lib.rs.html#317' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "winit";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

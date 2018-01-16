@@ -9,13 +9,15 @@
 
     <title>glium::texture::srgb_cubemap - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'srgb_cubemap', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module srgb_cubemap</p><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'srgb_cubemap', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,42 +43,36 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a class='mod' href=''>srgb_cubemap</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-23172' class='srclink' href='../../../src/glium///home/travis/build/tomaka/glium/target/debug/build/glium-eb7899fe2df59b8f/out/textures.rs.html#18446-18693' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a class="mod" href=''>srgb_cubemap</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#22168-22479' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Contains the implementation of <code>SrgbCubemap</code>.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.SrgbCubemap.html'
-                               title='glium::texture::srgb_cubemap::SrgbCubemap'>SrgbCubemap</a></td>
-                        <td class='docblock short'>
-                             <p>A cube texture  containing sRGB floating-point data.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.SrgbCubemapImage.html'
-                               title='glium::texture::srgb_cubemap::SrgbCubemapImage'>SrgbCubemapImage</a></td>
-                        <td class='docblock short'>
-                             <p>Represents a single image of a mipmap level of a layer of <code>SrgbCubemap</code>.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.SrgbCubemapMipmap.html'
-                               title='glium::texture::srgb_cubemap::SrgbCubemapMipmap'>SrgbCubemapMipmap</a></td>
-                        <td class='docblock short'>
-                             <p>Represents a single mipmap level of a <code>SrgbCubemap</code>.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SrgbCubemap.html"
+                                  title='struct glium::texture::srgb_cubemap::SrgbCubemap'>SrgbCubemap</a></td>
+                           <td class='docblock-short'>
+                                <p>A cube texture  containing sRGB floating-point data.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SrgbCubemapImage.html"
+                                  title='struct glium::texture::srgb_cubemap::SrgbCubemapImage'>SrgbCubemapImage</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents a single image of a mipmap level of a layer of <code>SrgbCubemap</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SrgbCubemapMipmap.html"
+                                  title='struct glium::texture::srgb_cubemap::SrgbCubemapMipmap'>SrgbCubemapMipmap</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents a single mipmap level of a <code>SrgbCubemap</code>.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -93,12 +89,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -119,7 +119,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -130,11 +130,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

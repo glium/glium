@@ -9,13 +9,15 @@
 
     <title>glium::glutin - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'glutin', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module glutin</p><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#statics">Statics</a></li><li><a href="#traits">Traits</a></li><li><a href="#types">Type Definitions</a></li></ul></div><p class='location'><a href='../index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'glutin', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,334 +43,374 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>glium</a>::<wbr><a class='mod' href=''>glutin</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='../..//glutin/index.html?gotosrc=0' title='goto source code'>[src]</a></span></h1>
-<h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>glium</a>::<wbr><a class="mod" href=''>glutin</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glutin/lib.rs.html#1-752' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>The purpose of this library is to provide an OpenGL context on as many platforms as possible.</p>
+
+<h1 id='building-a-glwindow' class='section-header'><a href='#building-a-glwindow'>Building a GlWindow</a></h1>
+<p>A <code>GlWindow</code> is composed of a <code>Window</code> and an OpenGL <code>Context</code>. Due to some
+operating-system-specific quirks, glutin requires control over the order of creation of the
+<code>Context</code> and <code>Window</code>. Here is an example of building a GlWindow:</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">events_loop</span> <span class="op">=</span> <span class="ident">glutin</span>::<span class="ident">EventsLoop</span>::<span class="ident">new</span>();
+<span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">glutin</span>::<span class="ident">WindowBuilder</span>::<span class="ident">new</span>()
+    .<span class="ident">with_title</span>(<span class="string">&quot;Hello world!&quot;</span>)
+    .<span class="ident">with_dimensions</span>(<span class="number">1024</span>, <span class="number">768</span>);
+<span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">glutin</span>::<span class="ident">ContextBuilder</span>::<span class="ident">new</span>();
+<span class="kw">let</span> <span class="ident">gl_window</span> <span class="op">=</span> <span class="ident">glutin</span>::<span class="ident">GlWindow</span>::<span class="ident">new</span>(<span class="ident">window</span>, <span class="ident">context</span>, <span class="kw-2">&amp;</span><span class="ident">events_loop</span>).<span class="ident">unwrap</span>();</pre>
+
+<p>For contexts that are <em>not</em> associated with any particular window, see the HeadlessContext
+type.</p>
+
+<h1 id='features' class='section-header'><a href='#features'>Features</a></h1>
+<p>This crate has two Cargo features: <code>window</code> and <code>headless</code>.</p>
+
+<ul>
+<li><code>window</code> allows you to create regular windows and enables the <code>WindowBuilder</code> object.</li>
+<li><code>headless</code> allows you to do headless rendering, and enables
+the <code>HeadlessRendererBuilder</code> object.</li>
+</ul>
+
+<p>By default only <code>window</code> is enabled.</p>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='os/index.html'
-                               title='glium::glutin::os'>os</a></td>
-                        <td class='docblock short'>
-                             <p>Contains traits with platform-specific methods in them.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="os/index.html"
+                                  title='mod glium::glutin::os'>os</a></td>
+                           <td class='docblock-short'>
+                                <p>Contains traits with platform-specific methods in them.</p>
+                           </td>
+                       </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.AvailableMonitorsIter.html'
-                               title='glium::glutin::AvailableMonitorsIter'>AvailableMonitorsIter</a></td>
-                        <td class='docblock short'>
-                             <p>An iterator for the list of available monitors.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.GlAttributes.html'
-                               title='glium::glutin::GlAttributes'>GlAttributes</a></td>
-                        <td class='docblock short'>
-                             <p>Attributes to use when creating an OpenGL context.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.HeadlessContext.html'
-                               title='glium::glutin::HeadlessContext'>HeadlessContext</a></td>
-                        <td class='docblock short'>
-                             <p>Represents a headless OpenGL context.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.HeadlessRendererBuilder.html'
-                               title='glium::glutin::HeadlessRendererBuilder'>HeadlessRendererBuilder</a></td>
-                        <td class='docblock short'>
-                             <p>Object that allows you to build headless contexts.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.MonitorId.html'
-                               title='glium::glutin::MonitorId'>MonitorId</a></td>
-                        <td class='docblock short'>
-                             <p>Identifier for a monitor.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.PixelFormat.html'
-                               title='glium::glutin::PixelFormat'>PixelFormat</a></td>
-                        <td class='docblock short'>
-                             <p>Describes a possible format. Unused.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.PixelFormatRequirements.html'
-                               title='glium::glutin::PixelFormatRequirements'>PixelFormatRequirements</a></td>
-                        <td class='docblock short'>
-                             <p>VERY UNSTABLE! Describes how the backend should choose a pixel format.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.PollEventsIterator.html'
-                               title='glium::glutin::PollEventsIterator'>PollEventsIterator</a></td>
-                        <td class='docblock short'>
-                             <p>An iterator for the <code>poll_events</code> function.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Touch.html'
-                               title='glium::glutin::Touch'>Touch</a></td>
-                        <td class='docblock short'>
-                             <p>Represents touch event</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.WaitEventsIterator.html'
-                               title='glium::glutin::WaitEventsIterator'>WaitEventsIterator</a></td>
-                        <td class='docblock short'>
-                             <p>An iterator for the <code>wait_events</code> function.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Window.html'
-                               title='glium::glutin::Window'>Window</a></td>
-                        <td class='docblock short'>
-                             <p>Represents an OpenGL context and the Window or environment around it.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.WindowAttributes.html'
-                               title='glium::glutin::WindowAttributes'>WindowAttributes</a></td>
-                        <td class='docblock short'>
-                             <p>Attributes to use when creating a window.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.WindowBuilder.html'
-                               title='glium::glutin::WindowBuilder'>WindowBuilder</a></td>
-                        <td class='docblock short'>
-                             <p>Object that allows you to build windows.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.WindowProxy.html'
-                               title='glium::glutin::WindowProxy'>WindowProxy</a></td>
-                        <td class='docblock short'>
-                             <p>Represents a thread safe subset of operations that can be called
-on a window. This structure can be safely cloned and sent between
-threads.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.AvailableMonitorsIter.html"
+                                  title='struct glium::glutin::AvailableMonitorsIter'>AvailableMonitorsIter</a></td>
+                           <td class='docblock-short'>
+                                <p>An iterator for the list of available monitors.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Context.html"
+                                  title='struct glium::glutin::Context'>Context</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents an OpenGL context.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ContextBuilder.html"
+                                  title='struct glium::glutin::ContextBuilder'>ContextBuilder</a></td>
+                           <td class='docblock-short'>
+                                <p>Object that allows you to build <code>Context</code>s.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.DeviceId.html"
+                                  title='struct glium::glutin::DeviceId'>DeviceId</a></td>
+                           <td class='docblock-short'>
+                                <p>Identifier of an input device.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EventsLoop.html"
+                                  title='struct glium::glutin::EventsLoop'>EventsLoop</a></td>
+                           <td class='docblock-short'>
+                                <p>Provides a way to retreive events from the system and from the windows that were registered to
+the events loop.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EventsLoopClosed.html"
+                                  title='struct glium::glutin::EventsLoopClosed'>EventsLoopClosed</a></td>
+                           <td class='docblock-short'>
+                                <p>The error that is returned when an <code>EventsLoopProxy</code> attempts to wake up an <code>EventsLoop</code> that
+no longer exists.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EventsLoopProxy.html"
+                                  title='struct glium::glutin::EventsLoopProxy'>EventsLoopProxy</a></td>
+                           <td class='docblock-short'>
+                                <p>Used to wake up the <code>EventsLoop</code> from another thread.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.GlAttributes.html"
+                                  title='struct glium::glutin::GlAttributes'>GlAttributes</a></td>
+                           <td class='docblock-short'>
+                                <p>Attributes to use when creating an OpenGL context.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.GlWindow.html"
+                                  title='struct glium::glutin::GlWindow'>GlWindow</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents an OpenGL context and a Window with which it is associated.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.HeadlessContext.html"
+                                  title='struct glium::glutin::HeadlessContext'>HeadlessContext</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents a headless OpenGL context.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.HeadlessRendererBuilder.html"
+                                  title='struct glium::glutin::HeadlessRendererBuilder'>HeadlessRendererBuilder</a></td>
+                           <td class='docblock-short'>
+                                <p>Object that allows you to build headless contexts.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.KeyboardInput.html"
+                                  title='struct glium::glutin::KeyboardInput'>KeyboardInput</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes a keyboard input event.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ModifiersState.html"
+                                  title='struct glium::glutin::ModifiersState'>ModifiersState</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents the current state of the keyboard modifiers</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.MonitorId.html"
+                                  title='struct glium::glutin::MonitorId'>MonitorId</a></td>
+                           <td class='docblock-short'>
+                                <p>Identifier for a monitor.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.PixelFormat.html"
+                                  title='struct glium::glutin::PixelFormat'>PixelFormat</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes a possible format. Unused.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.PixelFormatRequirements.html"
+                                  title='struct glium::glutin::PixelFormatRequirements'>PixelFormatRequirements</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes how the backend should choose a pixel format.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Touch.html"
+                                  title='struct glium::glutin::Touch'>Touch</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents touch event</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Window.html"
+                                  title='struct glium::glutin::Window'>Window</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents a window.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.WindowAttributes.html"
+                                  title='struct glium::glutin::WindowAttributes'>WindowAttributes</a></td>
+                           <td class='docblock-short'>
+                                <p>Attributes to use when creating a window.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.WindowBuilder.html"
+                                  title='struct glium::glutin::WindowBuilder'>WindowBuilder</a></td>
+                           <td class='docblock-short'>
+                                <p>Object that allows you to build windows.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.WindowId.html"
+                                  title='struct glium::glutin::WindowId'>WindowId</a></td>
+                           <td class='docblock-short'>
+                                <p>Identifier of a window. Unique for each window.</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.Api.html'
-                               title='glium::glutin::Api'>Api</a></td>
-                        <td class='docblock short'>
-                             <p>All APIs related to OpenGL that you can possibly get while using glutin.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.ContextError.html'
-                               title='glium::glutin::ContextError'>ContextError</a></td>
-                        <td class='docblock short'>
-                             <p>Error that can happen when manipulating an OpenGL context.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.CreationError.html'
-                               title='glium::glutin::CreationError'>CreationError</a></td>
-                        <td class='docblock short'>
-                             <p>Error that can happen while creating a window or a headless renderer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.CursorState.html'
-                               title='glium::glutin::CursorState'>CursorState</a></td>
-                        <td class='docblock short'>
-                             <p>Describes how glutin handles the cursor.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.ElementState.html'
-                               title='glium::glutin::ElementState'>ElementState</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.Event.html'
-                               title='glium::glutin::Event'>Event</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.GlProfile.html'
-                               title='glium::glutin::GlProfile'>GlProfile</a></td>
-                        <td class='docblock short'>
-                             <p>Describes the requested OpenGL context profiles.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.GlRequest.html'
-                               title='glium::glutin::GlRequest'>GlRequest</a></td>
-                        <td class='docblock short'>
-                             <p>Describes the OpenGL API and version that are being requested when a context is created.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.MouseButton.html'
-                               title='glium::glutin::MouseButton'>MouseButton</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.MouseCursor.html'
-                               title='glium::glutin::MouseCursor'>MouseCursor</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.MouseScrollDelta.html'
-                               title='glium::glutin::MouseScrollDelta'>MouseScrollDelta</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.NativeMonitorId.html'
-                               title='glium::glutin::NativeMonitorId'>NativeMonitorId</a></td>
-                        <td class='docblock short'>
-                             <p>Native platform identifier for a monitor. Different platforms use fundamentally different types
-to represent a monitor ID.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.Robustness.html'
-                               title='glium::glutin::Robustness'>Robustness</a></td>
-                        <td class='docblock short'>
-                             <p>Specifies the tolerance of the OpenGL context to faults. If you accept raw OpenGL commands
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Api.html"
+                                  title='enum glium::glutin::Api'>Api</a></td>
+                           <td class='docblock-short'>
+                                <p>All APIs related to OpenGL that you can possibly get while using glutin.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ContextError.html"
+                                  title='enum glium::glutin::ContextError'>ContextError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error that can happen when manipulating an OpenGL context.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ControlFlow.html"
+                                  title='enum glium::glutin::ControlFlow'>ControlFlow</a></td>
+                           <td class='docblock-short'>
+                                <p>Returned by the user callback given to the <code>EventsLoop::run_forever</code> method.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.CreationError.html"
+                                  title='enum glium::glutin::CreationError'>CreationError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error that can happen while creating a window or a headless renderer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.CursorState.html"
+                                  title='enum glium::glutin::CursorState'>CursorState</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes how winit handles the cursor.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.DeviceEvent.html"
+                                  title='enum glium::glutin::DeviceEvent'>DeviceEvent</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents raw hardware events that are not associated with any particular window.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ElementState.html"
+                                  title='enum glium::glutin::ElementState'>ElementState</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes the input state of a key.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Event.html"
+                                  title='enum glium::glutin::Event'>Event</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes a generic event.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.GlProfile.html"
+                                  title='enum glium::glutin::GlProfile'>GlProfile</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes the requested OpenGL context profiles.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.GlRequest.html"
+                                  title='enum glium::glutin::GlRequest'>GlRequest</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes the OpenGL API and version that are being requested when a context is created.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.MouseButton.html"
+                                  title='enum glium::glutin::MouseButton'>MouseButton</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes a button of a mouse controller.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.MouseCursor.html"
+                                  title='enum glium::glutin::MouseCursor'>MouseCursor</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes the appearance of the mouse cursor.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.MouseScrollDelta.html"
+                                  title='enum glium::glutin::MouseScrollDelta'>MouseScrollDelta</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes a difference in the mouse scroll wheel state.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ReleaseBehavior.html"
+                                  title='enum glium::glutin::ReleaseBehavior'>ReleaseBehavior</a></td>
+                           <td class='docblock-short'>
+                                <p>The behavior of the driver when you change the current context.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Robustness.html"
+                                  title='enum glium::glutin::Robustness'>Robustness</a></td>
+                           <td class='docblock-short'>
+                                <p>Specifies the tolerance of the OpenGL context to faults. If you accept raw OpenGL commands
 and/or raw shader code from an untrusted source, you should definitely care about this.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.TouchPhase.html'
-                               title='glium::glutin::TouchPhase'>TouchPhase</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.VirtualKeyCode.html'
-                               title='glium::glutin::VirtualKeyCode'>VirtualKeyCode</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                </table><h2 id='statics' class='section-header'><a href="#statics">Statics</a></h2>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.TouchPhase.html"
+                                  title='enum glium::glutin::TouchPhase'>TouchPhase</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes touch-screen input state.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.VirtualKeyCode.html"
+                                  title='enum glium::glutin::VirtualKeyCode'>VirtualKeyCode</a></td>
+                           <td class='docblock-short'>
+                                <p>Symbolic name for a keyboard key.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.WindowCreationError.html"
+                                  title='enum glium::glutin::WindowCreationError'>WindowCreationError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error that can happen while creating a window or a headless renderer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.WindowEvent.html"
+                                  title='enum glium::glutin::WindowEvent'>WindowEvent</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes an event from a <code>Window</code>.</p>
+                           </td>
+                       </tr></table><h2 id='statics' class='section-header'><a href="#statics">Statics</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='static' href='static.GL_CORE.html'
-                               title='glium::glutin::GL_CORE'>GL_CORE</a></td>
-                        <td class='docblock short'>
-                             <p>The minimum core profile GL context. Useful for getting the minimum
+                       <tr class=' module-item'>
+                           <td><a class="static" href="static.GL_CORE.html"
+                                  title='static glium::glutin::GL_CORE'>GL_CORE</a></td>
+                           <td class='docblock-short'>
+                                <p>The minimum core profile GL context. Useful for getting the minimum
 required GL version while still running on OSX, which often forbids
 the compatibility profile features.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.GlContext.html'
-                               title='glium::glutin::GlContext'>GlContext</a></td>
-                        <td class='docblock short'>
-                             <p>Trait that describes objects that have access to an OpenGL context.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.GlContext.html"
+                                  title='trait glium::glutin::GlContext'>GlContext</a></td>
+                           <td class='docblock-short'>
+                                <p>A trait for types associated with a GL context.</p>
+                           </td>
+                       </tr></table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.get_available_monitors.html'
-                               title='glium::glutin::get_available_monitors'>get_available_monitors</a></td>
-                        <td class='docblock short'>
-                             <p>Returns the list of all available monitors.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.get_primary_monitor.html'
-                               title='glium::glutin::get_primary_monitor'>get_primary_monitor</a></td>
-                        <td class='docblock short'>
-                             <p>Returns the primary monitor of the system.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='types' class='section-header'><a href="#types">Type Definitions</a></h2>
-<table>
-                    <tr class=' module-item'>
-                        <td><a class='type' href='type.ScanCode.html'
-                               title='glium::glutin::ScanCode'>ScanCode</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                </table><h2 id='impls' class='section-header'><a href="#impls">Implementations</a></h2>
-<table></table></section>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.AxisId.html"
+                                  title='type glium::glutin::AxisId'>AxisId</a></td>
+                           <td class='docblock-short'>
+                                <p>Identifier for a specific analog axis on some device.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.ButtonId.html"
+                                  title='type glium::glutin::ButtonId'>ButtonId</a></td>
+                           <td class='docblock-short'>
+                                <p>Identifier for a specific button on some device.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="type" href="type.ScanCode.html"
+                                  title='type glium::glutin::ScanCode'>ScanCode</a></td>
+                           <td class='docblock-short'>
+                                <p>Hardware-dependent keyboard scan code.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -385,12 +427,16 @@ the compatibility profile features.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -411,7 +457,7 @@ the compatibility profile features.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -422,11 +468,8 @@ the compatibility profile features.</p>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["WSurface","A wayland Surface."]]});

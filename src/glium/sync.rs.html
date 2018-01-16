@@ -9,13 +9,15 @@
 
     <title>sync.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -241,205 +243,205 @@
 <span id="198">198</span>
 <span id="199">199</span>
 <span id="200">200</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>CommandContext</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Api</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Version</span>;
-<span class='kw'>use</span> <span class='ident'>gl</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">CommandContext</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Api</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
 
-<span class='kw'>use</span> <span class='ident'>backend</span>::<span class='ident'>Facade</span>;
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>Context</span>;
-<span class='kw'>use</span> <span class='ident'>ContextExt</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rc</span>::<span class='ident'>Rc</span>;
+<span class="kw">use</span> <span class="ident">backend</span>::<span class="ident">Facade</span>;
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">Context</span>;
+<span class="kw">use</span> <span class="ident">ContextExt</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>thread</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">thread</span>;
 
-<span class='doccomment'>/// Error that happens when sync functionnalities are not supported.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SyncNotSupportedError</span>;
+<span class="doccomment">/// Error that happens when sync functionalities are not supported.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SyncNotSupportedError</span>;
 
-<span class='doccomment'>/// Provides a way to wait for a server-side operation to be finished.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Creating a `SyncFence` injects an element in the commands queue of the backend.</span>
-<span class='doccomment'>/// When this element is reached, the fence becomes signaled.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ## Example</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```no_run</span>
-<span class='doccomment'>/// # let display: glium::Display = unsafe { std::mem::uninitialized() };</span>
-<span class='doccomment'>/// # fn do_something&lt;T&gt;(_: &amp;T) {}</span>
-<span class='doccomment'>/// let fence = glium::SyncFence::new(&amp;display).unwrap();</span>
-<span class='doccomment'>/// do_something(&amp;display);</span>
-<span class='doccomment'>/// fence.wait();   // blocks until the previous operations have finished</span>
-<span class='doccomment'>/// ```</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SyncFence</span> {
-    <span class='ident'>context</span>: <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Context</span><span class='op'>&gt;</span>,
-    <span class='ident'>id</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsync</span><span class='op'>&gt;</span>,
+<span class="doccomment">/// Provides a way to wait for a server-side operation to be finished.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Creating a `SyncFence` injects an element in the commands queue of the backend.</span>
+<span class="doccomment">/// When this element is reached, the fence becomes signaled.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```no_run</span>
+<span class="doccomment">/// # let display: glium::Display = unsafe { std::mem::uninitialized() };</span>
+<span class="doccomment">/// # fn do_something&lt;T&gt;(_: &amp;T) {}</span>
+<span class="doccomment">/// let fence = glium::SyncFence::new(&amp;display).unwrap();</span>
+<span class="doccomment">/// do_something(&amp;display);</span>
+<span class="doccomment">/// fence.wait();   // blocks until the previous operations have finished</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SyncFence</span> {
+    <span class="ident">context</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span>,
+    <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsync</span><span class="op">&gt;</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>SyncFence</span> {
-    <span class='doccomment'>/// Builds a new `SyncFence` that is injected in the server.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>SyncFence</span>, <span class='ident'>SyncNotSupportedError</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span> {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ctxt</span> <span class='op'>=</span> <span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>make_current</span>();
-        <span class='kw'>unsafe</span> { <span class='ident'>new_linear_sync_fence</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>ctxt</span>) }.<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>f</span><span class='op'>|</span> <span class='ident'>f</span>.<span class='ident'>into_sync_fence</span>(<span class='ident'>facade</span>))
+<span class="kw">impl</span> <span class="ident">SyncFence</span> {
+    <span class="doccomment">/// Builds a new `SyncFence` that is injected in the server.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">SyncFence</span>, <span class="ident">SyncNotSupportedError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">make_current</span>();
+        <span class="kw">unsafe</span> { <span class="ident">new_linear_sync_fence</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctxt</span>) }.<span class="ident">map</span>(<span class="op">|</span><span class="ident">f</span><span class="op">|</span> <span class="ident">f</span>.<span class="ident">into_sync_fence</span>(<span class="ident">facade</span>))
     }
 
-    <span class='doccomment'>/// Blocks until the operation has finished on the server.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>wait</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='kw'>let</span> <span class='ident'>sync</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>id</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>();
+    <span class="doccomment">/// Blocks until the operation has finished on the server.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wait</span>(<span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="ident">sync</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
 
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ctxt</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>make_current</span>();
-        <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>client_wait</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>ctxt</span>, <span class='ident'>sync</span>) };
-        <span class='kw'>unsafe</span> { <span class='ident'>delete_fence</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>ctxt</span>, <span class='ident'>sync</span>) };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">make_current</span>();
+        <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">client_wait</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctxt</span>, <span class="ident">sync</span>) };
+        <span class="kw">unsafe</span> { <span class="ident">delete_fence</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctxt</span>, <span class="ident">sync</span>) };
 
-        <span class='kw'>match</span> <span class='ident'>result</span> {
-            <span class='ident'>gl</span>::<span class='ident'>ALREADY_SIGNALED</span> <span class='op'>|</span> <span class='ident'>gl</span>::<span class='ident'>CONDITION_SATISFIED</span> <span class='op'>=&gt;</span> (),
-            _ <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;Could not wait for the fence&quot;</span>)
+        <span class="kw">match</span> <span class="ident">result</span> {
+            <span class="ident">gl</span>::<span class="ident">ALREADY_SIGNALED</span> <span class="op">|</span> <span class="ident">gl</span>::<span class="ident">CONDITION_SATISFIED</span> <span class="op">=&gt;</span> (),
+            _ <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;Could not wait for the fence&quot;</span>)
         };
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Drop</span> <span class='kw'>for</span> <span class='ident'>SyncFence</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>drop</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='kw'>let</span> <span class='ident'>sync</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>id</span> {
-            <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> <span class='kw'>return</span>,     <span class='comment'>// fence has already been deleted</span>
-            <span class='prelude-val'>Some</span>(<span class='ident'>s</span>) <span class='op'>=&gt;</span> <span class='ident'>s</span>
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">SyncFence</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">let</span> <span class="ident">sync</span> <span class="op">=</span> <span class="kw">match</span> <span class="self">self</span>.<span class="ident">id</span> {
+            <span class="prelude-val">None</span> <span class="op">=&gt;</span> <span class="kw">return</span>,     <span class="comment">// fence has already been deleted</span>
+            <span class="prelude-val">Some</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>
         };
 
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ctxt</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>make_current</span>();
-        <span class='kw'>unsafe</span> { <span class='ident'>delete_fence</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>ctxt</span>, <span class='ident'>sync</span>) };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">make_current</span>();
+        <span class="kw">unsafe</span> { <span class="ident">delete_fence</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctxt</span>, <span class="ident">sync</span>) };
     }
 }
 
-<span class='doccomment'>/// Prototype for a `SyncFence`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The fence must be consumed with either `into_sync_fence`, otherwise</span>
-<span class='doccomment'>/// the destructor will panic.</span>
-<span class='attribute'>#[<span class='ident'>must_use</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>LinearSyncFence</span> {
-    <span class='ident'>id</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsync</span><span class='op'>&gt;</span>,
+<span class="doccomment">/// Prototype for a `SyncFence`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The fence must be consumed with either `into_sync_fence`, otherwise</span>
+<span class="doccomment">/// the destructor will panic.</span>
+<span class="attribute">#[<span class="ident">must_use</span>]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">LinearSyncFence</span> {
+    <span class="ident">id</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsync</span><span class="op">&gt;</span>,
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span> <span class='ident'>Send</span> <span class='kw'>for</span> <span class='ident'>LinearSyncFence</span> {}
+<span class="kw">unsafe</span> <span class="kw">impl</span> <span class="ident">Send</span> <span class="kw">for</span> <span class="ident">LinearSyncFence</span> {}
 
-<span class='kw'>impl</span> <span class='ident'>LinearSyncFence</span> {
-    <span class='doccomment'>/// Turns the prototype into a real fence.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_sync_fence</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='ident'>SyncFence</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span> {
-        <span class='ident'>SyncFence</span> {
-            <span class='ident'>context</span>: <span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>clone</span>(),
-            <span class='ident'>id</span>: <span class='self'>self</span>.<span class='ident'>id</span>.<span class='ident'>take</span>()
+<span class="kw">impl</span> <span class="ident">LinearSyncFence</span> {
+    <span class="doccomment">/// Turns the prototype into a real fence.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_sync_fence</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>) <span class="op">-&gt;</span> <span class="ident">SyncFence</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span> {
+        <span class="ident">SyncFence</span> {
+            <span class="ident">context</span>: <span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">clone</span>(),
+            <span class="ident">id</span>: <span class="self">self</span>.<span class="ident">id</span>.<span class="ident">take</span>()
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Drop</span> <span class='kw'>for</span> <span class='ident'>LinearSyncFence</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>drop</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>thread</span>::<span class='ident'>panicking</span>() {
-            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='self'>self</span>.<span class='ident'>id</span>.<span class='ident'>is_none</span>());
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">LinearSyncFence</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">thread</span>::<span class="ident">panicking</span>() {
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="self">self</span>.<span class="ident">id</span>.<span class="ident">is_none</span>());
         }
     }
 }
 
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>new_linear_sync_fence</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>)
-                                    <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>LinearSyncFence</span>, <span class='ident'>SyncNotSupportedError</span><span class='op'>&gt;</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">new_linear_sync_fence</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>)
+                                    <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">LinearSyncFence</span>, <span class="ident">SyncNotSupportedError</span><span class="op">&gt;</span>
 {
-    <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>2</span>) <span class='op'>||</span>
-       <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_arb_sync</span>
+    <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">2</span>) <span class="op">||</span>
+       <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_arb_sync</span>
     {
-        <span class='prelude-val'>Ok</span>(<span class='ident'>LinearSyncFence</span> {
-            <span class='ident'>id</span>: <span class='prelude-val'>Some</span>(<span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>FenceSync</span>(<span class='ident'>gl</span>::<span class='ident'>SYNC_GPU_COMMANDS_COMPLETE</span>, <span class='number'>0</span>)),
+        <span class="prelude-val">Ok</span>(<span class="ident">LinearSyncFence</span> {
+            <span class="ident">id</span>: <span class="prelude-val">Some</span>(<span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">FenceSync</span>(<span class="ident">gl</span>::<span class="ident">SYNC_GPU_COMMANDS_COMPLETE</span>, <span class="number">0</span>)),
         })
 
-    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_apple_sync</span> {
-        <span class='prelude-val'>Ok</span>(<span class='ident'>LinearSyncFence</span> {
-            <span class='ident'>id</span>: <span class='prelude-val'>Some</span>(<span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>FenceSyncAPPLE</span>(<span class='ident'>gl</span>::<span class='ident'>SYNC_GPU_COMMANDS_COMPLETE_APPLE</span>, <span class='number'>0</span>)),
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_apple_sync</span> {
+        <span class="prelude-val">Ok</span>(<span class="ident">LinearSyncFence</span> {
+            <span class="ident">id</span>: <span class="prelude-val">Some</span>(<span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">FenceSyncAPPLE</span>(<span class="ident">gl</span>::<span class="ident">SYNC_GPU_COMMANDS_COMPLETE_APPLE</span>, <span class="number">0</span>)),
         })
 
-    } <span class='kw'>else</span> {
-        <span class='prelude-val'>Err</span>(<span class='ident'>SyncNotSupportedError</span>)
+    } <span class="kw">else</span> {
+        <span class="prelude-val">Err</span>(<span class="ident">SyncNotSupportedError</span>)
     }
 }
 
-<span class='doccomment'>/// Waits for this fence and destroys it, from within the commands context.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>wait_linear_sync_fence_and_drop</span>(<span class='kw-2'>mut</span> <span class='ident'>fence</span>: <span class='ident'>LinearSyncFence</span>,
-                                              <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>)
+<span class="doccomment">/// Waits for this fence and destroys it, from within the commands context.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">wait_linear_sync_fence_and_drop</span>(<span class="kw-2">mut</span> <span class="ident">fence</span>: <span class="ident">LinearSyncFence</span>,
+                                              <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>)
 {
-    <span class='kw'>let</span> <span class='ident'>fence</span> <span class='op'>=</span> <span class='ident'>fence</span>.<span class='ident'>id</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>();
-    <span class='ident'>client_wait</span>(<span class='ident'>ctxt</span>, <span class='ident'>fence</span>);
-    <span class='ident'>delete_fence</span>(<span class='ident'>ctxt</span>, <span class='ident'>fence</span>);
+    <span class="kw">let</span> <span class="ident">fence</span> <span class="op">=</span> <span class="ident">fence</span>.<span class="ident">id</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+    <span class="ident">client_wait</span>(<span class="ident">ctxt</span>, <span class="ident">fence</span>);
+    <span class="ident">delete_fence</span>(<span class="ident">ctxt</span>, <span class="ident">fence</span>);
 }
 
-<span class='doccomment'>/// Destroys a fence, from within the commands context.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>destroy_linear_sync_fence</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='kw-2'>mut</span> <span class='ident'>fence</span>: <span class='ident'>LinearSyncFence</span>) {
-    <span class='kw'>let</span> <span class='ident'>fence</span> <span class='op'>=</span> <span class='ident'>fence</span>.<span class='ident'>id</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>();
-    <span class='ident'>delete_fence</span>(<span class='ident'>ctxt</span>, <span class='ident'>fence</span>);
+<span class="doccomment">/// Destroys a fence, from within the commands context.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">destroy_linear_sync_fence</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="kw-2">mut</span> <span class="ident">fence</span>: <span class="ident">LinearSyncFence</span>) {
+    <span class="kw">let</span> <span class="ident">fence</span> <span class="op">=</span> <span class="ident">fence</span>.<span class="ident">id</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
+    <span class="ident">delete_fence</span>(<span class="ident">ctxt</span>, <span class="ident">fence</span>);
 }
 
-<span class='doccomment'>/// Calls `glClientWaitSync` and returns the result.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Tries without flushing first, then with flushing.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Unsafety</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The fence object must exist.</span>
-<span class='doccomment'>///</span>
-<span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>client_wait</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>fence</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsync</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-    <span class='comment'>// trying without flushing first</span>
-    <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>2</span>) <span class='op'>||</span>
-                    <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_arb_sync</span>
+<span class="doccomment">/// Calls `glClientWaitSync` and returns the result.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Tries without flushing first, then with flushing.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Unsafety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The fence object must exist.</span>
+<span class="doccomment">///</span>
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">client_wait</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">fence</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsync</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+    <span class="comment">// trying without flushing first</span>
+    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">2</span>) <span class="op">||</span>
+                    <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_arb_sync</span>
     {
-        <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>ClientWaitSync</span>(<span class='ident'>fence</span>, <span class='number'>0</span>, <span class='number'>0</span>)
-    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_apple_sync</span> {
-        <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>ClientWaitSyncAPPLE</span>(<span class='ident'>fence</span>, <span class='number'>0</span>, <span class='number'>0</span>)
-    } <span class='kw'>else</span> {
-        <span class='macro'>unreachable</span><span class='macro'>!</span>();
+        <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">ClientWaitSync</span>(<span class="ident">fence</span>, <span class="number">0</span>, <span class="number">0</span>)
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_apple_sync</span> {
+        <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">ClientWaitSyncAPPLE</span>(<span class="ident">fence</span>, <span class="number">0</span>, <span class="number">0</span>)
+    } <span class="kw">else</span> {
+        <span class="macro">unreachable</span><span class="macro">!</span>();
     };
 
-    <span class='kw'>match</span> <span class='ident'>result</span> {
-        <span class='ident'>val</span> <span class='kw-2'>@</span> <span class='ident'>gl</span>::<span class='ident'>ALREADY_SIGNALED</span> <span class='op'>|</span> <span class='ident'>val</span> <span class='kw-2'>@</span> <span class='ident'>gl</span>::<span class='ident'>CONDITION_SATISFIED</span> <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>val</span>,
-        <span class='ident'>gl</span>::<span class='ident'>TIMEOUT_EXPIRED</span> <span class='op'>=&gt;</span> (),
-        <span class='ident'>gl</span>::<span class='ident'>WAIT_FAILED</span> <span class='op'>=&gt;</span> (),
-        _ <span class='op'>=&gt;</span> <span class='macro'>unreachable</span><span class='macro'>!</span>()
+    <span class="kw">match</span> <span class="ident">result</span> {
+        <span class="ident">val</span> @ <span class="ident">gl</span>::<span class="ident">ALREADY_SIGNALED</span> <span class="op">|</span> <span class="ident">val</span> @ <span class="ident">gl</span>::<span class="ident">CONDITION_SATISFIED</span> <span class="op">=&gt;</span> <span class="kw">return</span> <span class="ident">val</span>,
+        <span class="ident">gl</span>::<span class="ident">TIMEOUT_EXPIRED</span> <span class="op">=&gt;</span> (),
+        <span class="ident">gl</span>::<span class="ident">WAIT_FAILED</span> <span class="op">=&gt;</span> (),
+        _ <span class="op">=&gt;</span> <span class="macro">unreachable</span><span class="macro">!</span>()
     };
 
-    <span class='comment'>// waiting with a deadline of one year</span>
-    <span class='comment'>// the reason why the deadline is so long is because if you attach a GL debugger,</span>
-    <span class='comment'>// the wait can be blocked during a breaking point of the debugger</span>
-    <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>2</span>) <span class='op'>||</span>
-       <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_arb_sync</span>
+    <span class="comment">// waiting with a deadline of one year</span>
+    <span class="comment">// the reason why the deadline is so long is because if you attach a GL debugger,</span>
+    <span class="comment">// the wait can be blocked during a breaking point of the debugger</span>
+    <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">2</span>) <span class="op">||</span>
+       <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_arb_sync</span>
     {
-        <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>ClientWaitSync</span>(<span class='ident'>fence</span>, <span class='ident'>gl</span>::<span class='ident'>SYNC_FLUSH_COMMANDS_BIT</span>,
-                               <span class='number'>365</span> <span class='op'>*</span> <span class='number'>24</span> <span class='op'>*</span> <span class='number'>3600</span> <span class='op'>*</span> <span class='number'>1000</span> <span class='op'>*</span> <span class='number'>1000</span> <span class='op'>*</span> <span class='number'>1000</span>)
-    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_apple_sync</span> {
-        <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>ClientWaitSyncAPPLE</span>(<span class='ident'>fence</span>, <span class='ident'>gl</span>::<span class='ident'>SYNC_FLUSH_COMMANDS_BIT_APPLE</span>,
-                                    <span class='number'>365</span> <span class='op'>*</span> <span class='number'>24</span> <span class='op'>*</span> <span class='number'>3600</span> <span class='op'>*</span> <span class='number'>1000</span> <span class='op'>*</span> <span class='number'>1000</span> <span class='op'>*</span> <span class='number'>1000</span>)
-    } <span class='kw'>else</span> {
-        <span class='macro'>unreachable</span><span class='macro'>!</span>();
+        <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">ClientWaitSync</span>(<span class="ident">fence</span>, <span class="ident">gl</span>::<span class="ident">SYNC_FLUSH_COMMANDS_BIT</span>,
+                               <span class="number">365</span> <span class="op">*</span> <span class="number">24</span> <span class="op">*</span> <span class="number">3600</span> <span class="op">*</span> <span class="number">1000</span> <span class="op">*</span> <span class="number">1000</span> <span class="op">*</span> <span class="number">1000</span>)
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_apple_sync</span> {
+        <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">ClientWaitSyncAPPLE</span>(<span class="ident">fence</span>, <span class="ident">gl</span>::<span class="ident">SYNC_FLUSH_COMMANDS_BIT_APPLE</span>,
+                                    <span class="number">365</span> <span class="op">*</span> <span class="number">24</span> <span class="op">*</span> <span class="number">3600</span> <span class="op">*</span> <span class="number">1000</span> <span class="op">*</span> <span class="number">1000</span> <span class="op">*</span> <span class="number">1000</span>)
+    } <span class="kw">else</span> {
+        <span class="macro">unreachable</span><span class="macro">!</span>();
     }
 }
 
-<span class='doccomment'>/// Deletes a fence.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Unsafety</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The fence object must exist.</span>
-<span class='doccomment'>///</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>delete_fence</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>fence</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsync</span>) {
-    <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>2</span>) <span class='op'>||</span>
-       <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_arb_sync</span>
+<span class="doccomment">/// Deletes a fence.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Unsafety</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The fence object must exist.</span>
+<span class="doccomment">///</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">delete_fence</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">fence</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsync</span>) {
+    <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">2</span>) <span class="op">||</span>
+       <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_arb_sync</span>
     {
-        <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>DeleteSync</span>(<span class='ident'>fence</span>);
-    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_apple_sync</span> {
-        <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>DeleteSyncAPPLE</span>(<span class='ident'>fence</span>);
-    } <span class='kw'>else</span> {
-        <span class='macro'>unreachable</span><span class='macro'>!</span>();
+        <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">DeleteSync</span>(<span class="ident">fence</span>);
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_apple_sync</span> {
+        <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">DeleteSyncAPPLE</span>(<span class="ident">fence</span>);
+    } <span class="kw">else</span> {
+        <span class="macro">unreachable</span><span class="macro">!</span>();
     };
 }
 </pre>
@@ -460,12 +462,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -486,7 +492,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -497,11 +503,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

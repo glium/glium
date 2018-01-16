@@ -9,13 +9,15 @@
 
     <title>glium::get_supported_glsl_version - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc fn">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,13 +43,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content fn">
-<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>glium</a>::<wbr><a class='fn' href=''>get_supported_glsl_version</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-30109' class='srclink' href='../src/glium/version.rs.html#80-112' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn get_supported_glsl_version(gl_version: &amp;<a class='struct' href='../glium/struct.Version.html' title='glium::Version'>Version</a>) -&gt; <a class='struct' href='../glium/struct.Version.html' title='glium::Version'>Version</a></pre><div class='docblock'><p>Given an API version, this function returns the GLSL version that the implementation is
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>glium</a>::<wbr><a class="fn" href=''>get_supported_glsl_version</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/glium/version.rs.html#80-112' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn get_supported_glsl_version(gl_version: &amp;<a class="struct" href="../glium/struct.Version.html" title="struct glium::Version">Version</a>) -&gt; <a class="struct" href="../glium/struct.Version.html" title="struct glium::Version">Version</a></pre><div class='docblock'><p>Given an API version, this function returns the GLSL version that the implementation is
 required to support.</p>
 
 <h1 id='panic' class='section-header'><a href='#panic'>Panic</a></h1>
@@ -69,12 +71,16 @@ required to support.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -95,7 +101,7 @@ required to support.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -106,11 +112,8 @@ required to support.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

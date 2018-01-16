@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ShellFullscreenMethod","Different methods of fullscreen for a shell surface."],["ShellSurfaceResize","Hint about which border of the surface is being dragged for a resize."]],"struct":[["ShellSurface","A wayland `shell_surface`."]]});

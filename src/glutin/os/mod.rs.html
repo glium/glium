@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/glutin-0.4.3/src/os/mod.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/glutin-0.12.0/src/os/mod.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,25 +43,53 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">1</span>
-<span id="2">2</span>
-<span id="3">3</span>
-<span id="4">4</span>
-<span id="5">5</span>
-<span id="6">6</span>
-<span id="7">7</span>
-<span id="8">8</span>
-<span id="9">9</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! Contains traits with platform-specific methods in them.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! Contains the follow modules:</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//!  - `unix`</span>
-<span class='doccomment'>//!  - `windows`</span>
-<span class='doccomment'>//!</span>
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>unix</span>;
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>windows</span>;
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Contains traits with platform-specific methods in them.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! Contains the following modules:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!  - `android`</span>
+<span class="doccomment">//!  - `macos`</span>
+<span class="doccomment">//!  - `unix`</span>
+<span class="doccomment">//!  - `windows`</span>
+<span class="doccomment">//!</span>
+
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">android</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">macos</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">unix</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">windows</span>;
+
+<span class="doccomment">/// Platform-specific extensions for OpenGL contexts.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">GlContextExt</span> {
+    <span class="doccomment">/// Raw context handle.</span>
+    <span class="kw">type</span> <span class="ident">Handle</span>;
+
+    <span class="doccomment">/// Returns the raw context handle.</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">raw_handle</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="self">Self</span>::<span class="ident">Handle</span>;
+}
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -78,12 +108,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -104,7 +138,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -115,11 +149,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glutin";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

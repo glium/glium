@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `src/context/extensions.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>extensions.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc source">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Api</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
+
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">extensions</span> {
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">string</span>:<span class="ident">expr</span> <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>:<span class="ident">ident</span>,)<span class="op">+</span>) <span class="op">=&gt;</span> {
+        <span class="doccomment">/// Contains data about the list of extensions.</span>
+        <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ExtensionsList</span> {
+            $(
+                <span class="kw">pub</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>: <span class="ident">bool</span>,
+            )<span class="op">+</span>
+        }
+
+        <span class="doccomment">/// Returns the list of extensions supported by the backend.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The version must match the one of the backend.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// *Safety*: the OpenGL context corresponding to `gl` must be current in the thread.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// ## Panic</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// Can panic if the version number doesn&#39;t match the backend, leading to unloaded functions</span>
+        <span class="doccomment">/// being called.</span>
+        <span class="doccomment">///</span>
+        <span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_extensions</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">gl</span>::<span class="ident">Gl</span>, <span class="ident">version</span>: <span class="kw-2">&amp;</span><span class="ident">Version</span>) <span class="op">-&gt;</span> <span class="ident">ExtensionsList</span> {
+            <span class="kw">let</span> <span class="ident">strings</span> <span class="op">=</span> <span class="ident">get_extensions_strings</span>(<span class="ident">gl</span>, <span class="ident">version</span>);
+
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">extensions</span> <span class="op">=</span> <span class="ident">ExtensionsList</span> {
+                $(
+                    <span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span>: <span class="bool-val">false</span>,
+                )<span class="op">+</span>
+            };
+
+            <span class="kw">for</span> <span class="ident">extension</span> <span class="kw">in</span> <span class="ident">strings</span>.<span class="ident">into_iter</span>() {
+                <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">extension</span>[..] {
+                    $(
+                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">string</span> <span class="op">=&gt;</span> <span class="ident">extensions</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">field</span> <span class="op">=</span> <span class="bool-val">true</span>,
+                    )<span class="op">+</span>
+                    _ <span class="op">=&gt;</span> ()
+                }
+            }
+
+            <span class="ident">extensions</span>
+        }
+    }
+}
+
+<span class="macro">extensions</span><span class="macro">!</span> {
+    <span class="string">&quot;GL_AMD_depth_clamp_separate&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_amd_depth_clamp_separate</span>,
+    <span class="string">&quot;GL_AMD_query_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_amd_query_buffer_object</span>,
+    <span class="string">&quot;GL_ANGLE_framebuffer_multisample&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_angle_framebuffer_multisample</span>,
+    <span class="string">&quot;GL_APPLE_framebuffer_multisample&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_apple_framebuffer_multisample</span>,
+    <span class="string">&quot;GL_APPLE_sync&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_apple_sync</span>,
+    <span class="string">&quot;GL_APPLE_vertex_array_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_apple_vertex_array_object</span>,
+    <span class="string">&quot;GL_ARB_bindless_texture&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_bindless_texture</span>,
+    <span class="string">&quot;GL_ARB_buffer_storage&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_buffer_storage</span>,
+    <span class="string">&quot;GL_ARB_compute_shader&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_compute_shader</span>,
+    <span class="string">&quot;GL_ARB_copy_buffer&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_copy_buffer</span>,
+    <span class="string">&quot;GL_ARB_debug_output&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_debug_output</span>,
+    <span class="string">&quot;GL_ARB_depth_clamp&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_depth_clamp</span>,
+    <span class="string">&quot;GL_ARB_depth_texture&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_depth_texture</span>,
+    <span class="string">&quot;GL_ARB_direct_state_access&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_direct_state_access</span>,
+    <span class="string">&quot;GL_ARB_draw_buffers&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_draw_buffers</span>,
+    <span class="string">&quot;GL_ARB_draw_elements_base_vertex&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_draw_elements_base_vertex</span>,
+    <span class="string">&quot;GL_ARB_compatibility&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_compatibility</span>,
+    <span class="string">&quot;GL_ARB_ES2_compatibility&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_es2_compatibility</span>,
+    <span class="string">&quot;GL_ARB_ES3_compatibility&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_es3_compatibility</span>,
+    <span class="string">&quot;GL_ARB_ES3_1_compatibility&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_es3_1_compatibility</span>,
+    <span class="string">&quot;GL_ARB_ES3_2_compatibility&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_es3_2_compatibility</span>,
+    <span class="string">&quot;GL_ARB_fragment_shader&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_fragment_shader</span>,
+    <span class="string">&quot;GL_ARB_framebuffer_no_attachments&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_framebuffer_no_attachments</span>,
+    <span class="string">&quot;GL_ARB_framebuffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_framebuffer_object</span>,
+    <span class="string">&quot;GL_ARB_framebuffer_sRGB&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_framebuffer_srgb</span>,
+    <span class="string">&quot;GL_ARB_geometry_shader4&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_geometry_shader4</span>,
+    <span class="string">&quot;GL_ARB_get_program_binary&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_get_programy_binary</span>,
+    <span class="string">&quot;GL_ARB_gpu_shader_fp64&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_gpu_shader_fp64</span>,
+    <span class="string">&quot;GL_ARB_gpu_shader_int64&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_gpu_shader_int64</span>,
+    <span class="string">&quot;GL_ARB_instanced_arrays&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_instanced_arrays</span>,
+    <span class="string">&quot;GL_ARB_internalformat_query&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_internalformat_query</span>,
+    <span class="string">&quot;GL_ARB_invalidate_subdata&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_invalidate_subdata</span>,
+    <span class="string">&quot;GL_ARB_occlusion_query&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_occlusion_query</span>,
+    <span class="string">&quot;GL_ARB_occlusion_query2&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_occlusion_query2</span>,
+    <span class="string">&quot;GL_ARB_pixel_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_pixel_buffer_object</span>,
+    <span class="string">&quot;GL_ARB_program_interface_query&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_program_interface_query</span>,
+    <span class="string">&quot;GL_ARB_query_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_query_buffer_object</span>,
+    <span class="string">&quot;GL_ARB_map_buffer_range&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_map_buffer_range</span>,
+    <span class="string">&quot;GL_ARB_multi_draw_indirect&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_multi_draw_indirect</span>,
+    <span class="string">&quot;GL_ARB_provoking_vertex&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_provoking_vertex</span>,
+    <span class="string">&quot;GL_ARB_robustness&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_robustness</span>,
+    <span class="string">&quot;GL_ARB_robust_buffer_access_behavior&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_robust_buffer_access_behavior</span>,
+    <span class="string">&quot;GL_ARB_sampler_objects&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_sampler_objects</span>,
+    <span class="string">&quot;GL_ARB_shader_atomic_counters&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_shader_atomic_counters</span>,
+    <span class="string">&quot;GL_ARB_shader_image_load_store&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_shader_image_load_store</span>,
+    <span class="string">&quot;GL_ARB_shader_objects&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_shader_objects</span>,
+    <span class="string">&quot;GL_ARB_shader_storage_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_shader_storage_buffer_object</span>,
+    <span class="string">&quot;GL_ARB_shader_subroutine&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_shader_subroutine</span>,
+    <span class="string">&quot;GL_ARB_sync&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_sync</span>,
+    <span class="string">&quot;GL_ARB_tessellation_shader&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_tessellation_shader</span>,
+    <span class="string">&quot;GL_ARB_texture_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_buffer_object</span>,
+    <span class="string">&quot;GL_ARB_texture_buffer_object_rgb32&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_buffer_object_rgb32</span>,
+    <span class="string">&quot;GL_ARB_texture_compression_bptc&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_compression_bptc</span>,
+    <span class="string">&quot;GL_ARB_texture_cube_map&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_cube_map</span>,
+    <span class="string">&quot;GL_ARB_texture_cube_map_array&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_cube_map_array</span>,
+    <span class="string">&quot;GL_ARB_texture_float&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_float</span>,
+    <span class="string">&quot;GL_ARB_texture_multisample&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_multisample</span>,
+    <span class="string">&quot;GL_ARB_texture_non_power_of_two&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_non_power_of_two</span>,
+    <span class="string">&quot;GL_ARB_texture_rg&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_rg</span>,
+    <span class="string">&quot;GL_ARB_texture_rgb10_a2ui&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_rgb10_a2ui</span>,
+    <span class="string">&quot;GL_ARB_texture_stencil8&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_stencil8</span>,
+    <span class="string">&quot;GL_ARB_texture_storage&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_texture_storage</span>,
+    <span class="string">&quot;GL_ARB_timer_query&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_timer_query</span>,
+    <span class="string">&quot;GL_ARB_transform_feedback3&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_transform_feedback3</span>,
+    <span class="string">&quot;GL_ARB_uniform_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_uniform_buffer_object</span>,
+    <span class="string">&quot;GL_ARB_vertex_array_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_vertex_array_object</span>,
+    <span class="string">&quot;GL_ARB_vertex_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_vertex_buffer_object</span>,
+    <span class="string">&quot;GL_ARB_vertex_half_float&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_vertex_half_float</span>,
+    <span class="string">&quot;GL_ARB_vertex_shader&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_vertex_shader</span>,
+    <span class="string">&quot;GL_ARB_vertex_type_10f_11f_11f_rev&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_vertex_type_10f_11f_11f_rev</span>,
+    <span class="string">&quot;GL_ARB_vertex_type_2_10_10_10_rev&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arb_vertex_type_2_10_10_10_rev</span>,
+    <span class="string">&quot;GL_ARM_rgba8&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_arm_rgba8</span>,
+    <span class="string">&quot;GL_ATI_meminfo&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ati_meminfo</span>,
+    <span class="string">&quot;GL_ATI_draw_buffers&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ati_draw_buffers</span>,
+    <span class="string">&quot;GL_ATI_texture_float&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ati_texture_float</span>,
+    <span class="string">&quot;GL_EXT_blend_minmax&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_blend_minmax</span>,
+    <span class="string">&quot;GL_EXT_buffer_storage&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_buffer_storage</span>,
+    <span class="string">&quot;GL_EXT_debug_marker&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_debug_marker</span>,
+    <span class="string">&quot;GL_EXT_direct_state_access&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_direct_state_access</span>,
+    <span class="string">&quot;GL_EXT_disjoint_timer_query&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_disjoint_timer_query</span>,
+    <span class="string">&quot;GL_EXT_framebuffer_blit&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_framebuffer_blit</span>,
+    <span class="string">&quot;GL_EXT_framebuffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_framebuffer_object</span>,
+    <span class="string">&quot;GL_EXT_framebuffer_multisample&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_framebuffer_multisample</span>,
+    <span class="string">&quot;GL_EXT_framebuffer_sRGB&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_framebuffer_srgb</span>,
+    <span class="string">&quot;GL_EXT_geometry_shader&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_geometry_shader</span>,
+    <span class="string">&quot;GL_EXT_geometry_shader4&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_geometry_shader4</span>,
+    <span class="string">&quot;GL_EXT_gpu_shader4&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_gpu_shader4</span>,
+    <span class="string">&quot;GL_EXT_multi_draw_indirect&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_multi_draw_indirect</span>,
+    <span class="string">&quot;GL_EXT_multisampled_render_to_texture&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_multisampled_render_to_texture</span>,
+    <span class="string">&quot;GL_EXT_occlusion_query_boolean&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_occlusion_query_boolean</span>,
+    <span class="string">&quot;GL_EXT_packed_depth_stencil&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_packed_depth_stencil</span>,
+    <span class="string">&quot;GL_EXT_packed_float&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_packed_float</span>,
+    <span class="string">&quot;GL_EXT_primitive_bounding_box&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_primitive_bounding_box</span>,
+    <span class="string">&quot;GL_EXT_provoking_vertex&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_provoking_vertex</span>,
+    <span class="string">&quot;GL_EXT_robustness&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_robustness</span>,
+    <span class="string">&quot;GL_EXT_sRGB_write_control&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_srgb_write_control</span>,
+    <span class="string">&quot;GL_EXT_texture3D&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture3d</span>,
+    <span class="string">&quot;GL_EXT_texture_array&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_array</span>,
+    <span class="string">&quot;GL_EXT_texture_buffer&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_buffer</span>,
+    <span class="string">&quot;GL_EXT_texture_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_buffer_object</span>,
+    <span class="string">&quot;GL_EXT_texture_compression_s3tc&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_compression_s3tc</span>,
+    <span class="string">&quot;GL_EXT_texture_cube_map&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_cube_map</span>,
+    <span class="string">&quot;GL_EXT_texture_cube_map_array&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_cube_map_array</span>,
+    <span class="string">&quot;GL_EXT_texture_filter_anisotropic&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_filter_anisotropic</span>,
+    <span class="string">&quot;GL_EXT_texture_integer&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_integer</span>,
+    <span class="string">&quot;GL_EXT_texture_shared_exponent&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_shared_exponent</span>,
+    <span class="string">&quot;GL_EXT_texture_snorm&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_snorm</span>,
+    <span class="string">&quot;GL_EXT_texture_sRGB&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_texture_srgb</span>,
+    <span class="string">&quot;GL_EXT_transform_feedback&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_ext_transform_feedback</span>,
+    <span class="string">&quot;GL_GREMEDY_string_marker&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_gremedy_string_marker</span>,
+    <span class="string">&quot;GL_KHR_debug&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_khr_debug</span>,
+    <span class="string">&quot;GL_KHR_context_flush_control&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_khr_context_flush_control</span>,
+    <span class="string">&quot;GL_KHR_robustness&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_khr_robustness</span>,
+    <span class="string">&quot;GL_KHR_robust_buffer_access_behavior&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_khr_robust_buffer_access_behavior</span>,
+    <span class="string">&quot;GL_NV_fbo_color_attachments&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_fbo_color_attachments</span>,
+    <span class="string">&quot;GL_NV_conditional_render&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_conditional_render</span>,
+    <span class="string">&quot;GL_NV_copy_buffer&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_copy_buffer</span>,
+    <span class="string">&quot;GL_NV_depth_clamp&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_depth_clamp</span>,
+    <span class="string">&quot;GL_NV_framebuffer_multisample&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_framebuffer_multisample</span>,
+    <span class="string">&quot;GL_NV_half_float&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_half_float</span>,
+    <span class="string">&quot;GL_NV_internalformat_sample_query&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_internalformat_sample_query</span>,
+    <span class="string">&quot;GL_NV_pixel_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_pixel_buffer_object</span>,
+    <span class="string">&quot;GL_NV_read_depth&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_read_depth</span>,
+    <span class="string">&quot;GL_NV_read_stencil&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_read_stencil</span>,
+    <span class="string">&quot;GL_NV_read_depth_stencil&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_read_depth_stencil</span>,
+    <span class="string">&quot;GL_NV_shader_atomic_counters&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_shader_atomic_counters</span>,
+    <span class="string">&quot;GL_NV_shader_storage_buffer_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_shader_storage_buffer_object</span>,
+    <span class="string">&quot;GL_NV_texture_array&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_texture_array</span>,
+    <span class="string">&quot;GL_NV_transform_feedback&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_transform_feedback</span>,
+    <span class="string">&quot;GL_NV_vertex_attrib_integer_64bit&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nv_vertex_attrib_integer_64bit</span>,
+    <span class="string">&quot;GL_NVX_gpu_memory_info&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_nvx_gpu_memory_info</span>,
+    <span class="string">&quot;GL_OES_depth_texture&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_depth_texture</span>,
+    <span class="string">&quot;GL_OES_draw_elements_base_vertex&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_draw_elements_base_vertex</span>,
+    <span class="string">&quot;GL_OES_element_index_uint&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_element_index_uint</span>,
+    <span class="string">&quot;GL_OES_fixed_point&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_fixed_point</span>,
+    <span class="string">&quot;GL_OES_geometry_shader&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_geometry_shader</span>,
+    <span class="string">&quot;GL_OES_packed_depth_stencil&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_packed_depth_stencil</span>,
+    <span class="string">&quot;GL_OES_primitive_bounding_box&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_primitive_bounding_box</span>,
+    <span class="string">&quot;GL_OES_rgb8_rgba8&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_rgb8_rgba8</span>,
+    <span class="string">&quot;GL_OES_stencil1&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_stencil1</span>,
+    <span class="string">&quot;GL_OES_stencil4&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_stencil4</span>,
+    <span class="string">&quot;GL_OES_tessellation_shader&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_tessellation_shader</span>,
+    <span class="string">&quot;GL_OES_texture_3D&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_texture_3d</span>,
+    <span class="string">&quot;GL_OES_texture_buffer&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_texture_buffer</span>,
+    <span class="string">&quot;GL_OES_texture_cube_map_array&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_texture_cube_map_array</span>,
+    <span class="string">&quot;GL_OES_texture_stencil8&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_texture_stencil8</span>,
+    <span class="string">&quot;GL_OES_texture_storage_multisample_2d_array&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_texture_storage_multisample_2d_array</span>,
+    <span class="string">&quot;GL_OES_vertex_array_object&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_vertex_array_object</span>,
+    <span class="string">&quot;GL_OES_vertex_half_float&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_vertex_half_float</span>,
+    <span class="string">&quot;GL_OES_vertex_type_10_10_10_2&quot;</span> <span class="op">=&gt;</span> <span class="ident">gl_oes_vertex_type_10_10_10_2</span>,
+}
+
+<span class="doccomment">/// Returns the list of all extension names supported by the OpenGL implementation.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The version must match the one of the backend.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// *Safety*: the OpenGL context corresponding to `gl` must be current in the thread.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Panic</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Can panic if the version number doesn&#39;t match the backend, leading to unloaded functions</span>
+<span class="doccomment">/// being called.</span>
+<span class="doccomment">///</span>
+<span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_extensions_strings</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">gl</span>::<span class="ident">Gl</span>, <span class="ident">version</span>: <span class="kw-2">&amp;</span><span class="ident">Version</span>) <span class="op">-&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span> <span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">num_extensions</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="ident">gl</span>.<span class="ident">GetIntegerv</span>(<span class="ident">gl</span>::<span class="ident">NUM_EXTENSIONS</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">num_extensions</span>);
+
+        (<span class="number">0</span> .. <span class="ident">num_extensions</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">num</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">ext</span> <span class="op">=</span> <span class="ident">gl</span>.<span class="ident">GetStringi</span>(<span class="ident">gl</span>::<span class="ident">EXTENSIONS</span>, <span class="ident">num</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>);
+            <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">CStr</span>::<span class="ident">from_ptr</span>(<span class="ident">ext</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _).<span class="ident">to_bytes</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>()
+        }).<span class="ident">collect</span>()
+
+    } <span class="kw">else</span> {
+        <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">gl</span>.<span class="ident">GetString</span>(<span class="ident">gl</span>::<span class="ident">EXTENSIONS</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="op">!</span><span class="ident">list</span>.<span class="ident">is_null</span>());
+        <span class="kw">let</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">CStr</span>::<span class="ident">from_ptr</span>(<span class="ident">list</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _).<span class="ident">to_bytes</span>().<span class="ident">to_vec</span>())
+                                     .<span class="ident">unwrap</span>();
+        <span class="ident">list</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">e</span><span class="op">|</span> <span class="ident">e</span>.<span class="ident">to_owned</span>()).<span class="ident">collect</span>()
+    }
+}
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "glium";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

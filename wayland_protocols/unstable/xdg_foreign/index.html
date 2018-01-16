@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `xdg_foreign` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, xdg_foreign">
+
+    <title>wayland_protocols::unstable::xdg_foreign - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module xdg_foreign</p><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><p class='location'><a href='../../index.html'>wayland_protocols</a>::<wbr><a href='../index.html'>unstable</a></p><script>window.sidebarCurrent = {name: 'xdg_foreign', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>wayland_protocols</a>::<wbr><a href='../index.html'>unstable</a>::<wbr><a class="mod" href=''>xdg_foreign</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/wayland_protocols/unstable.rs.html#246-275' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Protocol for exporting xdg surface handles</p>
+
+<p>This protocol specifies a way for making it possible to reference a surface
+of a different client. With such a reference, a client can, by using the
+interfaces provided by this protocol, manipulate the relationship between
+its own surfaces and the surface of some other client. For example, stack
+some of its own surface above the other clients surface.</p>
+
+<p>In order for a client A to get a reference of a surface of client B, client
+B must first export its surface using xdg_exporter.export. Upon doing this,
+client B will receive a handle (a unique string) that it may share with
+client A in some way (for example D-Bus). After client A has received the
+handle from client B, it may use xdg_importer.import to create a reference
+to the surface client B just exported. See the corresponding requests for
+details.</p>
+
+<p>A possible use case for this is out-of-process dialogs. For example when a
+sandboxed client without file system access needs the user to select a file
+on the file system, given sandbox environment support, it can export its
+surface, passing the exported surface handle to an unsandboxed process that
+can show a file browser dialog and stack it above the sandboxed client&#39;s
+surface.</p>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="v1/index.html"
+                                  title='mod wayland_protocols::unstable::xdg_foreign::v1'>v1</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="v2/index.html"
+                                  title='mod wayland_protocols::unstable::xdg_foreign::v2'>v2</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

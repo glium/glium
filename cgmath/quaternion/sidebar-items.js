@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Quaternion","A quaternion in scalar/vector form."]]});

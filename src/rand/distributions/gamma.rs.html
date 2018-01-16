@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/rand-0.3.12/src/distributions/gamma.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/rand-0.3.20/src/distributions/gamma.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>gamma.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     <link rel="shortcut icon" href="https://www.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +28,7 @@
     
 
     <nav class="sidebar">
-        <a href='../../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='' width='100'></a>
+        <a href='../../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='logo' width='100'></a>
         
     </nav>
 
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -425,388 +427,392 @@
 <span id="382">382</span>
 <span id="383">383</span>
 <span id="384">384</span>
-</pre><pre class='rust '>
-<span class='comment'>// Copyright 2013 The Rust Project Developers. See the COPYRIGHT</span>
-<span class='comment'>// file at the top-level directory of this distribution and at</span>
-<span class='comment'>// http://rust-lang.org/COPYRIGHT.</span>
-<span class='comment'>//</span>
-<span class='comment'>// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
-<span class='comment'>// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
-<span class='comment'>// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
-<span class='comment'>// option. This file may not be copied, modified, or distributed</span>
-<span class='comment'>// except according to those terms.</span>
-<span class='comment'>//</span>
-<span class='comment'>// ignore-lexer-test FIXME #15679</span>
+<span id="385">385</span>
+<span id="386">386</span>
+</pre><pre class="rust ">
+<span class="comment">// Copyright 2013 The Rust Project Developers. See the COPYRIGHT</span>
+<span class="comment">// file at the top-level directory of this distribution and at</span>
+<span class="comment">// http://rust-lang.org/COPYRIGHT.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
+<span class="comment">//</span>
+<span class="comment">// ignore-lexer-test FIXME #15679</span>
 
-<span class='doccomment'>//! The Gamma and derived distributions.</span>
+<span class="doccomment">//! The Gamma and derived distributions.</span>
 
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>GammaRepr</span>::<span class='op'>*</span>;
-<span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>ChiSquaredRepr</span>::<span class='op'>*</span>;
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">GammaRepr</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="self">self</span>::<span class="ident">ChiSquaredRepr</span>::<span class="kw-2">*</span>;
 
-<span class='kw'>use</span> {<span class='ident'>Rng</span>, <span class='ident'>Open01</span>};
-<span class='kw'>use</span> <span class='ident'>super</span>::<span class='ident'>normal</span>::<span class='ident'>StandardNormal</span>;
-<span class='kw'>use</span> <span class='ident'>super</span>::{<span class='ident'>IndependentSample</span>, <span class='ident'>Sample</span>, <span class='ident'>Exp</span>};
+<span class="kw">use</span> {<span class="ident">Rng</span>, <span class="ident">Open01</span>};
+<span class="kw">use</span> <span class="kw">super</span>::<span class="ident">normal</span>::<span class="ident">StandardNormal</span>;
+<span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">IndependentSample</span>, <span class="ident">Sample</span>, <span class="ident">Exp</span>};
 
-<span class='doccomment'>/// The Gamma distribution `Gamma(shape, scale)` distribution.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The density function of this distribution is</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```text</span>
-<span class='doccomment'>/// f(x) =  x^(k - 1) * exp(-x / θ) / (Γ(k) * θ^k)</span>
-<span class='doccomment'>/// ```</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// where `Γ` is the Gamma function, `k` is the shape and `θ` is the</span>
-<span class='doccomment'>/// scale and both `k` and `θ` are strictly positive.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// The algorithm used is that described by Marsaglia &amp; Tsang 2000[1],</span>
-<span class='doccomment'>/// falling back to directly sampling from an Exponential for `shape</span>
-<span class='doccomment'>/// == 1`, and using the boosting technique described in [1] for</span>
-<span class='doccomment'>/// `shape &lt; 1`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Example</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// use rand::distributions::{IndependentSample, Gamma};</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// let gamma = Gamma::new(2.0, 5.0);</span>
-<span class='doccomment'>/// let v = gamma.ind_sample(&amp;mut rand::thread_rng());</span>
-<span class='doccomment'>/// println!(&quot;{} is from a Gamma(2, 5) distribution&quot;, v);</span>
-<span class='doccomment'>/// ```</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// [1]: George Marsaglia and Wai Wan Tsang. 2000. &quot;A Simple Method</span>
-<span class='doccomment'>/// for Generating Gamma Variables&quot; *ACM Trans. Math. Softw.* 26, 3</span>
-<span class='doccomment'>/// (September 2000),</span>
-<span class='doccomment'>/// 363-372. DOI:[10.1145/358407.358414](http://doi.acm.org/10.1145/358407.358414)</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Gamma</span> {
-    <span class='ident'>repr</span>: <span class='ident'>GammaRepr</span>,
+<span class="doccomment">/// The Gamma distribution `Gamma(shape, scale)` distribution.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The density function of this distribution is</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```text</span>
+<span class="doccomment">/// f(x) =  x^(k - 1) * exp(-x / θ) / (Γ(k) * θ^k)</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// where `Γ` is the Gamma function, `k` is the shape and `θ` is the</span>
+<span class="doccomment">/// scale and both `k` and `θ` are strictly positive.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The algorithm used is that described by Marsaglia &amp; Tsang 2000[1],</span>
+<span class="doccomment">/// falling back to directly sampling from an Exponential for `shape</span>
+<span class="doccomment">/// == 1`, and using the boosting technique described in [1] for</span>
+<span class="doccomment">/// `shape &lt; 1`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use rand::distributions::{IndependentSample, Gamma};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let gamma = Gamma::new(2.0, 5.0);</span>
+<span class="doccomment">/// let v = gamma.ind_sample(&amp;mut rand::thread_rng());</span>
+<span class="doccomment">/// println!(&quot;{} is from a Gamma(2, 5) distribution&quot;, v);</span>
+<span class="doccomment">/// ```</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// [1]: George Marsaglia and Wai Wan Tsang. 2000. &quot;A Simple Method</span>
+<span class="doccomment">/// for Generating Gamma Variables&quot; *ACM Trans. Math. Softw.* 26, 3</span>
+<span class="doccomment">/// (September 2000),</span>
+<span class="doccomment">/// 363-372. DOI:[10.1145/358407.358414](http://doi.acm.org/10.1145/358407.358414)</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Gamma</span> {
+    <span class="ident">repr</span>: <span class="ident">GammaRepr</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>enum</span> <span class='ident'>GammaRepr</span> {
-    <span class='ident'>Large</span>(<span class='ident'>GammaLargeShape</span>),
-    <span class='ident'>One</span>(<span class='ident'>Exp</span>),
-    <span class='ident'>Small</span>(<span class='ident'>GammaSmallShape</span>)
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">enum</span> <span class="ident">GammaRepr</span> {
+    <span class="ident">Large</span>(<span class="ident">GammaLargeShape</span>),
+    <span class="ident">One</span>(<span class="ident">Exp</span>),
+    <span class="ident">Small</span>(<span class="ident">GammaSmallShape</span>)
 }
 
-<span class='comment'>// These two helpers could be made public, but saving the</span>
-<span class='comment'>// match-on-Gamma-enum branch from using them directly (e.g. if one</span>
-<span class='comment'>// knows that the shape is always &gt; 1) doesn&#39;t appear to be much</span>
-<span class='comment'>// faster.</span>
+<span class="comment">// These two helpers could be made public, but saving the</span>
+<span class="comment">// match-on-Gamma-enum branch from using them directly (e.g. if one</span>
+<span class="comment">// knows that the shape is always &gt; 1) doesn&#39;t appear to be much</span>
+<span class="comment">// faster.</span>
 
-<span class='doccomment'>/// Gamma distribution where the shape parameter is less than 1.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Note, samples from this require a compulsory floating-point `pow`</span>
-<span class='doccomment'>/// call, which makes it significantly slower than sampling from a</span>
-<span class='doccomment'>/// gamma distribution where the shape parameter is greater than or</span>
-<span class='doccomment'>/// equal to 1.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// See `Gamma` for sampling from a Gamma distribution with general</span>
-<span class='doccomment'>/// shape parameters.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>struct</span> <span class='ident'>GammaSmallShape</span> {
-    <span class='ident'>inv_shape</span>: <span class='ident'>f64</span>,
-    <span class='ident'>large_shape</span>: <span class='ident'>GammaLargeShape</span>
+<span class="doccomment">/// Gamma distribution where the shape parameter is less than 1.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Note, samples from this require a compulsory floating-point `pow`</span>
+<span class="doccomment">/// call, which makes it significantly slower than sampling from a</span>
+<span class="doccomment">/// gamma distribution where the shape parameter is greater than or</span>
+<span class="doccomment">/// equal to 1.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See `Gamma` for sampling from a Gamma distribution with general</span>
+<span class="doccomment">/// shape parameters.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">GammaSmallShape</span> {
+    <span class="ident">inv_shape</span>: <span class="ident">f64</span>,
+    <span class="ident">large_shape</span>: <span class="ident">GammaLargeShape</span>
 }
 
-<span class='doccomment'>/// Gamma distribution where the shape parameter is larger than 1.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// See `Gamma` for sampling from a Gamma distribution with general</span>
-<span class='doccomment'>/// shape parameters.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>struct</span> <span class='ident'>GammaLargeShape</span> {
-    <span class='ident'>scale</span>: <span class='ident'>f64</span>,
-    <span class='ident'>c</span>: <span class='ident'>f64</span>,
-    <span class='ident'>d</span>: <span class='ident'>f64</span>
+<span class="doccomment">/// Gamma distribution where the shape parameter is larger than 1.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// See `Gamma` for sampling from a Gamma distribution with general</span>
+<span class="doccomment">/// shape parameters.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">struct</span> <span class="ident">GammaLargeShape</span> {
+    <span class="ident">scale</span>: <span class="ident">f64</span>,
+    <span class="ident">c</span>: <span class="ident">f64</span>,
+    <span class="ident">d</span>: <span class="ident">f64</span>
 }
 
-<span class='kw'>impl</span> <span class='ident'>Gamma</span> {
-    <span class='doccomment'>/// Construct an object representing the `Gamma(shape, scale)`</span>
-    <span class='doccomment'>/// distribution.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Panics if `shape &lt;= 0` or `scale &lt;= 0`.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>shape</span>: <span class='ident'>f64</span>, <span class='ident'>scale</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>Gamma</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>shape</span> <span class='op'>&gt;</span> <span class='number'>0.0</span>, <span class='string'>&quot;Gamma::new called with shape &lt;= 0&quot;</span>);
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>scale</span> <span class='op'>&gt;</span> <span class='number'>0.0</span>, <span class='string'>&quot;Gamma::new called with scale &lt;= 0&quot;</span>);
+<span class="kw">impl</span> <span class="ident">Gamma</span> {
+    <span class="doccomment">/// Construct an object representing the `Gamma(shape, scale)`</span>
+    <span class="doccomment">/// distribution.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Panics if `shape &lt;= 0` or `scale &lt;= 0`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">shape</span>: <span class="ident">f64</span>, <span class="ident">scale</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">Gamma</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">shape</span> <span class="op">&gt;</span> <span class="number">0.0</span>, <span class="string">&quot;Gamma::new called with shape &lt;= 0&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">scale</span> <span class="op">&gt;</span> <span class="number">0.0</span>, <span class="string">&quot;Gamma::new called with scale &lt;= 0&quot;</span>);
 
-        <span class='kw'>let</span> <span class='ident'>repr</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>shape</span> {
-            <span class='number'>1.0</span>         <span class='op'>=&gt;</span> <span class='ident'>One</span>(<span class='ident'>Exp</span>::<span class='ident'>new</span>(<span class='number'>1.0</span> <span class='op'>/</span> <span class='ident'>scale</span>)),
-            <span class='number'>0.0</span> ... <span class='number'>1.0</span> <span class='op'>=&gt;</span> <span class='ident'>Small</span>(<span class='ident'>GammaSmallShape</span>::<span class='ident'>new_raw</span>(<span class='ident'>shape</span>, <span class='ident'>scale</span>)),
-            _           <span class='op'>=&gt;</span> <span class='ident'>Large</span>(<span class='ident'>GammaLargeShape</span>::<span class='ident'>new_raw</span>(<span class='ident'>shape</span>, <span class='ident'>scale</span>))
+        <span class="kw">let</span> <span class="ident">repr</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">shape</span> <span class="op">==</span> <span class="number">1.0</span> {
+            <span class="ident">One</span>(<span class="ident">Exp</span>::<span class="ident">new</span>(<span class="number">1.0</span> <span class="op">/</span> <span class="ident">scale</span>))
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">shape</span> <span class="op">&lt;</span> <span class="number">1.0</span> {
+            <span class="ident">Small</span>(<span class="ident">GammaSmallShape</span>::<span class="ident">new_raw</span>(<span class="ident">shape</span>, <span class="ident">scale</span>))
+        } <span class="kw">else</span> {
+            <span class="ident">Large</span>(<span class="ident">GammaLargeShape</span>::<span class="ident">new_raw</span>(<span class="ident">shape</span>, <span class="ident">scale</span>))
         };
-        <span class='ident'>Gamma</span> { <span class='ident'>repr</span>: <span class='ident'>repr</span> }
+        <span class="ident">Gamma</span> { <span class="ident">repr</span>: <span class="ident">repr</span> }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GammaSmallShape</span> {
-    <span class='kw'>fn</span> <span class='ident'>new_raw</span>(<span class='ident'>shape</span>: <span class='ident'>f64</span>, <span class='ident'>scale</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>GammaSmallShape</span> {
-        <span class='ident'>GammaSmallShape</span> {
-            <span class='ident'>inv_shape</span>: <span class='number'>1.</span> <span class='op'>/</span> <span class='ident'>shape</span>,
-            <span class='ident'>large_shape</span>: <span class='ident'>GammaLargeShape</span>::<span class='ident'>new_raw</span>(<span class='ident'>shape</span> <span class='op'>+</span> <span class='number'>1.0</span>, <span class='ident'>scale</span>)
+<span class="kw">impl</span> <span class="ident">GammaSmallShape</span> {
+    <span class="kw">fn</span> <span class="ident">new_raw</span>(<span class="ident">shape</span>: <span class="ident">f64</span>, <span class="ident">scale</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">GammaSmallShape</span> {
+        <span class="ident">GammaSmallShape</span> {
+            <span class="ident">inv_shape</span>: <span class="number">1.</span> <span class="op">/</span> <span class="ident">shape</span>,
+            <span class="ident">large_shape</span>: <span class="ident">GammaLargeShape</span>::<span class="ident">new_raw</span>(<span class="ident">shape</span> <span class="op">+</span> <span class="number">1.0</span>, <span class="ident">scale</span>)
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GammaLargeShape</span> {
-    <span class='kw'>fn</span> <span class='ident'>new_raw</span>(<span class='ident'>shape</span>: <span class='ident'>f64</span>, <span class='ident'>scale</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>GammaLargeShape</span> {
-        <span class='kw'>let</span> <span class='ident'>d</span> <span class='op'>=</span> <span class='ident'>shape</span> <span class='op'>-</span> <span class='number'>1.</span> <span class='op'>/</span> <span class='number'>3.</span>;
-        <span class='ident'>GammaLargeShape</span> {
-            <span class='ident'>scale</span>: <span class='ident'>scale</span>,
-            <span class='ident'>c</span>: <span class='number'>1.</span> <span class='op'>/</span> (<span class='number'>9.</span> <span class='op'>*</span> <span class='ident'>d</span>).<span class='ident'>sqrt</span>(),
-            <span class='ident'>d</span>: <span class='ident'>d</span>
+<span class="kw">impl</span> <span class="ident">GammaLargeShape</span> {
+    <span class="kw">fn</span> <span class="ident">new_raw</span>(<span class="ident">shape</span>: <span class="ident">f64</span>, <span class="ident">scale</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">GammaLargeShape</span> {
+        <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">shape</span> <span class="op">-</span> <span class="number">1.</span> <span class="op">/</span> <span class="number">3.</span>;
+        <span class="ident">GammaLargeShape</span> {
+            <span class="ident">scale</span>: <span class="ident">scale</span>,
+            <span class="ident">c</span>: <span class="number">1.</span> <span class="op">/</span> (<span class="number">9.</span> <span class="op">*</span> <span class="ident">d</span>).<span class="ident">sqrt</span>(),
+            <span class="ident">d</span>: <span class="ident">d</span>
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Gamma</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Gamma</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
-<span class='kw'>impl</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>GammaSmallShape</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GammaSmallShape</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
-<span class='kw'>impl</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>GammaLargeShape</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GammaLargeShape</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
 
-<span class='kw'>impl</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Gamma</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> {
-        <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>repr</span> {
-            <span class='ident'>Small</span>(<span class='kw-2'>ref</span> <span class='ident'>g</span>) <span class='op'>=&gt;</span> <span class='ident'>g</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>),
-            <span class='ident'>One</span>(<span class='kw-2'>ref</span> <span class='ident'>g</span>) <span class='op'>=&gt;</span> <span class='ident'>g</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>),
-            <span class='ident'>Large</span>(<span class='kw-2'>ref</span> <span class='ident'>g</span>) <span class='op'>=&gt;</span> <span class='ident'>g</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>),
+<span class="kw">impl</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Gamma</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">repr</span> {
+            <span class="ident">Small</span>(<span class="kw-2">ref</span> <span class="ident">g</span>) <span class="op">=&gt;</span> <span class="ident">g</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>),
+            <span class="ident">One</span>(<span class="kw-2">ref</span> <span class="ident">g</span>) <span class="op">=&gt;</span> <span class="ident">g</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>),
+            <span class="ident">Large</span>(<span class="kw-2">ref</span> <span class="ident">g</span>) <span class="op">=&gt;</span> <span class="ident">g</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>),
         }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>GammaSmallShape</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> {
-        <span class='kw'>let</span> <span class='ident'>Open01</span>(<span class='ident'>u</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>Open01</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span>();
+<span class="kw">impl</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GammaSmallShape</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">let</span> <span class="ident">Open01</span>(<span class="ident">u</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">Open01</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;&gt;</span>();
 
-        <span class='self'>self</span>.<span class='ident'>large_shape</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) <span class='op'>*</span> <span class='ident'>u</span>.<span class='ident'>powf</span>(<span class='self'>self</span>.<span class='ident'>inv_shape</span>)
+        <span class="self">self</span>.<span class="ident">large_shape</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) <span class="op">*</span> <span class="ident">u</span>.<span class="ident">powf</span>(<span class="self">self</span>.<span class="ident">inv_shape</span>)
     }
 }
-<span class='kw'>impl</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>GammaLargeShape</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> {
-        <span class='kw'>loop</span> {
-            <span class='kw'>let</span> <span class='ident'>StandardNormal</span>(<span class='ident'>x</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>StandardNormal</span><span class='op'>&gt;</span>();
-            <span class='kw'>let</span> <span class='ident'>v_cbrt</span> <span class='op'>=</span> <span class='number'>1.0</span> <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>c</span> <span class='op'>*</span> <span class='ident'>x</span>;
-            <span class='kw'>if</span> <span class='ident'>v_cbrt</span> <span class='op'>&lt;=</span> <span class='number'>0.0</span> { <span class='comment'>// a^3 &lt;= 0 iff a &lt;= 0</span>
-                <span class='kw'>continue</span>
+<span class="kw">impl</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">GammaLargeShape</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">StandardNormal</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">StandardNormal</span><span class="op">&gt;</span>();
+            <span class="kw">let</span> <span class="ident">v_cbrt</span> <span class="op">=</span> <span class="number">1.0</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">c</span> <span class="op">*</span> <span class="ident">x</span>;
+            <span class="kw">if</span> <span class="ident">v_cbrt</span> <span class="op">&lt;=</span> <span class="number">0.0</span> { <span class="comment">// a^3 &lt;= 0 iff a &lt;= 0</span>
+                <span class="kw">continue</span>
             }
 
-            <span class='kw'>let</span> <span class='ident'>v</span> <span class='op'>=</span> <span class='ident'>v_cbrt</span> <span class='op'>*</span> <span class='ident'>v_cbrt</span> <span class='op'>*</span> <span class='ident'>v_cbrt</span>;
-            <span class='kw'>let</span> <span class='ident'>Open01</span>(<span class='ident'>u</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>Open01</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span>();
+            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">v_cbrt</span> <span class="op">*</span> <span class="ident">v_cbrt</span> <span class="op">*</span> <span class="ident">v_cbrt</span>;
+            <span class="kw">let</span> <span class="ident">Open01</span>(<span class="ident">u</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">Open01</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;&gt;</span>();
 
-            <span class='kw'>let</span> <span class='ident'>x_sqr</span> <span class='op'>=</span> <span class='ident'>x</span> <span class='op'>*</span> <span class='ident'>x</span>;
-            <span class='kw'>if</span> <span class='ident'>u</span> <span class='op'>&lt;</span> <span class='number'>1.0</span> <span class='op'>-</span> <span class='number'>0.0331</span> <span class='op'>*</span> <span class='ident'>x_sqr</span> <span class='op'>*</span> <span class='ident'>x_sqr</span> <span class='op'>||</span>
-                <span class='ident'>u</span>.<span class='ident'>ln</span>() <span class='op'>&lt;</span> <span class='number'>0.5</span> <span class='op'>*</span> <span class='ident'>x_sqr</span> <span class='op'>+</span> <span class='self'>self</span>.<span class='ident'>d</span> <span class='op'>*</span> (<span class='number'>1.0</span> <span class='op'>-</span> <span class='ident'>v</span> <span class='op'>+</span> <span class='ident'>v</span>.<span class='ident'>ln</span>()) {
-                <span class='kw'>return</span> <span class='self'>self</span>.<span class='ident'>d</span> <span class='op'>*</span> <span class='ident'>v</span> <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>scale</span>
+            <span class="kw">let</span> <span class="ident">x_sqr</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span>;
+            <span class="kw">if</span> <span class="ident">u</span> <span class="op">&lt;</span> <span class="number">1.0</span> <span class="op">-</span> <span class="number">0.0331</span> <span class="op">*</span> <span class="ident">x_sqr</span> <span class="op">*</span> <span class="ident">x_sqr</span> <span class="op">||</span>
+                <span class="ident">u</span>.<span class="ident">ln</span>() <span class="op">&lt;</span> <span class="number">0.5</span> <span class="op">*</span> <span class="ident">x_sqr</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">d</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">v</span> <span class="op">+</span> <span class="ident">v</span>.<span class="ident">ln</span>()) {
+                <span class="kw">return</span> <span class="self">self</span>.<span class="ident">d</span> <span class="op">*</span> <span class="ident">v</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">scale</span>
             }
         }
     }
 }
 
-<span class='doccomment'>/// The chi-squared distribution `χ²(k)`, where `k` is the degrees of</span>
-<span class='doccomment'>/// freedom.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// For `k &gt; 0` integral, this distribution is the sum of the squares</span>
-<span class='doccomment'>/// of `k` independent standard normal random variables. For other</span>
-<span class='doccomment'>/// `k`, this uses the equivalent characterisation `χ²(k) = Gamma(k/2,</span>
-<span class='doccomment'>/// 2)`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Example</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// use rand::distributions::{ChiSquared, IndependentSample};</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// let chi = ChiSquared::new(11.0);</span>
-<span class='doccomment'>/// let v = chi.ind_sample(&amp;mut rand::thread_rng());</span>
-<span class='doccomment'>/// println!(&quot;{} is from a χ²(11) distribution&quot;, v)</span>
-<span class='doccomment'>/// ```</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ChiSquared</span> {
-    <span class='ident'>repr</span>: <span class='ident'>ChiSquaredRepr</span>,
+<span class="doccomment">/// The chi-squared distribution `χ²(k)`, where `k` is the degrees of</span>
+<span class="doccomment">/// freedom.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// For `k &gt; 0` integral, this distribution is the sum of the squares</span>
+<span class="doccomment">/// of `k` independent standard normal random variables. For other</span>
+<span class="doccomment">/// `k`, this uses the equivalent characterisation</span>
+<span class="doccomment">/// `χ²(k) = Gamma(k/2, 2)`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use rand::distributions::{ChiSquared, IndependentSample};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let chi = ChiSquared::new(11.0);</span>
+<span class="doccomment">/// let v = chi.ind_sample(&amp;mut rand::thread_rng());</span>
+<span class="doccomment">/// println!(&quot;{} is from a χ²(11) distribution&quot;, v)</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ChiSquared</span> {
+    <span class="ident">repr</span>: <span class="ident">ChiSquaredRepr</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>enum</span> <span class='ident'>ChiSquaredRepr</span> {
-    <span class='comment'>// k == 1, Gamma(alpha, ..) is particularly slow for alpha &lt; 1,</span>
-    <span class='comment'>// e.g. when alpha = 1/2 as it would be for this case, so special-</span>
-    <span class='comment'>// casing and using the definition of N(0,1)^2 is faster.</span>
-    <span class='ident'>DoFExactlyOne</span>,
-    <span class='ident'>DoFAnythingElse</span>(<span class='ident'>Gamma</span>),
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">enum</span> <span class="ident">ChiSquaredRepr</span> {
+    <span class="comment">// k == 1, Gamma(alpha, ..) is particularly slow for alpha &lt; 1,</span>
+    <span class="comment">// e.g. when alpha = 1/2 as it would be for this case, so special-</span>
+    <span class="comment">// casing and using the definition of N(0,1)^2 is faster.</span>
+    <span class="ident">DoFExactlyOne</span>,
+    <span class="ident">DoFAnythingElse</span>(<span class="ident">Gamma</span>),
 }
 
-<span class='kw'>impl</span> <span class='ident'>ChiSquared</span> {
-    <span class='doccomment'>/// Create a new chi-squared distribution with degrees-of-freedom</span>
-    <span class='doccomment'>/// `k`. Panics if `k &lt; 0`.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>k</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>ChiSquared</span> {
-        <span class='kw'>let</span> <span class='ident'>repr</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>k</span> <span class='op'>==</span> <span class='number'>1.0</span> {
-            <span class='ident'>DoFExactlyOne</span>
-        } <span class='kw'>else</span> {
-            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>k</span> <span class='op'>&gt;</span> <span class='number'>0.0</span>, <span class='string'>&quot;ChiSquared::new called with `k` &lt; 0&quot;</span>);
-            <span class='ident'>DoFAnythingElse</span>(<span class='ident'>Gamma</span>::<span class='ident'>new</span>(<span class='number'>0.5</span> <span class='op'>*</span> <span class='ident'>k</span>, <span class='number'>2.0</span>))
+<span class="kw">impl</span> <span class="ident">ChiSquared</span> {
+    <span class="doccomment">/// Create a new chi-squared distribution with degrees-of-freedom</span>
+    <span class="doccomment">/// `k`. Panics if `k &lt; 0`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">k</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">ChiSquared</span> {
+        <span class="kw">let</span> <span class="ident">repr</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">k</span> <span class="op">==</span> <span class="number">1.0</span> {
+            <span class="ident">DoFExactlyOne</span>
+        } <span class="kw">else</span> {
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">k</span> <span class="op">&gt;</span> <span class="number">0.0</span>, <span class="string">&quot;ChiSquared::new called with `k` &lt; 0&quot;</span>);
+            <span class="ident">DoFAnythingElse</span>(<span class="ident">Gamma</span>::<span class="ident">new</span>(<span class="number">0.5</span> <span class="op">*</span> <span class="ident">k</span>, <span class="number">2.0</span>))
         };
-        <span class='ident'>ChiSquared</span> { <span class='ident'>repr</span>: <span class='ident'>repr</span> }
+        <span class="ident">ChiSquared</span> { <span class="ident">repr</span>: <span class="ident">repr</span> }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ChiSquared</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChiSquared</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
-<span class='kw'>impl</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ChiSquared</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> {
-        <span class='kw'>match</span> <span class='self'>self</span>.<span class='ident'>repr</span> {
-            <span class='ident'>DoFExactlyOne</span> <span class='op'>=&gt;</span> {
-                <span class='comment'>// k == 1 =&gt; N(0,1)^2</span>
-                <span class='kw'>let</span> <span class='ident'>StandardNormal</span>(<span class='ident'>norm</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>StandardNormal</span><span class='op'>&gt;</span>();
-                <span class='ident'>norm</span> <span class='op'>*</span> <span class='ident'>norm</span>
+<span class="kw">impl</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChiSquared</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">repr</span> {
+            <span class="ident">DoFExactlyOne</span> <span class="op">=&gt;</span> {
+                <span class="comment">// k == 1 =&gt; N(0,1)^2</span>
+                <span class="kw">let</span> <span class="ident">StandardNormal</span>(<span class="ident">norm</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">StandardNormal</span><span class="op">&gt;</span>();
+                <span class="ident">norm</span> <span class="op">*</span> <span class="ident">norm</span>
             }
-            <span class='ident'>DoFAnythingElse</span>(<span class='kw-2'>ref</span> <span class='ident'>g</span>) <span class='op'>=&gt;</span> <span class='ident'>g</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>)
+            <span class="ident">DoFAnythingElse</span>(<span class="kw-2">ref</span> <span class="ident">g</span>) <span class="op">=&gt;</span> <span class="ident">g</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>)
         }
     }
 }
 
-<span class='doccomment'>/// The Fisher F distribution `F(m, n)`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// This distribution is equivalent to the ratio of two normalised</span>
-<span class='doccomment'>/// chi-squared distributions, that is, `F(m,n) = (χ²(m)/m) /</span>
-<span class='doccomment'>/// (χ²(n)/n)`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Example</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// use rand::distributions::{FisherF, IndependentSample};</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// let f = FisherF::new(2.0, 32.0);</span>
-<span class='doccomment'>/// let v = f.ind_sample(&amp;mut rand::thread_rng());</span>
-<span class='doccomment'>/// println!(&quot;{} is from an F(2, 32) distribution&quot;, v)</span>
-<span class='doccomment'>/// ```</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>FisherF</span> {
-    <span class='ident'>numer</span>: <span class='ident'>ChiSquared</span>,
-    <span class='ident'>denom</span>: <span class='ident'>ChiSquared</span>,
-    <span class='comment'>// denom_dof / numer_dof so that this can just be a straight</span>
-    <span class='comment'>// multiplication, rather than a division.</span>
-    <span class='ident'>dof_ratio</span>: <span class='ident'>f64</span>,
+<span class="doccomment">/// The Fisher F distribution `F(m, n)`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This distribution is equivalent to the ratio of two normalised</span>
+<span class="doccomment">/// chi-squared distributions, that is, `F(m,n) = (χ²(m)/m) /</span>
+<span class="doccomment">/// (χ²(n)/n)`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use rand::distributions::{FisherF, IndependentSample};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let f = FisherF::new(2.0, 32.0);</span>
+<span class="doccomment">/// let v = f.ind_sample(&amp;mut rand::thread_rng());</span>
+<span class="doccomment">/// println!(&quot;{} is from an F(2, 32) distribution&quot;, v)</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">FisherF</span> {
+    <span class="ident">numer</span>: <span class="ident">ChiSquared</span>,
+    <span class="ident">denom</span>: <span class="ident">ChiSquared</span>,
+    <span class="comment">// denom_dof / numer_dof so that this can just be a straight</span>
+    <span class="comment">// multiplication, rather than a division.</span>
+    <span class="ident">dof_ratio</span>: <span class="ident">f64</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>FisherF</span> {
-    <span class='doccomment'>/// Create a new `FisherF` distribution, with the given</span>
-    <span class='doccomment'>/// parameter. Panics if either `m` or `n` are not positive.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>m</span>: <span class='ident'>f64</span>, <span class='ident'>n</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>FisherF</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>m</span> <span class='op'>&gt;</span> <span class='number'>0.0</span>, <span class='string'>&quot;FisherF::new called with `m &lt; 0`&quot;</span>);
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>n</span> <span class='op'>&gt;</span> <span class='number'>0.0</span>, <span class='string'>&quot;FisherF::new called with `n &lt; 0`&quot;</span>);
+<span class="kw">impl</span> <span class="ident">FisherF</span> {
+    <span class="doccomment">/// Create a new `FisherF` distribution, with the given</span>
+    <span class="doccomment">/// parameter. Panics if either `m` or `n` are not positive.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">m</span>: <span class="ident">f64</span>, <span class="ident">n</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">FisherF</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">m</span> <span class="op">&gt;</span> <span class="number">0.0</span>, <span class="string">&quot;FisherF::new called with `m &lt; 0`&quot;</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">n</span> <span class="op">&gt;</span> <span class="number">0.0</span>, <span class="string">&quot;FisherF::new called with `n &lt; 0`&quot;</span>);
 
-        <span class='ident'>FisherF</span> {
-            <span class='ident'>numer</span>: <span class='ident'>ChiSquared</span>::<span class='ident'>new</span>(<span class='ident'>m</span>),
-            <span class='ident'>denom</span>: <span class='ident'>ChiSquared</span>::<span class='ident'>new</span>(<span class='ident'>n</span>),
-            <span class='ident'>dof_ratio</span>: <span class='ident'>n</span> <span class='op'>/</span> <span class='ident'>m</span>
+        <span class="ident">FisherF</span> {
+            <span class="ident">numer</span>: <span class="ident">ChiSquared</span>::<span class="ident">new</span>(<span class="ident">m</span>),
+            <span class="ident">denom</span>: <span class="ident">ChiSquared</span>::<span class="ident">new</span>(<span class="ident">n</span>),
+            <span class="ident">dof_ratio</span>: <span class="ident">n</span> <span class="op">/</span> <span class="ident">m</span>
         }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>FisherF</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FisherF</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
-<span class='kw'>impl</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>FisherF</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> {
-        <span class='self'>self</span>.<span class='ident'>numer</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>denom</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) <span class='op'>*</span> <span class='self'>self</span>.<span class='ident'>dof_ratio</span>
+<span class="kw">impl</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">FisherF</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="self">self</span>.<span class="ident">numer</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) <span class="op">/</span> <span class="self">self</span>.<span class="ident">denom</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) <span class="op">*</span> <span class="self">self</span>.<span class="ident">dof_ratio</span>
     }
 }
 
-<span class='doccomment'>/// The Student t distribution, `t(nu)`, where `nu` is the degrees of</span>
-<span class='doccomment'>/// freedom.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Example</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// use rand::distributions::{StudentT, IndependentSample};</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// let t = StudentT::new(11.0);</span>
-<span class='doccomment'>/// let v = t.ind_sample(&amp;mut rand::thread_rng());</span>
-<span class='doccomment'>/// println!(&quot;{} is from a t(11) distribution&quot;, v)</span>
-<span class='doccomment'>/// ```</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>StudentT</span> {
-    <span class='ident'>chi</span>: <span class='ident'>ChiSquared</span>,
-    <span class='ident'>dof</span>: <span class='ident'>f64</span>
+<span class="doccomment">/// The Student t distribution, `t(nu)`, where `nu` is the degrees of</span>
+<span class="doccomment">/// freedom.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use rand::distributions::{StudentT, IndependentSample};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// let t = StudentT::new(11.0);</span>
+<span class="doccomment">/// let v = t.ind_sample(&amp;mut rand::thread_rng());</span>
+<span class="doccomment">/// println!(&quot;{} is from a t(11) distribution&quot;, v)</span>
+<span class="doccomment">/// ```</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StudentT</span> {
+    <span class="ident">chi</span>: <span class="ident">ChiSquared</span>,
+    <span class="ident">dof</span>: <span class="ident">f64</span>
 }
 
-<span class='kw'>impl</span> <span class='ident'>StudentT</span> {
-    <span class='doccomment'>/// Create a new Student t distribution with `n` degrees of</span>
-    <span class='doccomment'>/// freedom. Panics if `n &lt;= 0`.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>n</span>: <span class='ident'>f64</span>) <span class='op'>-&gt;</span> <span class='ident'>StudentT</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>n</span> <span class='op'>&gt;</span> <span class='number'>0.0</span>, <span class='string'>&quot;StudentT::new called with `n &lt;= 0`&quot;</span>);
-        <span class='ident'>StudentT</span> {
-            <span class='ident'>chi</span>: <span class='ident'>ChiSquared</span>::<span class='ident'>new</span>(<span class='ident'>n</span>),
-            <span class='ident'>dof</span>: <span class='ident'>n</span>
+<span class="kw">impl</span> <span class="ident">StudentT</span> {
+    <span class="doccomment">/// Create a new Student t distribution with `n` degrees of</span>
+    <span class="doccomment">/// freedom. Panics if `n &lt;= 0`.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">n</span>: <span class="ident">f64</span>) <span class="op">-&gt;</span> <span class="ident">StudentT</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">n</span> <span class="op">&gt;</span> <span class="number">0.0</span>, <span class="string">&quot;StudentT::new called with `n &lt;= 0`&quot;</span>);
+        <span class="ident">StudentT</span> {
+            <span class="ident">chi</span>: <span class="ident">ChiSquared</span>::<span class="ident">new</span>(<span class="ident">n</span>),
+            <span class="ident">dof</span>: <span class="ident">n</span>
         }
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Sample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>StudentT</span> {
-    <span class='kw'>fn</span> <span class='ident'>sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> { <span class='self'>self</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>) }
+<span class="kw">impl</span> <span class="ident">Sample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StudentT</span> {
+    <span class="kw">fn</span> <span class="ident">sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> { <span class="self">self</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>) }
 }
-<span class='kw'>impl</span> <span class='ident'>IndependentSample</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>StudentT</span> {
-    <span class='kw'>fn</span> <span class='ident'>ind_sample</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>f64</span> {
-        <span class='kw'>let</span> <span class='ident'>StandardNormal</span>(<span class='ident'>norm</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>StandardNormal</span><span class='op'>&gt;</span>();
-        <span class='ident'>norm</span> <span class='op'>*</span> (<span class='self'>self</span>.<span class='ident'>dof</span> <span class='op'>/</span> <span class='self'>self</span>.<span class='ident'>chi</span>.<span class='ident'>ind_sample</span>(<span class='ident'>rng</span>)).<span class='ident'>sqrt</span>()
+<span class="kw">impl</span> <span class="ident">IndependentSample</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">StudentT</span> {
+    <span class="kw">fn</span> <span class="ident">ind_sample</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">f64</span> {
+        <span class="kw">let</span> <span class="ident">StandardNormal</span>(<span class="ident">norm</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">StandardNormal</span><span class="op">&gt;</span>();
+        <span class="ident">norm</span> <span class="op">*</span> (<span class="self">self</span>.<span class="ident">dof</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">chi</span>.<span class="ident">ind_sample</span>(<span class="ident">rng</span>)).<span class="ident">sqrt</span>()
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>test</span> {
-    <span class='kw'>use</span> <span class='ident'>distributions</span>::{<span class='ident'>Sample</span>, <span class='ident'>IndependentSample</span>};
-    <span class='kw'>use</span> <span class='ident'>super</span>::{<span class='ident'>ChiSquared</span>, <span class='ident'>StudentT</span>, <span class='ident'>FisherF</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="ident">distributions</span>::{<span class="ident">Sample</span>, <span class="ident">IndependentSample</span>};
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ChiSquared</span>, <span class="ident">StudentT</span>, <span class="ident">FisherF</span>};
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_chi_squared_one</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>chi</span> <span class='op'>=</span> <span class='ident'>ChiSquared</span>::<span class='ident'>new</span>(<span class='number'>1.0</span>);
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> ::<span class='ident'>test</span>::<span class='ident'>rng</span>();
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1000</span> {
-            <span class='ident'>chi</span>.<span class='ident'>sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
-            <span class='ident'>chi</span>.<span class='ident'>ind_sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_chi_squared_one</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chi</span> <span class="op">=</span> <span class="ident">ChiSquared</span>::<span class="ident">new</span>(<span class="number">1.0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> ::<span class="ident">test</span>::<span class="ident">rng</span>();
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
+            <span class="ident">chi</span>.<span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="ident">chi</span>.<span class="ident">ind_sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
         }
     }
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_chi_squared_small</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>chi</span> <span class='op'>=</span> <span class='ident'>ChiSquared</span>::<span class='ident'>new</span>(<span class='number'>0.5</span>);
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> ::<span class='ident'>test</span>::<span class='ident'>rng</span>();
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1000</span> {
-            <span class='ident'>chi</span>.<span class='ident'>sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
-            <span class='ident'>chi</span>.<span class='ident'>ind_sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_chi_squared_small</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chi</span> <span class="op">=</span> <span class="ident">ChiSquared</span>::<span class="ident">new</span>(<span class="number">0.5</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> ::<span class="ident">test</span>::<span class="ident">rng</span>();
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
+            <span class="ident">chi</span>.<span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="ident">chi</span>.<span class="ident">ind_sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
         }
     }
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_chi_squared_large</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>chi</span> <span class='op'>=</span> <span class='ident'>ChiSquared</span>::<span class='ident'>new</span>(<span class='number'>30.0</span>);
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> ::<span class='ident'>test</span>::<span class='ident'>rng</span>();
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1000</span> {
-            <span class='ident'>chi</span>.<span class='ident'>sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
-            <span class='ident'>chi</span>.<span class='ident'>ind_sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_chi_squared_large</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">chi</span> <span class="op">=</span> <span class="ident">ChiSquared</span>::<span class="ident">new</span>(<span class="number">30.0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> ::<span class="ident">test</span>::<span class="ident">rng</span>();
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
+            <span class="ident">chi</span>.<span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="ident">chi</span>.<span class="ident">ind_sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
         }
     }
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='attribute'>#[<span class='ident'>cfg_attr</span>(<span class='ident'>target_env</span> <span class='op'>=</span> <span class='string'>&quot;msvc&quot;</span>, <span class='ident'>ignore</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_chi_squared_invalid_dof</span>() {
-        <span class='ident'>ChiSquared</span>::<span class='ident'>new</span>(<span class='op'>-</span><span class='number'>1.0</span>);
-    }
-
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_f</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>f</span> <span class='op'>=</span> <span class='ident'>FisherF</span>::<span class='ident'>new</span>(<span class='number'>2.0</span>, <span class='number'>32.0</span>);
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> ::<span class='ident'>test</span>::<span class='ident'>rng</span>();
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1000</span> {
-            <span class='ident'>f</span>.<span class='ident'>sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
-            <span class='ident'>f</span>.<span class='ident'>ind_sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
-        }
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_chi_squared_invalid_dof</span>() {
+        <span class="ident">ChiSquared</span>::<span class="ident">new</span>(<span class="op">-</span><span class="number">1.0</span>);
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_t</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>t</span> <span class='op'>=</span> <span class='ident'>StudentT</span>::<span class='ident'>new</span>(<span class='number'>11.0</span>);
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> ::<span class='ident'>test</span>::<span class='ident'>rng</span>();
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1000</span> {
-            <span class='ident'>t</span>.<span class='ident'>sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
-            <span class='ident'>t</span>.<span class='ident'>ind_sample</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>rng</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_f</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">FisherF</span>::<span class="ident">new</span>(<span class="number">2.0</span>, <span class="number">32.0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> ::<span class="ident">test</span>::<span class="ident">rng</span>();
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
+            <span class="ident">f</span>.<span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="ident">f</span>.<span class="ident">ind_sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_t</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">StudentT</span>::<span class="ident">new</span>(<span class="number">11.0</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> ::<span class="ident">test</span>::<span class="ident">rng</span>();
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
+            <span class="ident">t</span>.<span class="ident">sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="ident">t</span>.<span class="ident">ind_sample</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
         }
     }
 }
@@ -828,12 +834,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -854,7 +864,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -865,11 +875,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "rand";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

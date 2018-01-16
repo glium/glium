@@ -9,13 +9,15 @@
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -361,13 +363,141 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
-</pre><pre class='rust '>
-<span class='doccomment'>/*!
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
+<span id="361">361</span>
+<span id="362">362</span>
+<span id="363">363</span>
+<span id="364">364</span>
+<span id="365">365</span>
+<span id="366">366</span>
+<span id="367">367</span>
+<span id="368">368</span>
+<span id="369">369</span>
+<span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+</pre><pre class="rust ">
+<span class="doccomment">/*!
 A uniform is a global variable in your program. In order to draw something, you will need to
 give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are
 here to do that.
 
-There are two primarly ways to do this. The first one is to create your own structure and put
+There are two primary ways to do this. The first one is to create your own structure and put
 the `#[uniforms]` attribute on it. See the `glium_macros` crate for more infos.
 
 The second way is to use the `uniform!` macro provided by glium:
@@ -452,236 +582,364 @@ let uniforms = uniform! {
 # }
 ```
 
-*/</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>buffer</span>::<span class='ident'>UniformBuffer</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>sampler</span>::{<span class='ident'>SamplerWrapFunction</span>, <span class='ident'>MagnifySamplerFilter</span>, <span class='ident'>MinifySamplerFilter</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>sampler</span>::{<span class='ident'>Sampler</span>, <span class='ident'>SamplerBehavior</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>uniforms</span>::{<span class='ident'>EmptyUniforms</span>, <span class='ident'>UniformsStorage</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>value</span>::{<span class='ident'>UniformValue</span>, <span class='ident'>UniformType</span>};
+## Subroutines
+OpenGL allows the use of subroutines, which are like function pointers. Subroutines can be used
+to change the functionality of a shader program at runtime. This method is usually a lot faster
+than using multiple programs that are switched during execution.
 
-<span class='kw'>use</span> <span class='ident'>buffer</span>::<span class='ident'>Content</span> <span class='kw'>as</span> <span class='ident'>BufferContent</span>;
-<span class='kw'>use</span> <span class='ident'>buffer</span>::<span class='ident'>Buffer</span>;
-<span class='kw'>use</span> <span class='ident'>program</span>;
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>BlockLayout</span>;
+A subroutine uniform is unique per shader stage, and not per program.
 
-<span class='kw'>mod</span> <span class='ident'>bind</span>;
-<span class='kw'>mod</span> <span class='ident'>buffer</span>;
-<span class='kw'>mod</span> <span class='ident'>sampler</span>;
-<span class='kw'>mod</span> <span class='ident'>uniforms</span>;
-<span class='kw'>mod</span> <span class='ident'>value</span>;
+```no_run
+#[macro_use]
+extern crate glium;
+# fn main() {
+# let display: glium::Display = unsafe { std::mem::uninitialized() };
+# let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
 
-<span class='doccomment'>/// Object that contains the values of all the uniforms to bind to a program.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Objects of this type can be passed to the `draw()` function.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Uniforms</span> {
-    <span class='doccomment'>/// Calls the parameter once with the name and value of each uniform.</span>
-    <span class='kw'>fn</span> <span class='ident'>visit_values</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>F</span>: <span class='ident'>FnMut</span>(<span class='kw-2'>&amp;</span><span class='ident'>str</span>, <span class='ident'>UniformValue</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>)<span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>F</span>);
-}
+let program = glium::Program::from_source(&amp;display,
+    &quot;
+        #version 150
+        in vec2 position;
+        void main() {
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    &quot;,
+    &quot;
+        #version 150
+        #extension GL_ARB_shader_subroutine : require
+        out vec4 fragColor;
+        subroutine vec4 modify_t(vec4 color);
+        subroutine uniform modify_t modify_color;
 
-<span class='doccomment'>/// Error about a block layout mismatch.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>LayoutMismatchError</span> {
-    <span class='doccomment'>/// There is a mismatch in the type of one element.</span>
-    <span class='ident'>TypeMismatch</span> {
-        <span class='doccomment'>/// Type expected by the shader.</span>
-        <span class='ident'>expected</span>: <span class='ident'>UniformType</span>,
-        <span class='doccomment'>/// Type that you gave.</span>
-        <span class='ident'>obtained</span>: <span class='ident'>UniformType</span>,
-    },
-
-    <span class='doccomment'>/// The expected layout is totally different from what we have.</span>
-    <span class='ident'>LayoutMismatch</span> {
-        <span class='doccomment'>/// Layout expected by the shader.</span>
-        <span class='ident'>expected</span>: <span class='ident'>BlockLayout</span>,
-        <span class='doccomment'>/// Layout of the input.</span>
-        <span class='ident'>obtained</span>: <span class='ident'>BlockLayout</span>,
-    },
-
-    <span class='doccomment'>/// The type of data is good, but there is a misalignment.</span>
-    <span class='ident'>OffsetMismatch</span> {
-        <span class='doccomment'>/// Expected offset of a member.</span>
-        <span class='ident'>expected</span>: <span class='ident'>usize</span>,
-        <span class='doccomment'>/// Offset of the same member in the input.</span>
-        <span class='ident'>obtained</span>: <span class='ident'>usize</span>,
-    },
-
-    <span class='doccomment'>/// There is a mismatch in a submember of this layout.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This is kind of a hierarchy inside the `LayoutMismatchError`s.</span>
-    <span class='ident'>MemberMismatch</span> {
-        <span class='doccomment'>/// Name of the field.</span>
-        <span class='ident'>member</span>: <span class='ident'>String</span>,
-        <span class='doccomment'>/// The sub-error.</span>
-        <span class='ident'>err</span>: <span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>LayoutMismatchError</span><span class='op'>&gt;</span>,
-    },
-
-    <span class='doccomment'>/// A field is missing in either the expected of the input data layout.</span>
-    <span class='ident'>MissingField</span> {
-        <span class='doccomment'>/// Name of the field.</span>
-        <span class='ident'>name</span>: <span class='ident'>String</span>,
-    },
-}
-
-<span class='doccomment'>/// Value that can be used as the value of a uniform.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// This includes buffers and textures for example.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>AsUniformValue</span> {
-    <span class='doccomment'>/// Builds a `UniformValue`.</span>
-    <span class='kw'>fn</span> <span class='ident'>as_uniform_value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>UniformValue</span>;
-}
-
-<span class='comment'>// TODO: no way to bind a slice</span>
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span>: ?<span class='ident'>Sized</span><span class='op'>&gt;</span> <span class='ident'>AsUniformValue</span> <span class='kw'>for</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>Buffer</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>UniformBlock</span> <span class='op'>+</span> <span class='ident'>BufferContent</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>as_uniform_value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>UniformValue</span> {
-        <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-        <span class='kw'>fn</span> <span class='ident'>f</span><span class='op'>&lt;</span><span class='ident'>T</span>: ?<span class='ident'>Sized</span><span class='op'>&gt;</span>(<span class='ident'>block</span>: <span class='kw-2'>&amp;</span><span class='ident'>program</span>::<span class='ident'>UniformBlock</span>)
-                        <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>LayoutMismatchError</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>UniformBlock</span> <span class='op'>+</span> <span class='ident'>BufferContent</span>
+        subroutine(modify_t) vec4 delete_r(vec4 color)
         {
-            <span class='comment'>// TODO: more checks?</span>
-            <span class='ident'>T</span>::<span class='ident'>matches</span>(<span class='kw-2'>&amp;</span><span class='ident'>block</span>.<span class='ident'>layout</span>, <span class='number'>0</span>)
+          return vec4(0, color.g, color.b, color.a);
         }
 
-        <span class='ident'>UniformValue</span>::<span class='ident'>Block</span>(<span class='self'>self</span>.<span class='ident'>as_slice_any</span>(), <span class='ident'>f</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>)
+        subroutine(modify_t) vec4 delete_b(vec4 color)
+        {
+          return vec4(color.r, color.g, 0, color.a);
+        }
+
+        void main()
+        {
+            vec4 white= vec4(1, 1, 1, 1);
+            fragColor = modify_color(white);
+        }
+    &quot;, None);
+
+    let uniforms = uniform! {
+        modify_color: (&quot;delete_b&quot;, glium::program::ShaderStage::Fragment)
+    };
+# }
+```
+*/</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">buffer</span>::<span class="ident">UniformBuffer</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">sampler</span>::{<span class="ident">SamplerWrapFunction</span>, <span class="ident">MagnifySamplerFilter</span>, <span class="ident">MinifySamplerFilter</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">sampler</span>::{<span class="ident">Sampler</span>, <span class="ident">SamplerBehavior</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">uniforms</span>::{<span class="ident">EmptyUniforms</span>, <span class="ident">UniformsStorage</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">value</span>::{<span class="ident">UniformValue</span>, <span class="ident">UniformType</span>};
+
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+
+<span class="kw">use</span> <span class="ident">buffer</span>::<span class="ident">Content</span> <span class="kw">as</span> <span class="ident">BufferContent</span>;
+<span class="kw">use</span> <span class="ident">buffer</span>::<span class="ident">Buffer</span>;
+<span class="kw">use</span> <span class="ident">program</span>;
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">BlockLayout</span>;
+
+<span class="kw">mod</span> <span class="ident">bind</span>;
+<span class="kw">mod</span> <span class="ident">buffer</span>;
+<span class="kw">mod</span> <span class="ident">sampler</span>;
+<span class="kw">mod</span> <span class="ident">uniforms</span>;
+<span class="kw">mod</span> <span class="ident">value</span>;
+
+<span class="doccomment">/// Object that contains the values of all the uniforms to bind to a program.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Objects of this type can be passed to the `draw()` function.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Uniforms</span> {
+    <span class="doccomment">/// Calls the parameter once with the name and value of each uniform.</span>
+    <span class="kw">fn</span> <span class="ident">visit_values</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>: <span class="ident">FnMut</span>(<span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">UniformValue</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">F</span>);
+}
+
+<span class="doccomment">/// Error about a block layout mismatch.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LayoutMismatchError</span> {
+    <span class="doccomment">/// There is a mismatch in the type of one element.</span>
+    <span class="ident">TypeMismatch</span> {
+        <span class="doccomment">/// Type expected by the shader.</span>
+        <span class="ident">expected</span>: <span class="ident">UniformType</span>,
+        <span class="doccomment">/// Type that you gave.</span>
+        <span class="ident">obtained</span>: <span class="ident">UniformType</span>,
+    },
+
+    <span class="doccomment">/// The expected layout is totally different from what we have.</span>
+    <span class="ident">LayoutMismatch</span> {
+        <span class="doccomment">/// Layout expected by the shader.</span>
+        <span class="ident">expected</span>: <span class="ident">BlockLayout</span>,
+        <span class="doccomment">/// Layout of the input.</span>
+        <span class="ident">obtained</span>: <span class="ident">BlockLayout</span>,
+    },
+
+    <span class="doccomment">/// The type of data is good, but there is a misalignment.</span>
+    <span class="ident">OffsetMismatch</span> {
+        <span class="doccomment">/// Expected offset of a member.</span>
+        <span class="ident">expected</span>: <span class="ident">usize</span>,
+        <span class="doccomment">/// Offset of the same member in the input.</span>
+        <span class="ident">obtained</span>: <span class="ident">usize</span>,
+    },
+
+    <span class="doccomment">/// There is a mismatch in a submember of this layout.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is kind of a hierarchy inside the `LayoutMismatchError`s.</span>
+    <span class="ident">MemberMismatch</span> {
+        <span class="doccomment">/// Name of the field.</span>
+        <span class="ident">member</span>: <span class="ident">String</span>,
+        <span class="doccomment">/// The sub-error.</span>
+        <span class="ident">err</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">LayoutMismatchError</span><span class="op">&gt;</span>,
+    },
+
+    <span class="doccomment">/// A field is missing in either the expected of the input data layout.</span>
+    <span class="ident">MissingField</span> {
+        <span class="doccomment">/// Name of the field.</span>
+        <span class="ident">name</span>: <span class="ident">String</span>,
+    },
+}
+
+<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">LayoutMismatchError</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">LayoutMismatchError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">TypeMismatch</span> { .. } <span class="op">=&gt;</span>
+                <span class="string">&quot;There is a mismatch in the type of one element&quot;</span>,
+            <span class="ident">LayoutMismatch</span> { .. } <span class="op">=&gt;</span>
+                <span class="string">&quot;The expected layout is totally different from what we have&quot;</span>,
+            <span class="ident">OffsetMismatch</span> { .. } <span class="op">=&gt;</span>
+                <span class="string">&quot;The type of data is good, but there is a misalignment&quot;</span>,
+            <span class="ident">MemberMismatch</span> { .. } <span class="op">=&gt;</span>
+                <span class="string">&quot;There is a mismatch in a submember of this layout&quot;</span>,
+            <span class="ident">MissingField</span> { .. } <span class="op">=&gt;</span>
+                <span class="string">&quot;A field is missing in either the expected of the input data layout&quot;</span>,
+        }
+    }
+
+    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">LayoutMismatchError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">MemberMismatch</span>{ <span class="kw-2">ref</span> <span class="ident">err</span>, .. } <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>.<span class="ident">as_ref</span>()),
+            _ <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+        }
     }
 }
 
-<span class='doccomment'>/// Objects that are suitable for being inside a uniform block or a SSBO.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>UniformBlock</span> {        <span class='comment'>// TODO: `: Copy`, but unsized structs don&#39;t impl `Copy`</span>
-    <span class='doccomment'>/// Checks whether the uniforms&#39; layout matches the given block if `Self` starts at</span>
-    <span class='doccomment'>/// the given offset.</span>
-    <span class='kw'>fn</span> <span class='ident'>matches</span>(<span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>, <span class='ident'>base_offset</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>LayoutMismatchError</span><span class='op'>&gt;</span>;
-
-    <span class='doccomment'>/// Builds the `BlockLayout` corresponding to the current object.</span>
-    <span class='kw'>fn</span> <span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>BlockLayout</span>;
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">LayoutMismatchError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">LayoutMismatchError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="comment">//duplicate Patternmatching, different Types can&#39;t be condensed</span>
+            <span class="ident">TypeMismatch</span> { <span class="kw-2">ref</span> <span class="ident">expected</span>, <span class="kw-2">ref</span> <span class="ident">obtained</span> } <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(
+                    <span class="ident">fmt</span>,
+                    <span class="string">&quot;{}, got: {:?}, expected: {:?}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">description</span>(),
+                    <span class="ident">obtained</span>,
+                    <span class="ident">expected</span>,
+                ),
+            <span class="ident">LayoutMismatch</span> { <span class="kw-2">ref</span> <span class="ident">expected</span>, <span class="kw-2">ref</span> <span class="ident">obtained</span> } <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(
+                    <span class="ident">fmt</span>,
+                    <span class="string">&quot;{}, got: {:?}, expected: {:?}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">description</span>(),
+                    <span class="ident">obtained</span>,
+                    <span class="ident">expected</span>,
+                ),
+            <span class="ident">OffsetMismatch</span> { <span class="kw-2">ref</span> <span class="ident">expected</span>, <span class="kw-2">ref</span> <span class="ident">obtained</span> } <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(
+                    <span class="ident">fmt</span>,
+                    <span class="string">&quot;{}, got: {}, expected: {}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">description</span>(),
+                    <span class="ident">obtained</span>,
+                    <span class="ident">expected</span>,
+                ),
+            <span class="ident">MemberMismatch</span> { <span class="kw-2">ref</span> <span class="ident">member</span>, <span class="kw-2">ref</span> <span class="ident">err</span> } <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(
+                    <span class="ident">fmt</span>,
+                    <span class="string">&quot;{}, {}: {}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">description</span>(),
+                    <span class="ident">member</span>,
+                    <span class="ident">err</span>,
+                ),
+            <span class="ident">MissingField</span> { <span class="kw-2">ref</span> <span class="ident">name</span> } <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(
+                    <span class="ident">fmt</span>,
+                    <span class="string">&quot;{}: {}&quot;</span>,
+                    <span class="self">self</span>.<span class="ident">description</span>(),
+                    <span class="ident">name</span>,
+                ),
+        }
+    }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>UniformBlock</span> <span class='kw'>for</span> [<span class='ident'>T</span>] <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>UniformBlock</span> {
-    <span class='kw'>fn</span> <span class='ident'>matches</span>(<span class='ident'>layout</span>: <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>, <span class='ident'>base_offset</span>: <span class='ident'>usize</span>)
-               <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>LayoutMismatchError</span><span class='op'>&gt;</span>
+<span class="doccomment">/// Value that can be used as the value of a uniform.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This includes buffers and textures for example.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">AsUniformValue</span> {
+    <span class="doccomment">/// Builds a `UniformValue`.</span>
+    <span class="kw">fn</span> <span class="ident">as_uniform_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">UniformValue</span>;
+}
+
+<span class="comment">// TODO: no way to bind a slice</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">AsUniformValue</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Buffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">UniformBlock</span> <span class="op">+</span> <span class="ident">BufferContent</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">as_uniform_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">UniformValue</span> {
+        <span class="attribute">#[<span class="ident">inline</span>]</span>
+        <span class="kw">fn</span> <span class="ident">f</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">block</span>: <span class="kw-2">&amp;</span><span class="ident">program</span>::<span class="ident">UniformBlock</span>)
+                        <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">LayoutMismatchError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">UniformBlock</span> <span class="op">+</span> <span class="ident">BufferContent</span>
+        {
+            <span class="comment">// TODO: more checks?</span>
+            <span class="ident">T</span>::<span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="ident">block</span>.<span class="ident">layout</span>, <span class="number">0</span>)
+        }
+
+        <span class="ident">UniformValue</span>::<span class="ident">Block</span>(<span class="self">self</span>.<span class="ident">as_slice_any</span>(), <span class="ident">f</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
+    }
+}
+
+<span class="doccomment">/// Objects that are suitable for being inside a uniform block or a SSBO.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">UniformBlock</span> {        <span class="comment">// TODO: `: Copy`, but unsized structs don&#39;t impl `Copy`</span>
+    <span class="doccomment">/// Checks whether the uniforms&#39; layout matches the given block if `Self` starts at</span>
+    <span class="doccomment">/// the given offset.</span>
+    <span class="kw">fn</span> <span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>, <span class="ident">base_offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">LayoutMismatchError</span><span class="op">&gt;</span>;
+
+    <span class="doccomment">/// Builds the `BlockLayout` corresponding to the current object.</span>
+    <span class="kw">fn</span> <span class="ident">build_layout</span>(<span class="ident">base_offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">BlockLayout</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">UniformBlock</span> <span class="kw">for</span> [<span class="ident">T</span>] <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">UniformBlock</span> {
+    <span class="kw">fn</span> <span class="ident">matches</span>(<span class="ident">layout</span>: <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>, <span class="ident">base_offset</span>: <span class="ident">usize</span>)
+               <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">LayoutMismatchError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>::<span class='ident'>Struct</span> { <span class='kw-2'>ref</span> <span class='ident'>members</span> } <span class='op'>=</span> <span class='ident'>layout</span> {
-            <span class='kw'>if</span> <span class='ident'>members</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>1</span> {
-                <span class='kw'>return</span> <span class='ident'>Self</span>::<span class='ident'>matches</span>(<span class='kw-2'>&amp;</span><span class='ident'>members</span>[<span class='number'>0</span>].<span class='number'>1</span>, <span class='ident'>base_offset</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>::<span class="ident">Struct</span> { <span class="kw-2">ref</span> <span class="ident">members</span> } <span class="op">=</span> <span class="ident">layout</span> {
+            <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                <span class="kw">return</span> <span class="self">Self</span>::<span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="ident">members</span>[<span class="number">0</span>].<span class="number">1</span>, <span class="ident">base_offset</span>);
             }
         }
 
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>::<span class='ident'>DynamicSizedArray</span> { <span class='kw-2'>ref</span> <span class='ident'>content</span> } <span class='op'>=</span> <span class='ident'>layout</span> {
-            <span class='op'>&lt;</span><span class='ident'>T</span> <span class='kw'>as</span> <span class='ident'>UniformBlock</span><span class='op'>&gt;</span>::<span class='ident'>matches</span>(<span class='ident'>content</span>, <span class='ident'>base_offset</span>)
-                .<span class='ident'>map_err</span>(<span class='op'>|</span><span class='ident'>err</span><span class='op'>|</span> {
-                    <span class='ident'>LayoutMismatchError</span>::<span class='ident'>MemberMismatch</span> {
-                        <span class='ident'>member</span>: <span class='string'>&quot;&lt;dynamic array content&gt;&quot;</span>.<span class='ident'>to_owned</span>(),
-                        <span class='ident'>err</span>: <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>err</span>),
+        <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>::<span class="ident">DynamicSizedArray</span> { <span class="kw-2">ref</span> <span class="ident">content</span> } <span class="op">=</span> <span class="ident">layout</span> {
+            <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">UniformBlock</span><span class="op">&gt;</span>::<span class="ident">matches</span>(<span class="ident">content</span>, <span class="ident">base_offset</span>)
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                    <span class="ident">LayoutMismatchError</span>::<span class="ident">MemberMismatch</span> {
+                        <span class="ident">member</span>: <span class="string">&quot;&lt;dynamic array content&gt;&quot;</span>.<span class="ident">to_owned</span>(),
+                        <span class="ident">err</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">err</span>),
                     }
                 })
 
-        } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>::<span class='ident'>Array</span> { <span class='kw-2'>ref</span> <span class='ident'>content</span>, .. } <span class='op'>=</span> <span class='ident'>layout</span> {
-            <span class='op'>&lt;</span><span class='ident'>T</span> <span class='kw'>as</span> <span class='ident'>UniformBlock</span><span class='op'>&gt;</span>::<span class='ident'>matches</span>(<span class='ident'>content</span>, <span class='ident'>base_offset</span>)
-                .<span class='ident'>map_err</span>(<span class='op'>|</span><span class='ident'>err</span><span class='op'>|</span> {
-                    <span class='ident'>LayoutMismatchError</span>::<span class='ident'>MemberMismatch</span> {
-                        <span class='ident'>member</span>: <span class='string'>&quot;&lt;dynamic array content&gt;&quot;</span>.<span class='ident'>to_owned</span>(),
-                        <span class='ident'>err</span>: <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>err</span>),
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>::<span class="ident">Array</span> { <span class="kw-2">ref</span> <span class="ident">content</span>, .. } <span class="op">=</span> <span class="ident">layout</span> {
+            <span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">UniformBlock</span><span class="op">&gt;</span>::<span class="ident">matches</span>(<span class="ident">content</span>, <span class="ident">base_offset</span>)
+                .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> {
+                    <span class="ident">LayoutMismatchError</span>::<span class="ident">MemberMismatch</span> {
+                        <span class="ident">member</span>: <span class="string">&quot;&lt;dynamic array content&gt;&quot;</span>.<span class="ident">to_owned</span>(),
+                        <span class="ident">err</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">err</span>),
                     }
                 })
 
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>LayoutMismatch</span> {
-                <span class='ident'>expected</span>: <span class='ident'>layout</span>.<span class='ident'>clone</span>(),
-                <span class='ident'>obtained</span>: <span class='op'>&lt;</span><span class='kw'>Self</span> <span class='kw'>as</span> <span class='ident'>UniformBlock</span><span class='op'>&gt;</span>::<span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>),
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">LayoutMismatch</span> {
+                <span class="ident">expected</span>: <span class="ident">layout</span>.<span class="ident">clone</span>(),
+                <span class="ident">obtained</span>: <span class="op">&lt;</span><span class="self">Self</span> <span class="kw">as</span> <span class="ident">UniformBlock</span><span class="op">&gt;</span>::<span class="ident">build_layout</span>(<span class="ident">base_offset</span>),
             })
         }
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>BlockLayout</span> {
-        <span class='ident'>BlockLayout</span>::<span class='ident'>DynamicSizedArray</span> {
-            <span class='ident'>content</span>: <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='op'>&lt;</span><span class='ident'>T</span> <span class='kw'>as</span> <span class='ident'>UniformBlock</span><span class='op'>&gt;</span>::<span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>)),
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">build_layout</span>(<span class="ident">base_offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">BlockLayout</span> {
+        <span class="ident">BlockLayout</span>::<span class="ident">DynamicSizedArray</span> {
+            <span class="ident">content</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="op">&lt;</span><span class="ident">T</span> <span class="kw">as</span> <span class="ident">UniformBlock</span><span class="op">&gt;</span>::<span class="ident">build_layout</span>(<span class="ident">base_offset</span>)),
         }
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>impl_uniform_block_array</span> {
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>len</span>:<span class='ident'>expr</span>) <span class='op'>=&gt;</span> (
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>UniformBlock</span> <span class='kw'>for</span> [<span class='ident'>T</span>; <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>len</span>] <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>UniformBlock</span> {
-            <span class='kw'>fn</span> <span class='ident'>matches</span>(<span class='ident'>layout</span>: <span class='kw-2'>&amp;</span><span class='ident'>program</span>::<span class='ident'>BlockLayout</span>, <span class='ident'>base_offset</span>: <span class='ident'>usize</span>)
-                       <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>LayoutMismatchError</span><span class='op'>&gt;</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">impl_uniform_block_array</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> (
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">UniformBlock</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>] <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">UniformBlock</span> {
+            <span class="kw">fn</span> <span class="ident">matches</span>(<span class="ident">layout</span>: <span class="kw-2">&amp;</span><span class="ident">program</span>::<span class="ident">BlockLayout</span>, <span class="ident">base_offset</span>: <span class="ident">usize</span>)
+                       <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">LayoutMismatchError</span><span class="op">&gt;</span>
             {
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>::<span class='ident'>Struct</span> { <span class='kw-2'>ref</span> <span class='ident'>members</span> } <span class='op'>=</span> <span class='ident'>layout</span> {
-                    <span class='kw'>if</span> <span class='ident'>members</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>1</span> {
-                        <span class='kw'>return</span> <span class='ident'>Self</span>::<span class='ident'>matches</span>(<span class='kw-2'>&amp;</span><span class='ident'>members</span>[<span class='number'>0</span>].<span class='number'>1</span>, <span class='ident'>base_offset</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>::<span class="ident">Struct</span> { <span class="kw-2">ref</span> <span class="ident">members</span> } <span class="op">=</span> <span class="ident">layout</span> {
+                    <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                        <span class="kw">return</span> <span class="self">Self</span>::<span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="ident">members</span>[<span class="number">0</span>].<span class="number">1</span>, <span class="ident">base_offset</span>);
                     }
                 }
 
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>::<span class='ident'>Array</span> { <span class='kw-2'>ref</span> <span class='ident'>content</span>, <span class='ident'>length</span> } <span class='op'>=</span> <span class='ident'>layout</span> {
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Err</span>(_) <span class='op'>=</span> <span class='ident'>T</span>::<span class='ident'>matches</span>(<span class='ident'>content</span>, <span class='ident'>base_offset</span>) {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>LayoutMismatch</span> {
-                            <span class='ident'>expected</span>: (<span class='op'>*</span><span class='op'>*</span><span class='ident'>content</span>).<span class='ident'>clone</span>(),
-                            <span class='ident'>obtained</span>: <span class='ident'>T</span>::<span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>),
+                <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>::<span class="ident">Array</span> { <span class="kw-2">ref</span> <span class="ident">content</span>, <span class="ident">length</span> } <span class="op">=</span> <span class="ident">layout</span> {
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Err</span>(<span class="ident">err</span>) <span class="op">=</span> <span class="ident">T</span>::<span class="ident">matches</span>(<span class="ident">content</span>, <span class="ident">base_offset</span>) {
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">MemberMismatch</span> {
+                            <span class="ident">member</span>: <span class="string">&quot;&lt;array content&gt;&quot;</span>.<span class="ident">to_owned</span>(),
+                            <span class="ident">err</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">err</span>),
                         });
                     }
 
-                    <span class='kw'>if</span> <span class='ident'>length</span> <span class='op'>!=</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>len</span> {
-                        <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>LayoutMismatch</span> {
-                            <span class='ident'>expected</span>: (<span class='op'>*</span><span class='op'>*</span><span class='ident'>content</span>).<span class='ident'>clone</span>(),
-                            <span class='ident'>obtained</span>: <span class='ident'>T</span>::<span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>),
+                    <span class="kw">if</span> <span class="ident">length</span> <span class="op">!=</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span> {
+                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">LayoutMismatch</span> {
+                            <span class="ident">expected</span>: <span class="ident">layout</span>.<span class="ident">clone</span>(),
+                            <span class="ident">obtained</span>: <span class="self">Self</span>::<span class="ident">build_layout</span>(<span class="ident">base_offset</span>),
                         });
                     }
 
-                    <span class='prelude-val'>Ok</span>(())
+                    <span class="prelude-val">Ok</span>(())
 
-                } <span class='kw'>else</span> {
-                    <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>LayoutMismatch</span> {
-                        <span class='ident'>expected</span>: <span class='ident'>layout</span>.<span class='ident'>clone</span>(),
-                        <span class='ident'>obtained</span>: <span class='ident'>Self</span>::<span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>),
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">LayoutMismatch</span> {
+                        <span class="ident">expected</span>: <span class="ident">layout</span>.<span class="ident">clone</span>(),
+                        <span class="ident">obtained</span>: <span class="self">Self</span>::<span class="ident">build_layout</span>(<span class="ident">base_offset</span>),
                     })
                 }
             }
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>program</span>::<span class='ident'>BlockLayout</span> {
-                <span class='ident'>BlockLayout</span>::<span class='ident'>Array</span> {
-                    <span class='ident'>content</span>: <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>T</span>::<span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>)),
-                    <span class='ident'>length</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>len</span>,
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">build_layout</span>(<span class="ident">base_offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">program</span>::<span class="ident">BlockLayout</span> {
+                <span class="ident">BlockLayout</span>::<span class="ident">Array</span> {
+                    <span class="ident">content</span>: <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">T</span>::<span class="ident">build_layout</span>(<span class="ident">base_offset</span>)),
+                    <span class="ident">length</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">len</span>,
                 }
             }
         }
     );
 }
 
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>5</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>6</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>7</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>8</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>9</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>10</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>11</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>12</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>13</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>14</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>15</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>16</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>17</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>18</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>19</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>20</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>21</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>22</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>23</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>24</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>25</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>26</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>27</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>28</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>29</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>30</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>31</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>32</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>64</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>128</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>256</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>512</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>1024</span>);
-<span class='macro'>impl_uniform_block_array</span><span class='macro'>!</span>(<span class='number'>2048</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">5</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">6</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">7</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">8</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">9</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">10</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">11</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">12</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">13</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">14</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">15</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">16</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">17</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">18</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">19</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">20</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">21</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">22</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">23</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">24</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">25</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">26</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">27</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">28</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">29</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">30</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">31</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">32</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">64</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">128</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">256</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">512</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">1024</span>);
+<span class="macro">impl_uniform_block_array</span><span class="macro">!</span>(<span class="number">2048</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -700,12 +958,16 @@ let uniforms = uniform! {
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -726,7 +988,7 @@ let uniforms = uniform! {
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -737,11 +999,8 @@ let uniforms = uniform! {
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

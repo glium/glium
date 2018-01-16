@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/shared_library-0.1.2/src/lib.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/shared_library-0.1.8/src/lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -216,180 +218,180 @@
 <span id="173">173</span>
 <span id="174">174</span>
 <span id="175">175</span>
-</pre><pre class='rust '>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
+</pre><pre class="rust ">
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">libc</span>;
 
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>lazy_static</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">lazy_static</span>;
 
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>dynamic_library</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">dynamic_library</span>;
 
-<span class='doccomment'>/// Error that can happen while loading the shared library.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>LoadingError</span> {
-    <span class='doccomment'>/// </span>
-    <span class='ident'>LibraryNotFound</span> {
-        <span class='ident'>descr</span>: <span class='ident'>String</span>,
+<span class="doccomment">/// Error that can happen while loading the shared library.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LoadingError</span> {
+    <span class="doccomment">/// </span>
+    <span class="ident">LibraryNotFound</span> {
+        <span class="ident">descr</span>: <span class="ident">String</span>,
     },
 
-    <span class='doccomment'>/// One of the symbols could not be found in the library.</span>
-    <span class='ident'>SymbolNotFound</span> {
-        <span class='doccomment'>/// The symbol.</span>
-        <span class='ident'>symbol</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>,
+    <span class="doccomment">/// One of the symbols could not be found in the library.</span>
+    <span class="ident">SymbolNotFound</span> {
+        <span class="doccomment">/// The symbol.</span>
+        <span class="ident">symbol</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span>,
     }
 }
 
-<span class='attribute'>#[<span class='ident'>macro_export</span>]</span>
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>shared_library</span> {
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>, <span class='kw'>pub</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>+</span>) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> [] [] [] <span class='kw'>pub</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>+</span>);
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">shared_library</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>, <span class="kw">pub</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> [] [] [] <span class="kw">pub</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">+</span>);
     };
 
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>, <span class='kw'>fn</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>+</span>) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> [] [] [] <span class='kw'>fn</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>+</span>);
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>, <span class="kw">fn</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> [] [] [] <span class="kw">fn</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">+</span>);
     };
 
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>, <span class='kw'>static</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>+</span>) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> [] [] [] <span class='kw'>static</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>+</span>);
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>, <span class="kw">static</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> [] [] [] <span class="kw">static</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">+</span>);
     };
 
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>def_path</span>:<span class='ident'>expr</span>, $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>+</span>) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> [] [<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>def_path</span>] [] $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>+</span>);
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">def_path</span>:<span class="ident">expr</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">+</span>) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> [] [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">def_path</span>] [] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="op">+</span>);
     };
 
-    (<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>
-            [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>:<span class='ident'>tt</span>)<span class='op'>*</span>]
-            , $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>*</span>
-    ) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>)<span class='op'>*</span>] $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>*</span>);
+    (<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+            , $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };
 
-    (<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>
-            [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>:<span class='ident'>tt</span>)<span class='op'>*</span>]
-            <span class='kw'>pub</span> $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>*</span>
-    ) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>)<span class='op'>*</span> <span class='kw'>pub</span>] $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>*</span>);
+    (<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+            <span class="kw">pub</span> $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>)<span class="op">*</span> <span class="kw">pub</span>] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };
 
-    (<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>
-            [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>:<span class='ident'>tt</span>)<span class='op'>*</span>]
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span>($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p</span>:<span class='ident'>ident</span>:<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>:<span class='ident'>ty</span>),<span class='op'>*</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ret</span>:<span class='ident'>ty</span>, $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>*</span>
-    ) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>)<span class='op'>*</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='kw'>unsafe</span> <span class='kw'>extern</span> <span class='kw'>fn</span>($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p</span>:<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>),<span class='op'>*</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ret</span>]
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>)<span class='op'>*</span>]
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>)<span class='op'>*</span>
-                           <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p</span>:<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>),<span class='op'>*</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ret</span> {
-                               <span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>dead_code</span>)]</span>
-                               (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>::<span class='ident'>get_static_ref</span>().<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>)($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p</span>),<span class='op'>*</span>)
+    (<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">ident</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="kw-2">*</span>) <span class="op">-&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ret</span>:<span class="ident">ty</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>)<span class="kw-2">*</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="kw">unsafe</span> <span class="kw">extern</span> <span class="kw">fn</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="kw-2">*</span>) <span class="op">-&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ret</span>]
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>)<span class="kw-2">*</span>]
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>)<span class="op">*</span>
+                           <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="kw-2">*</span>) <span class="op">-&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ret</span> {
+                               <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+                               (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>::<span class="ident">get_static_ref</span>().<span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>)($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>),<span class="kw-2">*</span>)
                            }
-                        ] $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>*</span>);
+                        ] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };
 
-    (<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>
-            [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>:<span class='ident'>tt</span>)<span class='op'>*</span>]
-            <span class='kw'>static</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span>:<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>:<span class='ident'>ty</span>, $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>*</span>
-    ) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>)<span class='op'>*</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>]
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>)<span class='op'>*</span>]
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>)<span class='op'>*</span>] $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>*</span>);
+    (<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+            <span class="kw">static</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>)<span class="kw-2">*</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>]
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>)<span class="kw-2">*</span>]
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>)<span class="kw-2">*</span>] $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };
 
-    (<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span>
-            [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>:<span class='ident'>tt</span>)<span class='op'>*</span>]
-            <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>:<span class='ident'>ident</span>($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p</span>:<span class='ident'>ident</span>:<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>:<span class='ident'>ty</span>),<span class='op'>*</span>), $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>:<span class='ident'>tt</span>)<span class='op'>*</span>
-    ) <span class='op'>=&gt;</span> {
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>
-                       [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>)<span class='op'>*</span>]
-                       <span class='kw'>fn</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>name</span>($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p</span>:<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>),<span class='op'>*</span>) <span class='op'>-&gt;</span> (), $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>rest</span>)<span class='op'>*</span>);
+    (<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span>
+            [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]
+            <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>:<span class="ident">ident</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="ident">ident</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>),<span class="kw-2">*</span>), $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>:<span class="ident">tt</span>)<span class="op">*</span>
+    ) <span class="op">=&gt;</span> {
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>
+                       [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>)<span class="kw-2">*</span>]
+                       <span class="kw">fn</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">name</span>($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>),<span class="kw-2">*</span>) <span class="op">-&gt;</span> (), $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">rest</span>)<span class="kw-2">*</span>);
     };
 
-    (<span class='ident'>__impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span> [$(,<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_n</span>:<span class='ident'>ident</span>:<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_t</span>:<span class='ident'>ty</span>)<span class='op'>+</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>:<span class='ident'>tt</span>)<span class='op'>*</span>]) <span class='op'>=&gt;</span> {
-        <span class='doccomment'>/// Symbols loaded from a shared library.</span>
-        <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>non_snake_case</span>)]</span>
-        <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> {
-            <span class='ident'>_library_guard</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>dynamic_library</span>::<span class='ident'>DynamicLibrary</span>,
+    (<span class="ident">__impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span> [$(,<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_n</span>:<span class="ident">ident</span>:<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_t</span>:<span class="ident">ty</span>)<span class="op">+</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]) <span class="op">=&gt;</span> {
+        <span class="doccomment">/// Symbols loaded from a shared library.</span>
+        <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
+        <span class="kw">pub</span> <span class="kw">struct</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> {
+            <span class="ident">_library_guard</span>: <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">dynamic_library</span>::<span class="ident">DynamicLibrary</span>,
             $(
-                <span class='kw'>pub</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_n</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_t</span>,
-            )<span class='op'>+</span>
+                <span class="kw">pub</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_n</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_t</span>,
+            )<span class="op">+</span>
         }
 
-        <span class='kw'>impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> {
-            <span class='doccomment'>/// Tries to open the dynamic library.</span>
-            <span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>non_snake_case</span>)]</span>
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>open</span>(<span class='ident'>path</span>: <span class='kw-2'>&amp;</span>::<span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>Path</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>LoadingError</span><span class='op'>&gt;</span> {
-                <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> {
+            <span class="doccomment">/// Tries to open the dynamic library.</span>
+            <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">open</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span>::<span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>, <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">LoadingError</span><span class="op">&gt;</span> {
+                <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 
-                <span class='kw'>let</span> <span class='ident'>dylib</span> <span class='op'>=</span> <span class='kw'>match</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>dynamic_library</span>::<span class='ident'>DynamicLibrary</span>::<span class='ident'>open</span>(<span class='prelude-val'>Some</span>(<span class='ident'>path</span>)) {
-                    <span class='prelude-val'>Ok</span>(<span class='ident'>l</span>) <span class='op'>=&gt;</span> <span class='ident'>l</span>,
-                    <span class='prelude-val'>Err</span>(<span class='ident'>reason</span>) <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>LoadingError</span>::<span class='ident'>LibraryNotFound</span> { <span class='ident'>descr</span>: <span class='ident'>reason</span> })
+                <span class="kw">let</span> <span class="ident">dylib</span> <span class="op">=</span> <span class="kw">match</span> <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">dynamic_library</span>::<span class="ident">DynamicLibrary</span>::<span class="ident">open</span>(<span class="prelude-val">Some</span>(<span class="ident">path</span>)) {
+                    <span class="prelude-val">Ok</span>(<span class="ident">l</span>) <span class="op">=&gt;</span> <span class="ident">l</span>,
+                    <span class="prelude-val">Err</span>(<span class="ident">reason</span>) <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">LoadingError</span>::<span class="ident">LibraryNotFound</span> { <span class="ident">descr</span>: <span class="ident">reason</span> })
                 };
 
                 $(
-                    <span class='kw'>let</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_n</span>: <span class='op'>*</span><span class='kw-2'>mut</span> () <span class='op'>=</span> <span class='kw'>match</span> <span class='kw'>unsafe</span> { <span class='ident'>dylib</span>.<span class='ident'>symbol</span>(<span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_n</span>)) } {
-                        <span class='prelude-val'>Ok</span>(<span class='ident'>s</span>) <span class='op'>=&gt;</span> <span class='ident'>s</span>,
-                        <span class='prelude-val'>Err</span>(_) <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>LoadingError</span>::<span class='ident'>SymbolNotFound</span> { <span class='ident'>symbol</span>: <span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_n</span>) }),
+                    <span class="kw">let</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_n</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> () <span class="op">=</span> <span class="kw">match</span> <span class="kw">unsafe</span> { <span class="ident">dylib</span>.<span class="ident">symbol</span>(<span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_n</span>)) } {
+                        <span class="prelude-val">Ok</span>(<span class="ident">s</span>) <span class="op">=&gt;</span> <span class="ident">s</span>,
+                        <span class="prelude-val">Err</span>(_) <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">LoadingError</span>::<span class="ident">SymbolNotFound</span> { <span class="ident">symbol</span>: <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_n</span>) }),
                     };
-                )<span class='op'>+</span>
+                )<span class="op">+</span>
 
-                <span class='prelude-val'>Ok</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> {
-                    <span class='ident'>_library_guard</span>: <span class='ident'>dylib</span>,
+                <span class="prelude-val">Ok</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> {
+                    <span class="ident">_library_guard</span>: <span class="ident">dylib</span>,
                     $(
-                        <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_n</span>: <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mem_n</span>) },
-                    )<span class='op'>+</span>
+                        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_n</span>: <span class="kw">unsafe</span> { <span class="ident">mem</span>::<span class="ident">transmute</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mem_n</span>) },
+                    )<span class="op">+</span>
                 })
             }
         }
 
-        <span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>__write_static_fns</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> [] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p2</span>)<span class='op'>*</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>)<span class='op'>*</span>]);
+        <span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">__write_static_fns</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> [] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p2</span>)<span class="kw-2">*</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>)<span class="kw-2">*</span>]);
     };
 
-    (<span class='ident'>__write_static_fns</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span> [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p3</span>:<span class='ident'>tt</span>)<span class='op'>*</span>]) <span class='op'>=&gt;</span> {
+    (<span class="ident">__write_static_fns</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p3</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>]) <span class="op">=&gt;</span> {
     };
 
-    (<span class='ident'>__write_static_fns</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>:<span class='ident'>ident</span> [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>p1</span>:<span class='ident'>tt</span>)<span class='op'>*</span>] [<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>defpath</span>:<span class='ident'>expr</span>] [$(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>standalones</span>:<span class='ident'>item</span>)<span class='op'>+</span>]) <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> {
-            <span class='doccomment'>/// This function is used by the regular functions.</span>
-            <span class='kw'>fn</span> <span class='ident'>get_static_ref</span>() <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span> {
-                <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>::<span class='ident'>try_loading</span>().<span class='ident'>ok</span>()
-                                           .<span class='ident'>expect</span>(<span class='macro'>concat</span><span class='macro'>!</span>(<span class='string'>&quot;Could not open dynamic \
-                                                            library `&quot;</span>, <span class='macro'>stringify</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>),
-                                                            <span class='string'>&quot;`&quot;</span>))
+    (<span class="ident">__write_static_fns</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>:<span class="ident">ident</span> [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">p1</span>:<span class="ident">tt</span>)<span class="kw-2">*</span>] [<span class="macro-nonterminal">$</span><span class="macro-nonterminal">defpath</span>:<span class="ident">expr</span>] [$(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">standalones</span>:<span class="ident">item</span>)<span class="op">+</span>]) <span class="op">=&gt;</span> {
+        <span class="kw">impl</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> {
+            <span class="doccomment">/// This function is used by the regular functions.</span>
+            <span class="kw">fn</span> <span class="ident">get_static_ref</span>() <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span> {
+                <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>::<span class="ident">try_loading</span>().<span class="ident">ok</span>()
+                                           .<span class="ident">expect</span>(<span class="macro">concat</span><span class="macro">!</span>(<span class="string">&quot;Could not open dynamic \
+                                                            library `&quot;</span>, <span class="macro">stringify</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>),
+                                                            <span class="string">&quot;`&quot;</span>))
             }
 
-            <span class='doccomment'>/// Try loading the static symbols linked to this library.</span>
-            <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>try_loading</span>() <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>crate</span>::<span class='ident'>LoadingError</span><span class='op'>&gt;</span> {
-                <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>sync</span>::{<span class='ident'>Mutex</span>, <span class='ident'>Once</span>, <span class='ident'>ONCE_INIT</span>};
-                <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
+            <span class="doccomment">/// Try loading the static symbols linked to this library.</span>
+            <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">try_loading</span>() <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>, <span class="macro-nonterminal">$</span><span class="kw">crate</span>::<span class="macro-nonterminal">LoadingError</span><span class="op">&gt;</span> {
+                <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::{<span class="ident">Mutex</span>, <span class="ident">Once</span>, <span class="ident">ONCE_INIT</span>};
+                <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 
-                <span class='kw'>unsafe</span> {
-                    <span class='kw'>static</span> <span class='kw-2'>mut</span> <span class='ident'>DATA</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>Mutex</span><span class='op'>&lt;</span><span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span><span class='op'>&gt;&gt;</span> <span class='op'>=</span> <span class='number'>0</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> _;
+                <span class="kw">unsafe</span> {
+                    <span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">DATA</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">Mutex</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _;
 
-                    <span class='kw'>static</span> <span class='kw-2'>mut</span> <span class='ident'>INIT</span>: <span class='ident'>Once</span> <span class='op'>=</span> <span class='ident'>ONCE_INIT</span>;
-                    <span class='ident'>INIT</span>.<span class='ident'>call_once</span>(<span class='op'>||</span> {
-                        <span class='kw'>let</span> <span class='ident'>data</span> <span class='op'>=</span> <span class='ident'>Box</span>::<span class='ident'>new</span>(<span class='ident'>Mutex</span>::<span class='ident'>new</span>(<span class='prelude-val'>None</span>));
-                        <span class='ident'>DATA</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>data</span>;
-                        <span class='ident'>mem</span>::<span class='ident'>forget</span>(<span class='ident'>data</span>);
+                    <span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">INIT</span>: <span class="ident">Once</span> <span class="op">=</span> <span class="ident">ONCE_INIT</span>;
+                    <span class="ident">INIT</span>.<span class="ident">call_once</span>(<span class="op">||</span> {
+                        <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">Box</span>::<span class="ident">new</span>(<span class="ident">Mutex</span>::<span class="ident">new</span>(<span class="prelude-val">None</span>));
+                        <span class="ident">DATA</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">data</span>;
+                        <span class="ident">mem</span>::<span class="ident">forget</span>(<span class="ident">data</span>);
                     });
 
-                    <span class='kw'>let</span> <span class='ident'>data</span>: <span class='kw-2'>&amp;</span><span class='ident'>Mutex</span><span class='op'>&lt;</span><span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span><span class='op'>&gt;&gt;</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>DATA</span>;
-                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>data</span> <span class='op'>=</span> <span class='ident'>data</span>.<span class='ident'>lock</span>().<span class='ident'>unwrap</span>();
+                    <span class="kw">let</span> <span class="ident">data</span>: <span class="kw-2">&amp;</span><span class="ident">Mutex</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span><span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">DATA</span>;
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">lock</span>().<span class="ident">unwrap</span>();
 
-                    <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>data</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>data</span> {
-                        <span class='kw'>return</span> <span class='prelude-val'>Ok</span>(<span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='ident'>data</span>));
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">data</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="ident">data</span> {
+                        <span class="kw">return</span> <span class="prelude-val">Ok</span>(<span class="ident">mem</span>::<span class="ident">transmute</span>(<span class="ident">data</span>));
                     }
 
-                    <span class='kw'>let</span> <span class='ident'>path</span> <span class='op'>=</span> ::<span class='ident'>std</span>::<span class='ident'>path</span>::<span class='ident'>Path</span>::<span class='ident'>new</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>defpath</span>);
-                    <span class='kw'>let</span> <span class='ident'>result</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>struct_name</span>::<span class='ident'>open</span>(<span class='ident'>path</span>));
-                    <span class='op'>*</span><span class='ident'>data</span> <span class='op'>=</span> <span class='prelude-val'>Some</span>(<span class='ident'>result</span>);
-                    <span class='prelude-val'>Ok</span>(<span class='ident'>mem</span>::<span class='ident'>transmute</span>(<span class='ident'>data</span>.<span class='ident'>as_ref</span>().<span class='ident'>unwrap</span>()))
+                    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> ::<span class="ident">std</span>::<span class="ident">path</span>::<span class="ident">Path</span>::<span class="ident">new</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">defpath</span>);
+                    <span class="kw">let</span> <span class="ident">result</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">struct_name</span>::<span class="ident">open</span>(<span class="ident">path</span>));
+                    <span class="kw-2">*</span><span class="ident">data</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">result</span>);
+                    <span class="prelude-val">Ok</span>(<span class="ident">mem</span>::<span class="ident">transmute</span>(<span class="ident">data</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()))
                 }
             }
         }
 
-        $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>standalones</span>)<span class='op'>+</span>
+        $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">standalones</span>)<span class="op">+</span>
     };
 }
 </pre>
@@ -410,12 +412,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -436,7 +442,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -447,11 +453,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "shared_library";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

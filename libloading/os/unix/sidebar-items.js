@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Library","A platform-specific equivalent of the cross-platform `Library`."],["Symbol","Symbol from a library."]]});

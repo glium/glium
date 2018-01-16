@@ -9,13 +9,15 @@
 
     <title>glium::texture::bindless::TextureHandle - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>bindless</a></p><script>window.sidebarCurrent = {name: 'TextureHandle', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct TextureHandle</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.set">set</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-AsUniformValue">AsUniformValue</a><a href="#impl-UniformBlock">UniformBlock</a></div></div><p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>bindless</a></p><script>window.sidebarCurrent = {name: 'TextureHandle', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,25 +43,41 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>bindless</a>::<wbr><a class='struct' href=''>TextureHandle</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-10054' class='srclink' href='../../../src/glium/texture/bindless.rs.html#154-157' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct TextureHandle&lt;'a&gt; {
-    // some fields omitted
-}</pre><div class='docblock'><p>Represents a handle to a texture. Contains a raw pointer to a texture that is hidden from you.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='struct' href='../../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(texture: &amp;'a <a class='struct' href='../../../glium/texture/bindless/struct.ResidentTexture.html' title='glium::texture::bindless::ResidentTexture'>ResidentTexture</a>, _: &amp;<a class='struct' href='../../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a>) -&gt; <a class='struct' href='../../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>&lt;'a&gt;</code></h4>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a href='index.html'>bindless</a>::<wbr><a class="struct" href=''>TextureHandle</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#154-157' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct TextureHandle&lt;'a&gt; { /* fields omitted */ }</pre><div class='docblock'><p>Represents a handle to a texture. Contains a raw pointer to a texture that is hidden from you.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="struct" href="../../../glium/texture/bindless/struct.TextureHandle.html" title="struct glium::texture::bindless::TextureHandle">TextureHandle</a>&lt;'a&gt;</code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#159-176' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;texture: &amp;'a <a class="struct" href="../../../glium/texture/bindless/struct.ResidentTexture.html" title="struct glium::texture::bindless::ResidentTexture">ResidentTexture</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;_: &amp;<a class="struct" href="../../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a><br>) -&gt; <a class="struct" href="../../../glium/texture/bindless/struct.TextureHandle.html" title="struct glium::texture::bindless::TextureHandle">TextureHandle</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#162-168' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Builds a new handle.</p>
-</div><h4 id='method.set' class='method'><code>fn <a href='#method.set' class='fnname'>set</a>(&amp;mut self, texture: &amp;'a <a class='struct' href='../../../glium/texture/bindless/struct.ResidentTexture.html' title='glium::texture::bindless::ResidentTexture'>ResidentTexture</a>, _: &amp;<a class='struct' href='../../../glium/uniforms/struct.SamplerBehavior.html' title='glium::uniforms::SamplerBehavior'>SamplerBehavior</a>)</code></h4>
+</div><h4 id='method.set' class="method"><span id='set.v' class='invisible'><code>pub fn <a href='#method.set' class='fnname'>set</a>(&amp;mut self, texture: &amp;'a <a class="struct" href="../../../glium/texture/bindless/struct.ResidentTexture.html" title="struct glium::texture::bindless::ResidentTexture">ResidentTexture</a>, _: &amp;<a class="struct" href="../../../glium/uniforms/struct.SamplerBehavior.html" title="struct glium::uniforms::SamplerBehavior">SamplerBehavior</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#172-175' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Sets the value to the given texture.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='../../../glium/uniforms/trait.AsUniformValue.html' title='glium::uniforms::AsUniformValue'>AsUniformValue</a> for <a class='struct' href='../../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.as_uniform_value' class='method'><code>fn <a href='../../../glium/uniforms/trait.AsUniformValue.html#method.as_uniform_value' class='fnname'>as_uniform_value</a>(&amp;self) -&gt; <a class='enum' href='../../../glium/uniforms/enum.UniformValue.html' title='glium::uniforms::UniformValue'>UniformValue</a></code></h4>
-</div><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='../../../glium/uniforms/trait.UniformBlock.html' title='glium::uniforms::UniformBlock'>UniformBlock</a> for <a class='struct' href='../../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.matches' class='method'><code>fn <a href='../../../glium/uniforms/trait.UniformBlock.html#method.matches' class='fnname'>matches</a>(layout: &amp;<a class='enum' href='../../../glium/program/enum.BlockLayout.html' title='glium::program::BlockLayout'>BlockLayout</a>, base_offset: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='enum' href='../../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a>&gt;</code></h4>
-<h4 id='method.build_layout' class='method'><code>fn <a href='../../../glium/uniforms/trait.UniformBlock.html#method.build_layout' class='fnname'>build_layout</a>(base_offset: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>) -&gt; <a class='enum' href='../../../glium/program/enum.BlockLayout.html' title='glium::program::BlockLayout'>BlockLayout</a></code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>&lt;'a&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../../glium/texture/bindless/struct.TextureHandle.html' title='glium::texture::bindless::TextureHandle'>TextureHandle</a>&lt;'a&gt;</code></h3><div class='impl-items'></div></section>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../glium/texture/bindless/struct.TextureHandle.html" title="struct glium::texture::bindless::TextureHandle">TextureHandle</a>&lt;'a&gt;</code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#153' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../glium/texture/bindless/struct.TextureHandle.html" title="struct glium::texture::bindless::TextureHandle">TextureHandle</a>&lt;'a&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#153' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../../glium/texture/bindless/struct.TextureHandle.html" title="struct glium::texture::bindless::TextureHandle">TextureHandle</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#153' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-AsUniformValue' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="../../../glium/uniforms/trait.AsUniformValue.html" title="trait glium::uniforms::AsUniformValue">AsUniformValue</a> for <a class="struct" href="../../../glium/texture/bindless/struct.TextureHandle.html" title="struct glium::texture::bindless::TextureHandle">TextureHandle</a>&lt;'a&gt;</code><a href='#impl-AsUniformValue' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#178-184' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.as_uniform_value' class="method"><span id='as_uniform_value.v' class='invisible'><code>fn <a href='../../../glium/uniforms/trait.AsUniformValue.html#tymethod.as_uniform_value' class='fnname'>as_uniform_value</a>(&amp;self) -&gt; <a class="enum" href="../../../glium/uniforms/enum.UniformValue.html" title="enum glium::uniforms::UniformValue">UniformValue</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#180-183' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a <code>UniformValue</code>.</p>
+</div></div><h3 id='impl-UniformBlock' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="../../../glium/uniforms/trait.UniformBlock.html" title="trait glium::uniforms::UniformBlock">UniformBlock</a> for <a class="struct" href="../../../glium/texture/bindless/struct.TextureHandle.html" title="struct glium::texture::bindless::TextureHandle">TextureHandle</a>&lt;'a&gt;</code><a href='#impl-UniformBlock' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#186-285' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.matches' class="method"><span id='matches.v' class='invisible'><code>fn <a href='../../../glium/uniforms/trait.UniformBlock.html#tymethod.matches' class='fnname'>matches</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;layout: &amp;<a class="enum" href="../../../glium/program/enum.BlockLayout.html" title="enum glium::program::BlockLayout">BlockLayout</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;base_offset: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="enum" href="../../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#187-276' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Checks whether the uniforms&#39; layout matches the given block if <code>Self</code> starts at the given offset. <a href="../../../glium/uniforms/trait.UniformBlock.html#tymethod.matches">Read more</a></p>
+</div><h4 id='method.build_layout' class="method"><span id='build_layout.v' class='invisible'><code>fn <a href='../../../glium/uniforms/trait.UniformBlock.html#tymethod.build_layout' class='fnname'>build_layout</a>(base_offset: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>) -&gt; <a class="enum" href="../../../glium/program/enum.BlockLayout.html" title="enum glium::program::BlockLayout">BlockLayout</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/glium/texture/bindless.rs.html#279-284' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds the <code>BlockLayout</code> corresponding to the current object.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -76,12 +94,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -102,7 +124,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -113,11 +135,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

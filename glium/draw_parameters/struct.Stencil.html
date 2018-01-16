@@ -9,13 +9,15 @@
 
     <title>glium::draw_parameters::Stencil - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a></p><script>window.sidebarCurrent = {name: 'Stencil', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct Stencil</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.test_clockwise">test_clockwise</a><a href="#structfield.reference_value_clockwise">reference_value_clockwise</a><a href="#structfield.write_mask_clockwise">write_mask_clockwise</a><a href="#structfield.fail_operation_clockwise">fail_operation_clockwise</a><a href="#structfield.pass_depth_fail_operation_clockwise">pass_depth_fail_operation_clockwise</a><a href="#structfield.depth_pass_operation_clockwise">depth_pass_operation_clockwise</a><a href="#structfield.test_counter_clockwise">test_counter_clockwise</a><a href="#structfield.reference_value_counter_clockwise">reference_value_counter_clockwise</a><a href="#structfield.write_mask_counter_clockwise">write_mask_counter_clockwise</a><a href="#structfield.fail_operation_counter_clockwise">fail_operation_counter_clockwise</a><a href="#structfield.pass_depth_fail_operation_counter_clockwise">pass_depth_fail_operation_counter_clockwise</a><a href="#structfield.depth_pass_operation_counter_clockwise">depth_pass_operation_counter_clockwise</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-Default">Default</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a></p><script>window.sidebarCurrent = {name: 'Stencil', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,46 +43,58 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a>::<wbr><a class='struct' href=''>Stencil</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-2574' class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#7-111' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a>::<wbr><a class="struct" href=''>Stencil</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#7-111' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Stencil {
-    pub test_clockwise: <a class='enum' href='../../glium/enum.StencilTest.html' title='glium::StencilTest'>StencilTest</a>,
-    pub reference_value_clockwise: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,
-    pub write_mask_clockwise: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
-    pub fail_operation_clockwise: <a class='enum' href='../../glium/enum.StencilOperation.html' title='glium::StencilOperation'>StencilOperation</a>,
-    pub pass_depth_fail_operation_clockwise: <a class='enum' href='../../glium/enum.StencilOperation.html' title='glium::StencilOperation'>StencilOperation</a>,
-    pub depth_pass_operation_clockwise: <a class='enum' href='../../glium/enum.StencilOperation.html' title='glium::StencilOperation'>StencilOperation</a>,
-    pub test_counter_clockwise: <a class='enum' href='../../glium/enum.StencilTest.html' title='glium::StencilTest'>StencilTest</a>,
-    pub reference_value_counter_clockwise: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>,
-    pub write_mask_counter_clockwise: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u32.html'>u32</a>,
-    pub fail_operation_counter_clockwise: <a class='enum' href='../../glium/enum.StencilOperation.html' title='glium::StencilOperation'>StencilOperation</a>,
-    pub pass_depth_fail_operation_counter_clockwise: <a class='enum' href='../../glium/enum.StencilOperation.html' title='glium::StencilOperation'>StencilOperation</a>,
-    pub depth_pass_operation_counter_clockwise: <a class='enum' href='../../glium/enum.StencilOperation.html' title='glium::StencilOperation'>StencilOperation</a>,
+    pub test_clockwise: <a class="enum" href="../../glium/enum.StencilTest.html" title="enum glium::StencilTest">StencilTest</a>,
+    pub reference_value_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub write_mask_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
+    pub fail_operation_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a>,
+    pub pass_depth_fail_operation_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a>,
+    pub depth_pass_operation_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a>,
+    pub test_counter_clockwise: <a class="enum" href="../../glium/enum.StencilTest.html" title="enum glium::StencilTest">StencilTest</a>,
+    pub reference_value_counter_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,
+    pub write_mask_counter_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
+    pub fail_operation_counter_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a>,
+    pub pass_depth_fail_operation_counter_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a>,
+    pub depth_pass_operation_counter_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a>,
 }</pre><div class='docblock'><p>Describes the parameters that must be used for the stencil operations when drawing.</p>
-</div><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.test_clockwise'><code>test_clockwise</code></td><td><div class='docblock'><p>A comparison against the existing value in the stencil buffer.</p>
+</div><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.test_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.test_clockwise" class="anchor field"></a>
+                           <span id="test_clockwise.v" class='invisible'>
+                           <code>test_clockwise: <a class="enum" href="../../glium/enum.StencilTest.html" title="enum glium::StencilTest">StencilTest</a></code>
+                           </span></span><div class='docblock'><p>A comparison against the existing value in the stencil buffer.</p>
 
 <p>Only relevant for faces that are clockwise on the target surface. Other faces, points and
 lines use <code>stencil_test_counter_clockwise</code> instead.</p>
 
 <p>The default value is <code>AlwaysPass</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.reference_value_clockwise'><code>reference_value_clockwise</code></td><td><div class='docblock'><p>Reference value that is used by <code>stencil_test_clockwise</code>, <code>stencil_fail_operation_clockwise</code>,
+</div><span id="structfield.reference_value_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.reference_value_clockwise" class="anchor field"></a>
+                           <span id="reference_value_clockwise.v" class='invisible'>
+                           <code>reference_value_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><div class='docblock'><p>Reference value that is used by <code>stencil_test_clockwise</code>, <code>stencil_fail_operation_clockwise</code>,
 <code>stencil_pass_depth_fail_operation_clockwise</code> and <code>stencil_depth_pass_operation_clockwise</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.write_mask_clockwise'><code>write_mask_clockwise</code></td><td><div class='docblock'><p>Allows specifying a mask when writing data on the stencil buffer.</p>
+</div><span id="structfield.write_mask_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.write_mask_clockwise" class="anchor field"></a>
+                           <span id="write_mask_clockwise.v" class='invisible'>
+                           <code>write_mask_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code>
+                           </span></span><div class='docblock'><p>Allows specifying a mask when writing data on the stencil buffer.</p>
 
 <p>Only relevant for faces that are clockwise on the target surface. Other faces, points and
 lines use <code>stencil_write_mask_counter_clockwise</code> instead.</p>
 
 <p>The default value is <code>0xffffffff</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.fail_operation_clockwise'><code>fail_operation_clockwise</code></td><td><div class='docblock'><p>Specifies the operation to do when a fragment fails the stencil test.</p>
+</div><span id="structfield.fail_operation_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.fail_operation_clockwise" class="anchor field"></a>
+                           <span id="fail_operation_clockwise.v" class='invisible'>
+                           <code>fail_operation_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a></code>
+                           </span></span><div class='docblock'><p>Specifies the operation to do when a fragment fails the stencil test.</p>
 
 <p>The stencil test is the test specified by <code>stencil_test_clockwise</code>.</p>
 
@@ -88,8 +102,11 @@ lines use <code>stencil_write_mask_counter_clockwise</code> instead.</p>
 lines use <code>stencil_fail_operation_counter_clockwise</code> instead.</p>
 
 <p>The default value is <code>Keep</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.pass_depth_fail_operation_clockwise'><code>pass_depth_fail_operation_clockwise</code></td><td><div class='docblock'><p>Specifies the operation to do when a fragment passes the stencil test but fails
+</div><span id="structfield.pass_depth_fail_operation_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.pass_depth_fail_operation_clockwise" class="anchor field"></a>
+                           <span id="pass_depth_fail_operation_clockwise.v" class='invisible'>
+                           <code>pass_depth_fail_operation_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a></code>
+                           </span></span><div class='docblock'><p>Specifies the operation to do when a fragment passes the stencil test but fails
 the depth test.</p>
 
 <p>The stencil test is the test specified by <code>stencil_test_clockwise</code>.</p>
@@ -98,8 +115,11 @@ the depth test.</p>
 lines use <code>stencil_pass_depth_fail_operation_counter_clockwise</code> instead.</p>
 
 <p>The default value is <code>Keep</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.depth_pass_operation_clockwise'><code>depth_pass_operation_clockwise</code></td><td><div class='docblock'><p>Specifies the operation to do when a fragment passes both the stencil and depth tests.</p>
+</div><span id="structfield.depth_pass_operation_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.depth_pass_operation_clockwise" class="anchor field"></a>
+                           <span id="depth_pass_operation_clockwise.v" class='invisible'>
+                           <code>depth_pass_operation_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a></code>
+                           </span></span><div class='docblock'><p>Specifies the operation to do when a fragment passes both the stencil and depth tests.</p>
 
 <p>The stencil test is the test specified by <code>stencil_test_clockwise</code>.</p>
 
@@ -107,27 +127,39 @@ lines use <code>stencil_pass_depth_fail_operation_counter_clockwise</code> inste
 lines use <code>stencil_depth_pass_operation_counter_clockwise</code> instead.</p>
 
 <p>The default value is <code>Keep</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.test_counter_clockwise'><code>test_counter_clockwise</code></td><td><div class='docblock'><p>A comparaison against the existing value in the stencil buffer.</p>
+</div><span id="structfield.test_counter_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.test_counter_clockwise" class="anchor field"></a>
+                           <span id="test_counter_clockwise.v" class='invisible'>
+                           <code>test_counter_clockwise: <a class="enum" href="../../glium/enum.StencilTest.html" title="enum glium::StencilTest">StencilTest</a></code>
+                           </span></span><div class='docblock'><p>A comparaison against the existing value in the stencil buffer.</p>
 
 <p>Only relevant for points, lines and faces that are counter-clockwise on the target surface.
 Other faces use <code>stencil_test_counter_clockwise</code> instead.</p>
 
 <p>The default value is <code>AlwaysPass</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.reference_value_counter_clockwise'><code>reference_value_counter_clockwise</code></td><td><div class='docblock'><p>Reference value that is used by <code>stencil_test_counter_clockwise</code>,
+</div><span id="structfield.reference_value_counter_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.reference_value_counter_clockwise" class="anchor field"></a>
+                           <span id="reference_value_counter_clockwise.v" class='invisible'>
+                           <code>reference_value_counter_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code>
+                           </span></span><div class='docblock'><p>Reference value that is used by <code>stencil_test_counter_clockwise</code>,
 <code>stencil_fail_operation_counter_clockwise</code>,
 <code>stencil_pass_depth_fail_operation_counter_clockwise</code> and
 <code>stencil_depth_pass_operation_counter_clockwise</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.write_mask_counter_clockwise'><code>write_mask_counter_clockwise</code></td><td><div class='docblock'><p>Allows specifying a mask when writing data on the stencil buffer.</p>
+</div><span id="structfield.write_mask_counter_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.write_mask_counter_clockwise" class="anchor field"></a>
+                           <span id="write_mask_counter_clockwise.v" class='invisible'>
+                           <code>write_mask_counter_clockwise: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code>
+                           </span></span><div class='docblock'><p>Allows specifying a mask when writing data on the stencil buffer.</p>
 
 <p>Only relevant for points, lines and faces that are counter-clockwise on the target surface.
 Other faces use <code>stencil_write_mask_clockwise</code> instead.</p>
 
 <p>The default value is <code>0xffffffff</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.fail_operation_counter_clockwise'><code>fail_operation_counter_clockwise</code></td><td><div class='docblock'><p>Specifies the operation to do when a fragment fails the stencil test.</p>
+</div><span id="structfield.fail_operation_counter_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.fail_operation_counter_clockwise" class="anchor field"></a>
+                           <span id="fail_operation_counter_clockwise.v" class='invisible'>
+                           <code>fail_operation_counter_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a></code>
+                           </span></span><div class='docblock'><p>Specifies the operation to do when a fragment fails the stencil test.</p>
 
 <p>The stencil test is the test specified by <code>stencil_test_counter_clockwise</code>.</p>
 
@@ -135,8 +167,11 @@ Other faces use <code>stencil_write_mask_clockwise</code> instead.</p>
 use <code>stencil_fail_operation_clockwise</code> instead.</p>
 
 <p>The default value is <code>Keep</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.pass_depth_fail_operation_counter_clockwise'><code>pass_depth_fail_operation_counter_clockwise</code></td><td><div class='docblock'><p>Specifies the operation to do when a fragment passes the stencil test but fails
+</div><span id="structfield.pass_depth_fail_operation_counter_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.pass_depth_fail_operation_counter_clockwise" class="anchor field"></a>
+                           <span id="pass_depth_fail_operation_counter_clockwise.v" class='invisible'>
+                           <code>pass_depth_fail_operation_counter_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a></code>
+                           </span></span><div class='docblock'><p>Specifies the operation to do when a fragment passes the stencil test but fails
 the depth test.</p>
 
 <p>The stencil test is the test specified by <code>stencil_test_counter_clockwise</code>.</p>
@@ -145,8 +180,11 @@ the depth test.</p>
 use <code>stencil_pass_depth_fail_operation_clockwise</code> instead.</p>
 
 <p>The default value is <code>Keep</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.depth_pass_operation_counter_clockwise'><code>depth_pass_operation_counter_clockwise</code></td><td><div class='docblock'><p>Specifies the operation to do when a fragment passes both the stencil and depth tests.</p>
+</div><span id="structfield.depth_pass_operation_counter_clockwise" class="structfield small-section-header">
+                           <a href="#structfield.depth_pass_operation_counter_clockwise" class="anchor field"></a>
+                           <span id="depth_pass_operation_counter_clockwise.v" class='invisible'>
+                           <code>depth_pass_operation_counter_clockwise: <a class="enum" href="../../glium/enum.StencilOperation.html" title="enum glium::StencilOperation">StencilOperation</a></code>
+                           </span></span><div class='docblock'><p>Specifies the operation to do when a fragment passes both the stencil and depth tests.</p>
 
 <p>The stencil test is the test specified by <code>stencil_test_counter_clockwise</code>.</p>
 
@@ -154,11 +192,23 @@ use <code>stencil_pass_depth_fail_operation_clockwise</code> instead.</p>
 use <code>stencil_depth_pass_operation_clockwise</code> instead.</p>
 
 <p>The default value is <code>Keep</code>.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../../glium/draw_parameters/struct.Stencil.html' title='glium::draw_parameters::Stencil'>Stencil</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../../glium/draw_parameters/struct.Stencil.html' title='glium::draw_parameters::Stencil'>Stencil</a></code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../glium/draw_parameters/struct.Stencil.html' title='glium::draw_parameters::Stencil'>Stencil</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../glium/draw_parameters/struct.Stencil.html' title='glium::draw_parameters::Stencil'>Stencil</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../glium/draw_parameters/struct.Stencil.html' title='glium::draw_parameters::Stencil'>Stencil</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../glium/draw_parameters/struct.Stencil.html' title='glium::draw_parameters::Stencil'>Stencil</a></code></h3><div class='impl-items'></div></section>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#6' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#6' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#6' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#6' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#6' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Default' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a></code><a href='#impl-Default' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#113-131' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/stencil.rs.html#115-130' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -175,12 +225,16 @@ use <code>stencil_depth_pass_operation_clockwise</code> instead.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -201,7 +255,7 @@ use <code>stencil_depth_pass_operation_clockwise</code> instead.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -212,11 +266,8 @@ use <code>stencil_depth_pass_operation_clockwise</code> instead.</p>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

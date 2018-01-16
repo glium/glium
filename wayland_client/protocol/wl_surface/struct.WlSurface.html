@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlSurface` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlSurface">
+
+    <title>wayland_client::protocol::wl_surface::WlSurface - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct WlSurface</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.destroy">destroy</a><a href="#method.attach">attach</a><a href="#method.damage">damage</a><a href="#method.frame">frame</a><a href="#method.set_opaque_region">set_opaque_region</a><a href="#method.set_input_region">set_input_region</a><a href="#method.commit">commit</a><a href="#method.set_buffer_transform">set_buffer_transform</a><a href="#method.set_buffer_scale">set_buffer_scale</a><a href="#method.damage_buffer">damage_buffer</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Send">Send</a><a href="#impl-Sync">Sync</a><a href="#impl-Proxy">Proxy</a><a href="#impl-Implementable%3CID%3E">Implementable&lt;ID&gt;</a></div></div><p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_surface</a></p><script>window.sidebarCurrent = {name: 'WlSurface', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_surface</a>::<wbr><a class="struct" href=''>WlSurface</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3253-3256' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WlSurface { /* fields omitted */ }</pre>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3426-3754' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.destroy' class="method"><span id='destroy.v' class='invisible'><code>pub fn <a href='#method.destroy' class='fnname'>destroy</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3432-3444' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>delete surface</p>
+
+<p>Deletes the surface and invalidates its object ID.</p>
+
+<p>This is a destructor, you cannot send requests to this object once this method is called.</p>
+</div><h4 id='method.attach' class="method"><span id='attach.v' class='invisible'><code>pub fn <a href='#method.attach' class='fnname'>attach</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;buffer: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../../../wayland_client/protocol/wl_buffer/struct.WlBuffer.html" title="struct wayland_client::protocol::wl_buffer::WlBuffer">WlBuffer</a>&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><br>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3486-3490' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>set the surface contents</p>
+
+<p>Set a buffer as the content of this surface.</p>
+
+<p>The new size of the surface is calculated based on the buffer
+size transformed by the inverse buffer_transform and the
+inverse buffer_scale. This means that the supplied buffer
+must be an integer multiple of the buffer_scale.</p>
+
+<p>The x and y arguments specify the location of the new pending
+buffer&#39;s upper left corner, relative to the current buffer&#39;s upper
+left corner, in surface-local coordinates. In other words, the
+x and y, combined with the new surface size define in which
+directions the surface&#39;s size changes.</p>
+
+<p>Surface contents are double-buffered state, see wl_surface.commit.</p>
+
+<p>The initial surface contents are void; there is no content.
+wl_surface.attach assigns the given wl_buffer as the pending
+wl_buffer. wl_surface.commit makes the pending wl_buffer the new
+surface contents, and the size of the surface becomes the size
+calculated from the wl_buffer, as described above. After commit,
+there is no pending buffer until the next attach.</p>
+
+<p>Committing a pending wl_buffer allows the compositor to read the
+pixels in the wl_buffer. The compositor may access the pixels at
+any time after the wl_surface.commit request. When the compositor
+will not access the pixels anymore, it will send the
+wl_buffer.release event. Only after receiving wl_buffer.release,
+the client may reuse the wl_buffer. A wl_buffer that has been
+attached and then replaced by another attach instead of committed
+will not receive a release event, and is not used by the
+compositor.</p>
+
+<p>Destroying the wl_buffer after wl_buffer.release does not change
+the surface contents. However, if the client destroys the
+wl_buffer before receiving the wl_buffer.release event, the surface
+contents become undefined immediately.</p>
+
+<p>If wl_surface.attach is sent with a NULL wl_buffer, the
+following wl_surface.commit will remove the surface content.</p>
+</div><h4 id='method.damage' class="method"><span id='damage.v' class='invisible'><code>pub fn <a href='#method.damage' class='fnname'>damage</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><br>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3514-3518' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>mark part of the surface damaged</p>
+
+<p>This request is used to describe the regions where the pending
+buffer is different from the current surface contents, and where
+the surface therefore needs to be repainted. The compositor
+ignores the parts of the damage that fall outside of the surface.</p>
+
+<p>Damage is double-buffered state, see wl_surface.commit.</p>
+
+<p>The damage rectangle is specified in surface-local coordinates,
+where x and y specify the upper left corner of the damage rectangle.</p>
+
+<p>The initial value for pending damage is empty: no damage.
+wl_surface.damage adds pending damage: the new pending damage
+is the union of old pending damage and the given rectangle.</p>
+
+<p>wl_surface.commit assigns pending damage as the current damage,
+and clears pending damage. The server will clear the current
+damage as it repaints the surface.</p>
+
+<p>Alternatively, damage can be posted with wl_surface.damage_buffer
+which uses buffer coordinates instead of surface coordinates,
+and is probably the preferred and intuitive way of doing this.</p>
+</div><h4 id='method.frame' class="method"><span id='frame.v' class='invisible'><code>pub fn <a href='#method.frame' class='fnname'>frame</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="struct" href="../../../wayland_client/protocol/wl_callback/struct.WlCallback.html" title="struct wayland_client::protocol::wl_callback::WlCallback">WlCallback</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3553-3558' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>request a frame throttling hint</p>
+
+<p>Request a notification when it is a good time to start drawing a new
+frame, by creating a frame callback. This is useful for throttling
+redrawing operations, and driving animations.</p>
+
+<p>When a client is animating on a wl_surface, it can use the &#39;frame&#39;
+request to get notified when it is a good time to draw and commit the
+next frame of animation. If the client commits an update earlier than
+that, it is likely that some updates will not make it to the display,
+and the client is wasting resources by drawing too often.</p>
+
+<p>The frame request will take effect on the next wl_surface.commit.
+The notification will only be posted for one frame unless
+requested again. For a wl_surface, the notifications are posted in
+the order the frame requests were committed.</p>
+
+<p>The server must send the notifications so that a client
+will not send excessive updates, while still allowing
+the highest possible update rate for clients that wait for the reply
+before drawing again. The server should give some time for the client
+to draw and commit after sending the frame callback events to let it
+hit the next output refresh.</p>
+
+<p>A server should avoid signaling the frame callbacks if the
+surface is not visible in any way, e.g. the surface is off-screen,
+or completely obscured by other opaque surfaces.</p>
+
+<p>The object returned by this request will be destroyed by the
+compositor after the callback is fired and as such the client must not
+attempt to use it after that point.</p>
+
+<p>The callback_data passed in the callback is the current time, in
+milliseconds, with an undefined base.</p>
+</div><h4 id='method.set_opaque_region' class="method"><span id='set_opaque_region.v' class='invisible'><code>pub fn <a href='#method.set_opaque_region' class='fnname'>set_opaque_region</a>(&amp;self, region: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../../../wayland_client/protocol/wl_region/struct.WlRegion.html" title="struct wayland_client::protocol::wl_region::WlRegion">WlRegion</a>&gt;) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3585-3589' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>set opaque region</p>
+
+<p>This request sets the region of the surface that contains
+opaque content.</p>
+
+<p>The opaque region is an optimization hint for the compositor
+that lets it optimize the redrawing of content behind opaque
+regions.  Setting an opaque region is not required for correct
+behaviour, but marking transparent content as opaque will result
+in repaint artifacts.</p>
+
+<p>The opaque region is specified in surface-local coordinates.</p>
+
+<p>The compositor ignores the parts of the opaque region that fall
+outside of the surface.</p>
+
+<p>Opaque region is double-buffered state, see wl_surface.commit.</p>
+
+<p>wl_surface.set_opaque_region changes the pending opaque region.
+wl_surface.commit copies the pending region to the current region.
+Otherwise, the pending and current regions are never changed.</p>
+
+<p>The initial value for an opaque region is empty. Setting the pending
+opaque region has copy semantics, and the wl_region object can be
+destroyed immediately. A NULL wl_region causes the pending opaque
+region to be set to empty.</p>
+</div><h4 id='method.set_input_region' class="method"><span id='set_input_region.v' class='invisible'><code>pub fn <a href='#method.set_input_region' class='fnname'>set_input_region</a>(&amp;self, region: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="struct" href="../../../wayland_client/protocol/wl_region/struct.WlRegion.html" title="struct wayland_client::protocol::wl_region::WlRegion">WlRegion</a>&gt;) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3614-3618' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>set input region</p>
+
+<p>This request sets the region of the surface that can receive
+pointer and touch events.</p>
+
+<p>Input events happening outside of this region will try the next
+surface in the server surface stack. The compositor ignores the
+parts of the input region that fall outside of the surface.</p>
+
+<p>The input region is specified in surface-local coordinates.</p>
+
+<p>Input region is double-buffered state, see wl_surface.commit.</p>
+
+<p>wl_surface.set_input_region changes the pending input region.
+wl_surface.commit copies the pending region to the current region.
+Otherwise the pending and current regions are never changed,
+except cursor and icon surfaces are special cases, see
+wl_pointer.set_cursor and wl_data_device.start_drag.</p>
+
+<p>The initial value for an input region is infinite. That means the
+whole surface will accept input. Setting the pending input region
+has copy semantics, and the wl_region object can be destroyed
+immediately. A NULL wl_region causes the input region to be set
+to infinite.</p>
+</div><h4 id='method.commit' class="method"><span id='commit.v' class='invisible'><code>pub fn <a href='#method.commit' class='fnname'>commit</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3638-3642' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>commit pending surface state</p>
+
+<p>Surface state (input, opaque, and damage regions, attached buffers,
+etc.) is double-buffered. Protocol requests modify the pending state,
+as opposed to the current state in use by the compositor. A commit
+request atomically applies all pending state, replacing the current
+state. After commit, the new pending state is as documented for each
+related request.</p>
+
+<p>On commit, a pending wl_buffer is applied first, and all other state
+second. This means that all coordinates in double-buffered state are
+relative to the new wl_buffer coming into use, except for
+wl_surface.attach itself. If there is no pending wl_buffer, the
+coordinates are relative to the current surface contents.</p>
+
+<p>All requests that need a commit to become effective are documented
+to affect double-buffered state.</p>
+
+<p>Other interfaces may add further double-buffered surface state.</p>
+</div><h4 id='method.set_buffer_transform' class="method"><span id='set_buffer_transform.v' class='invisible'><code>pub fn <a href='#method.set_buffer_transform' class='fnname'>set_buffer_transform</a>(&amp;self, transform: <a class="enum" href="../../../wayland_client/protocol/wl_output/enum.Transform.html" title="enum wayland_client::protocol::wl_output::Transform">Transform</a>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3676-3680' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>sets the buffer transformation</p>
+
+<p>This request sets an optional transformation on how the compositor
+interprets the contents of the buffer attached to the surface. The
+accepted values for the transform parameter are the values for
+wl_output.transform.</p>
+
+<p>Buffer transform is double-buffered state, see wl_surface.commit.</p>
+
+<p>A newly created surface has its buffer transformation set to normal.</p>
+
+<p>wl_surface.set_buffer_transform changes the pending buffer
+transformation. wl_surface.commit copies the pending buffer
+transformation to the current one. Otherwise, the pending and current
+values are never changed.</p>
+
+<p>The purpose of this request is to allow clients to render content
+according to the output transform, thus permitting the compositor to
+use certain optimizations even if the display is rotated. Using
+hardware overlays and scanning out a client buffer for fullscreen
+surfaces are examples of such optimizations. Those optimizations are
+highly dependent on the compositor implementation, so the use of this
+request should be considered on a case-by-case basis.</p>
+
+<p>Note that if the transform value includes 90 or 270 degree rotation,
+the width of the buffer will become the surface height and the height
+of the buffer will become the surface width.</p>
+
+<p>If transform is not one of the values from the
+wl_output.transform enum the invalid_transform protocol error
+is raised.</p>
+
+<p>This request is only available since version 2 of the interface</p>
+</div><h4 id='method.set_buffer_scale' class="method"><span id='set_buffer_scale.v' class='invisible'><code>pub fn <a href='#method.set_buffer_scale' class='fnname'>set_buffer_scale</a>(&amp;self, scale: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3708-3712' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>sets the buffer scaling factor</p>
+
+<p>This request sets an optional scaling factor on how the compositor
+interprets the contents of the buffer attached to the window.</p>
+
+<p>Buffer scale is double-buffered state, see wl_surface.commit.</p>
+
+<p>A newly created surface has its buffer scale set to 1.</p>
+
+<p>wl_surface.set_buffer_scale changes the pending buffer scale.
+wl_surface.commit copies the pending buffer scale to the current one.
+Otherwise, the pending and current values are never changed.</p>
+
+<p>The purpose of this request is to allow clients to supply higher
+resolution buffer data for use on high resolution outputs. It is
+intended that you pick the same buffer scale as the scale of the
+output that the surface is displayed on. This means the compositor
+can avoid scaling when rendering the surface on that output.</p>
+
+<p>Note that if the scale is larger than 1, then you have to attach
+a buffer that is larger (by a factor of scale in each dimension)
+than the desired surface size.</p>
+
+<p>If scale is not positive the invalid_scale protocol error is
+raised.</p>
+
+<p>This request is only available since version 3 of the interface</p>
+</div><h4 id='method.damage_buffer' class="method"><span id='damage_buffer.v' class='invisible'><code>pub fn <a href='#method.damage_buffer' class='fnname'>damage_buffer</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><br>) -&gt; <a class="enum" href="../../../wayland_client/enum.RequestResult.html" title="enum wayland_client::RequestResult">RequestResult</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3749-3753' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>mark part of the surface damaged using buffer coordinates</p>
+
+<p>This request is used to describe the regions where the pending
+buffer is different from the current surface contents, and where
+the surface therefore needs to be repainted. The compositor
+ignores the parts of the damage that fall outside of the surface.</p>
+
+<p>Damage is double-buffered state, see wl_surface.commit.</p>
+
+<p>The damage rectangle is specified in buffer coordinates,
+where x and y specify the upper left corner of the damage rectangle.</p>
+
+<p>The initial value for pending damage is empty: no damage.
+wl_surface.damage_buffer adds pending damage: the new pending
+damage is the union of old pending damage and the given rectangle.</p>
+
+<p>wl_surface.commit assigns pending damage as the current damage,
+and clears pending damage. The server will clear the current
+damage as it repaints the surface.</p>
+
+<p>This request differs from wl_surface.damage in only one way - it
+takes damage in buffer coordinates instead of surface-local
+coordinates. While this generally is more intuitive than surface
+coordinates, it is especially desirable when using wp_viewport
+or when a drawing library (like EGL) is unaware of buffer scale
+and buffer transform.</p>
+
+<p>Note: Because buffer transformation changes and damage requests may
+be interleaved in the protocol stream, it is impossible to determine
+the actual mapping between surface and buffer damage until
+wl_surface.commit time. Therefore, compositors wishing to take both
+kinds of damage into account will have to accumulate damage from the
+two requests separately and only transform from one to the other
+after receiving the wl_surface.commit.</p>
+
+<p>This request is only available since version 4 of the interface</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Send' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code><a href='#impl-Send' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3258' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Sync' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code><a href='#impl-Sync' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3259' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Proxy' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../../wayland_client/trait.Proxy.html" title="trait wayland_client::Proxy">Proxy</a> for <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code><a href='#impl-Proxy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3260-3325' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.ptr' class="method"><span id='ptr.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../../../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3261' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Pointer to the underlying wayland proxy object</p>
+</div><h4 id='method.from_ptr_new' class="method"><span id='from_ptr_new.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_new' class='fnname'>from_ptr_new</a>(ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../../../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3263-3271' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an instance from a wayland pointer <a href="../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_new">Read more</a></p>
+</div><h4 id='method.from_ptr_initialized' class="method"><span id='from_ptr_initialized.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_initialized' class='fnname'>from_ptr_initialized</a>(ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../../../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3272-3283' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an instance from a wayland pointer <a href="../../../wayland_client/trait.Proxy.html#tymethod.from_ptr_initialized">Read more</a></p>
+</div><h4 id='method.interface_ptr' class="method"><span id='interface_ptr.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.interface_ptr' class='fnname'>interface_ptr</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../../wayland_sys/common/struct.wl_interface.html" title="struct wayland_sys::common::wl_interface">wl_interface</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3285' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Pointer to the interface representation</p>
+</div><h4 id='method.interface_name' class="method"><span id='interface_name.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.interface_name' class='fnname'>interface_name</a>() -&gt; &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3286' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Internal wayland name of this interface</p>
+</div><h4 id='method.supported_version' class="method"><span id='supported_version.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.supported_version' class='fnname'>supported_version</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3287' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Max version of this interface supported</p>
+</div><h4 id='method.version' class="method"><span id='version.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.version' class='fnname'>version</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3288' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Current version of the interface this proxy is instantiated with</p>
+</div><h4 id='method.status' class="method"><span id='status.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.status' class='fnname'>status</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/enum.Liveness.html" title="enum wayland_client::Liveness">Liveness</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3290-3300' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Check if the proxy behind this handle is actually still alive</p>
+</div><h4 id='method.equals' class="method"><span id='equals.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.equals' class='fnname'>equals</a>(&amp;self, other: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3302-3304' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Check of two handles are actually the same wayland object <a href="../../../wayland_client/trait.Proxy.html#tymethod.equals">Read more</a></p>
+</div><h4 id='method.set_user_data' class="method"><span id='set_user_data.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.set_user_data' class='fnname'>set_user_data</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3306-3310' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set a pointer associated as user data on this proxy <a href="../../../wayland_client/trait.Proxy.html#tymethod.set_user_data">Read more</a></p>
+</div><h4 id='method.get_user_data' class="method"><span id='get_user_data.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.get_user_data' class='fnname'>get_user_data</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3311-3317' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Get the pointer associated as user data on this proxy <a href="../../../wayland_client/trait.Proxy.html#tymethod.get_user_data">Read more</a></p>
+</div><h4 id='method.clone_unchecked' class="method"><span id='clone_unchecked.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Proxy.html#tymethod.clone_unchecked' class='fnname'>clone_unchecked</a>(&amp;self) -&gt; <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3319-3324' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Unsafely clone this proxy handle <a href="../../../wayland_client/trait.Proxy.html#tymethod.clone_unchecked">Read more</a></p>
+</div><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='../../../wayland_client/trait.Proxy.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/lib.rs.html#170-179' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Clone this proxy handle <a href="../../../wayland_client/trait.Proxy.html#method.clone">Read more</a></p>
+</div></div><h3 id='impl-Implementable%3CID%3E' class='impl'><span class='in-band'><code>impl&lt;ID:&nbsp;'static&gt; <a class="trait" href="../../../wayland_client/trait.Implementable.html" title="trait wayland_client::Implementable">Implementable</a>&lt;ID&gt; for <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code><a href='#impl-Implementable%3CID%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3326-3355' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Implementation' class="type"><span id='Implementation.t' class='invisible'><code>type <a href='../../../wayland_client/trait.Implementable.html#associatedtype.Implementation' class="type">Implementation</a> = <a class="struct" href="../../../wayland_client/protocol/wl_surface/struct.Implementation.html" title="struct wayland_client::protocol::wl_surface::Implementation">Implementation</a>&lt;ID&gt;</code></span></h4>
+<div class='docblock'><p>The type containing the implementation for the event callbacks</p>
+</div><h4 id='method.__dispatch_msg' class="method"><span id='__dispatch_msg.v' class='invisible'><code>unsafe fn <a href='../../../wayland_client/trait.Implementable.html#tymethod.__dispatch_msg' class='fnname'>__dispatch_msg</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;self, <br>&nbsp;&nbsp;&nbsp;&nbsp;opcode: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;args: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../../wayland_sys/common/struct.wl_argument.html" title="struct wayland_sys::common::wl_argument">wl_argument</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3329-3354' title='goto source code'>[src]</a></span></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Frame` struct in crate `wayland_window`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Frame">
+
+    <title>wayland_window::Frame - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Frame</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.refresh">refresh</a><a href="#method.set_title">set_title</a><a href="#method.set_app_id">set_app_id</a><a href="#method.set_decorate">set_decorate</a><a href="#method.resize">resize</a><a href="#method.set_state">set_state</a><a href="#method.set_min_size">set_min_size</a><a href="#method.set_max_size">set_max_size</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Drop">Drop</a></div></div><p class='location'><a href='index.html'>wayland_window</a></p><script>window.sidebarCurrent = {name: 'Frame', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>wayland_window</a>::<wbr><a class="struct" href=''>Frame</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/wayland_window/frame.rs.html#56-66' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Frame { /* fields omitted */ }</pre><div class='docblock'><p>A decorated frame for a window</p>
+
+<p>This object allows you to interact with the shell_surface
+and frame.</p>
+
+<p>You&#39;ll at least need to use it to resize the borders when you window is
+resized.</p>
+
+<p>Dropping it will remove your window and unmap your wl_surface.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../wayland_window/struct.Frame.html" title="struct wayland_window::Frame">Frame</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#80-346' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.refresh' class="method"><span id='refresh.v' class='invisible'><code>pub fn <a href='#method.refresh' class='fnname'>refresh</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#228-233' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Refreshes the frame</p>
+
+<p>Redraws the frame to match its requested state (dimensions, presence/
+absence of decorations, ...)</p>
+
+<p>If the frame does not need a redraw, this method will do nothing,
+so don&#39;t be afraid to call it frequently.</p>
+
+<p>You need to call this method after every change to the dimensions or state
+of the decorations of your window, otherwise the drawn decorations may go
+out of sync with the state of your content.</p>
+</div><h4 id='method.set_title' class="method"><span id='set_title.v' class='invisible'><code>pub fn <a href='#method.set_title' class='fnname'>set_title</a>(&amp;self, title: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#239-241' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set a short title for the window.</p>
+
+<p>This string may be used to identify the surface in a task bar, window list, or other user
+interface elements provided by the compositor.</p>
+</div><h4 id='method.set_app_id' class="method"><span id='set_app_id.v' class='invisible'><code>pub fn <a href='#method.set_app_id' class='fnname'>set_app_id</a>(&amp;self, app_id: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#250-252' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set an app id for the surface.</p>
+
+<p>The surface class identifies the general class of applications to which the surface
+belongs.</p>
+
+<p>Several wayland compositors will try to find a <code>.desktop</code> file matching this name
+to find metadata about your apps.</p>
+</div><h4 id='method.set_decorate' class="method"><span id='set_decorate.v' class='invisible'><code>pub fn <a href='#method.set_decorate' class='fnname'>set_decorate</a>(&amp;mut self, decorate: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#258-268' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Set wether the window should be decorated or not</p>
+
+<p>You need to call <code>refresh()</code> afterwards for this to properly
+take effect.</p>
+</div><h4 id='method.resize' class="method"><span id='resize.v' class='invisible'><code>pub fn <a href='#method.resize' class='fnname'>resize</a>(&amp;mut self, w: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, h: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#277-284' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Resize the decorations</p>
+
+<p>You should call this whenever you change the size of the contents
+of your window, with the new <em>inner size</em> of your window.</p>
+
+<p>You need to call <code>refresh()</code> afterwards for this to properly
+take effect.</p>
+</div><h4 id='method.set_state' class="method"><span id='set_state.v' class='invisible'><code>pub fn <a href='#method.set_state' class='fnname'>set_state</a>(&amp;mut self, state: <a class="enum" href="../wayland_window/enum.State.html" title="enum wayland_window::State">State</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#287-305' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Sets the requested state of this surface</p>
+</div><h4 id='method.set_min_size' class="method"><span id='set_min_size.v' class='invisible'><code>pub fn <a href='#method.set_min_size' class='fnname'>set_min_size</a>(&amp;mut self, size: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>&gt;)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#313-325' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Sets the minimum possible size for this window</p>
+
+<p>Provide either a tuple <code>Some((width, height))</code> or <code>None</code> to unset the
+minimum size.</p>
+
+<p>The provided size is the interior size, not counting decorations</p>
+</div><h4 id='method.set_max_size' class="method"><span id='set_max_size.v' class='invisible'><code>pub fn <a href='#method.set_max_size' class='fnname'>set_max_size</a>(&amp;mut self, size: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>&gt;)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#333-345' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Sets the maximum possible size for this window</p>
+
+<p>Provide either a tuple <code>Some((width, height))</code> or <code>None</code> to unset the
+maximum size.</p>
+
+<p>The provided size is the interior size, not counting decorations</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Drop' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html" title="trait core::ops::drop::Drop">Drop</a> for <a class="struct" href="../wayland_window/struct.Frame.html" title="struct wayland_window::Frame">Frame</a></code><a href='#impl-Drop' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#348-363' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.drop' class="method"><span id='drop.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_window/frame.rs.html#349-362' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Executes the destructor for this type. <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_window";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

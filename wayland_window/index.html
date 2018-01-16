@@ -9,13 +9,15 @@
 
     <title>wayland_window - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'wayland_window', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate wayland_window</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'wayland_window', ty: 'mod', relpath: '../'};</script>
     </nav>
 
     <nav class="sub">
@@ -41,79 +43,112 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>wayland_window</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='../src/wayland_window/lib.rs.html#1-97' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>wayland_window</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/wayland_window/lib.rs.html#1-275' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Wayland Window, a minimalistic decoration-drawing library for
 wayland applications.</p>
 
 <p>This crate is only usable in conjuction of the
 <a href="https://crates.io/crates/wayland-client"><code>wayland-client</code></a> crate.</p>
 
-<h2 id='creating-a-decorated-shell-surface' class='section-header'><a href='#creating-a-decorated-shell-surface'>Creating a decorated shell surface</a></h2>
-<p>Creating a decorated window is as simple as wrapping it in a
-<code>DecoratedSurface</code>:</p>
-<pre class='rust rust-example-rendered'>
-<span class='kw'>use</span> <span class='ident'>wayland_window</span>::<span class='ident'>DecoratedSurface</span>;
-<span class='kw'>let</span> <span class='ident'>decorated</span> <span class='op'>=</span> <span class='ident'>DecoratedSurface</span>::<span class='ident'>new</span>(<span class='ident'>my_surface</span>, <span class='ident'>width</span>, <span class='ident'>height</span>, <span class='kw-2'>&amp;</span><span class='ident'>registry</span>, <span class='kw-2'>&amp;</span><span class='ident'>seat</span>);</pre>
+<h2 id='creating-a-window-with-decorations' class='section-header'><a href='#creating-a-window-with-decorations'>Creating a window with decorations</a></h2>
+<p>Creating a decorated frame for your window is simply done using the provided init function:</p>
 
-<p>As you can see, you need to pass the <code>Registry</code> and a <code>Seat</code> as well. It is required
-for the library to be able to create the surfaces to draw the borders, and register
-the callback to detect user input in the borders, for resizeing and move. These callback
-will be registered on the seat you passed as argument. (So if you are on a setup with more
-than one pointer, only one of them will be able to resize the window).</p>
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><pre class="rust rust-example-rendered ignore">
+<span class="kw">use</span> <span class="ident">wayland_window</span>::<span class="ident">create_frame</span>;
+<span class="comment">// if using the legacy wl_shell global</span>
+<span class="kw">let</span> <span class="ident">shell</span> <span class="op">=</span> <span class="ident">Shell</span>::<span class="ident">Wl</span>(<span class="ident">my_wl_shell</span>);
+<span class="comment">// if using the new not-yet-stable xdg_shell</span>
+<span class="kw">let</span> <span class="ident">shell</span> <span class="op">=</span> <span class="ident">Shell</span>::<span class="ident">Xdg</span>(<span class="ident">my_xdh_shell</span>);
+<span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">create_frame</span>(
+       <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">event_queue</span>, <span class="ident">my_implementation</span>, <span class="ident">my_implementation_data</span>,
+       <span class="kw-2">&amp;</span><span class="ident">my_surface</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="kw-2">&amp;</span><span class="ident">compositor</span>, <span class="kw-2">&amp;</span><span class="ident">subcompositor</span>, <span class="kw-2">&amp;</span><span class="ident">shm</span>, <span class="kw-2">&amp;</span><span class="ident">shell</span>, <span class="prelude-val">Some</span>(<span class="ident">seat</span>)
+).<span class="ident">unwrap</span>(); <span class="comment">// creation can fail</span></pre>
 
-<h2 id='processing-the-events' class='section-header'><a href='#processing-the-events'>Processing the events</a></h2>
-<p>The <code>DecoratedSurface</code> object will not resize your window itself, as it cannot do it.</p>
+<p>As you can see, you need to pass several references to global objects as well as a <code>WlSeat</code>.
+It is required for the library to be able to create the surfaces to draw the borders, react
+to user input in the borders, for resizing and move. It will use the events provided on the
+seat you passed as argument. (So if you are on a setup with more than one pointer,
+only the one associated with this seat will be able to resize the window).</p>
+
+<p>See next section for example use of the <code>my_implementation</code> and
+<code>my_implementation_data</code> arguments.</p>
+
+<h2 id='configure-events' class='section-header'><a href='#configure-events'>Configure events</a></h2>
+<p>The <code>Frame</code> object will not resize your window itself, as it cannot do it.</p>
 
 <p>When the user clicks on a border and starts a resize, the server will start to generate a
-number of <code>configure</code> events on the shell surface. You&#39;ll need to register a callback on
-it to handle them:</p>
-<pre class='rust rust-example-rendered'>
-<span class='ident'>decorated</span>.<span class='ident'>get_shell</span>().<span class='ident'>set_configure_callback</span>(<span class='kw'>move</span> <span class='op'>|</span><span class='ident'>edge</span>, <span class='ident'>width</span>, <span class='ident'>height</span><span class='op'>|</span> {
-    <span class='comment'>/* ... */</span>
-});</pre>
+number of <code>configure</code> events on the shell surface. You&#39;ll need to process the events generated
+by the surface to handle them.</p>
 
 <p>The wayland server can (and will) generate a ton of <code>configure</code> events during a single
-<code>Display::dispatch()</code> if the user is currently resizing the window. You are only required to
+<code>WlDisplay::dispatch()</code> if the user is currently resizing the window. You are only required to
 process the last one, and if you try to handle them all your aplication will be very
 laggy.</p>
 
-<p>The proper way is to use the callback to only store them in a container, overwriting the
-the previous one each time, and manually checking if one has been received in the main loop
-of your program, like this:</p>
-<pre class='rust rust-example-rendered'>
-<span class='comment'>// create a shared storage: (width, heigh, need_resize ?)</span>
-<span class='kw'>let</span> <span class='ident'>need_resize</span> <span class='op'>=</span> <span class='ident'>Arc</span>::<span class='ident'>new</span>(<span class='ident'>Mutex</span>::<span class='ident'>new</span>((<span class='number'>0</span>, <span class='number'>0</span>, <span class='boolval'>false</span>)));
-<span class='comment'>// clone it and put it in the callback</span>
-<span class='kw'>let</span> <span class='ident'>my_need_resize</span> <span class='op'>=</span> <span class='ident'>need_resize</span>.<span class='ident'>clone</span>();
-<span class='ident'>decorated</span>.<span class='ident'>w</span>.<span class='ident'>get_shell</span>().<span class='ident'>set_configure_callback</span>(<span class='kw'>move</span> <span class='op'>|</span><span class='ident'>_edge</span>, <span class='ident'>width</span>, <span class='ident'>height</span><span class='op'>|</span> {
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>guard</span> <span class='op'>=</span> <span class='ident'>my_newsize</span>.<span class='ident'>lock</span>().<span class='ident'>unwrap</span>();
-    <span class='comment'>// we overwrite it each time, to only keep the last one</span>
-    <span class='op'>*</span><span class='ident'>guard</span> <span class='op'>=</span> (<span class='ident'>width</span>, <span class='ident'>height</span>, <span class='boolval'>true</span>);
-});
-<span class='comment'>// then handle all this in the main loop:</span>
-<span class='kw'>loop</span> {
-    <span class='ident'>display</span>.<span class='ident'>dispatch</span>();
-    <span class='kw'>let</span> <span class='ident'>guard</span> <span class='op'>=</span> <span class='ident'>need_resize</span>.<span class='ident'>lock</span>().<span class='ident'>unwrap</span>();
-    <span class='kw'>let</span> (<span class='ident'>width</span>, <span class='ident'>height</span>, <span class='ident'>resize</span>) <span class='op'>=</span> <span class='op'>*</span><span class='ident'>guard</span>;
-    <span class='kw'>if</span> <span class='ident'>resize</span> {
-        <span class='comment'>/* handle the resizing here */</span>
+<p>The proper way is to accumulate them in your subhandler, overwriting the the previous one
+each time, and manually checking if one has been received in the main loop of your program.
+For example like this</p>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">wayland_window</span>::{<span class="ident">Frame</span>, <span class="ident">create_frame</span>, <span class="ident">FrameImplementation</span>};
+
+<span class="comment">// define a state to accumulate sizes</span>
+<span class="kw">struct</span> <span class="ident">ConfigureState</span> {
+    <span class="ident">new_size</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">i32</span>,<span class="ident">i32</span>)<span class="op">&gt;</span>
+}
+
+<span class="comment">// insert it in your event queue state</span>
+<span class="kw">let</span> <span class="ident">configure_token</span> <span class="op">=</span> <span class="ident">event_queue</span>.<span class="ident">state</span>().<span class="ident">insert</span>(<span class="ident">ConfigureState</span> { <span class="ident">new_size</span>: <span class="prelude-val">None</span> });
+
+<span class="comment">// use it in your implementation:</span>
+<span class="kw">let</span> <span class="ident">my_implementation</span> <span class="op">=</span> <span class="ident">FrameImplementation</span> {
+    <span class="ident">configure</span>: <span class="op">|</span><span class="ident">evqh</span>, <span class="ident">token</span>, _, <span class="ident">newsize</span><span class="op">|</span> {
+        <span class="kw">let</span> <span class="ident">configure_state</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ConfigureState</span> <span class="op">=</span> <span class="ident">evqh</span>.<span class="ident">state</span>().<span class="ident">get_mut</span>(<span class="ident">token</span>);
+        <span class="ident">configure_state</span>.<span class="ident">new_size</span> <span class="op">=</span> <span class="ident">newsize</span>;
+    },
+    <span class="ident">close</span>: <span class="op">|</span>_, _<span class="op">|</span> { <span class="comment">/* ... */</span> },
+    <span class="ident">refresh</span>: <span class="op">|</span>_, _<span class="op">|</span> { <span class="comment">/* ... */</span> }
+};
+
+<span class="comment">// create the decorated surface:</span>
+<span class="kw">let</span> <span class="ident">frame</span> <span class="op">=</span> <span class="ident">create_frame</span>(
+    <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">event_queue</span>,          <span class="comment">// the event queue</span>
+    <span class="ident">my_implementation</span>,         <span class="comment">// our implementation</span>
+    <span class="ident">configure_token</span>.<span class="ident">clone</span>(),   <span class="comment">// the implementation data</span>
+    <span class="kw-2">&amp;</span><span class="ident">my_surface</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="kw-2">&amp;</span><span class="ident">compositor</span>, <span class="kw-2">&amp;</span><span class="ident">subcompositor</span>, <span class="kw-2">&amp;</span><span class="ident">shm</span>, <span class="kw-2">&amp;</span><span class="ident">shell</span>, <span class="prelude-val">Some</span>(<span class="ident">seat</span>)
+).<span class="ident">unwrap</span>();
+
+<span class="comment">// then, while running your event loop</span>
+<span class="kw">loop</span> {
+    <span class="ident">display</span>.<span class="ident">flush</span>().<span class="ident">unwrap</span>();
+    <span class="ident">event_queue</span>.<span class="ident">dispatch</span>().<span class="ident">unwrap</span>();
+
+    <span class="comment">// check if a resize is needed</span>
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">configure_state</span> <span class="op">=</span> <span class="ident">event_queue</span>.<span class="ident">state</span>().<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">configure_token</span>);
+    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">w</span>, <span class="ident">h</span>)) <span class="op">=</span> <span class="ident">configure_state</span>.<span class="ident">new_size</span>.<span class="ident">take</span>() {
+        <span class="comment">// The compositor suggests we take a new size of (w, h)</span>
+        <span class="comment">// Handle it as needed (see next section)</span>
     }
-    <span class='comment'>// reset the storage</span>
-    <span class='op'>*</span><span class='ident'>guard</span> <span class='op'>=</span> (<span class='number'>0</span>, <span class='number'>0</span>, <span class='boolval'>false</span>);
-}</pre>
+}
+</pre>
 
 <h2 id='resizing-the-surface' class='section-header'><a href='#resizing-the-surface'>Resizing the surface</a></h2>
-<p>When resizing your main surface, you need to tell the <code>DecoratedSurface</code> that it
+<p>When resizing your main surface, you need to tell the <code>Frame</code> that it
 must update its dimensions. This is very simple:</p>
-<pre class='rust rust-example-rendered'>
-<span class='comment'>/* update the buffer of decorated */</span>
-<span class='ident'>decorated</span>.<span class='ident'>resize</span>(<span class='ident'>width</span>, <span class='ident'>height</span>);
-<span class='ident'>decorated</span>.<span class='ident'>get_shell</span>().<span class='ident'>commit</span>();</pre>
+
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><pre class="rust rust-example-rendered ignore">
+<span class="comment">// update your contents size (here by attaching a new buffer)</span>
+<span class="ident">surface</span>.<span class="ident">attach</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">new_buffer</span>));
+<span class="ident">surface</span>.<span class="ident">commit</span>();
+<span class="comment">// update the borders size</span>
+<span class="ident">frame</span>.<span class="ident">resize</span>(<span class="ident">width</span>, <span class="ident">height</span>);
+<span class="comment">// refresh the frame so that it actually draws the new size</span>
+<span class="ident">frame</span>.<span class="ident">refresh</span>();</pre>
 
 <p>If you do this as a response of a <code>configure</code> event, note the following points:</p>
 
@@ -123,41 +158,71 @@ just a hint. You can even ignore it if you don&#39;t want the window to be resiz
 <li>In case you chose to ignore the resize, it can be appropiate to still resize your
 window to its current size (update the buffer to the compositor), as the compositer
 might have resized your window without telling you.</li>
-<li>The size hint provided by the compositor counts the borders size, to get the real
-size hint for your interior surface, use the function <code>substract_borders(..)</code> provided
-by this library.</li>
+<li>The size hint provided to your implementation is a size hint for the interior of the
+window: the dimensions of the border has been subtracted from the hint the compositor
+gave. If you need to compute dimensions taking into account the sizes of the borders,
+you can use the <code>add_borders</code> and <code>subtract_borders</code> functions.</li>
 </ul>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.DecoratedSurface.html'
-                               title='wayland_window::DecoratedSurface'>DecoratedSurface</a></td>
-                        <td class='docblock short'>
-                             <p>A wrapper for a decorated surface.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.SurfaceGuard.html'
-                               title='wayland_window::SurfaceGuard'>SurfaceGuard</a></td>
-                        <td class='docblock short'>
-                             <p>A wrapper around a reference to the surface you
-stored in a <code>DecoratedSurface</code>.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Frame.html"
+                                  title='struct wayland_window::Frame'>Frame</a></td>
+                           <td class='docblock-short'>
+                                <p>A decorated frame for a window</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.FrameImplementation.html"
+                                  title='struct wayland_window::FrameImplementation'>FrameImplementation</a></td>
+                           <td class='docblock-short'>
+                                <p>For handling events that occur to a Frame.</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.substract_borders.html'
-                               title='wayland_window::substract_borders'>substract_borders</a></td>
-                        <td class='docblock short'>
-                             <p>Substracts the border dimensions from the given dimensions.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Configure.html"
+                                  title='enum wayland_window::Configure'>Configure</a></td>
+                           <td class='docblock-short'>
+                                <p>Configure data for a decorated surface handler.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Shell.html"
+                                  title='enum wayland_window::Shell'>Shell</a></td>
+                           <td class='docblock-short'>
+                                <p>Enum over the supported shells</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.State.html"
+                                  title='enum wayland_window::State'>State</a></td>
+                           <td class='docblock-short'>
+                                <p>Possible requested state for a window</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.add_borders.html"
+                                  title='fn wayland_window::add_borders'>add_borders</a></td>
+                           <td class='docblock-short'>
+                                <p>Adds the border dimensions to the given dimensions.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.create_frame.html"
+                                  title='fn wayland_window::create_frame'>create_frame</a></td>
+                           <td class='docblock-short'>
+                                <p>Create a decoration frame for a wl_surface</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.subtract_borders.html"
+                                  title='fn wayland_window::subtract_borders'>subtract_borders</a></td>
+                           <td class='docblock-short'>
+                                <p>Subtracts the border dimensions from the given dimensions.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -174,12 +239,16 @@ stored in a <code>DecoratedSurface</code>.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -200,7 +269,7 @@ stored in a <code>DecoratedSurface</code>.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -211,11 +280,8 @@ stored in a <code>DecoratedSurface</code>.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "wayland_window";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["ValidationError","An error that can happen while validating attachments."]],"fn":[["is_dimensions_mismatch_supported","Returns true if the backend supports attachments with varying dimensions."]]});

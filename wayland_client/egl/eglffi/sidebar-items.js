@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["wl_egl_window","An opaque struct representing a native window for EGL."]]});

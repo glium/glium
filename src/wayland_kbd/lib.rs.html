@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/wayland-kbd-0.2.1/src/lib.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/wayland-kbd-0.13.1/src/lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -67,35 +69,33 @@
 <span id="24">24</span>
 <span id="25">25</span>
 <span id="26">26</span>
-<span id="27">27</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! Keyboard mapping utility for `wayland-client` using libxkbcommon.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! This library provides a simple wrapper for the wayland Keyboard objects,</span>
-<span class='doccomment'>//! handling all keymap issues using libxkbcommon in a dynamic way (loading the</span>
-<span class='doccomment'>//! library dynamically and thus not being linked to it).</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! To use it, simply call `MappedKeyboard::new(..)` to wrap you keyboard object</span>
-<span class='doccomment'>//! and set the key_action callback. This callback will be provided the keycode,</span>
-<span class='doccomment'>//! the new state of the key (up or down), the keyboard ID,</span>
-<span class='doccomment'>//! as well as a `KbState` handle.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! This handle will allow you to retrive the keysym associated to the keycode</span>
-<span class='doccomment'>//! and compare it to the values defined in the `keysyms` module, or directly</span>
-<span class='doccomment'>//! restrieve an (utf8) String representation of this character.</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Keyboard mapping utility for `wayland-client` using libxkbcommon.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! This library provide a simple implemenation for wl_keyboard objects</span>
+<span class="doccomment">//! that use libxkbcommon to interpret the keyboard input according to the</span>
+<span class="doccomment">//! keymap provided by the compositor.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ## Usage</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! To intialize a wl_keyboard with this crate, simply use the provided</span>
+<span class="doccomment">//! `register_kbd` function. See its documentation for details.</span>
 
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">bitflags</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">dlib</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">lazy_static</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">memmap</span>;
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">wayland_client</span>;
 
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span> <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>bitflags</span>;
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span> <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>dlib</span>;
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span> <span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>lazy_static</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>mmap</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>wayland_client</span> <span class='kw'>as</span> <span class='ident'>wayland</span>;
+<span class="kw">mod</span> <span class="ident">ffi</span>;
+<span class="kw">mod</span> <span class="ident">mapped_keyboard</span>;
 
-<span class='kw'>mod</span> <span class='ident'>ffi</span>;
-<span class='kw'>mod</span> <span class='ident'>mapped_keyboard</span>;
-
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>ffi</span>::<span class='ident'>keysyms</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>mapped_keyboard</span>::{<span class='ident'>MappedKeyboard</span>, <span class='ident'>KbState</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">ffi</span>::<span class="ident">keysyms</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mapped_keyboard</span>::{<span class="ident">register_kbd</span>, <span class="ident">register_kbd_from_rmlvo</span>, <span class="ident">MappedKeyboardError</span>,
+                          <span class="ident">MappedKeyboardImplementation</span>, <span class="ident">ModifiersState</span>, <span class="ident">RMLVO</span>};
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -114,12 +114,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -140,7 +144,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -151,11 +155,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "wayland_kbd";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

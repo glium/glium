@@ -9,13 +9,15 @@
 
     <title>bindless.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -343,8 +345,8 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
-</pre><pre class='rust '>
-<span class='doccomment'>/*!
+</pre><pre class="rust ">
+<span class="doccomment">/*!
 
 Without bindless textures, using a texture in a shader requires binding the texture to a specific
 bind point before drawing. This not only slows down rendering, but may also prevent you from
@@ -403,247 +405,247 @@ do in the future). Binding the wrong type of texture may lead to undefined value
 the texture.
 
 */</span>
-<span class='kw'>use</span> <span class='ident'>texture</span>::<span class='ident'>any</span>::<span class='ident'>TextureAny</span>;
-<span class='kw'>use</span> <span class='ident'>TextureExt</span>;
-<span class='kw'>use</span> <span class='ident'>GlObject</span>;
+<span class="kw">use</span> <span class="ident">texture</span>::<span class="ident">any</span>::<span class="ident">TextureAny</span>;
+<span class="kw">use</span> <span class="ident">TextureExt</span>;
+<span class="kw">use</span> <span class="ident">GlObject</span>;
 
-<span class='kw'>use</span> <span class='ident'>ContextExt</span>;
-<span class='kw'>use</span> <span class='ident'>gl</span>;
+<span class="kw">use</span> <span class="ident">ContextExt</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>marker</span>::<span class='ident'>PhantomData</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Deref</span>, <span class='ident'>DerefMut</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">marker</span>::<span class="ident">PhantomData</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
 
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>BlockLayout</span>;
-<span class='kw'>use</span> <span class='ident'>uniforms</span>::<span class='ident'>AsUniformValue</span>;
-<span class='kw'>use</span> <span class='ident'>uniforms</span>::<span class='ident'>LayoutMismatchError</span>;
-<span class='kw'>use</span> <span class='ident'>uniforms</span>::<span class='ident'>UniformBlock</span>;
-<span class='kw'>use</span> <span class='ident'>uniforms</span>::<span class='ident'>UniformValue</span>;
-<span class='kw'>use</span> <span class='ident'>uniforms</span>::<span class='ident'>UniformType</span>;
-<span class='kw'>use</span> <span class='ident'>uniforms</span>::<span class='ident'>SamplerBehavior</span>;
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">BlockLayout</span>;
+<span class="kw">use</span> <span class="ident">uniforms</span>::<span class="ident">AsUniformValue</span>;
+<span class="kw">use</span> <span class="ident">uniforms</span>::<span class="ident">LayoutMismatchError</span>;
+<span class="kw">use</span> <span class="ident">uniforms</span>::<span class="ident">UniformBlock</span>;
+<span class="kw">use</span> <span class="ident">uniforms</span>::<span class="ident">UniformValue</span>;
+<span class="kw">use</span> <span class="ident">uniforms</span>::<span class="ident">UniformType</span>;
+<span class="kw">use</span> <span class="ident">uniforms</span>::<span class="ident">SamplerBehavior</span>;
 
-<span class='doccomment'>/// A texture that is resident in video memory. This allows you to use bindless textures in your</span>
-<span class='doccomment'>/// shaders.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ResidentTexture</span> {
-    <span class='ident'>texture</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>TextureAny</span><span class='op'>&gt;</span>,
-    <span class='ident'>handle</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint64</span>,
+<span class="doccomment">/// A texture that is resident in video memory. This allows you to use bindless textures in your</span>
+<span class="doccomment">/// shaders.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ResidentTexture</span> {
+    <span class="ident">texture</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TextureAny</span><span class="op">&gt;</span>,
+    <span class="ident">handle</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint64</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>ResidentTexture</span> {
-    <span class='doccomment'>/// Takes ownership of the given texture and makes it resident.</span>
-    <span class='comment'>// TODO: sampler</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>texture</span>: <span class='ident'>TextureAny</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>ResidentTexture</span>, <span class='ident'>BindlessTexturesNotSupportedError</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>handle</span> <span class='op'>=</span> {
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ctxt</span> <span class='op'>=</span> <span class='ident'>texture</span>.<span class='ident'>get_context</span>().<span class='ident'>make_current</span>();
+<span class="kw">impl</span> <span class="ident">ResidentTexture</span> {
+    <span class="doccomment">/// Takes ownership of the given texture and makes it resident.</span>
+    <span class="comment">// TODO: sampler</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">texture</span>: <span class="ident">TextureAny</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ResidentTexture</span>, <span class="ident">BindlessTexturesNotSupportedError</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">texture</span>.<span class="ident">get_context</span>().<span class="ident">make_current</span>();
 
-            <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_arb_bindless_texture</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>BindlessTexturesNotSupportedError</span>);
+            <span class="kw">if</span> <span class="op">!</span><span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_arb_bindless_texture</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">BindlessTexturesNotSupportedError</span>);
             }
 
-            <span class='kw'>let</span> <span class='ident'>handle</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>GetTextureHandleARB</span>(<span class='ident'>texture</span>.<span class='ident'>get_id</span>()) };
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>MakeTextureHandleResidentARB</span>(<span class='ident'>handle</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>resident_texture_handles</span>.<span class='ident'>push</span>(<span class='ident'>handle</span>);
-            <span class='ident'>handle</span>
+            <span class="kw">let</span> <span class="ident">handle</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">GetTextureHandleARB</span>(<span class="ident">texture</span>.<span class="ident">get_id</span>()) };
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">MakeTextureHandleResidentARB</span>(<span class="ident">handle</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">resident_texture_handles</span>.<span class="ident">push</span>(<span class="ident">handle</span>);
+            <span class="ident">handle</span>
         };
 
-        <span class='comment'>// store the handle in the context</span>
-        <span class='prelude-val'>Ok</span>(<span class='ident'>ResidentTexture</span> {
-            <span class='ident'>texture</span>: <span class='prelude-val'>Some</span>(<span class='ident'>texture</span>),
-            <span class='ident'>handle</span>: <span class='ident'>handle</span>,
+        <span class="comment">// store the handle in the context</span>
+        <span class="prelude-val">Ok</span>(<span class="ident">ResidentTexture</span> {
+            <span class="ident">texture</span>: <span class="prelude-val">Some</span>(<span class="ident">texture</span>),
+            <span class="ident">handle</span>: <span class="ident">handle</span>,
         })
     }
 
-    <span class='doccomment'>/// Unwraps the texture and restores it.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>into_inner</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>TextureAny</span> {
-        <span class='self'>self</span>.<span class='ident'>into_inner_impl</span>()
+    <span class="doccomment">/// Unwraps the texture and restores it.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">into_inner</span>(<span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextureAny</span> {
+        <span class="self">self</span>.<span class="ident">into_inner_impl</span>()
     }
 
-    <span class='doccomment'>/// Implementation of `into_inner`. Also called by the destructor.</span>
-    <span class='kw'>fn</span> <span class='ident'>into_inner_impl</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>TextureAny</span> {
-        <span class='kw'>let</span> <span class='ident'>texture</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>texture</span>.<span class='ident'>take</span>().<span class='ident'>unwrap</span>();
+    <span class="doccomment">/// Implementation of `into_inner`. Also called by the destructor.</span>
+    <span class="kw">fn</span> <span class="ident">into_inner_impl</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextureAny</span> {
+        <span class="kw">let</span> <span class="ident">texture</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">texture</span>.<span class="ident">take</span>().<span class="ident">unwrap</span>();
 
         {
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ctxt</span> <span class='op'>=</span> <span class='ident'>texture</span>.<span class='ident'>get_context</span>().<span class='ident'>make_current</span>();
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>MakeTextureHandleNonResidentARB</span>(<span class='self'>self</span>.<span class='ident'>handle</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>resident_texture_handles</span>.<span class='ident'>retain</span>(<span class='op'>|</span><span class='kw-2'>&amp;</span><span class='ident'>t</span><span class='op'>|</span> <span class='ident'>t</span> <span class='op'>!=</span> <span class='self'>self</span>.<span class='ident'>handle</span>);
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">texture</span>.<span class="ident">get_context</span>().<span class="ident">make_current</span>();
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">MakeTextureHandleNonResidentARB</span>(<span class="self">self</span>.<span class="ident">handle</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">resident_texture_handles</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="kw-2">&amp;</span><span class="ident">t</span><span class="op">|</span> <span class="ident">t</span> <span class="op">!=</span> <span class="self">self</span>.<span class="ident">handle</span>);
         }
 
-        <span class='ident'>texture</span>
+        <span class="ident">texture</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>ResidentTexture</span> {
-    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>TextureAny</span>;
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">ResidentTexture</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">TextureAny</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>TextureAny</span> {
-        <span class='self'>self</span>.<span class='ident'>texture</span>.<span class='ident'>as_ref</span>().<span class='ident'>unwrap</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">TextureAny</span> {
+        <span class="self">self</span>.<span class="ident">texture</span>.<span class="ident">as_ref</span>().<span class="ident">unwrap</span>()
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>ResidentTexture</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>TextureAny</span> {
-        <span class='self'>self</span>.<span class='ident'>texture</span>.<span class='ident'>as_mut</span>().<span class='ident'>unwrap</span>()
+<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">ResidentTexture</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">TextureAny</span> {
+        <span class="self">self</span>.<span class="ident">texture</span>.<span class="ident">as_mut</span>().<span class="ident">unwrap</span>()
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Drop</span> <span class='kw'>for</span> <span class='ident'>ResidentTexture</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>drop</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>into_inner_impl</span>();
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">ResidentTexture</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">into_inner_impl</span>();
     }
 }
 
-<span class='doccomment'>/// Represents a handle to a texture. Contains a raw pointer to a texture that is hidden from you.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>TextureHandle</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='ident'>value</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint64</span>,
-    <span class='ident'>marker</span>: <span class='ident'>PhantomData</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>ResidentTexture</span><span class='op'>&gt;</span>,
+<span class="doccomment">/// Represents a handle to a texture. Contains a raw pointer to a texture that is hidden from you.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">TextureHandle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">value</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint64</span>,
+    <span class="ident">marker</span>: <span class="ident">PhantomData</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ResidentTexture</span><span class="op">&gt;</span>,
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>TextureHandle</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Builds a new handle.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>texture</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>ResidentTexture</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>SamplerBehavior</span>) <span class='op'>-&gt;</span> <span class='ident'>TextureHandle</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='comment'>// FIXME: take sampler into account</span>
-        <span class='ident'>TextureHandle</span> {
-            <span class='ident'>value</span>: <span class='ident'>texture</span>.<span class='ident'>handle</span>,
-            <span class='ident'>marker</span>: <span class='ident'>PhantomData</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">TextureHandle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Builds a new handle.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">texture</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ResidentTexture</span>, _: <span class="kw-2">&amp;</span><span class="ident">SamplerBehavior</span>) <span class="op">-&gt;</span> <span class="ident">TextureHandle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="comment">// FIXME: take sampler into account</span>
+        <span class="ident">TextureHandle</span> {
+            <span class="ident">value</span>: <span class="ident">texture</span>.<span class="ident">handle</span>,
+            <span class="ident">marker</span>: <span class="ident">PhantomData</span>,
         }
     }
 
-    <span class='doccomment'>/// Sets the value to the given texture.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>texture</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>ResidentTexture</span>, _: <span class='kw-2'>&amp;</span><span class='ident'>SamplerBehavior</span>) {
-        <span class='comment'>// FIXME: take sampler into account</span>
-        <span class='self'>self</span>.<span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>texture</span>.<span class='ident'>handle</span>;
+    <span class="doccomment">/// Sets the value to the given texture.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">texture</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">ResidentTexture</span>, _: <span class="kw-2">&amp;</span><span class="ident">SamplerBehavior</span>) {
+        <span class="comment">// FIXME: take sampler into account</span>
+        <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="ident">texture</span>.<span class="ident">handle</span>;
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>AsUniformValue</span> <span class='kw'>for</span> <span class='ident'>TextureHandle</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>as_uniform_value</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>UniformValue</span> {
-        <span class='comment'>// TODO: u64</span>
-        <span class='macro'>unimplemented</span><span class='macro'>!</span>();
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">AsUniformValue</span> <span class="kw">for</span> <span class="ident">TextureHandle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">as_uniform_value</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">UniformValue</span> {
+        <span class="comment">// TODO: u64</span>
+        <span class="macro">unimplemented</span><span class="macro">!</span>();
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>UniformBlock</span> <span class='kw'>for</span> <span class='ident'>TextureHandle</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>matches</span>(<span class='ident'>layout</span>: <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>, <span class='ident'>base_offset</span>: <span class='ident'>usize</span>)
-               <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>LayoutMismatchError</span><span class='op'>&gt;</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">UniformBlock</span> <span class="kw">for</span> <span class="ident">TextureHandle</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">matches</span>(<span class="ident">layout</span>: <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>, <span class="ident">base_offset</span>: <span class="ident">usize</span>)
+               <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">LayoutMismatchError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>if</span> <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>::<span class='ident'>BasicType</span> { <span class='ident'>ty</span>, <span class='ident'>offset_in_buffer</span> } <span class='op'>=</span> <span class='ident'>layout</span> {
-            <span class='comment'>// TODO: unfortunately we have no idea what the exact type of this handle is</span>
-            <span class='comment'>//       strong typing should be considered</span>
-            <span class='comment'>//</span>
-            <span class='comment'>//       however there is no safety problem here ; the worse that can happen in case of</span>
-            <span class='comment'>//       wrong type is zeroes or undefined data being returned when sampling</span>
-            <span class='kw'>match</span> <span class='ident'>ty</span> {
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler1d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler1d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler1d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler2d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler2d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler3d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler3d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler3d</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler1dArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler1dArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler1dArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2dArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler2dArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler2dArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>SamplerCube</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISamplerCube</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USamplerCube</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2dRect</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler2dRect</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler2dRect</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2dRectShadow</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>SamplerCubeArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISamplerCubeArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USamplerCubeArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>SamplerBuffer</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISamplerBuffer</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USamplerBuffer</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2dMultisample</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler2dMultisample</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler2dMultisample</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2dMultisampleArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>ISampler2dMultisampleArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>USampler2dMultisampleArray</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler1dShadow</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2dShadow</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>SamplerCubeShadow</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler1dArrayShadow</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>Sampler2dArrayShadow</span> <span class='op'>=&gt;</span> (),
-                <span class='ident'>UniformType</span>::<span class='ident'>SamplerCubeArrayShadow</span> <span class='op'>=&gt;</span> (),
+        <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>::<span class="ident">BasicType</span> { <span class="ident">ty</span>, <span class="ident">offset_in_buffer</span> } <span class="op">=</span> <span class="ident">layout</span> {
+            <span class="comment">// TODO: unfortunately we have no idea what the exact type of this handle is</span>
+            <span class="comment">//       strong typing should be considered</span>
+            <span class="comment">//</span>
+            <span class="comment">//       however there is no safety problem here ; the worse that can happen in case of</span>
+            <span class="comment">//       wrong type is zeroes or undefined data being returned when sampling</span>
+            <span class="kw">match</span> <span class="ident">ty</span> {
+                <span class="ident">UniformType</span>::<span class="ident">Sampler1d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler1d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler1d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler2d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler2d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler3d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler3d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler3d</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler1dArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler1dArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler1dArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2dArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler2dArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler2dArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">SamplerCube</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISamplerCube</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USamplerCube</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2dRect</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler2dRect</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler2dRect</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2dRectShadow</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">SamplerCubeArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISamplerCubeArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USamplerCubeArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">SamplerBuffer</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISamplerBuffer</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USamplerBuffer</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2dMultisample</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler2dMultisample</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler2dMultisample</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2dMultisampleArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">ISampler2dMultisampleArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">USampler2dMultisampleArray</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler1dShadow</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2dShadow</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">SamplerCubeShadow</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler1dArrayShadow</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">Sampler2dArrayShadow</span> <span class="op">=&gt;</span> (),
+                <span class="ident">UniformType</span>::<span class="ident">SamplerCubeArrayShadow</span> <span class="op">=&gt;</span> (),
 
-                _ <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>TypeMismatch</span> {
-                    <span class='ident'>expected</span>: <span class='ident'>ty</span>,
-                    <span class='ident'>obtained</span>: <span class='ident'>UniformType</span>::<span class='ident'>Sampler2d</span>,       <span class='comment'>// TODO: wrong</span>
+                _ <span class="op">=&gt;</span> <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">TypeMismatch</span> {
+                    <span class="ident">expected</span>: <span class="ident">ty</span>,
+                    <span class="ident">obtained</span>: <span class="ident">UniformType</span>::<span class="ident">Sampler2d</span>,       <span class="comment">// TODO: wrong</span>
                 })
             }
 
-            <span class='kw'>if</span> <span class='ident'>offset_in_buffer</span> <span class='op'>!=</span> <span class='ident'>base_offset</span> {
-                <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>OffsetMismatch</span> {
-                    <span class='ident'>expected</span>: <span class='ident'>offset_in_buffer</span>,
-                    <span class='ident'>obtained</span>: <span class='ident'>base_offset</span>,
+            <span class="kw">if</span> <span class="ident">offset_in_buffer</span> <span class="op">!=</span> <span class="ident">base_offset</span> {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">OffsetMismatch</span> {
+                    <span class="ident">expected</span>: <span class="ident">offset_in_buffer</span>,
+                    <span class="ident">obtained</span>: <span class="ident">base_offset</span>,
                 });
             }
 
-            <span class='prelude-val'>Ok</span>(())
+            <span class="prelude-val">Ok</span>(())
 
-        } <span class='kw'>else</span> <span class='kw'>if</span> <span class='kw'>let</span> <span class='kw-2'>&amp;</span><span class='ident'>BlockLayout</span>::<span class='ident'>Struct</span> { <span class='kw-2'>ref</span> <span class='ident'>members</span> } <span class='op'>=</span> <span class='ident'>layout</span> {
-            <span class='kw'>if</span> <span class='ident'>members</span>.<span class='ident'>len</span>() <span class='op'>==</span> <span class='number'>1</span> {
-                <span class='op'>&lt;</span><span class='ident'>TextureHandle</span> <span class='kw'>as</span> <span class='ident'>UniformBlock</span><span class='op'>&gt;</span>::<span class='ident'>matches</span>(<span class='kw-2'>&amp;</span><span class='ident'>members</span>[<span class='number'>0</span>].<span class='number'>1</span>, <span class='ident'>base_offset</span>)
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="kw-2">&amp;</span><span class="ident">BlockLayout</span>::<span class="ident">Struct</span> { <span class="kw-2">ref</span> <span class="ident">members</span> } <span class="op">=</span> <span class="ident">layout</span> {
+            <span class="kw">if</span> <span class="ident">members</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
+                <span class="op">&lt;</span><span class="ident">TextureHandle</span> <span class="kw">as</span> <span class="ident">UniformBlock</span><span class="op">&gt;</span>::<span class="ident">matches</span>(<span class="kw-2">&amp;</span><span class="ident">members</span>[<span class="number">0</span>].<span class="number">1</span>, <span class="ident">base_offset</span>)
 
-            } <span class='kw'>else</span> {
-                <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>LayoutMismatch</span> {
-                    <span class='ident'>expected</span>: <span class='ident'>layout</span>.<span class='ident'>clone</span>(),
-                    <span class='ident'>obtained</span>: <span class='ident'>BlockLayout</span>::<span class='ident'>BasicType</span> {
-                        <span class='ident'>ty</span>: <span class='ident'>UniformType</span>::<span class='ident'>Sampler2d</span>,       <span class='comment'>// TODO: wrong</span>
-                        <span class='ident'>offset_in_buffer</span>: <span class='ident'>base_offset</span>,
+            } <span class="kw">else</span> {
+                <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">LayoutMismatch</span> {
+                    <span class="ident">expected</span>: <span class="ident">layout</span>.<span class="ident">clone</span>(),
+                    <span class="ident">obtained</span>: <span class="ident">BlockLayout</span>::<span class="ident">BasicType</span> {
+                        <span class="ident">ty</span>: <span class="ident">UniformType</span>::<span class="ident">Sampler2d</span>,       <span class="comment">// TODO: wrong</span>
+                        <span class="ident">offset_in_buffer</span>: <span class="ident">base_offset</span>,
                     }
                 })
             }
 
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>Err</span>(<span class='ident'>LayoutMismatchError</span>::<span class='ident'>LayoutMismatch</span> {
-                <span class='ident'>expected</span>: <span class='ident'>layout</span>.<span class='ident'>clone</span>(),
-                <span class='ident'>obtained</span>: <span class='ident'>BlockLayout</span>::<span class='ident'>BasicType</span> {
-                    <span class='ident'>ty</span>: <span class='ident'>UniformType</span>::<span class='ident'>Sampler2d</span>,       <span class='comment'>// TODO: wrong</span>
-                    <span class='ident'>offset_in_buffer</span>: <span class='ident'>base_offset</span>,
+        } <span class="kw">else</span> {
+            <span class="prelude-val">Err</span>(<span class="ident">LayoutMismatchError</span>::<span class="ident">LayoutMismatch</span> {
+                <span class="ident">expected</span>: <span class="ident">layout</span>.<span class="ident">clone</span>(),
+                <span class="ident">obtained</span>: <span class="ident">BlockLayout</span>::<span class="ident">BasicType</span> {
+                    <span class="ident">ty</span>: <span class="ident">UniformType</span>::<span class="ident">Sampler2d</span>,       <span class="comment">// TODO: wrong</span>
+                    <span class="ident">offset_in_buffer</span>: <span class="ident">base_offset</span>,
                 }
             })
         }
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>build_layout</span>(<span class='ident'>base_offset</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>BlockLayout</span> {
-        <span class='ident'>BlockLayout</span>::<span class='ident'>BasicType</span> {
-            <span class='ident'>ty</span>: <span class='ident'>UniformType</span>::<span class='ident'>Sampler2d</span>,       <span class='comment'>// TODO: wrong</span>
-            <span class='ident'>offset_in_buffer</span>: <span class='ident'>base_offset</span>,
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">build_layout</span>(<span class="ident">base_offset</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">BlockLayout</span> {
+        <span class="ident">BlockLayout</span>::<span class="ident">BasicType</span> {
+            <span class="ident">ty</span>: <span class="ident">UniformType</span>::<span class="ident">Sampler2d</span>,       <span class="comment">// TODO: wrong</span>
+            <span class="ident">offset_in_buffer</span>: <span class="ident">base_offset</span>,
         }
     }
 }
 
-<span class='comment'>// TODO: implement `vertex::Attribute` on `TextureHandle`</span>
+<span class="comment">// TODO: implement `vertex::Attribute` on `TextureHandle`</span>
 
-<span class='doccomment'>/// Bindless textures are not supported.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>BindlessTexturesNotSupportedError</span>;
+<span class="doccomment">/// Bindless textures are not supported.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BindlessTexturesNotSupportedError</span>;
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>test</span> {
-    <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
-    <span class='kw'>use</span> <span class='ident'>super</span>::<span class='ident'>TextureHandle</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::<span class="ident">TextureHandle</span>;
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>texture_handle_size</span>() {
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>TextureHandle</span><span class='op'>&gt;</span>(), <span class='number'>8</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">texture_handle_size</span>() {
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">TextureHandle</span><span class="op">&gt;</span>(), <span class="number">8</span>);
     }
 }
 </pre>
@@ -664,12 +666,16 @@ the texture.
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -690,7 +696,7 @@ the texture.
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -701,11 +707,8 @@ the texture.
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

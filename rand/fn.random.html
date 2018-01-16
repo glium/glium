@@ -9,13 +9,15 @@
 
     <title>rand::random - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     <link rel="shortcut icon" href="https://www.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc fn">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +28,7 @@
     
 
     <nav class="sidebar">
-        <a href='../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='' width='100'></a>
+        <a href='../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='logo' width='100'></a>
         <p class='location'><a href='index.html'>rand</a></p><script>window.sidebarCurrent = {name: 'random', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
@@ -41,13 +43,13 @@
         </form>
     </nav>
 
-    <section id='main' class="content fn">
-<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>rand</a>::<wbr><a class='fn' href=''>random</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1699' class='srclink' href='../src/rand/lib.rs.html#945-947' title='goto source code'>[src]</a></span></h1>
-<pre class='rust fn'>pub fn random&lt;T: <a class='trait' href='../rand/trait.Rand.html' title='rand::Rand'>Rand</a>&gt;() -&gt; T</pre><div class='docblock'><p>Generates a random value using the thread-local random number generator.</p>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>rand</a>::<wbr><a class="fn" href=''>random</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/rand/lib.rs.html#1013-1015' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn random&lt;T:&nbsp;<a class="trait" href="../rand/trait.Rand.html" title="trait rand::Rand">Rand</a>&gt;() -&gt; T</pre><div class='docblock'><p>Generates a random value using the thread-local random number generator.</p>
 
 <p><code>random()</code> can generate various types of random things, and so may require
 type hinting to generate the specific type you want.</p>
@@ -56,33 +58,35 @@ type hinting to generate the specific type you want.</p>
 that if you&#39;re calling <code>random()</code> in a loop, caching the generator can
 increase performance. An example is shown below.</p>
 
-<h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1><pre class='rust rust-example-rendered'>
-<span class='kw'>let</span> <span class='ident'>x</span> <span class='op'>=</span> <span class='ident'>rand</span>::<span class='ident'>random</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>();
-<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>x</span>);
+<h1 id='examples' class='section-header'><a href='#examples'>Examples</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">rand</span>::<span class="ident">random</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>();
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">x</span>);
 
-<span class='kw'>let</span> <span class='ident'>y</span> <span class='op'>=</span> <span class='ident'>rand</span>::<span class='ident'>random</span>::<span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>();
-<span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;{}&quot;</span>, <span class='ident'>y</span>);
+<span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">rand</span>::<span class="ident">random</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>();
+<span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">y</span>);
 
-<span class='kw'>if</span> <span class='ident'>rand</span>::<span class='ident'>random</span>() { <span class='comment'>// generates a boolean</span>
-    <span class='macro'>println</span><span class='macro'>!</span>(<span class='string'>&quot;Better lucky than good!&quot;</span>);
+<span class="kw">if</span> <span class="ident">rand</span>::<span class="ident">random</span>() { <span class="comment">// generates a boolean</span>
+    <span class="macro">println</span><span class="macro">!</span>(<span class="string">&quot;Better lucky than good!&quot;</span>);
 }</pre>
 
 <p>Caching the thread local random number generator:</p>
-<pre class='rust rust-example-rendered'>
-<span class='kw'>use</span> <span class='ident'>rand</span>::<span class='ident'>Rng</span>;
 
-<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>v</span> <span class='op'>=</span> <span class='macro'>vec</span><span class='macro'>!</span>[<span class='number'>1</span>, <span class='number'>2</span>, <span class='number'>3</span>];
+<pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">rand</span>::<span class="ident">Rng</span>;
 
-<span class='kw'>for</span> <span class='ident'>x</span> <span class='kw'>in</span> <span class='ident'>v</span>.<span class='ident'>iter_mut</span>() {
-    <span class='op'>*</span><span class='ident'>x</span> <span class='op'>=</span> <span class='ident'>rand</span>::<span class='ident'>random</span>()
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>];
+
+<span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">v</span>.<span class="ident">iter_mut</span>() {
+    <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span> <span class="ident">rand</span>::<span class="ident">random</span>()
 }
 
-<span class='comment'>// would be faster as</span>
+<span class="comment">// would be faster as</span>
 
-<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> <span class='ident'>rand</span>::<span class='ident'>thread_rng</span>();
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand</span>::<span class="ident">thread_rng</span>();
 
-<span class='kw'>for</span> <span class='ident'>x</span> <span class='kw'>in</span> <span class='ident'>v</span>.<span class='ident'>iter_mut</span>() {
-    <span class='op'>*</span><span class='ident'>x</span> <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>();
+<span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">v</span>.<span class="ident">iter_mut</span>() {
+    <span class="kw-2">*</span><span class="ident">x</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
 }</pre>
 </div></section>
     <section id='search' class="content hidden"></section>
@@ -101,12 +105,16 @@ increase performance. An example is shown below.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -127,7 +135,7 @@ increase performance. An example is shown below.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -138,11 +146,8 @@ increase performance. An example is shown below.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "rand";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

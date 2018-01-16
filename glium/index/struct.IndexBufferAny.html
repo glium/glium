@@ -9,13 +9,15 @@
 
     <title>glium::index::IndexBufferAny - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>index</a></p><script>window.sidebarCurrent = {name: 'IndexBufferAny', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct IndexBufferAny</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.get_primitives_type">get_primitives_type</a><a href="#method.get_indices_type">get_indices_type</a></div><a class="sidebar-title" href="#deref-methods">Methods from Deref&lt;Target=BufferAny&gt;</a><div class="sidebar-links"><a href="#method.as_slice_any">as_slice_any</a><a href="#method.as_typed_slice">as_typed_slice</a><a href="#method.get_elements_size">get_elements_size</a><a href="#method.get_elements_count">get_elements_count</a><a href="#method.get_context">get_context</a><a href="#method.get_size">get_size</a><a href="#method.invalidate">invalidate</a><a href="#method.read">read</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Deref">Deref</a><a href="#impl-DerefMut">DerefMut</a><a href="#impl-From%3CIndexBuffer%3CT%3E%3E">From&lt;IndexBuffer&lt;T&gt;&gt;</a><a href="#impl-From%3C%26%27a%20IndexBufferAny%3E">From&lt;&amp;&#39;a IndexBufferAny&gt;</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>index</a></p><script>window.sidebarCurrent = {name: 'IndexBufferAny', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,50 +43,77 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>index</a>::<wbr><a class='struct' href=''>IndexBufferAny</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-4142' class='srclink' href='../../src/glium/index/buffer.rs.html#314-318' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct IndexBufferAny {
-    // some fields omitted
-}</pre><div class='docblock'><p>An <code>IndexBuffer</code> without any type information.</p>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>index</a>::<wbr><a class="struct" href=''>IndexBufferAny</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/index/buffer.rs.html#343-347' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct IndexBufferAny { /* fields omitted */ }</pre><div class='docblock'><p>An <code>IndexBuffer</code> without any type information.</p>
 
 <p>Makes it easier to store in a <code>Vec</code> or return from a function, for example.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../glium/index/struct.IndexBufferAny.html' title='glium::index::IndexBufferAny'>IndexBufferAny</a></code></h3><div class='impl-items'><h4 id='method.get_primitives_type' class='method'><code>fn <a href='#method.get_primitives_type' class='fnname'>get_primitives_type</a>(&amp;self) -&gt; <a class='enum' href='../../glium/index/enum.PrimitiveType.html' title='glium::index::PrimitiveType'>PrimitiveType</a></code></h4>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#349-361' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.get_primitives_type' class="method"><span id='get_primitives_type.v' class='invisible'><code>pub fn <a href='#method.get_primitives_type' class='fnname'>get_primitives_type</a>(&amp;self) -&gt; <a class="enum" href="../../glium/index/enum.PrimitiveType.html" title="enum glium::index::PrimitiveType">PrimitiveType</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#352-354' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the type of primitives associated with this index buffer.</p>
-</div><h4 id='method.get_indices_type' class='method'><code>fn <a href='#method.get_indices_type' class='fnname'>get_indices_type</a>(&amp;self) -&gt; <a class='enum' href='../../glium/index/enum.IndexType.html' title='glium::index::IndexType'>IndexType</a></code></h4>
+</div><h4 id='method.get_indices_type' class="method"><span id='get_indices_type.v' class='invisible'><code>pub fn <a href='#method.get_indices_type' class='fnname'>get_indices_type</a>(&amp;self) -&gt; <a class="enum" href="../../glium/index/enum.IndexType.html" title="enum glium::index::IndexType">IndexType</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#358-360' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the data type of the indices inside this index buffer.</p>
-</div></div><h2 id='deref-methods'>Methods from <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a>&lt;Target=<a class='struct' href='../../glium/buffer/struct.BufferAny.html' title='glium::buffer::BufferAny'>BufferAny</a>&gt;</h2><div class='impl-items'><h4 id='method.as_slice_any' class='method'><code>fn <a href='#method.as_slice_any' class='fnname'>as_slice_any</a>(&amp;self) -&gt; <a class='struct' href='../../glium/buffer/struct.BufferAnySlice.html' title='glium::buffer::BufferAnySlice'>BufferAnySlice</a></code></h4>
+</div></div>
+                    <h2 id='deref-methods' class='small-section-header'>
+                      Methods from <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a>&lt;Target = <a class="struct" href="../../glium/buffer/struct.BufferAny.html" title="struct glium::buffer::BufferAny">BufferAny</a>&gt;<a href='#deref-methods' class='anchor'></a>
+                    </h2>
+                <div class='impl-items'><h4 id='method.as_slice_any' class="method"><span id='as_slice_any.v' class='invisible'><code>pub fn <a href='#method.as_slice_any' class='fnname'>as_slice_any</a>(&amp;self) -&gt; <a class="struct" href="../../glium/buffer/struct.BufferAnySlice.html" title="struct glium::buffer::BufferAnySlice">BufferAnySlice</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1084-1092' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Builds a slice-any containing the whole subbuffer.</p>
-</div><h4 id='method.get_elements_size' class='method'><code>fn <a href='#method.get_elements_size' class='fnname'>get_elements_size</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+</div><h4 id='method.as_typed_slice_mut' class="method"><span id='as_typed_slice_mut.v' class='invisible'><code>pub unsafe fn <a href='#method.as_typed_slice_mut' class='fnname'>as_typed_slice_mut</a>&lt;T:&nbsp;?<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> + <a class="trait" href="../../glium/buffer/trait.Content.html" title="trait glium::buffer::Content">Content</a>&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;mut self<br>) -&gt; <a class="struct" href="../../glium/buffer/struct.BufferMutSlice.html" title="struct glium::buffer::BufferMutSlice">BufferMutSlice</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1096-1105' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a mutable typed slice containing the whole subbuffer, without checking the type.</p>
+</div><h4 id='method.as_typed_slice' class="method"><span id='as_typed_slice.v' class='invisible'><code>pub unsafe fn <a href='#method.as_typed_slice' class='fnname'>as_typed_slice</a>&lt;T:&nbsp;?<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a> + <a class="trait" href="../../glium/buffer/trait.Content.html" title="trait glium::buffer::Content">Content</a>&gt;(&amp;self) -&gt; <a class="struct" href="../../glium/buffer/struct.BufferSlice.html" title="struct glium::buffer::BufferSlice">BufferSlice</a>&lt;T&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1109-1118' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Builds a typed slice containing the whole subbuffer, without checking the type.</p>
+</div><h4 id='method.get_elements_size' class="method"><span id='get_elements_size.v' class='invisible'><code>pub fn <a href='#method.get_elements_size' class='fnname'>get_elements_size</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1123-1125' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the size in bytes of each element in the buffer.</p>
-</div><h4 id='method.get_elements_count' class='method'><code>fn <a href='#method.get_elements_count' class='fnname'>get_elements_count</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+</div><h4 id='method.get_elements_count' class="method"><span id='get_elements_count.v' class='invisible'><code>pub fn <a href='#method.get_elements_count' class='fnname'>get_elements_count</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1130-1132' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the number of elements in the buffer.</p>
-</div><h4 id='method.get_context' class='method'><code>fn <a href='#method.get_context' class='fnname'>get_context</a>(&amp;self) -&gt; &amp;<a class='struct' href='https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html' title='alloc::rc::Rc'>Rc</a>&lt;<a class='struct' href='../../glium/backend/struct.Context.html' title='glium::backend::Context'>Context</a>&gt;</code></h4>
+</div><h4 id='method.get_context' class="method"><span id='get_context.v' class='invisible'><code>pub fn <a href='#method.get_context' class='fnname'>get_context</a>(&amp;self) -&gt; &amp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/rc/struct.Rc.html" title="struct alloc::rc::Rc">Rc</a>&lt;<a class="struct" href="../../glium/backend/struct.Context.html" title="struct glium::backend::Context">Context</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1136-1138' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the context corresponding to this buffer.</p>
-</div><h4 id='method.get_size' class='method'><code>fn <a href='#method.get_size' class='fnname'>get_size</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+</div><h4 id='method.get_size' class="method"><span id='get_size.v' class='invisible'><code>pub fn <a href='#method.get_size' class='fnname'>get_size</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1142-1144' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the number of bytes in this subbuffer.</p>
-</div><h4 id='method.invalidate' class='method'><code>fn <a href='#method.invalidate' class='fnname'>invalidate</a>(&amp;self)</code></h4>
+</div><h4 id='method.invalidate' class="method"><span id='invalidate.v' class='invisible'><code>pub fn <a href='#method.invalidate' class='fnname'>invalidate</a>(&amp;self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1151-1153' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Invalidates the content of the buffer. The data becomes undefined.</p>
 
 <p>This operation is a no-op if the backend doesn&#39;t support it and for persistent-mapped
 buffers.</p>
-</div><h4 id='method.read' class='method'><code>unsafe fn <a href='#method.read' class='fnname'>read</a>&lt;T&gt;(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;T::Owned, <a class='enum' href='../../glium/buffer/enum.ReadError.html' title='glium::buffer::ReadError'>ReadError</a>&gt; <span class='where'>where T: <a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Content</a></span></code></h4>
+</div><h4 id='method.read' class="method"><span id='read.v' class='invisible'><code>pub unsafe fn <a href='#method.read' class='fnname'>read</a>&lt;T&gt;(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;T::<a class="type" href="../../glium/buffer/trait.Content.html#associatedtype.Owned" title="type glium::buffer::Content::Owned">Owned</a>, <a class="enum" href="../../glium/buffer/enum.ReadError.html" title="enum glium::buffer::ReadError">ReadError</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../../glium/buffer/trait.Content.html" title="trait glium::buffer::Content">Content</a>,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/view.rs.html#1165-1169' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>UNSTABLE. This function can be removed at any moment without any further notice.</p>
 
 <p>Considers that the buffer is filled with elements of type <code>T</code> and reads them.</p>
 
 <h1 id='panic' class='section-header'><a href='#panic'>Panic</a></h1>
-<p>Panicks if the size of the buffer is not a multiple of the size of the data.
+<p>Panics if the size of the buffer is not a multiple of the size of the data.
 For example, trying to read some <code>(u8, u8, u8, u8)</code>s from a buffer of 7 bytes will panic.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html' title='core::ops::Deref'>Deref</a> for <a class='struct' href='../../glium/index/struct.IndexBufferAny.html' title='glium::index::IndexBufferAny'>IndexBufferAny</a></code></h3><div class='impl-items'><h4 id='assoc_type.Target' class='type'><code>type Target = <a class='struct' href='../../glium/buffer/struct.BufferAny.html' title='glium::buffer::BufferAny'>BufferAny</a></code></h4>
-<h4 id='method.deref' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Deref.html#method.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class='struct' href='../../glium/buffer/struct.BufferAny.html' title='glium::buffer::BufferAny'>BufferAny</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.DerefMut.html' title='core::ops::DerefMut'>DerefMut</a> for <a class='struct' href='../../glium/index/struct.IndexBufferAny.html' title='glium::index::IndexBufferAny'>IndexBufferAny</a></code></h3><div class='impl-items'><h4 id='method.deref_mut' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.DerefMut.html#method.deref_mut' class='fnname'>deref_mut</a>(&amp;mut self) -&gt; &amp;mut <a class='struct' href='../../glium/buffer/struct.BufferAny.html' title='glium::buffer::BufferAny'>BufferAny</a></code></h4>
-</div><h3 class='impl'><code>impl&lt;T&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html' title='core::convert::From'>From</a>&lt;<a class='struct' href='../../glium/struct.IndexBuffer.html' title='glium::IndexBuffer'>IndexBuffer</a>&lt;T&gt;&gt; for <a class='struct' href='../../glium/index/struct.IndexBufferAny.html' title='glium::index::IndexBufferAny'>IndexBufferAny</a> <span class='where'>where T: <a class='trait' href='../../glium/index/trait.Index.html' title='glium::index::Index'>Index</a></span></code></h3><div class='impl-items'><h4 id='method.from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#method.from' class='fnname'>from</a>(buffer: <a class='struct' href='../../glium/struct.IndexBuffer.html' title='glium::IndexBuffer'>IndexBuffer</a>&lt;T&gt;) -&gt; <a class='struct' href='../../glium/index/struct.IndexBufferAny.html' title='glium::index::IndexBufferAny'>IndexBufferAny</a></code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../glium/index/struct.IndexBufferAny.html' title='glium::index::IndexBufferAny'>IndexBufferAny</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div></section>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#342' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#342' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Deref' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a> for <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a></code><a href='#impl-Deref' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#363-370' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Target' class="type"><span id='Target.t' class='invisible'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html#associatedtype.Target' class="type">Target</a> = <a class="struct" href="../../glium/buffer/struct.BufferAny.html" title="struct glium::buffer::BufferAny">BufferAny</a></code></span></h4>
+<div class='docblock'><p>The resulting type after dereferencing.</p>
+</div><h4 id='method.deref' class="method"><span id='deref.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html#tymethod.deref' class='fnname'>deref</a>(&amp;self) -&gt; &amp;<a class="struct" href="../../glium/buffer/struct.BufferAny.html" title="struct glium::buffer::BufferAny">BufferAny</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#367-369' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Dereferences the value.</p>
+</div></div><h3 id='impl-DerefMut' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/deref/trait.DerefMut.html" title="trait core::ops::deref::DerefMut">DerefMut</a> for <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a></code><a href='#impl-DerefMut' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#372-377' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.deref_mut' class="method"><span id='deref_mut.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/deref/trait.DerefMut.html#tymethod.deref_mut' class='fnname'>deref_mut</a>(&amp;mut self) -&gt; &amp;mut <a class="struct" href="../../glium/buffer/struct.BufferAny.html" title="struct glium::buffer::BufferAny">BufferAny</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#374-376' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Mutably dereferences the value.</p>
+</div></div><h3 id='impl-From%3CIndexBuffer%3CT%3E%3E' class='impl'><span class='in-band'><code>impl&lt;T&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="struct" href="../../glium/struct.IndexBuffer.html" title="struct glium::IndexBuffer">IndexBuffer</a>&lt;T&gt;&gt; for <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a> <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../../glium/index/trait.Index.html" title="trait glium::index::Index">Index</a>,&nbsp;</span></code><a href='#impl-From%3CIndexBuffer%3CT%3E%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#379-390' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from' class="method"><span id='from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(buffer: <a class="struct" href="../../glium/struct.IndexBuffer.html" title="struct glium::IndexBuffer">IndexBuffer</a>&lt;T&gt;) -&gt; <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#381-389' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div><h3 id='impl-From%3C%26%27a%20IndexBufferAny%3E' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;&amp;'a <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a>&gt; for <a class="enum" href="../../glium/index/enum.IndicesSource.html" title="enum glium::index::IndicesSource">IndicesSource</a>&lt;'a&gt;</code><a href='#impl-From%3C%26%27a%20IndexBufferAny%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#392-401' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from-1' class="method"><span id='from.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(buf: &amp;'a <a class="struct" href="../../glium/index/struct.IndexBufferAny.html" title="struct glium::index::IndexBufferAny">IndexBufferAny</a>) -&gt; <a class="enum" href="../../glium/index/enum.IndicesSource.html" title="enum glium::index::IndicesSource">IndicesSource</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/index/buffer.rs.html#394-400' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -101,12 +130,16 @@ For example, trying to read some <code>(u8, u8, u8, u8)</code>s from a buffer of
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -127,7 +160,7 @@ For example, trying to read some <code>(u8, u8, u8, u8)</code>s from a buffer of
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -138,11 +171,8 @@ For example, trying to read some <code>(u8, u8, u8, u8)</code>s from a buffer of
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

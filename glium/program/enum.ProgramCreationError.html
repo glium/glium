@@ -9,13 +9,15 @@
 
     <title>glium::program::ProgramCreationError - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>program</a></p><script>window.sidebarCurrent = {name: 'ProgramCreationError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum ProgramCreationError</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.CompilationError">CompilationError</a><a href="#variant.LinkingError">LinkingError</a><a href="#variant.ShaderTypeNotSupported">ShaderTypeNotSupported</a><a href="#variant.CompilationNotSupported">CompilationNotSupported</a><a href="#variant.TransformFeedbackNotSupported">TransformFeedbackNotSupported</a><a href="#variant.PointSizeNotSupported">PointSizeNotSupported</a><a href="#variant.BinaryHeaderError">BinaryHeaderError</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-Display">Display</a><a href="#impl-Error">Error</a><a href="#impl-From%3CProgramCreationError%3E">From&lt;ProgramCreationError&gt;</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>program</a></p><script>window.sidebarCurrent = {name: 'ProgramCreationError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,38 +43,58 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>program</a>::<wbr><a class='enum' href=''>ProgramCreationError</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-6131' class='srclink' href='../../src/glium/program/mod.rs.html#50-72' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>program</a>::<wbr><a class="enum" href=''>ProgramCreationError</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/program/mod.rs.html#67-92' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum ProgramCreationError {
-    CompilationError(<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>),
-    LinkingError(<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>),
+    CompilationError(<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>),
+    LinkingError(<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>),
     ShaderTypeNotSupported,
     CompilationNotSupported,
     TransformFeedbackNotSupported,
     PointSizeNotSupported,
+    BinaryHeaderError,
 }</pre><div class='docblock'><p>Error that can be triggered when creating a <code>Program</code>.</p>
-</div><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.CompilationError'><code>CompilationError</code></td><td><div class='docblock'><p>Error while compiling one of the shaders.</p>
-</div></td></tr><tr><td id='variant.LinkingError'><code>LinkingError</code></td><td><div class='docblock'><p>Error while linking the program.</p>
-</div></td></tr><tr><td id='variant.ShaderTypeNotSupported'><code>ShaderTypeNotSupported</code></td><td><div class='docblock'><p>One of the requested shader types is not supported by the backend.</p>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.CompilationError" class="variant small-section-header"><a href="#variant.CompilationError" class="anchor field"></a><span id='CompilationError.v' class='invisible'><code>CompilationError(<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>)</code></span></span><div class='docblock'><p>Error while compiling one of the shaders.</p>
+</div><span id="variant.LinkingError" class="variant small-section-header"><a href="#variant.LinkingError" class="anchor field"></a><span id='LinkingError.v' class='invisible'><code>LinkingError(<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>)</code></span></span><div class='docblock'><p>Error while linking the program.</p>
+</div><span id="variant.ShaderTypeNotSupported" class="variant small-section-header"><a href="#variant.ShaderTypeNotSupported" class="anchor field"></a><span id='ShaderTypeNotSupported.v' class='invisible'><code>ShaderTypeNotSupported</code></span></span><div class='docblock'><p>One of the requested shader types is not supported by the backend.</p>
 
 <p>Usually the case for geometry shaders.</p>
-</div></td></tr><tr><td id='variant.CompilationNotSupported'><code>CompilationNotSupported</code></td><td><div class='docblock'><p>The OpenGL implementation doesn&#39;t provide a compiler.</p>
-</div></td></tr><tr><td id='variant.TransformFeedbackNotSupported'><code>TransformFeedbackNotSupported</code></td><td><div class='docblock'><p>You have requested transform feedback varyings, but transform feedback is not supported
+</div><span id="variant.CompilationNotSupported" class="variant small-section-header"><a href="#variant.CompilationNotSupported" class="anchor field"></a><span id='CompilationNotSupported.v' class='invisible'><code>CompilationNotSupported</code></span></span><div class='docblock'><p>The OpenGL implementation doesn&#39;t provide a compiler.</p>
+</div><span id="variant.TransformFeedbackNotSupported" class="variant small-section-header"><a href="#variant.TransformFeedbackNotSupported" class="anchor field"></a><span id='TransformFeedbackNotSupported.v' class='invisible'><code>TransformFeedbackNotSupported</code></span></span><div class='docblock'><p>You have requested transform feedback varyings, but transform feedback is not supported
 by the backend.</p>
-</div></td></tr><tr><td id='variant.PointSizeNotSupported'><code>PointSizeNotSupported</code></td><td><div class='docblock'><p>You have requested point size setting from the shader, but it&#39;s not
+</div><span id="variant.PointSizeNotSupported" class="variant small-section-header"><a href="#variant.PointSizeNotSupported" class="anchor field"></a><span id='PointSizeNotSupported.v' class='invisible'><code>PointSizeNotSupported</code></span></span><div class='docblock'><p>You have requested point size setting from the shader, but it&#39;s not
 supported by the backend.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> for <a class='enum' href='../../glium/program/enum.ProgramCreationError.html' title='glium::program::ProgramCreationError'>ProgramCreationError</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#method.fmt' class='fnname'>fmt</a>(&amp;self, formatter: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a> for <a class='enum' href='../../glium/program/enum.ProgramCreationError.html' title='glium::program::ProgramCreationError'>ProgramCreationError</a></code></h3><div class='impl-items'><h4 id='method.description' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.description' class='fnname'>description</a>(&amp;self) -&gt; &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a></code></h4>
-<h4 id='method.cause' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause' class='fnname'>cause</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;<a class='trait' href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html' title='std::error::Error'>Error</a>&gt;</code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/program/enum.ProgramCreationError.html' title='glium::program::ProgramCreationError'>ProgramCreationError</a></code></h3><div class='impl-items'><h4 id='method.fmt-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/program/enum.ProgramCreationError.html' title='glium::program::ProgramCreationError'>ProgramCreationError</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/program/enum.ProgramCreationError.html' title='glium::program::ProgramCreationError'>ProgramCreationError</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+</div><span id="variant.BinaryHeaderError" class="variant small-section-header"><a href="#variant.BinaryHeaderError" class="anchor field"></a><span id='BinaryHeaderError.v' class='invisible'><code>BinaryHeaderError</code></span></span><div class='docblock'><p>The glium-specific binary header was not found or is corrupt.</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../../glium/program/enum.ProgramCreationError.html" title="enum glium::program::ProgramCreationError">ProgramCreationError</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#66' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../../glium/program/enum.ProgramCreationError.html" title="enum glium::program::ProgramCreationError">ProgramCreationError</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#66' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../../glium/program/enum.ProgramCreationError.html" title="enum glium::program::ProgramCreationError">ProgramCreationError</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#66' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#66' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Display' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="enum" href="../../glium/program/enum.ProgramCreationError.html" title="enum glium::program::ProgramCreationError">ProgramCreationError</a></code><a href='#impl-Display' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#94-106' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class="method"><span id='fmt.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html" title="struct core::fmt::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#95-105' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Error' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> for <a class="enum" href="../../glium/program/enum.ProgramCreationError.html" title="enum glium::program::ProgramCreationError">ProgramCreationError</a></code><a href='#impl-Error' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#108-128' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.description' class="method"><span id='description.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description' class='fnname'>description</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#109-127' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>A short description of the error. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description">Read more</a></p>
+</div><h4 id='method.cause' class="method"><span id='cause.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause' class='fnname'>cause</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/std/error.rs.html#154' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The lower-level cause of this error, if any. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause">Read more</a></p>
+</div></div><h3 id='impl-From%3CProgramCreationError%3E' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;<a class="enum" href="../../glium/program/enum.ProgramCreationError.html" title="enum glium::program::ProgramCreationError">ProgramCreationError</a>&gt; for <a class="enum" href="../../glium/program/enum.ProgramChooserCreationError.html" title="enum glium::program::ProgramChooserCreationError">ProgramChooserCreationError</a></code><a href='#impl-From%3CProgramCreationError%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#167-171' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from' class="method"><span id='from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(err: <a class="enum" href="../../glium/program/enum.ProgramCreationError.html" title="enum glium::program::ProgramCreationError">ProgramCreationError</a>) -&gt; <a class="enum" href="../../glium/program/enum.ProgramChooserCreationError.html" title="enum glium::program::ProgramChooserCreationError">ProgramChooserCreationError</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/program/mod.rs.html#168-170' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -89,12 +111,16 @@ supported by the backend.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -115,7 +141,7 @@ supported by the backend.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -126,11 +152,8 @@ supported by the backend.</p>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

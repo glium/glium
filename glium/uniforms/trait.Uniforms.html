@@ -9,13 +9,15 @@
 
     <title>glium::uniforms::Uniforms - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc trait">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'Uniforms', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait Uniforms</p><div class="block items"><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.visit_values">visit_values</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'Uniforms', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,29 +43,33 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class='trait' href=''>Uniforms</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-8425' class='srclink' href='../../src/glium/uniforms/mod.rs.html#112-115' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class="trait" href=''>Uniforms</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#166-169' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Uniforms {
-    fn <a href='#tymethod.visit_values' class='fnname'>visit_values</a>&lt;'a, F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, <a class='enum' href='../../glium/uniforms/enum.UniformValue.html' title='glium::uniforms::UniformValue'>UniformValue</a>&lt;'a&gt;)&gt;(&amp;'a self, F);
+    fn <a href='#tymethod.visit_values' class='fnname'>visit_values</a>&lt;'a, F:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnMut.html" title="trait core::ops::function::FnMut">FnMut</a>(&amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, <a class="enum" href="../../glium/uniforms/enum.UniformValue.html" title="enum glium::uniforms::UniformValue">UniformValue</a>&lt;'a&gt;)&gt;(&amp;'a self, _: F);
 }</pre><div class='docblock'><p>Object that contains the values of all the uniforms to bind to a program.</p>
 
 <p>Objects of this type can be passed to the <code>draw()</code> function.</p>
 </div>
-            <h2 id='required-methods'>Required Methods</h2>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='tymethod.visit_values' class='method stab '><code>fn <a href='#tymethod.visit_values' class='fnname'>visit_values</a>&lt;'a, F: <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.FnMut.html' title='core::ops::FnMut'>FnMut</a>(&amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>, <a class='enum' href='../../glium/uniforms/enum.UniformValue.html' title='glium::uniforms::UniformValue'>UniformValue</a>&lt;'a&gt;)&gt;(&amp;'a self, F)</code></h3><div class='docblock'><p>Calls the parameter once with the name and value of each uniform.</p>
+        <h3 id='tymethod.visit_values' class='method'><span id='visit_values.v' class='invisible'><code>fn <a href='#tymethod.visit_values' class='fnname'>visit_values</a>&lt;'a, F:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnMut.html" title="trait core::ops::function::FnMut">FnMut</a>(&amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>, <a class="enum" href="../../glium/uniforms/enum.UniformValue.html" title="enum glium::uniforms::UniformValue">UniformValue</a>&lt;'a&gt;)&gt;(&amp;'a self, _: F)</code></span></h3><div class='docblock'><p>Calls the parameter once with the name and value of each uniform.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a> for <a class='struct' href='../../glium/uniforms/struct.EmptyUniforms.html' title='glium::uniforms::EmptyUniforms'>EmptyUniforms</a></code></li>
-<li><code>impl&lt;'n, T, R&gt; <a class='trait' href='../../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a> for <a class='struct' href='../../glium/uniforms/struct.UniformsStorage.html' title='glium::uniforms::UniformsStorage'>UniformsStorage</a>&lt;'n, T, R&gt; <span class='where'>where T: <a class='trait' href='../../glium/uniforms/trait.AsUniformValue.html' title='glium::uniforms::AsUniformValue'>AsUniformValue</a>, R: <a class='trait' href='../../glium/uniforms/trait.Uniforms.html' title='glium::uniforms::Uniforms'>Uniforms</a></span></code></li>
+    <li><div class='out-of-band'><a class='srclink' href='../../src/glium/uniforms/uniforms.rs.html#7-11' title='goto source code'>[src]</a></div><code>impl Uniforms for <a class="struct" href="../../glium/uniforms/struct.EmptyUniforms.html" title="struct glium::uniforms::EmptyUniforms">EmptyUniforms</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/uniforms/uniforms.rs.html#49-55' title='goto source code'>[src]</a></div><code>impl&lt;'n, T, R&gt; Uniforms for <a class="struct" href="../../glium/uniforms/struct.UniformsStorage.html" title="struct glium::uniforms::UniformsStorage">UniformsStorage</a>&lt;'n, T, R&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;T: <a class="trait" href="../../glium/uniforms/trait.AsUniformValue.html" title="trait glium::uniforms::AsUniformValue">AsUniformValue</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;R: <a class="trait" href="../../glium/uniforms/trait.Uniforms.html" title="trait glium::uniforms::Uniforms">Uniforms</a>,&nbsp;</span></code></li>
 </ul><script type="text/javascript" async
-                              src="../../implementors/glium/uniforms/trait.Uniforms.js">
-                      </script></section>
+                         src="../../implementors/glium/uniforms/trait.Uniforms.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -80,12 +86,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -106,7 +116,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -117,11 +127,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

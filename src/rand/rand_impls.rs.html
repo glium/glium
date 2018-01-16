@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/rand-0.3.12/src/rand_impls.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/rand-0.3.20/src/rand_impls.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>rand_impls.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     <link rel="shortcut icon" href="https://www.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +28,7 @@
     
 
     <nav class="sidebar">
-        <a href='../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='' width='100'></a>
+        <a href='../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='logo' width='100'></a>
         
     </nav>
 
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -324,184 +326,218 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
-</pre><pre class='rust '>
-<span class='comment'>// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT</span>
-<span class='comment'>// file at the top-level directory of this distribution and at</span>
-<span class='comment'>// http://rust-lang.org/COPYRIGHT.</span>
-<span class='comment'>//</span>
-<span class='comment'>// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
-<span class='comment'>// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
-<span class='comment'>// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
-<span class='comment'>// option. This file may not be copied, modified, or distributed</span>
-<span class='comment'>// except according to those terms.</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+</pre><pre class="rust ">
+<span class="comment">// Copyright 2013-2014 The Rust Project Developers. See the COPYRIGHT</span>
+<span class="comment">// file at the top-level directory of this distribution and at</span>
+<span class="comment">// http://rust-lang.org/COPYRIGHT.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
 
-<span class='doccomment'>//! The implementations of `Rand` for the built-in types.</span>
+<span class="doccomment">//! The implementations of `Rand` for the built-in types.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>char</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">char</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
 
-<span class='kw'>use</span> {<span class='ident'>Rand</span>,<span class='ident'>Rng</span>};
+<span class="kw">use</span> {<span class="ident">Rand</span>,<span class="ident">Rng</span>};
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>isize</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>isize</span> {
-        <span class='kw'>if</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>isize</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='number'>4</span> {
-            <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span>() <span class='kw'>as</span> <span class='ident'>isize</span>
-        } <span class='kw'>else</span> {
-            <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>i64</span><span class='op'>&gt;</span>() <span class='kw'>as</span> <span class='ident'>isize</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">isize</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">isize</span> {
+        <span class="kw">if</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">isize</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">4</span> {
+            <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">isize</span>
+        } <span class="kw">else</span> {
+            <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">i64</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">isize</span>
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>i8</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>i8</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u32</span>() <span class='kw'>as</span> <span class='ident'>i8</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">i8</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">i8</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u32</span>() <span class="kw">as</span> <span class="ident">i8</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>i16</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>i16</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u32</span>() <span class='kw'>as</span> <span class='ident'>i16</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">i16</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">i16</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u32</span>() <span class="kw">as</span> <span class="ident">i16</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>i32</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u32</span>() <span class='kw'>as</span> <span class='ident'>i32</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">i32</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">i32</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u32</span>() <span class="kw">as</span> <span class="ident">i32</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>i64</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>i64</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u64</span>() <span class='kw'>as</span> <span class='ident'>i64</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">i64</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">i64</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u64</span>() <span class="kw">as</span> <span class="ident">i64</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>usize</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='kw'>if</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>usize</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='number'>4</span> {
-            <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>() <span class='kw'>as</span> <span class='ident'>usize</span>
-        } <span class='kw'>else</span> {
-            <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>u64</span><span class='op'>&gt;</span>() <span class='kw'>as</span> <span class='ident'>usize</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;i128_support&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">i128</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">i128</span> {
+        <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u128</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">i128</span>
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">usize</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="kw">if</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">4</span> {
+            <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span>
+        } <span class="kw">else</span> {
+            <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u64</span><span class="op">&gt;</span>() <span class="kw">as</span> <span class="ident">usize</span>
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>u8</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>u8</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u32</span>() <span class='kw'>as</span> <span class='ident'>u8</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">u8</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">u8</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u32</span>() <span class="kw">as</span> <span class="ident">u8</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>u16</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>u16</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u32</span>() <span class='kw'>as</span> <span class='ident'>u16</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">u16</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">u16</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u32</span>() <span class="kw">as</span> <span class="ident">u16</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>u32</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>u32</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u32</span>()
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">u32</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u32</span>()
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>u64</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
-        <span class='ident'>rng</span>.<span class='ident'>next_u64</span>()
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">u64</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> {
+        <span class="ident">rng</span>.<span class="ident">next_u64</span>()
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>float_impls</span> {
-    (<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mod_name</span>:<span class='ident'>ident</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>:<span class='ident'>ty</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mantissa_bits</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>method_name</span>:<span class='ident'>ident</span>) <span class='op'>=&gt;</span> {
-        <span class='kw'>mod</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mod_name</span> {
-            <span class='kw'>use</span> {<span class='ident'>Rand</span>, <span class='ident'>Rng</span>, <span class='ident'>Open01</span>, <span class='ident'>Closed01</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;i128_support&quot;</span>)]</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">u128</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">u128</span> {
+        ((<span class="ident">rng</span>.<span class="ident">next_u64</span>() <span class="kw">as</span> <span class="ident">u128</span>) <span class="op">&lt;&lt;</span> <span class="number">64</span>) <span class="op">|</span> (<span class="ident">rng</span>.<span class="ident">next_u64</span>() <span class="kw">as</span> <span class="ident">u128</span>)
+    }
+}
 
-            <span class='kw'>const</span> <span class='ident'>SCALE</span>: <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span> <span class='op'>=</span> (<span class='number'>1u64</span> <span class='op'>&lt;&lt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>mantissa_bits</span>) <span class='kw'>as</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span>;
 
-            <span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span> {
-                <span class='doccomment'>/// Generate a floating point number in the half-open</span>
-                <span class='doccomment'>/// interval `[0,1)`.</span>
-                <span class='doccomment'>///</span>
-                <span class='doccomment'>/// See `Closed01` for the closed interval `[0,1]`,</span>
-                <span class='doccomment'>/// and `Open01` for the open interval `(0,1)`.</span>
-                <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-                <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span> {
-                    <span class='ident'>rng</span>.<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>method_name</span>()
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">float_impls</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">mod_name</span>:<span class="ident">ident</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>:<span class="ident">ty</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">mantissa_bits</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_name</span>:<span class="ident">ident</span>) <span class="op">=&gt;</span> {
+        <span class="kw">mod</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">mod_name</span> {
+            <span class="kw">use</span> {<span class="ident">Rand</span>, <span class="ident">Rng</span>, <span class="ident">Open01</span>, <span class="ident">Closed01</span>};
+
+            <span class="kw">const</span> <span class="ident">SCALE</span>: <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> <span class="op">=</span> (<span class="number">1u64</span> <span class="op">&lt;&lt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">mantissa_bits</span>) <span class="kw">as</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span>;
+
+            <span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
+                <span class="doccomment">/// Generate a floating point number in the half-open</span>
+                <span class="doccomment">/// interval `[0,1)`.</span>
+                <span class="doccomment">///</span>
+                <span class="doccomment">/// See `Closed01` for the closed interval `[0,1]`,</span>
+                <span class="doccomment">/// and `Open01` for the open interval `(0,1)`.</span>
+                <span class="attribute">#[<span class="ident">inline</span>]</span>
+                <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span> {
+                    <span class="ident">rng</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_name</span>()
                 }
             }
-            <span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>Open01</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span><span class='op'>&gt;</span> {
-                <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-                <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>Open01</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span><span class='op'>&gt;</span> {
-                    <span class='comment'>// add a small amount (specifically 2 bits below</span>
-                    <span class='comment'>// the precision of f64/f32 at 1.0), so that small</span>
-                    <span class='comment'>// numbers are larger than 0, but large numbers</span>
-                    <span class='comment'>// aren&#39;t pushed to/above 1.</span>
-                    <span class='ident'>Open01</span>(<span class='ident'>rng</span>.<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>method_name</span>() <span class='op'>+</span> <span class='number'>0.25</span> <span class='op'>/</span> <span class='ident'>SCALE</span>)
+            <span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">Open01</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span> {
+                <span class="attribute">#[<span class="ident">inline</span>]</span>
+                <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">Open01</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span> {
+                    <span class="comment">// add a small amount (specifically 2 bits below</span>
+                    <span class="comment">// the precision of f64/f32 at 1.0), so that small</span>
+                    <span class="comment">// numbers are larger than 0, but large numbers</span>
+                    <span class="comment">// aren&#39;t pushed to/above 1.</span>
+                    <span class="ident">Open01</span>(<span class="ident">rng</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_name</span>() <span class="op">+</span> <span class="number">0.25</span> <span class="op">/</span> <span class="ident">SCALE</span>)
                 }
             }
-            <span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>Closed01</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span><span class='op'>&gt;</span> {
-                <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-                <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>Closed01</span><span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ty</span><span class='op'>&gt;</span> {
-                    <span class='comment'>// rescale so that 1.0 - epsilon becomes 1.0</span>
-                    <span class='comment'>// precisely.</span>
-                    <span class='ident'>Closed01</span>(<span class='ident'>rng</span>.<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>method_name</span>() <span class='op'>*</span> <span class='ident'>SCALE</span> <span class='op'>/</span> (<span class='ident'>SCALE</span> <span class='op'>-</span> <span class='number'>1.0</span>))
+            <span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">Closed01</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span> {
+                <span class="attribute">#[<span class="ident">inline</span>]</span>
+                <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">Closed01</span><span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ty</span><span class="op">&gt;</span> {
+                    <span class="comment">// rescale so that 1.0 - epsilon becomes 1.0</span>
+                    <span class="comment">// precisely.</span>
+                    <span class="ident">Closed01</span>(<span class="ident">rng</span>.<span class="macro-nonterminal">$</span><span class="macro-nonterminal">method_name</span>() <span class="op">*</span> <span class="ident">SCALE</span> <span class="op">/</span> (<span class="ident">SCALE</span> <span class="op">-</span> <span class="number">1.0</span>))
                 }
             }
         }
     }
 }
-<span class='macro'>float_impls</span><span class='macro'>!</span> { <span class='ident'>f64_rand_impls</span>, <span class='ident'>f64</span>, <span class='number'>53</span>, <span class='ident'>next_f64</span> }
-<span class='macro'>float_impls</span><span class='macro'>!</span> { <span class='ident'>f32_rand_impls</span>, <span class='ident'>f32</span>, <span class='number'>24</span>, <span class='ident'>next_f32</span> }
+<span class="macro">float_impls</span><span class="macro">!</span> { <span class="ident">f64_rand_impls</span>, <span class="ident">f64</span>, <span class="number">53</span>, <span class="ident">next_f64</span> }
+<span class="macro">float_impls</span><span class="macro">!</span> { <span class="ident">f32_rand_impls</span>, <span class="ident">f32</span>, <span class="number">24</span>, <span class="ident">next_f32</span> }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>char</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>char</span> {
-        <span class='comment'>// a char is 21 bits</span>
-        <span class='kw'>const</span> <span class='ident'>CHAR_MASK</span>: <span class='ident'>u32</span> <span class='op'>=</span> <span class='number'>0x001f_ffff</span>;
-        <span class='kw'>loop</span> {
-            <span class='comment'>// Rejection sampling. About 0.2% of numbers with at most</span>
-            <span class='comment'>// 21-bits are invalid codepoints (surrogates), so this</span>
-            <span class='comment'>// will succeed first go almost every time.</span>
-            <span class='kw'>match</span> <span class='ident'>char</span>::<span class='ident'>from_u32</span>(<span class='ident'>rng</span>.<span class='ident'>next_u32</span>() <span class='kw-2'>&amp;</span> <span class='ident'>CHAR_MASK</span>) {
-                <span class='prelude-val'>Some</span>(<span class='ident'>c</span>) <span class='op'>=&gt;</span> <span class='kw'>return</span> <span class='ident'>c</span>,
-                <span class='prelude-val'>None</span> <span class='op'>=&gt;</span> {}
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">char</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">char</span> {
+        <span class="comment">// a char is 21 bits</span>
+        <span class="kw">const</span> <span class="ident">CHAR_MASK</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">0x001f_ffff</span>;
+        <span class="kw">loop</span> {
+            <span class="comment">// Rejection sampling. About 0.2% of numbers with at most</span>
+            <span class="comment">// 21-bits are invalid codepoints (surrogates), so this</span>
+            <span class="comment">// will succeed first go almost every time.</span>
+            <span class="kw">match</span> <span class="ident">char</span>::<span class="ident">from_u32</span>(<span class="ident">rng</span>.<span class="ident">next_u32</span>() <span class="op">&amp;</span> <span class="ident">CHAR_MASK</span>) {
+                <span class="prelude-val">Some</span>(<span class="ident">c</span>) <span class="op">=&gt;</span> <span class="kw">return</span> <span class="ident">c</span>,
+                <span class="prelude-val">None</span> <span class="op">=&gt;</span> {}
             }
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='ident'>bool</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>() <span class='kw-2'>&amp;</span> <span class='number'>1</span> <span class='op'>==</span> <span class='number'>1</span>
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="ident">bool</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>() <span class="op">&amp;</span> <span class="number">1</span> <span class="op">==</span> <span class="number">1</span>
     }
 }
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>tuple_impl</span> {
-    <span class='comment'>// use variables to indicate the arity of the tuple</span>
-    ($(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>tyvar</span>:<span class='ident'>ident</span>),<span class='op'>*</span> ) <span class='op'>=&gt;</span> {
-        <span class='comment'>// the trailing commas are for the 1 tuple</span>
-        <span class='kw'>impl</span><span class='op'>&lt;</span>
-            $( <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>tyvar</span> : <span class='ident'>Rand</span> ),<span class='op'>*</span>
-            <span class='op'>&gt;</span> <span class='ident'>Rand</span> <span class='kw'>for</span> ( $( <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>tyvar</span> ),<span class='op'>*</span> , ) {
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">tuple_impl</span> {
+    <span class="comment">// use variables to indicate the arity of the tuple</span>
+    ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">tyvar</span>:<span class="ident">ident</span>),<span class="op">*</span> ) <span class="op">=&gt;</span> {
+        <span class="comment">// the trailing commas are for the 1 tuple</span>
+        <span class="kw">impl</span><span class="op">&lt;</span>
+            $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tyvar</span> : <span class="ident">Rand</span> ),<span class="op">*</span>
+            <span class="op">&gt;</span> <span class="ident">Rand</span> <span class="kw">for</span> ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tyvar</span> ),<span class="op">*</span> , ) {
 
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>_rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> ( $( <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>tyvar</span> ),<span class='op'>*</span> , ) {
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> ( $( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">tyvar</span> ),<span class="op">*</span> , ) {
                 (
-                    <span class='comment'>// use the $tyvar&#39;s to get the appropriate number of</span>
-                    <span class='comment'>// repeats (they&#39;re not actually needed)</span>
+                    <span class="comment">// use the $tyvar&#39;s to get the appropriate number of</span>
+                    <span class="comment">// repeats (they&#39;re not actually needed)</span>
                     $(
-                        <span class='ident'>_rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>tyvar</span><span class='op'>&gt;</span>()
-                    ),<span class='op'>*</span>
+                        <span class="ident">_rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">tyvar</span><span class="op">&gt;</span>()
+                    ),<span class="op">*</span>
                     ,
                 )
             }
@@ -509,102 +545,102 @@
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Rand</span> <span class='kw'>for</span> () {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(_: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> () { () }
+<span class="kw">impl</span> <span class="ident">Rand</span> <span class="kw">for</span> () {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(_: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> () { () }
 }
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>, <span class='ident'>F</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>, <span class='ident'>F</span>, <span class='ident'>G</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>, <span class='ident'>F</span>, <span class='ident'>G</span>, <span class='ident'>H</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>, <span class='ident'>F</span>, <span class='ident'>G</span>, <span class='ident'>H</span>, <span class='ident'>I</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>, <span class='ident'>F</span>, <span class='ident'>G</span>, <span class='ident'>H</span>, <span class='ident'>I</span>, <span class='ident'>J</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>, <span class='ident'>F</span>, <span class='ident'>G</span>, <span class='ident'>H</span>, <span class='ident'>I</span>, <span class='ident'>J</span>, <span class='ident'>K</span>}
-<span class='macro'>tuple_impl</span><span class='macro'>!</span>{<span class='ident'>A</span>, <span class='ident'>B</span>, <span class='ident'>C</span>, <span class='ident'>D</span>, <span class='ident'>E</span>, <span class='ident'>F</span>, <span class='ident'>G</span>, <span class='ident'>H</span>, <span class='ident'>I</span>, <span class='ident'>J</span>, <span class='ident'>K</span>, <span class='ident'>L</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>}
+<span class="macro">tuple_impl</span><span class="macro">!</span>{<span class="ident">A</span>, <span class="ident">B</span>, <span class="ident">C</span>, <span class="ident">D</span>, <span class="ident">E</span>, <span class="ident">F</span>, <span class="ident">G</span>, <span class="ident">H</span>, <span class="ident">I</span>, <span class="ident">J</span>, <span class="ident">K</span>, <span class="ident">L</span>}
 
-<span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>array_impl</span> {
-    {<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span>:<span class='ident'>ident</span>, $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ts</span>:<span class='ident'>ident</span>,)<span class='op'>*</span>} <span class='op'>=&gt;</span> {
-        <span class='macro'>array_impl</span><span class='macro'>!</span>{(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span> <span class='op'>-</span> <span class='number'>1</span>), $(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ts</span>,)<span class='op'>*</span>}
+<span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">array_impl</span> {
+    {<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ident</span>, $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ts</span>:<span class="ident">ident</span>,)<span class="kw-2">*</span>} <span class="op">=&gt;</span> {
+        <span class="macro">array_impl</span><span class="macro">!</span>{(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span> <span class="op">-</span> <span class="number">1</span>), $(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">ts</span>,)<span class="kw-2">*</span>}
 
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>Rand</span> <span class='kw'>for</span> [<span class='ident'>T</span>; <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>] <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>Rand</span> {
-            <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-            <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>_rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> [<span class='ident'>T</span>; <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>] {
-                [<span class='ident'>_rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>t</span><span class='op'>&gt;</span>(), $(<span class='ident'>_rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>ts</span><span class='op'>&gt;</span>()),<span class='op'>*</span>]
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Rand</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>] <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Rand</span> {
+            <span class="attribute">#[<span class="ident">inline</span>]</span>
+            <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>] {
+                [<span class="ident">_rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span><span class="op">&gt;</span>(), $(<span class="ident">_rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="macro-nonterminal">$</span><span class="macro-nonterminal">ts</span><span class="op">&gt;</span>()),<span class="kw-2">*</span>]
             }
         }
     };
-    {<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>:<span class='ident'>expr</span>,} <span class='op'>=&gt;</span> {
-        <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>Rand</span> <span class='kw'>for</span> [<span class='ident'>T</span>; <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>] {
-            <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>_rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> [<span class='ident'>T</span>; <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>n</span>] { [] }
+    {<span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>:<span class="ident">expr</span>,} <span class="op">=&gt;</span> {
+        <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Rand</span> <span class="kw">for</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>] {
+            <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> [<span class="ident">T</span>; <span class="macro-nonterminal">$</span><span class="macro-nonterminal">n</span>] { [] }
         }
     };
 }
 
-<span class='macro'>array_impl</span><span class='macro'>!</span>{<span class='number'>32</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>, <span class='ident'>T</span>,}
+<span class="macro">array_impl</span><span class="macro">!</span>{<span class="number">32</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>, <span class="ident">T</span>,}
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span>:<span class='ident'>Rand</span><span class='op'>&gt;</span> <span class='ident'>Rand</span> <span class='kw'>for</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span><span class='op'>&gt;</span>(<span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='kw'>if</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>() {
-            <span class='prelude-val'>Some</span>(<span class='ident'>rng</span>.<span class='ident'>gen</span>())
-        } <span class='kw'>else</span> {
-            <span class='prelude-val'>None</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>:<span class="ident">Rand</span><span class="op">&gt;</span> <span class="ident">Rand</span> <span class="kw">for</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span><span class="op">&gt;</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">rng</span>.<span class="ident">gen</span>() {
+            <span class="prelude-val">Some</span>(<span class="ident">rng</span>.<span class="ident">gen</span>())
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
         }
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>tests</span> {
-    <span class='kw'>use</span> {<span class='ident'>Rng</span>, <span class='ident'>thread_rng</span>, <span class='ident'>Open01</span>, <span class='ident'>Closed01</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> {<span class="ident">Rng</span>, <span class="ident">thread_rng</span>, <span class="ident">Open01</span>, <span class="ident">Closed01</span>};
 
-    <span class='kw'>struct</span> <span class='ident'>ConstantRng</span>(<span class='ident'>u64</span>);
-    <span class='kw'>impl</span> <span class='ident'>Rng</span> <span class='kw'>for</span> <span class='ident'>ConstantRng</span> {
-        <span class='kw'>fn</span> <span class='ident'>next_u32</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u32</span> {
-            <span class='kw'>let</span> <span class='ident'>ConstantRng</span>(<span class='ident'>v</span>) <span class='op'>=</span> <span class='op'>*</span><span class='self'>self</span>;
-            <span class='ident'>v</span> <span class='kw'>as</span> <span class='ident'>u32</span>
+    <span class="kw">struct</span> <span class="ident">ConstantRng</span>(<span class="ident">u64</span>);
+    <span class="kw">impl</span> <span class="ident">Rng</span> <span class="kw">for</span> <span class="ident">ConstantRng</span> {
+        <span class="kw">fn</span> <span class="ident">next_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
+            <span class="kw">let</span> <span class="ident">ConstantRng</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>;
+            <span class="ident">v</span> <span class="kw">as</span> <span class="ident">u32</span>
         }
-        <span class='kw'>fn</span> <span class='ident'>next_u64</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
-            <span class='kw'>let</span> <span class='ident'>ConstantRng</span>(<span class='ident'>v</span>) <span class='op'>=</span> <span class='op'>*</span><span class='self'>self</span>;
-            <span class='ident'>v</span>
-        }
-    }
-
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>floating_point_edge_cases</span>() {
-        <span class='comment'>// the test for exact equality is correct here.</span>
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>ConstantRng</span>(<span class='number'>0xffff_ffff</span>).<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;</span>() <span class='op'>!=</span> <span class='number'>1.0</span>);
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>ConstantRng</span>(<span class='number'>0xffff_ffff_ffff_ffff</span>).<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;</span>() <span class='op'>!=</span> <span class='number'>1.0</span>);
-    }
-
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand_open</span>() {
-        <span class='comment'>// this is unlikely to catch an incorrect implementation that</span>
-        <span class='comment'>// generates exactly 0 or 1, but it keeps it sane.</span>
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> <span class='ident'>thread_rng</span>();
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1_000</span> {
-            <span class='comment'>// strict inequalities</span>
-            <span class='kw'>let</span> <span class='ident'>Open01</span>(<span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>Open01</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span>();
-            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='number'>0.0</span> <span class='op'>&lt;</span> <span class='ident'>f</span> <span class='op'>&amp;&amp;</span> <span class='ident'>f</span> <span class='op'>&lt;</span> <span class='number'>1.0</span>);
-
-            <span class='kw'>let</span> <span class='ident'>Open01</span>(<span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>Open01</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;&gt;</span>();
-            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='number'>0.0</span> <span class='op'>&lt;</span> <span class='ident'>f</span> <span class='op'>&amp;&amp;</span> <span class='ident'>f</span> <span class='op'>&lt;</span> <span class='number'>1.0</span>);
+        <span class="kw">fn</span> <span class="ident">next_u64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> {
+            <span class="kw">let</span> <span class="ident">ConstantRng</span>(<span class="ident">v</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span>;
+            <span class="ident">v</span>
         }
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>rand_closed</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rng</span> <span class='op'>=</span> <span class='ident'>thread_rng</span>();
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1_000</span> {
-            <span class='comment'>// strict inequalities</span>
-            <span class='kw'>let</span> <span class='ident'>Closed01</span>(<span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>Closed01</span><span class='op'>&lt;</span><span class='ident'>f64</span><span class='op'>&gt;&gt;</span>();
-            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='number'>0.0</span> <span class='op'>&lt;=</span> <span class='ident'>f</span> <span class='op'>&amp;&amp;</span> <span class='ident'>f</span> <span class='op'>&lt;=</span> <span class='number'>1.0</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">floating_point_edge_cases</span>() {
+        <span class="comment">// the test for exact equality is correct here.</span>
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">ConstantRng</span>(<span class="number">0xffff_ffff</span>).<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>() <span class="op">!=</span> <span class="number">1.0</span>);
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">ConstantRng</span>(<span class="number">0xffff_ffff_ffff_ffff</span>).<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>() <span class="op">!=</span> <span class="number">1.0</span>);
+    }
 
-            <span class='kw'>let</span> <span class='ident'>Closed01</span>(<span class='ident'>f</span>) <span class='op'>=</span> <span class='ident'>rng</span>.<span class='ident'>gen</span>::<span class='op'>&lt;</span><span class='ident'>Closed01</span><span class='op'>&lt;</span><span class='ident'>f32</span><span class='op'>&gt;&gt;</span>();
-            <span class='macro'>assert</span><span class='macro'>!</span>(<span class='number'>0.0</span> <span class='op'>&lt;=</span> <span class='ident'>f</span> <span class='op'>&amp;&amp;</span> <span class='ident'>f</span> <span class='op'>&lt;=</span> <span class='number'>1.0</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand_open</span>() {
+        <span class="comment">// this is unlikely to catch an incorrect implementation that</span>
+        <span class="comment">// generates exactly 0 or 1, but it keeps it sane.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">thread_rng</span>();
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1_000</span> {
+            <span class="comment">// strict inequalities</span>
+            <span class="kw">let</span> <span class="ident">Open01</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">Open01</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;&gt;</span>();
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="number">0.0</span> <span class="op">&lt;</span> <span class="ident">f</span> <span class="op">&amp;&amp;</span> <span class="ident">f</span> <span class="op">&lt;</span> <span class="number">1.0</span>);
+
+            <span class="kw">let</span> <span class="ident">Open01</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">Open01</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;&gt;</span>();
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="number">0.0</span> <span class="op">&lt;</span> <span class="ident">f</span> <span class="op">&amp;&amp;</span> <span class="ident">f</span> <span class="op">&lt;</span> <span class="number">1.0</span>);
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">rand_closed</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">thread_rng</span>();
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1_000</span> {
+            <span class="comment">// strict inequalities</span>
+            <span class="kw">let</span> <span class="ident">Closed01</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">Closed01</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;&gt;</span>();
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="number">0.0</span> <span class="op">&lt;=</span> <span class="ident">f</span> <span class="op">&amp;&amp;</span> <span class="ident">f</span> <span class="op">&lt;=</span> <span class="number">1.0</span>);
+
+            <span class="kw">let</span> <span class="ident">Closed01</span>(<span class="ident">f</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>::<span class="op">&lt;</span><span class="ident">Closed01</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;&gt;</span>();
+            <span class="macro">assert</span><span class="macro">!</span>(<span class="number">0.0</span> <span class="op">&lt;=</span> <span class="ident">f</span> <span class="op">&amp;&amp;</span> <span class="ident">f</span> <span class="op">&lt;=</span> <span class="number">1.0</span>);
         }
     }
 }
@@ -626,12 +662,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -652,7 +692,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -663,11 +703,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "rand";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Stacking",""]],"struct":[["SubSurface","A wayland subsurface."]]});

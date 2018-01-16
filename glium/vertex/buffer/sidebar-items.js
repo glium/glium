@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["CreationError","Error that can happen when creating a vertex buffer."]],"struct":[["VertexBuffer","A list of vertices loaded in the graphics card's memory."],["VertexBufferAny","A list of vertices loaded in the graphics card's memory."],["VertexBufferSlice","Represents a slice of a `VertexBuffer`."]]});

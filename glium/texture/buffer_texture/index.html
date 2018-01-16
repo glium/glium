@@ -9,13 +9,15 @@
 
     <title>glium::texture::buffer_texture - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'buffer_texture', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module buffer_texture</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li></ul></div><p class='location'><a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'buffer_texture', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,12 +43,12 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a class='mod' href=''>buffer_texture</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-10099' class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#1-720' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>glium</a>::<wbr><a href='../index.html'>texture</a>::<wbr><a class="mod" href=''>buffer_texture</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/glium/texture/buffer_texture.rs.html#1-768' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>A <code>BufferTexture</code> is a special kind of one-dimensional texture that gets its data from a buffer.
 Buffer textures have very limited capabilities compared to other texture types.</p>
 
@@ -99,70 +101,58 @@ to sample from a buffer texture of type <code>Unsigned</code> you need to use a 
 wrong type will result in an error.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.BufferTexture.html'
-                               title='glium::texture::buffer_texture::BufferTexture'>BufferTexture</a></td>
-                        <td class='docblock short'>
-                             <p>A one-dimensional texture that gets its data from a buffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.BufferTextureRef.html'
-                               title='glium::texture::buffer_texture::BufferTextureRef'>BufferTextureRef</a></td>
-                        <td class='docblock short'>
-                             <p>Holds a reference to a <code>BufferTexture</code>.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.BufferTexture.html"
+                                  title='struct glium::texture::buffer_texture::BufferTexture'>BufferTexture</a></td>
+                           <td class='docblock-short'>
+                                <p>A one-dimensional texture that gets its data from a buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.BufferTextureRef.html"
+                                  title='struct glium::texture::buffer_texture::BufferTextureRef'>BufferTextureRef</a></td>
+                           <td class='docblock-short'>
+                                <p>Holds a reference to a <code>BufferTexture</code>.</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.BufferTextureType.html'
-                               title='glium::texture::buffer_texture::BufferTextureType'>BufferTextureType</a></td>
-                        <td class='docblock short'>
-                             <p>Type of a buffer texture.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.CreationError.html'
-                               title='glium::texture::buffer_texture::CreationError'>CreationError</a></td>
-                        <td class='docblock short'>
-                             <p>Error that can happen while building a buffer texture.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.TextureBufferContentType.html'
-                               title='glium::texture::buffer_texture::TextureBufferContentType'>TextureBufferContentType</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.TextureCreationError.html'
-                               title='glium::texture::buffer_texture::TextureCreationError'>TextureCreationError</a></td>
-                        <td class='docblock short'>
-                             <p>Error that can happen while building the texture part of a buffer texture.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.BufferTextureType.html"
+                                  title='enum glium::texture::buffer_texture::BufferTextureType'>BufferTextureType</a></td>
+                           <td class='docblock-short'>
+                                <p>Type of a buffer texture.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.CreationError.html"
+                                  title='enum glium::texture::buffer_texture::CreationError'>CreationError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error that can happen while building a buffer texture.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.TextureBufferContentType.html"
+                                  title='enum glium::texture::buffer_texture::TextureBufferContentType'>TextureBufferContentType</a></td>
+                           <td class='docblock-short'>
+                                <p>Note that some three-component types are missing. This is not a mistake. OpenGL doesn&#39;t
+support them.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.TextureCreationError.html"
+                                  title='enum glium::texture::buffer_texture::TextureCreationError'>TextureCreationError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error that can happen while building the texture part of a buffer texture.</p>
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.TextureBufferContent.html'
-                               title='glium::texture::buffer_texture::TextureBufferContent'>TextureBufferContent</a></td>
-                        <td class='docblock short'>
-                             <p>Trait for data types that can be interpreted by a buffer texture.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.TextureBufferContent.html"
+                                  title='trait glium::texture::buffer_texture::TextureBufferContent'>TextureBufferContent</a></td>
+                           <td class='docblock-short'>
+                                <p>Trait for data types that can be interpreted by a buffer texture.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -179,12 +169,16 @@ wrong type will result in an error.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -205,7 +199,7 @@ wrong type will result in an error.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -216,11 +210,8 @@ wrong type will result in an error.</p>
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

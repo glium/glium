@@ -9,13 +9,15 @@
 
     <title>version.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -204,168 +206,168 @@
 <span id="161">161</span>
 <span id="162">162</span>
 <span id="163">163</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>cmp</span>::<span class='ident'>Ordering</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ffi</span>::<span class='ident'>CStr</span>;
-<span class='kw'>use</span> <span class='ident'>gl</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">cmp</span>::<span class="ident">Ordering</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ffi</span>::<span class="ident">CStr</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
 
-<span class='doccomment'>/// Describes a version.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// A version can only be compared to another version if they belong to the same API.</span>
-<span class='doccomment'>/// For example, both `Version(Gl, 3, 0) &gt;= Version(GlEs, 3, 0)` and `Version(GlEs, 3, 0) &gt;= </span>
-<span class='doccomment'>/// Version(Gl, 3, 0)` return `false`.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Version</span>(<span class='kw'>pub</span> <span class='ident'>Api</span>, <span class='kw'>pub</span> <span class='ident'>u8</span>, <span class='kw'>pub</span> <span class='ident'>u8</span>);
+<span class="doccomment">/// Describes a version.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// A version can only be compared to another version if they belong to the same API.</span>
+<span class="doccomment">/// For example, both `Version(Gl, 3, 0) &gt;= Version(GlEs, 3, 0)` and `Version(GlEs, 3, 0) &gt;= </span>
+<span class="doccomment">/// Version(Gl, 3, 0)` return `false`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Version</span>(<span class="kw">pub</span> <span class="ident">Api</span>, <span class="kw">pub</span> <span class="ident">u8</span>, <span class="kw">pub</span> <span class="ident">u8</span>);
 
-<span class='doccomment'>/// Describes an OpenGL-related API.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>Api</span> {
-    <span class='doccomment'>/// Regular OpenGL.</span>
-    <span class='ident'>Gl</span>,
-    <span class='doccomment'>/// OpenGL embedded system.</span>
-    <span class='ident'>GlEs</span>,
+<span class="doccomment">/// Describes an OpenGL-related API.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Api</span> {
+    <span class="doccomment">/// Regular OpenGL.</span>
+    <span class="ident">Gl</span>,
+    <span class="doccomment">/// OpenGL embedded system.</span>
+    <span class="ident">GlEs</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>PartialOrd</span> <span class='kw'>for</span> <span class='ident'>Version</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>partial_cmp</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>Version</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Ordering</span><span class='op'>&gt;</span> {
-        <span class='kw'>if</span> <span class='self'>self</span>.<span class='number'>0</span> <span class='op'>!=</span> <span class='ident'>other</span>.<span class='number'>0</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>None</span>;
+<span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">Version</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Version</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span> <span class="op">!=</span> <span class="ident">other</span>.<span class="number">0</span> {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>1</span>.<span class='ident'>cmp</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='number'>1</span>) {
-            <span class='ident'>Ordering</span>::<span class='ident'>Equal</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='self'>self</span>.<span class='number'>2</span>.<span class='ident'>cmp</span>(<span class='kw-2'>&amp;</span><span class='ident'>other</span>.<span class='number'>2</span>)),
-            <span class='ident'>a</span> <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>a</span>)
+        <span class="kw">match</span> <span class="self">self</span>.<span class="number">1</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="number">1</span>) {
+            <span class="ident">Ordering</span>::<span class="ident">Equal</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="number">2</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="number">2</span>)),
+            <span class="ident">a</span> <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>)
         }
     }
 }
 
-<span class='doccomment'>/// Obtains the OpenGL version of the current context using the loaded functions.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Unsafe</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// You must ensure that the functions belong to the current context, otherwise you will get</span>
-<span class='doccomment'>/// an undefined behavior.</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_gl_version</span>(<span class='ident'>gl</span>: <span class='kw-2'>&amp;</span><span class='ident'>gl</span>::<span class='ident'>Gl</span>) <span class='op'>-&gt;</span> <span class='ident'>Version</span> {
-    <span class='kw'>let</span> <span class='ident'>version</span> <span class='op'>=</span> <span class='ident'>gl</span>.<span class='ident'>GetString</span>(<span class='ident'>gl</span>::<span class='ident'>VERSION</span>) <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>i8</span>;
-    <span class='kw'>let</span> <span class='ident'>version</span> <span class='op'>=</span> <span class='ident'>String</span>::<span class='ident'>from_utf8</span>(<span class='ident'>CStr</span>::<span class='ident'>from_ptr</span>(<span class='ident'>version</span>).<span class='ident'>to_bytes</span>().<span class='ident'>to_vec</span>()).<span class='ident'>unwrap</span>();
+<span class="doccomment">/// Obtains the OpenGL version of the current context using the loaded functions.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Unsafe</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// You must ensure that the functions belong to the current context, otherwise you will get</span>
+<span class="doccomment">/// an undefined behavior.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_gl_version</span>(<span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">gl</span>::<span class="ident">Gl</span>) <span class="op">-&gt;</span> <span class="ident">Version</span> {
+    <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">gl</span>.<span class="ident">GetString</span>(<span class="ident">gl</span>::<span class="ident">VERSION</span>);
+    <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">String</span>::<span class="ident">from_utf8</span>(<span class="ident">CStr</span>::<span class="ident">from_ptr</span>(<span class="ident">version</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> _).<span class="ident">to_bytes</span>().<span class="ident">to_vec</span>()).<span class="ident">unwrap</span>();
 
-    <span class='comment'>// for the moment we mock WebGL as OpenGL ES 2.0</span>
-    <span class='comment'>// TODO: handle the differences between WebGL and OpenGL ES</span>
-    <span class='kw'>if</span> <span class='ident'>version</span>.<span class='ident'>starts_with</span>(<span class='string'>&quot;WebGL &quot;</span>) {
-        <span class='kw'>return</span> <span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>2</span>, <span class='number'>0</span>);
+    <span class="comment">// for the moment we mock WebGL as OpenGL ES 2.0</span>
+    <span class="comment">// TODO: handle the differences between WebGL and OpenGL ES</span>
+    <span class="kw">if</span> <span class="ident">version</span>.<span class="ident">starts_with</span>(<span class="string">&quot;WebGL &quot;</span>) {
+        <span class="kw">return</span> <span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">2</span>, <span class="number">0</span>);
     }
 
-    <span class='kw'>let</span> (<span class='ident'>version</span>, <span class='ident'>api</span>) <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>version</span>.<span class='ident'>starts_with</span>(<span class='string'>&quot;OpenGL ES &quot;</span>) {
-        (<span class='kw-2'>&amp;</span><span class='ident'>version</span>[<span class='number'>10</span>..], <span class='ident'>Api</span>::<span class='ident'>GlEs</span>)
-    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>version</span>.<span class='ident'>starts_with</span>(<span class='string'>&quot;OpenGL ES-&quot;</span>) {
-        (<span class='kw-2'>&amp;</span><span class='ident'>version</span>[<span class='number'>13</span>..], <span class='ident'>Api</span>::<span class='ident'>GlEs</span>)
-    } <span class='kw'>else</span> {
-        (<span class='kw-2'>&amp;</span><span class='ident'>version</span>[..], <span class='ident'>Api</span>::<span class='ident'>Gl</span>)
+    <span class="kw">let</span> (<span class="ident">version</span>, <span class="ident">api</span>) <span class="op">=</span> <span class="kw">if</span> <span class="ident">version</span>.<span class="ident">starts_with</span>(<span class="string">&quot;OpenGL ES &quot;</span>) {
+        (<span class="kw-2">&amp;</span><span class="ident">version</span>[<span class="number">10</span>..], <span class="ident">Api</span>::<span class="ident">GlEs</span>)
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">version</span>.<span class="ident">starts_with</span>(<span class="string">&quot;OpenGL ES-&quot;</span>) {
+        (<span class="kw-2">&amp;</span><span class="ident">version</span>[<span class="number">13</span>..], <span class="ident">Api</span>::<span class="ident">GlEs</span>)
+    } <span class="kw">else</span> {
+        (<span class="kw-2">&amp;</span><span class="ident">version</span>[..], <span class="ident">Api</span>::<span class="ident">Gl</span>)
     };
 
-    <span class='kw'>let</span> <span class='ident'>version</span> <span class='op'>=</span> <span class='ident'>version</span>.<span class='ident'>split</span>(<span class='string'>&#39; &#39;</span>).<span class='ident'>next</span>().<span class='ident'>expect</span>(<span class='string'>&quot;glGetString(GL_VERSION) returned an empty \
+    <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="ident">version</span>.<span class="ident">split</span>(<span class="string">&#39; &#39;</span>).<span class="ident">next</span>().<span class="ident">expect</span>(<span class="string">&quot;glGetString(GL_VERSION) returned an empty \
                                                     string&quot;</span>);
 
-    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>iter</span> <span class='op'>=</span> <span class='ident'>version</span>.<span class='ident'>split</span>(<span class='kw'>move</span> <span class='op'>|</span><span class='ident'>c</span>: <span class='ident'>char</span><span class='op'>|</span> <span class='ident'>c</span> <span class='op'>==</span> <span class='string'>&#39;.&#39;</span>);
-    <span class='kw'>let</span> <span class='ident'>major</span> <span class='op'>=</span> <span class='ident'>iter</span>.<span class='ident'>next</span>().<span class='ident'>unwrap</span>();
-    <span class='kw'>let</span> <span class='ident'>minor</span> <span class='op'>=</span> <span class='ident'>iter</span>.<span class='ident'>next</span>().<span class='ident'>expect</span>(<span class='string'>&quot;glGetString(GL_VERSION) did not return a correct version&quot;</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">iter</span> <span class="op">=</span> <span class="ident">version</span>.<span class="ident">split</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">c</span>: <span class="ident">char</span><span class="op">|</span> <span class="ident">c</span> <span class="op">==</span> <span class="string">&#39;.&#39;</span>);
+    <span class="kw">let</span> <span class="ident">major</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">minor</span> <span class="op">=</span> <span class="ident">iter</span>.<span class="ident">next</span>().<span class="ident">expect</span>(<span class="string">&quot;glGetString(GL_VERSION) did not return a correct version&quot;</span>);
 
-    <span class='ident'>Version</span>(
-        <span class='ident'>api</span>,
-        <span class='ident'>major</span>.<span class='ident'>parse</span>().<span class='ident'>ok</span>().<span class='ident'>expect</span>(<span class='string'>&quot;failed to parse GL major version&quot;</span>),
-        <span class='ident'>minor</span>.<span class='ident'>parse</span>().<span class='ident'>ok</span>().<span class='ident'>expect</span>(<span class='string'>&quot;failed to parse GL minor version&quot;</span>),
+    <span class="ident">Version</span>(
+        <span class="ident">api</span>,
+        <span class="ident">major</span>.<span class="ident">parse</span>().<span class="ident">ok</span>().<span class="ident">expect</span>(<span class="string">&quot;failed to parse GL major version&quot;</span>),
+        <span class="ident">minor</span>.<span class="ident">parse</span>().<span class="ident">ok</span>().<span class="ident">expect</span>(<span class="string">&quot;failed to parse GL minor version&quot;</span>),
     )
 }
 
-<span class='doccomment'>/// Given an API version, this function returns the GLSL version that the implementation is</span>
-<span class='doccomment'>/// required to support.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Panic</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Panics if the version is invalid or is not supposed to support a GLSL version.</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_supported_glsl_version</span>(<span class='ident'>gl_version</span>: <span class='kw-2'>&amp;</span><span class='ident'>Version</span>) <span class='op'>-&gt;</span> <span class='ident'>Version</span> {
-    <span class='kw'>match</span> <span class='ident'>gl_version</span>.<span class='number'>0</span> {
-        <span class='ident'>Api</span>::<span class='ident'>Gl</span> <span class='op'>=&gt;</span> {
-            <span class='comment'>// since OpenGL 3.3: glsl versions match gl version, just return a copy</span>
-            <span class='kw'>if</span> <span class='op'>*</span><span class='ident'>gl_version</span> <span class='op'>&gt;=</span> <span class='ident'>Version</span>(<span class='ident'>gl_version</span>.<span class='number'>0</span>, <span class='number'>3</span>, <span class='number'>3</span>) {
-                <span class='kw'>return</span> <span class='op'>*</span><span class='ident'>gl_version</span>;
+<span class="doccomment">/// Given an API version, this function returns the GLSL version that the implementation is</span>
+<span class="doccomment">/// required to support.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Panic</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Panics if the version is invalid or is not supposed to support a GLSL version.</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_supported_glsl_version</span>(<span class="ident">gl_version</span>: <span class="kw-2">&amp;</span><span class="ident">Version</span>) <span class="op">-&gt;</span> <span class="ident">Version</span> {
+    <span class="kw">match</span> <span class="ident">gl_version</span>.<span class="number">0</span> {
+        <span class="ident">Api</span>::<span class="ident">Gl</span> <span class="op">=&gt;</span> {
+            <span class="comment">// since OpenGL 3.3: glsl versions match gl version, just return a copy</span>
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">gl_version</span> <span class="op">&gt;=</span> <span class="ident">Version</span>(<span class="ident">gl_version</span>.<span class="number">0</span>, <span class="number">3</span>, <span class="number">3</span>) {
+                <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">gl_version</span>;
             }
 
-            <span class='comment'>// match to detect invalid versions</span>
-            <span class='kw'>match</span> <span class='op'>*</span><span class='ident'>gl_version</span> {
-                <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>2</span>, <span class='number'>0</span>) <span class='op'>=&gt;</span> <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>1</span>, <span class='number'>1</span>),
-                <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>2</span>, <span class='number'>1</span>) <span class='op'>=&gt;</span> <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>1</span>, <span class='number'>2</span>),
-                <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>=&gt;</span> <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>1</span>, <span class='number'>3</span>),
-                <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>3</span>, <span class='number'>1</span>) <span class='op'>=&gt;</span> <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>1</span>, <span class='number'>4</span>),
-                <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>3</span>, <span class='number'>2</span>) <span class='op'>=&gt;</span> <span class='ident'>Version</span>(<span class='ident'>a</span>, <span class='number'>1</span>, <span class='number'>5</span>),
-                _ <span class='op'>=&gt;</span> <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;no corresponding glsl version exists&quot;</span>)
+            <span class="comment">// match to detect invalid versions</span>
+            <span class="kw">match</span> <span class="kw-2">*</span><span class="ident">gl_version</span> {
+                <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">2</span>, <span class="number">0</span>) <span class="op">=&gt;</span> <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">1</span>, <span class="number">1</span>),
+                <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">2</span>, <span class="number">1</span>) <span class="op">=&gt;</span> <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">1</span>, <span class="number">2</span>),
+                <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">=&gt;</span> <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">1</span>, <span class="number">3</span>),
+                <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">3</span>, <span class="number">1</span>) <span class="op">=&gt;</span> <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">1</span>, <span class="number">4</span>),
+                <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">3</span>, <span class="number">2</span>) <span class="op">=&gt;</span> <span class="ident">Version</span>(<span class="ident">a</span>, <span class="number">1</span>, <span class="number">5</span>),
+                _ <span class="op">=&gt;</span> <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;no corresponding glsl version exists&quot;</span>)
             }
         },
-        <span class='ident'>Api</span>::<span class='ident'>GlEs</span> <span class='op'>=&gt;</span> {
-            <span class='comment'>// since OpenGL ES 3.0: glsl versions match gl version, just return a copy</span>
-            <span class='kw'>if</span> <span class='op'>*</span><span class='ident'>gl_version</span> <span class='op'>&gt;=</span> <span class='ident'>Version</span>(<span class='ident'>gl_version</span>.<span class='number'>0</span>, <span class='number'>3</span>, <span class='number'>0</span>) {
-                <span class='kw'>return</span> <span class='op'>*</span><span class='ident'>gl_version</span>;
+        <span class="ident">Api</span>::<span class="ident">GlEs</span> <span class="op">=&gt;</span> {
+            <span class="comment">// since OpenGL ES 3.0: glsl versions match gl version, just return a copy</span>
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">gl_version</span> <span class="op">&gt;=</span> <span class="ident">Version</span>(<span class="ident">gl_version</span>.<span class="number">0</span>, <span class="number">3</span>, <span class="number">0</span>) {
+                <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">gl_version</span>;
             }
 
-            <span class='comment'>// only other valid GLES version is 2.0</span>
-            <span class='kw'>if</span> <span class='op'>*</span><span class='ident'>gl_version</span> <span class='op'>==</span> <span class='ident'>Version</span>(<span class='ident'>gl_version</span>.<span class='number'>0</span>, <span class='number'>2</span>, <span class='number'>0</span>){
-                <span class='kw'>return</span> <span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>1</span>, <span class='number'>0</span>);
-            } <span class='kw'>else</span> {
-                <span class='macro'>panic</span><span class='macro'>!</span>(<span class='string'>&quot;no corresponding glsl version exists&quot;</span>)
+            <span class="comment">// only other valid GLES version is 2.0</span>
+            <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">gl_version</span> <span class="op">==</span> <span class="ident">Version</span>(<span class="ident">gl_version</span>.<span class="number">0</span>, <span class="number">2</span>, <span class="number">0</span>){
+                <span class="kw">return</span> <span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">1</span>, <span class="number">0</span>);
+            } <span class="kw">else</span> {
+                <span class="macro">panic</span><span class="macro">!</span>(<span class="string">&quot;no corresponding glsl version exists&quot;</span>)
             }
         }
     }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>tests</span> {
-    <span class='kw'>use</span> <span class='ident'>super</span>::{<span class='ident'>Version</span>, <span class='ident'>Api</span>, <span class='ident'>get_supported_glsl_version</span>};
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">tests</span> {
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">Version</span>, <span class="ident">Api</span>, <span class="ident">get_supported_glsl_version</span>};
 
-    <span class='macro'>macro_rules</span><span class='macro'>!</span> <span class='ident'>assert_versions</span> {
-        ( <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>api</span>:<span class='ident'>path</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>gl_major</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>gl_minor</span>:<span class='ident'>expr</span> <span class='op'>=&gt;</span> <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>glsl_major</span>:<span class='ident'>expr</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>glsl_minor</span>:<span class='ident'>expr</span>) <span class='op'>=&gt;</span> {
-            <span class='macro'>assert_eq</span><span class='macro'>!</span>(
-                <span class='ident'>get_supported_glsl_version</span>(<span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>api</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>gl_major</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>gl_minor</span>)),
-                <span class='ident'>Version</span>(<span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>api</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>glsl_major</span>, <span class='macro-nonterminal'>$</span><span class='macro-nonterminal'>glsl_minor</span>)
+    <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">assert_versions</span> {
+        ( <span class="macro-nonterminal">$</span><span class="macro-nonterminal">api</span>:<span class="ident">path</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">gl_major</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">gl_minor</span>:<span class="ident">expr</span> <span class="op">=&gt;</span> <span class="macro-nonterminal">$</span><span class="macro-nonterminal">glsl_major</span>:<span class="ident">expr</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">glsl_minor</span>:<span class="ident">expr</span>) <span class="op">=&gt;</span> {
+            <span class="macro">assert_eq</span><span class="macro">!</span>(
+                <span class="ident">get_supported_glsl_version</span>(<span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">api</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">gl_major</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">gl_minor</span>)),
+                <span class="ident">Version</span>(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">api</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">glsl_major</span>, <span class="macro-nonterminal">$</span><span class="macro-nonterminal">glsl_minor</span>)
                     );
         }
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>valid_gl_versions</span>() {
-        <span class='comment'>// irregular versions</span>
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>2</span>, <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='number'>1</span>, <span class='number'>1</span>);
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>2</span>, <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='number'>1</span>, <span class='number'>2</span>);
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='number'>1</span>, <span class='number'>3</span>);
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='number'>1</span>, <span class='number'>4</span>);
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>2</span> <span class='op'>=&gt;</span> <span class='number'>1</span>, <span class='number'>5</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">valid_gl_versions</span>() {
+        <span class="comment">// irregular versions</span>
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">2</span>, <span class="number">0</span> <span class="op">=&gt;</span> <span class="number">1</span>, <span class="number">1</span>);
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">2</span>, <span class="number">1</span> <span class="op">=&gt;</span> <span class="number">1</span>, <span class="number">2</span>);
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span> <span class="op">=&gt;</span> <span class="number">1</span>, <span class="number">3</span>);
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">1</span> <span class="op">=&gt;</span> <span class="number">1</span>, <span class="number">4</span>);
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">2</span> <span class="op">=&gt;</span> <span class="number">1</span>, <span class="number">5</span>);
 
-        <span class='comment'>// test a few regular versions</span>
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>3</span> <span class='op'>=&gt;</span> <span class='number'>3</span>, <span class='number'>3</span>);
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>4</span>, <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='number'>4</span>, <span class='number'>0</span>);
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>4</span>, <span class='number'>5</span> <span class='op'>=&gt;</span> <span class='number'>4</span>, <span class='number'>5</span>);
+        <span class="comment">// test a few regular versions</span>
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">3</span> <span class="op">=&gt;</span> <span class="number">3</span>, <span class="number">3</span>);
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">4</span>, <span class="number">0</span> <span class="op">=&gt;</span> <span class="number">4</span>, <span class="number">0</span>);
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">4</span>, <span class="number">5</span> <span class="op">=&gt;</span> <span class="number">4</span>, <span class="number">5</span>);
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>valid_gles_versions</span>() {
-        <span class='comment'>// only irregular version</span>
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>2</span>, <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='number'>1</span>, <span class='number'>0</span>);
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">valid_gles_versions</span>() {
+        <span class="comment">// only irregular version</span>
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">2</span>, <span class="number">0</span> <span class="op">=&gt;</span> <span class="number">1</span>, <span class="number">0</span>);
 
-        <span class='comment'>// some regular versions</span>
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='number'>3</span>, <span class='number'>0</span>);
-        <span class='macro'>assert_versions</span><span class='macro'>!</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>1</span> <span class='op'>=&gt;</span> <span class='number'>3</span>, <span class='number'>1</span>);
+        <span class="comment">// some regular versions</span>
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span> <span class="op">=&gt;</span> <span class="number">3</span>, <span class="number">0</span>);
+        <span class="macro">assert_versions</span><span class="macro">!</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">1</span> <span class="op">=&gt;</span> <span class="number">3</span>, <span class="number">1</span>);
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>invalid_gl_version</span>() {
-        <span class='ident'>get_supported_glsl_version</span>(<span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>1</span>, <span class='number'>0</span>));
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">invalid_gl_version</span>() {
+        <span class="ident">get_supported_glsl_version</span>(<span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">1</span>, <span class="number">0</span>));
     }
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='attribute'>#[<span class='ident'>should_panic</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>invalid_gles_version</span>() {
-        <span class='ident'>get_supported_glsl_version</span>(<span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>1</span>, <span class='number'>0</span>));
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">should_panic</span>]</span>
+    <span class="kw">fn</span> <span class="ident">invalid_gles_version</span>() {
+        <span class="ident">get_supported_glsl_version</span>(<span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">1</span>, <span class="number">0</span>));
     }
 }
 </pre>
@@ -386,12 +388,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -412,7 +418,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -423,11 +429,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

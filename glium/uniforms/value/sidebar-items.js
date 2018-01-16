@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["UniformType","Type of a uniform in a program."],["UniformValue","Represents a value to bind to a uniform."]]});

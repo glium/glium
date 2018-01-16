@@ -9,13 +9,15 @@
 
     <title>glium::DrawError - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'DrawError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum DrawError</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.NoDepthBuffer">NoDepthBuffer</a><a href="#variant.AttributeTypeMismatch">AttributeTypeMismatch</a><a href="#variant.AttributeMissing">AttributeMissing</a><a href="#variant.ViewportTooLarge">ViewportTooLarge</a><a href="#variant.InvalidDepthRange">InvalidDepthRange</a><a href="#variant.UniformTypeMismatch">UniformTypeMismatch</a><a href="#variant.UniformBufferToValue">UniformBufferToValue</a><a href="#variant.UniformValueToBlock">UniformValueToBlock</a><a href="#variant.UniformBlockLayoutMismatch">UniformBlockLayoutMismatch</a><a href="#variant.SubroutineUniformToValue">SubroutineUniformToValue</a><a href="#variant.SubroutineUniformMissing">SubroutineUniformMissing</a><a href="#variant.SubroutineNotFound">SubroutineNotFound</a><a href="#variant.UnsupportedVerticesPerPatch">UnsupportedVerticesPerPatch</a><a href="#variant.TessellationNotSupported">TessellationNotSupported</a><a href="#variant.TessellationWithoutPatches">TessellationWithoutPatches</a><a href="#variant.SamplersNotSupported">SamplersNotSupported</a><a href="#variant.InstancesCountMismatch">InstancesCountMismatch</a><a href="#variant.VerticesSourcesLengthMismatch">VerticesSourcesLengthMismatch</a><a href="#variant.TransformFeedbackNotSupported">TransformFeedbackNotSupported</a><a href="#variant.WrongQueryOperation">WrongQueryOperation</a><a href="#variant.SmoothingNotSupported">SmoothingNotSupported</a><a href="#variant.ProvokingVertexNotSupported">ProvokingVertexNotSupported</a><a href="#variant.RasterizerDiscardNotSupported">RasterizerDiscardNotSupported</a><a href="#variant.DepthClampNotSupported">DepthClampNotSupported</a><a href="#variant.BlendingParameterNotSupported">BlendingParameterNotSupported</a><a href="#variant.FixedIndexRestartingNotSupported">FixedIndexRestartingNotSupported</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-Error">Error</a><a href="#impl-Display">Display</a></div></div><p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'DrawError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,12 +43,12 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>glium</a>::<wbr><a class='enum' href=''>DrawError</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-49243' class='srclink' href='../src/glium/lib.rs.html#816-902' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>glium</a>::<wbr><a class="enum" href=''>DrawError</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/glium/lib.rs.html#832-946' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum DrawError {
     NoDepthBuffer,
     AttributeTypeMismatch,
@@ -54,18 +56,30 @@
     ViewportTooLarge,
     InvalidDepthRange,
     UniformTypeMismatch {
-        name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-        expected: <a class='enum' href='../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a>,
+        name: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
+        expected: <a class="enum" href="../glium/uniforms/enum.UniformType.html" title="enum glium::uniforms::UniformType">UniformType</a>,
     },
     UniformBufferToValue {
-        name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+        name: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
     },
     UniformValueToBlock {
-        name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+        name: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
     },
     UniformBlockLayoutMismatch {
-        name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-        err: <a class='enum' href='../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a>,
+        name: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
+        err: <a class="enum" href="../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a>,
+    },
+    SubroutineUniformToValue {
+        name: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
+    },
+    SubroutineUniformMissing {
+        stage: <a class="enum" href="../glium/program/enum.ShaderStage.html" title="enum glium::program::ShaderStage">ShaderStage</a>,
+        expected_count: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        real_count: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+    },
+    SubroutineNotFound {
+        stage: <a class="enum" href="../glium/program/enum.ShaderStage.html" title="enum glium::program::ShaderStage">ShaderStage</a>,
+        name: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
     },
     UnsupportedVerticesPerPatch,
     TessellationNotSupported,
@@ -80,53 +94,87 @@
     RasterizerDiscardNotSupported,
     DepthClampNotSupported,
     BlendingParameterNotSupported,
+    FixedIndexRestartingNotSupported,
 }</pre><div class='docblock'><p>Error that can happen while drawing.</p>
-</div><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.NoDepthBuffer'><code>NoDepthBuffer</code></td><td><div class='docblock'><p>A depth function has been requested but no depth buffer is available.</p>
-</div></td></tr><tr><td id='variant.AttributeTypeMismatch'><code>AttributeTypeMismatch</code></td><td><div class='docblock'><p>The type of a vertex attribute in the vertices source doesn&#39;t match what the
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.NoDepthBuffer" class="variant small-section-header"><a href="#variant.NoDepthBuffer" class="anchor field"></a><span id='NoDepthBuffer.v' class='invisible'><code>NoDepthBuffer</code></span></span><div class='docblock'><p>A depth function has been requested but no depth buffer is available.</p>
+</div><span id="variant.AttributeTypeMismatch" class="variant small-section-header"><a href="#variant.AttributeTypeMismatch" class="anchor field"></a><span id='AttributeTypeMismatch.v' class='invisible'><code>AttributeTypeMismatch</code></span></span><div class='docblock'><p>The type of a vertex attribute in the vertices source doesn&#39;t match what the
 program requires.</p>
-</div></td></tr><tr><td id='variant.AttributeMissing'><code>AttributeMissing</code></td><td><div class='docblock'><p>One of the attributes required by the program is missing from the vertex format.</p>
+</div><span id="variant.AttributeMissing" class="variant small-section-header"><a href="#variant.AttributeMissing" class="anchor field"></a><span id='AttributeMissing.v' class='invisible'><code>AttributeMissing</code></span></span><div class='docblock'><p>One of the attributes required by the program is missing from the vertex format.</p>
 
 <p>Note that it is perfectly valid to have an attribute in the vertex format that is
 not used by the program.</p>
-</div></td></tr><tr><td id='variant.ViewportTooLarge'><code>ViewportTooLarge</code></td><td><div class='docblock'><p>The viewport&#39;s dimensions are not supported by the backend.</p>
-</div></td></tr><tr><td id='variant.InvalidDepthRange'><code>InvalidDepthRange</code></td><td><div class='docblock'><p>The depth range is outside of the <code>(0, 1)</code> range.</p>
-</div></td></tr><tr><td id='variant.UniformTypeMismatch'><code>UniformTypeMismatch</code></td><td><div class='docblock'><p>The type of a uniform doesn&#39;t match what the program requires.</p>
-</div><h3 class='fields'>Fields</h3>
+</div><span id="variant.ViewportTooLarge" class="variant small-section-header"><a href="#variant.ViewportTooLarge" class="anchor field"></a><span id='ViewportTooLarge.v' class='invisible'><code>ViewportTooLarge</code></span></span><div class='docblock'><p>The viewport&#39;s dimensions are not supported by the backend.</p>
+</div><span id="variant.InvalidDepthRange" class="variant small-section-header"><a href="#variant.InvalidDepthRange" class="anchor field"></a><span id='InvalidDepthRange.v' class='invisible'><code>InvalidDepthRange</code></span></span><div class='docblock'><p>The depth range is outside of the <code>(0, 1)</code> range.</p>
+</div><span id="variant.UniformTypeMismatch" class="variant small-section-header"><a href="#variant.UniformTypeMismatch" class="anchor field"></a><span id='UniformTypeMismatch.v' class='invisible'><code>UniformTypeMismatch</code></span></span><div class='docblock'><p>The type of a uniform doesn&#39;t match what the program requires.</p>
+</div><span class='docblock autohide sub-variant' id='variant.UniformTypeMismatch.fields'><h3 class='fields'>Fields of <code>UniformTypeMismatch</code></h3>
 
-                                              <table><tr><td id='variant.UniformTypeMismatch.field.name'><code>name</code></td><td><div class='docblock'><p>Name of the uniform you are trying to bind.</p>
-</div></td></tr><tr><td id='variant.UniformTypeMismatch.field.expected'><code>expected</code></td><td><div class='docblock'><p>The expected type.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.UniformBufferToValue'><code>UniformBufferToValue</code></td><td><div class='docblock'><p>Tried to bind a uniform buffer to a single uniform value.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.UniformTypeMismatch.field.name'><span id='UniformTypeMismatch.v.name.v' class='invisible'><code>name:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>Name of the uniform you are trying to bind.</p>
+</div></td></tr><tr><td id='variant.UniformTypeMismatch.field.expected'><span id='UniformTypeMismatch.v.expected.v' class='invisible'><code>expected:&nbsp;<a class="enum" href="../glium/uniforms/enum.UniformType.html" title="enum glium::uniforms::UniformType">UniformType</a></code></span></td><td><div class='docblock'><p>The expected type.</p>
+</div></td></tr></table></span><span id="variant.UniformBufferToValue" class="variant small-section-header"><a href="#variant.UniformBufferToValue" class="anchor field"></a><span id='UniformBufferToValue.v' class='invisible'><code>UniformBufferToValue</code></span></span><div class='docblock'><p>Tried to bind a uniform buffer to a single uniform value.</p>
+</div><span class='docblock autohide sub-variant' id='variant.UniformBufferToValue.fields'><h3 class='fields'>Fields of <code>UniformBufferToValue</code></h3>
 
-                                              <table><tr><td id='variant.UniformBufferToValue.field.name'><code>name</code></td><td><div class='docblock'><p>Name of the uniform you are trying to bind.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.UniformValueToBlock'><code>UniformValueToBlock</code></td><td><div class='docblock'><p>Tried to bind a single uniform value to a uniform block.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.UniformBufferToValue.field.name'><span id='UniformBufferToValue.v.name.v' class='invisible'><code>name:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>Name of the uniform you are trying to bind.</p>
+</div></td></tr></table></span><span id="variant.UniformValueToBlock" class="variant small-section-header"><a href="#variant.UniformValueToBlock" class="anchor field"></a><span id='UniformValueToBlock.v' class='invisible'><code>UniformValueToBlock</code></span></span><div class='docblock'><p>Tried to bind a single uniform value to a uniform block.</p>
+</div><span class='docblock autohide sub-variant' id='variant.UniformValueToBlock.fields'><h3 class='fields'>Fields of <code>UniformValueToBlock</code></h3>
 
-                                              <table><tr><td id='variant.UniformValueToBlock.field.name'><code>name</code></td><td><div class='docblock'><p>Name of the uniform you are trying to bind.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.UniformBlockLayoutMismatch'><code>UniformBlockLayoutMismatch</code></td><td><div class='docblock'><p>The layout of the content of the uniform buffer does not match the layout of the block.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.UniformValueToBlock.field.name'><span id='UniformValueToBlock.v.name.v' class='invisible'><code>name:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>Name of the uniform you are trying to bind.</p>
+</div></td></tr></table></span><span id="variant.UniformBlockLayoutMismatch" class="variant small-section-header"><a href="#variant.UniformBlockLayoutMismatch" class="anchor field"></a><span id='UniformBlockLayoutMismatch.v' class='invisible'><code>UniformBlockLayoutMismatch</code></span></span><div class='docblock'><p>The layout of the content of the uniform buffer does not match the layout of the block.</p>
+</div><span class='docblock autohide sub-variant' id='variant.UniformBlockLayoutMismatch.fields'><h3 class='fields'>Fields of <code>UniformBlockLayoutMismatch</code></h3>
 
-                                              <table><tr><td id='variant.UniformBlockLayoutMismatch.field.name'><code>name</code></td><td><div class='docblock'><p>Name of the block you are trying to bind.</p>
-</div></td></tr><tr><td id='variant.UniformBlockLayoutMismatch.field.err'><code>err</code></td><td><div class='docblock'><p>The error giving more details about the mismatch.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.UnsupportedVerticesPerPatch'><code>UnsupportedVerticesPerPatch</code></td><td><div class='docblock'><p>The number of vertices per patch that has been requested is not supported.</p>
-</div></td></tr><tr><td id='variant.TessellationNotSupported'><code>TessellationNotSupported</code></td><td><div class='docblock'><p>Trying to use tessellation, but this is not supported by the underlying hardware.</p>
-</div></td></tr><tr><td id='variant.TessellationWithoutPatches'><code>TessellationWithoutPatches</code></td><td><div class='docblock'><p>Using a program which contains tessellation shaders, but without submitting patches.</p>
-</div></td></tr><tr><td id='variant.SamplersNotSupported'><code>SamplersNotSupported</code></td><td><div class='docblock'><p>Trying to use a sampler, but they are not supported by the backend.</p>
-</div></td></tr><tr><td id='variant.InstancesCountMismatch'><code>InstancesCountMismatch</code></td><td><div class='docblock'><p>When you use instancing, all vertices sources must have the same size.</p>
-</div></td></tr><tr><td id='variant.VerticesSourcesLengthMismatch'><code>VerticesSourcesLengthMismatch</code></td><td><div class='docblock'><p>If you don&#39;t use indices, then all vertices sources must have the same size.</p>
-</div></td></tr><tr><td id='variant.TransformFeedbackNotSupported'><code>TransformFeedbackNotSupported</code></td><td><div class='docblock'><p>You requested not to draw primitives, but this is not supported by the backend.</p>
-</div></td></tr><tr><td id='variant.WrongQueryOperation'><code>WrongQueryOperation</code></td><td><div class='docblock'><p>See the documentation of the <code>draw_parameters</code> module for infos.</p>
-</div></td></tr><tr><td id='variant.SmoothingNotSupported'><code>SmoothingNotSupported</code></td><td><div class='docblock'><p>You requested smoothing, but this is not supported by the backend.</p>
-</div></td></tr><tr><td id='variant.ProvokingVertexNotSupported'><code>ProvokingVertexNotSupported</code></td><td><div class='docblock'><p>The requested provoking vertex is not supported by the backend.</p>
-</div></td></tr><tr><td id='variant.RasterizerDiscardNotSupported'><code>RasterizerDiscardNotSupported</code></td><td><div class='docblock'><p>Discarding rasterizer output isn&#39;t supported by the backend.</p>
-</div></td></tr><tr><td id='variant.DepthClampNotSupported'><code>DepthClampNotSupported</code></td><td><div class='docblock'><p>Depth clamping isn&#39;t supported by the backend.</p>
-</div></td></tr><tr><td id='variant.BlendingParameterNotSupported'><code>BlendingParameterNotSupported</code></td><td><div class='docblock'><p>One of the blending parameters is not supported by the backend.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html' title='core::fmt::Display'>Display</a> for <a class='enum' href='../glium/enum.DrawError.html' title='glium::DrawError'>DrawError</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#method.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/result/enum.Result.html' title='core::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>, <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html' title='core::fmt::Error'>Error</a>&gt;</code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../glium/enum.DrawError.html' title='glium::DrawError'>DrawError</a></code></h3><div class='impl-items'><h4 id='method.fmt-1' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../glium/enum.DrawError.html' title='glium::DrawError'>DrawError</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../glium/enum.DrawError.html' title='glium::DrawError'>DrawError</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+                           <table><tr><td id='variant.UniformBlockLayoutMismatch.field.name'><span id='UniformBlockLayoutMismatch.v.name.v' class='invisible'><code>name:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>Name of the block you are trying to bind.</p>
+</div></td></tr><tr><td id='variant.UniformBlockLayoutMismatch.field.err'><span id='UniformBlockLayoutMismatch.v.err.v' class='invisible'><code>err:&nbsp;<a class="enum" href="../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a></code></span></td><td><div class='docblock'><p>The error giving more details about the mismatch.</p>
+</div></td></tr></table></span><span id="variant.SubroutineUniformToValue" class="variant small-section-header"><a href="#variant.SubroutineUniformToValue" class="anchor field"></a><span id='SubroutineUniformToValue.v' class='invisible'><code>SubroutineUniformToValue</code></span></span><div class='docblock'><p>Tried to bind a subroutine uniform like a regular uniform value.</p>
+</div><span class='docblock autohide sub-variant' id='variant.SubroutineUniformToValue.fields'><h3 class='fields'>Fields of <code>SubroutineUniformToValue</code></h3>
+
+                           <table><tr><td id='variant.SubroutineUniformToValue.field.name'><span id='SubroutineUniformToValue.v.name.v' class='invisible'><code>name:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>Name of the uniform you are trying to bind.</p>
+</div></td></tr></table></span><span id="variant.SubroutineUniformMissing" class="variant small-section-header"><a href="#variant.SubroutineUniformMissing" class="anchor field"></a><span id='SubroutineUniformMissing.v' class='invisible'><code>SubroutineUniformMissing</code></span></span><div class='docblock'><p>Not all subroutine uniforms of a shader stage were set.</p>
+</div><span class='docblock autohide sub-variant' id='variant.SubroutineUniformMissing.fields'><h3 class='fields'>Fields of <code>SubroutineUniformMissing</code></h3>
+
+                           <table><tr><td id='variant.SubroutineUniformMissing.field.stage'><span id='SubroutineUniformMissing.v.stage.v' class='invisible'><code>stage:&nbsp;<a class="enum" href="../glium/program/enum.ShaderStage.html" title="enum glium::program::ShaderStage">ShaderStage</a></code></span></td><td><div class='docblock'><p>Shader stage with missing bindings.</p>
+</div></td></tr><tr><td id='variant.SubroutineUniformMissing.field.expected_count'><span id='SubroutineUniformMissing.v.expected_count.v' class='invisible'><code>expected_count:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>The expected number of bindings.</p>
+</div></td></tr><tr><td id='variant.SubroutineUniformMissing.field.real_count'><span id='SubroutineUniformMissing.v.real_count.v' class='invisible'><code>real_count:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>The number of bindings defined by the user.</p>
+</div></td></tr></table></span><span id="variant.SubroutineNotFound" class="variant small-section-header"><a href="#variant.SubroutineNotFound" class="anchor field"></a><span id='SubroutineNotFound.v' class='invisible'><code>SubroutineNotFound</code></span></span><div class='docblock'><p>A non-existent subroutine was referenced.</p>
+</div><span class='docblock autohide sub-variant' id='variant.SubroutineNotFound.fields'><h3 class='fields'>Fields of <code>SubroutineNotFound</code></h3>
+
+                           <table><tr><td id='variant.SubroutineNotFound.field.stage'><span id='SubroutineNotFound.v.stage.v' class='invisible'><code>stage:&nbsp;<a class="enum" href="../glium/program/enum.ShaderStage.html" title="enum glium::program::ShaderStage">ShaderStage</a></code></span></td><td><div class='docblock'><p>The stage the subroutine was searched for.</p>
+</div></td></tr><tr><td id='variant.SubroutineNotFound.field.name'><span id='SubroutineNotFound.v.name.v' class='invisible'><code>name:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>The invalid name of the subroutine.</p>
+</div></td></tr></table></span><span id="variant.UnsupportedVerticesPerPatch" class="variant small-section-header"><a href="#variant.UnsupportedVerticesPerPatch" class="anchor field"></a><span id='UnsupportedVerticesPerPatch.v' class='invisible'><code>UnsupportedVerticesPerPatch</code></span></span><div class='docblock'><p>The number of vertices per patch that has been requested is not supported.</p>
+</div><span id="variant.TessellationNotSupported" class="variant small-section-header"><a href="#variant.TessellationNotSupported" class="anchor field"></a><span id='TessellationNotSupported.v' class='invisible'><code>TessellationNotSupported</code></span></span><div class='docblock'><p>Trying to use tessellation, but this is not supported by the underlying hardware.</p>
+</div><span id="variant.TessellationWithoutPatches" class="variant small-section-header"><a href="#variant.TessellationWithoutPatches" class="anchor field"></a><span id='TessellationWithoutPatches.v' class='invisible'><code>TessellationWithoutPatches</code></span></span><div class='docblock'><p>Using a program which contains tessellation shaders, but without submitting patches.</p>
+</div><span id="variant.SamplersNotSupported" class="variant small-section-header"><a href="#variant.SamplersNotSupported" class="anchor field"></a><span id='SamplersNotSupported.v' class='invisible'><code>SamplersNotSupported</code></span></span><div class='docblock'><p>Trying to use a sampler, but they are not supported by the backend.</p>
+</div><span id="variant.InstancesCountMismatch" class="variant small-section-header"><a href="#variant.InstancesCountMismatch" class="anchor field"></a><span id='InstancesCountMismatch.v' class='invisible'><code>InstancesCountMismatch</code></span></span><div class='docblock'><p>When you use instancing, all vertices sources must have the same size.</p>
+</div><span id="variant.VerticesSourcesLengthMismatch" class="variant small-section-header"><a href="#variant.VerticesSourcesLengthMismatch" class="anchor field"></a><span id='VerticesSourcesLengthMismatch.v' class='invisible'><code>VerticesSourcesLengthMismatch</code></span></span><div class='docblock'><p>If you don&#39;t use indices, then all vertices sources must have the same size.</p>
+</div><span id="variant.TransformFeedbackNotSupported" class="variant small-section-header"><a href="#variant.TransformFeedbackNotSupported" class="anchor field"></a><span id='TransformFeedbackNotSupported.v' class='invisible'><code>TransformFeedbackNotSupported</code></span></span><div class='docblock'><p>You requested not to draw primitives, but this is not supported by the backend.</p>
+</div><span id="variant.WrongQueryOperation" class="variant small-section-header"><a href="#variant.WrongQueryOperation" class="anchor field"></a><span id='WrongQueryOperation.v' class='invisible'><code>WrongQueryOperation</code></span></span><div class='docblock'><p>See the documentation of the <code>draw_parameters</code> module for infos.</p>
+</div><span id="variant.SmoothingNotSupported" class="variant small-section-header"><a href="#variant.SmoothingNotSupported" class="anchor field"></a><span id='SmoothingNotSupported.v' class='invisible'><code>SmoothingNotSupported</code></span></span><div class='docblock'><p>You requested smoothing, but this is not supported by the backend.</p>
+</div><span id="variant.ProvokingVertexNotSupported" class="variant small-section-header"><a href="#variant.ProvokingVertexNotSupported" class="anchor field"></a><span id='ProvokingVertexNotSupported.v' class='invisible'><code>ProvokingVertexNotSupported</code></span></span><div class='docblock'><p>The requested provoking vertex is not supported by the backend.</p>
+</div><span id="variant.RasterizerDiscardNotSupported" class="variant small-section-header"><a href="#variant.RasterizerDiscardNotSupported" class="anchor field"></a><span id='RasterizerDiscardNotSupported.v' class='invisible'><code>RasterizerDiscardNotSupported</code></span></span><div class='docblock'><p>Discarding rasterizer output isn&#39;t supported by the backend.</p>
+</div><span id="variant.DepthClampNotSupported" class="variant small-section-header"><a href="#variant.DepthClampNotSupported" class="anchor field"></a><span id='DepthClampNotSupported.v' class='invisible'><code>DepthClampNotSupported</code></span></span><div class='docblock'><p>Depth clamping isn&#39;t supported by the backend.</p>
+</div><span id="variant.BlendingParameterNotSupported" class="variant small-section-header"><a href="#variant.BlendingParameterNotSupported" class="anchor field"></a><span id='BlendingParameterNotSupported.v' class='invisible'><code>BlendingParameterNotSupported</code></span></span><div class='docblock'><p>One of the blending parameters is not supported by the backend.</p>
+</div><span id="variant.FixedIndexRestartingNotSupported" class="variant small-section-header"><a href="#variant.FixedIndexRestartingNotSupported" class="anchor field"></a><span id='FixedIndexRestartingNotSupported.v' class='invisible'><code>FixedIndexRestartingNotSupported</code></span></span><div class='docblock'><p>Restarting indices (multiple objects per draw call) is not supported by the backend.</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../glium/enum.DrawError.html" title="enum glium::DrawError">DrawError</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#831' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../glium/enum.DrawError.html" title="enum glium::DrawError">DrawError</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#831' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../glium/enum.DrawError.html" title="enum glium::DrawError">DrawError</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#831' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#831' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Error' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> for <a class="enum" href="../glium/enum.DrawError.html" title="enum glium::DrawError">DrawError</a></code><a href='#impl-Error' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#948-1014' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.description' class="method"><span id='description.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description' class='fnname'>description</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#949-1005' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>A short description of the error. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description">Read more</a></p>
+</div><h4 id='method.cause' class="method"><span id='cause.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause' class='fnname'>cause</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#1007-1013' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The lower-level cause of this error, if any. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause">Read more</a></p>
+</div></div><h3 id='impl-Display' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="enum" href="../glium/enum.DrawError.html" title="enum glium::DrawError">DrawError</a></code><a href='#impl-Display' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#1017-1055' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class="method"><span id='fmt.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html" title="struct core::fmt::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/lib.rs.html#1018-1054' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -143,12 +191,16 @@ not used by the program.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -169,7 +221,7 @@ not used by the program.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -180,11 +232,8 @@ not used by the program.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

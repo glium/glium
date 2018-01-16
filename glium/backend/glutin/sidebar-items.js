@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["DisplayCreationError","Error that can happen while creating a glium display."]],"mod":[["headless","Backend implementation for a glutin headless renderer."]],"struct":[["Display","A GL context combined with a facade for drawing upon."],["GlutinBackend","An implementation of the `Backend` trait for glutin."]]});

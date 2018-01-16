@@ -9,13 +9,15 @@
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -143,8 +145,8 @@
 <span id="100">100</span>
 <span id="101">101</span>
 <span id="102">102</span>
-</pre><pre class='rust '>
-<span class='doccomment'>/*!
+</pre><pre class="rust ">
+<span class="doccomment">/*!
 
 The `backend` module allows one to link between glium and the OpenGL context..
 
@@ -158,92 +160,92 @@ There are three concepts in play:
    that implements this trait. It is implemented on `Rc&lt;Context&gt;`.
 
 */</span>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rc</span>::<span class='ident'>Rc</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Deref</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>os</span>::<span class='ident'>raw</span>::<span class='ident'>c_void</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Deref</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_void</span>;
 
-<span class='kw'>use</span> <span class='ident'>CapabilitiesSource</span>;
-<span class='kw'>use</span> <span class='ident'>SwapBuffersError</span>;
+<span class="kw">use</span> <span class="ident">CapabilitiesSource</span>;
+<span class="kw">use</span> <span class="ident">SwapBuffersError</span>;
 
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>Capabilities</span>;
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>ExtensionsList</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Version</span>;
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">Capabilities</span>;
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">ExtensionsList</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>Context</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>ReleaseBehavior</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">context</span>::<span class="ident">Context</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">context</span>::<span class="ident">ReleaseBehavior</span>;
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>feature</span> <span class='op'>=</span> <span class='string'>&quot;glutin&quot;</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>glutin_backend</span>;
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;glutin&quot;</span>)]</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">glutin</span>;
 
-<span class='doccomment'>/// Trait for types that can be used as a backend for a glium context.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// This trait is unsafe, as you can get undefined behaviors or crashes if you don&#39;t implement</span>
-<span class='doccomment'>/// the methods correctly.</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>trait</span> <span class='ident'>Backend</span> {
-    <span class='doccomment'>/// Swaps buffers at the end of a frame.</span>
-    <span class='kw'>fn</span> <span class='ident'>swap_buffers</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>SwapBuffersError</span><span class='op'>&gt;</span>;
+<span class="doccomment">/// Trait for types that can be used as a backend for a glium context.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// This trait is unsafe, as you can get undefined behaviors or crashes if you don&#39;t implement</span>
+<span class="doccomment">/// the methods correctly.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">Backend</span> {
+    <span class="doccomment">/// Swaps buffers at the end of a frame.</span>
+    <span class="kw">fn</span> <span class="ident">swap_buffers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SwapBuffersError</span><span class="op">&gt;</span>;
 
-    <span class='doccomment'>/// Returns the address of an OpenGL function.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Supposes that the context has been made current before this function is called.</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_proc_address</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>symbol</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_void</span>;
+    <span class="doccomment">/// Returns the address of an OpenGL function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Supposes that the context has been made current before this function is called.</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_proc_address</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">symbol</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span>;
 
-    <span class='doccomment'>/// Returns the dimensions of the window, or screen, etc.</span>
-    <span class='kw'>fn</span> <span class='ident'>get_framebuffer_dimensions</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='ident'>u32</span>, <span class='ident'>u32</span>);
+    <span class="doccomment">/// Returns the dimensions of the window, or screen, etc.</span>
+    <span class="kw">fn</span> <span class="ident">get_framebuffer_dimensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">u32</span>, <span class="ident">u32</span>);
 
-    <span class='doccomment'>/// Returns true if the OpenGL context is the current one in the thread.</span>
-    <span class='kw'>fn</span> <span class='ident'>is_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class="doccomment">/// Returns true if the OpenGL context is the current one in the thread.</span>
+    <span class="kw">fn</span> <span class="ident">is_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>;
 
-    <span class='doccomment'>/// Makes the OpenGL context the current context in the current thread.</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>make_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>);
+    <span class="doccomment">/// Makes the OpenGL context the current context in the current thread.</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">make_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>);
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>Backend</span> <span class='kw'>for</span> <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>Backend</span> {
-    <span class='kw'>fn</span> <span class='ident'>swap_buffers</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>SwapBuffersError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>deref</span>().<span class='ident'>swap_buffers</span>()
+<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Backend</span> <span class="kw">for</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Backend</span> {
+    <span class="kw">fn</span> <span class="ident">swap_buffers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">SwapBuffersError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">deref</span>().<span class="ident">swap_buffers</span>()
     }
 
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>get_proc_address</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>symbol</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_void</span> {
-        <span class='self'>self</span>.<span class='ident'>deref</span>().<span class='ident'>get_proc_address</span>(<span class='ident'>symbol</span>)
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">get_proc_address</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">symbol</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_void</span> {
+        <span class="self">self</span>.<span class="ident">deref</span>().<span class="ident">get_proc_address</span>(<span class="ident">symbol</span>)
     }
 
-    <span class='kw'>fn</span> <span class='ident'>get_framebuffer_dimensions</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='ident'>u32</span>, <span class='ident'>u32</span>) {
-        <span class='self'>self</span>.<span class='ident'>deref</span>().<span class='ident'>get_framebuffer_dimensions</span>()
+    <span class="kw">fn</span> <span class="ident">get_framebuffer_dimensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">u32</span>, <span class="ident">u32</span>) {
+        <span class="self">self</span>.<span class="ident">deref</span>().<span class="ident">get_framebuffer_dimensions</span>()
     }
 
-    <span class='kw'>fn</span> <span class='ident'>is_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>deref</span>().<span class='ident'>is_current</span>()
+    <span class="kw">fn</span> <span class="ident">is_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">deref</span>().<span class="ident">is_current</span>()
     }
 
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>make_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) {
-        <span class='self'>self</span>.<span class='ident'>deref</span>().<span class='ident'>make_current</span>();
-    }
-}
-
-<span class='doccomment'>/// Trait for types that provide a safe access for glium functions.</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Facade</span> {
-    <span class='doccomment'>/// Returns an opaque type that contains the OpenGL state, extensions, version, etc.</span>
-    <span class='kw'>fn</span> <span class='ident'>get_context</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Context</span><span class='op'>&gt;</span>;
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>CapabilitiesSource</span> <span class='kw'>for</span> <span class='ident'>T</span> <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>Facade</span> {
-    <span class='kw'>fn</span> <span class='ident'>get_version</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span> {
-        <span class='self'>self</span>.<span class='ident'>get_context</span>().<span class='ident'>deref</span>().<span class='ident'>get_version</span>()
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>get_extensions</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>ExtensionsList</span> {
-        <span class='self'>self</span>.<span class='ident'>get_context</span>().<span class='ident'>deref</span>().<span class='ident'>get_extensions</span>()
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>get_capabilities</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Capabilities</span> {
-        <span class='self'>self</span>.<span class='ident'>get_context</span>().<span class='ident'>deref</span>().<span class='ident'>get_capabilities</span>()
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">make_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) {
+        <span class="self">self</span>.<span class="ident">deref</span>().<span class="ident">make_current</span>();
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Facade</span> <span class='kw'>for</span> <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Context</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_context</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Context</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>
+<span class="doccomment">/// Trait for types that provide a safe access for glium functions.</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Facade</span> {
+    <span class="doccomment">/// Returns an opaque type that contains the OpenGL state, extensions, version, etc.</span>
+    <span class="kw">fn</span> <span class="ident">get_context</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span>;
+}
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span> <span class="ident">CapabilitiesSource</span> <span class="kw">for</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Facade</span> {
+    <span class="kw">fn</span> <span class="ident">get_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Version</span> {
+        <span class="self">self</span>.<span class="ident">get_context</span>().<span class="ident">deref</span>().<span class="ident">get_version</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_extensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">ExtensionsList</span> {
+        <span class="self">self</span>.<span class="ident">get_context</span>().<span class="ident">deref</span>().<span class="ident">get_extensions</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_capabilities</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Capabilities</span> {
+        <span class="self">self</span>.<span class="ident">get_context</span>().<span class="ident">deref</span>().<span class="ident">get_capabilities</span>()
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Facade</span> <span class="kw">for</span> <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_context</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
+        <span class="self">self</span>
     }
 }
 </pre>
@@ -264,12 +266,16 @@ There are three concepts in play:
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -290,7 +296,7 @@ There are three concepts in play:
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -301,11 +307,8 @@ There are three concepts in play:
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

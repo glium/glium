@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `register_kbd_from_rmlvo` fn in crate `wayland_kbd`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, register_kbd_from_rmlvo">
+
+    <title>wayland_kbd::register_kbd_from_rmlvo - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc fn">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>wayland_kbd</a></p><script>window.sidebarCurrent = {name: 'register_kbd_from_rmlvo', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>wayland_kbd</a>::<wbr><a class="fn" href=''>register_kbd_from_rmlvo</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/wayland_kbd/mapped_keyboard.rs.html#390-427' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn register_kbd_from_rmlvo&lt;ID:&nbsp;'static&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;evqh: &amp;mut <a class="struct" href="../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;kbd: &amp;WlKeyboard, <br>&nbsp;&nbsp;&nbsp;&nbsp;implem: <a class="struct" href="../wayland_kbd/struct.MappedKeyboardImplementation.html" title="struct wayland_kbd::MappedKeyboardImplementation">MappedKeyboardImplementation</a>&lt;ID&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;idata: ID, <br>&nbsp;&nbsp;&nbsp;&nbsp;rmlvo: <a class="struct" href="../wayland_kbd/struct.RMLVO.html" title="struct wayland_kbd::RMLVO">RMLVO</a><br>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="enum" href="../wayland_kbd/enum.MappedKeyboardError.html" title="enum wayland_kbd::MappedKeyboardError">MappedKeyboardError</a>&gt;</pre><div class='docblock'><p>Register a keyboard with the implementation provided by this crate</p>
+
+<p>This requires you to provide an implementation and its implementation data
+to receive the events after they have been interpreted with the keymap.</p>
+
+<p>The keymap will be loaded from the provided RMLVO rules. Any keymap provided
+by the compositor will be ignored.</p>
+
+<p>Returns an error if xkbcommon could not be initialized.</p>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_kbd";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

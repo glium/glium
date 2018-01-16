@@ -9,13 +9,15 @@
 
     <title>cfg_if - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'cfg_if', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate cfg_if</p><div class="block items"><ul><li><a href="#macros">Macros</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'cfg_if', ty: 'mod', relpath: '../'};</script>
     </nav>
 
     <nav class="sub">
@@ -41,12 +43,12 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>cfg_if</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='../src/cfg_if/lib.rs.html#1-101' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>cfg_if</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/cfg_if/lib.rs.html#1-133' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>A macro for defining #[cfg] if-else statements.</p>
 
 <p>The macro provided by this crate, <code>cfg_if</code>, is similar to the <code>if/elif</code> C
@@ -56,30 +58,30 @@ emitting the implementation which matches first.</p>
 <p>This allows you to conveniently provide a long list #[cfg]&#39;d blocks of code
 without having to rewrite each clause multiple times.</p>
 
-<h1 id='example' class='section-header'><a href='#example'>Example</a></h1><pre class='rust rust-example-rendered'>
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>cfg_if</span>;
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">cfg_if</span>;
 
-<span class='macro'>cfg_if</span><span class='macro'>!</span> {
-    <span class='kw'>if</span> <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>unix</span>)]</span> {
-        <span class='kw'>fn</span> <span class='ident'>foo</span>() { <span class='comment'>/* unix specific functionality */</span> }
-    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>target_pointer_width</span> <span class='op'>=</span> <span class='string'>&quot;32&quot;</span>)]</span> {
-        <span class='kw'>fn</span> <span class='ident'>foo</span>() { <span class='comment'>/* non-unix, 32-bit functionality */</span> }
-    } <span class='kw'>else</span> {
-        <span class='kw'>fn</span> <span class='ident'>foo</span>() { <span class='comment'>/* fallback implementation */</span> }
+<span class="macro">cfg_if</span><span class="macro">!</span> {
+    <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">unix</span>)]</span> {
+        <span class="kw">fn</span> <span class="ident">foo</span>() { <span class="comment">/* unix specific functionality */</span> }
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_pointer_width</span> <span class="op">=</span> <span class="string">&quot;32&quot;</span>)]</span> {
+        <span class="kw">fn</span> <span class="ident">foo</span>() { <span class="comment">/* non-unix, 32-bit functionality */</span> }
+    } <span class="kw">else</span> {
+        <span class="kw">fn</span> <span class="ident">foo</span>() { <span class="comment">/* fallback implementation */</span> }
     }
 }
 </pre>
 </div><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='macro' href='macro.cfg_if!.html'
-                               title='cfg_if::cfg_if!'>cfg_if!</a></td>
-                        <td class='docblock short'>
-                             
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="macro" href="macro.cfg_if.html"
+                                  title='macro cfg_if::cfg_if'>cfg_if</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -96,12 +98,16 @@ without having to rewrite each clause multiple times.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -122,7 +128,7 @@ without having to rewrite each clause multiple times.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -133,11 +139,8 @@ without having to rewrite each clause multiple times.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "cfg_if";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

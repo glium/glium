@@ -9,13 +9,15 @@
 
     <title>glium::texture::InternalFormat - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'InternalFormat', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum InternalFormat</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.OneComponent">OneComponent</a><a href="#variant.TwoComponents">TwoComponents</a><a href="#variant.ThreeComponents">ThreeComponents</a><a href="#variant.FourComponents">FourComponents</a></div><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.get_total_bits">get_total_bits</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-PartialEq">PartialEq</a><a href="#impl-Eq">Eq</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'InternalFormat', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,86 +43,106 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a>::<wbr><a class='enum' href=''>InternalFormat</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-11212' class='srclink' href='../../src/glium/texture/get_format.rs.html#25-81' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a>::<wbr><a class="enum" href=''>InternalFormat</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/texture/get_format.rs.html#42-98' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum InternalFormat {
     OneComponent {
-        ty1: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits1: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+        ty1: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     },
     TwoComponents {
-        ty1: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits1: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-        ty2: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits2: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+        ty1: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        ty2: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     },
     ThreeComponents {
-        ty1: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits1: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-        ty2: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits2: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-        ty3: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits3: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+        ty1: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        ty2: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        ty3: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     },
     FourComponents {
-        ty1: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits1: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-        ty2: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits2: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-        ty3: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits3: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-        ty4: <a class='enum' href='../../glium/texture/enum.InternalFormatType.html' title='glium::texture::InternalFormatType'>InternalFormatType</a>,
-        bits4: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+        ty1: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits1: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        ty2: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits2: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        ty3: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits3: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        ty4: <a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a>,
+        bits4: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     },
 }</pre><div class='docblock'><p>Internal format of a texture.</p>
 
-<p>The actual format of a texture is not necessarly one of the predefined ones, so we have
+<p>The actual format of a texture is not necessarily one of the predefined ones, so we have
 to use a very generic description.</p>
-</div><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.OneComponent'><code>OneComponent</code></td><td><div class='docblock'><p>The format has one component.</p>
-</div><h3 class='fields'>Fields</h3>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.OneComponent" class="variant small-section-header"><a href="#variant.OneComponent" class="anchor field"></a><span id='OneComponent.v' class='invisible'><code>OneComponent</code></span></span><div class='docblock'><p>The format has one component.</p>
+</div><span class='docblock autohide sub-variant' id='variant.OneComponent.fields'><h3 class='fields'>Fields of <code>OneComponent</code></h3>
 
-                                              <table><tr><td id='variant.OneComponent.field.ty1'><code>ty1</code></td><td><div class='docblock'><p>Type of the first component of the format.</p>
-</div></td></tr><tr><td id='variant.OneComponent.field.bits1'><code>bits1</code></td><td><div class='docblock'><p>Number of bits of the first component.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.TwoComponents'><code>TwoComponents</code></td><td><div class='docblock'><p>The format has two components.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.OneComponent.field.ty1'><span id='OneComponent.v.ty1.v' class='invisible'><code>ty1:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the first component of the format.</p>
+</div></td></tr><tr><td id='variant.OneComponent.field.bits1'><span id='OneComponent.v.bits1.v' class='invisible'><code>bits1:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the first component.</p>
+</div></td></tr></table></span><span id="variant.TwoComponents" class="variant small-section-header"><a href="#variant.TwoComponents" class="anchor field"></a><span id='TwoComponents.v' class='invisible'><code>TwoComponents</code></span></span><div class='docblock'><p>The format has two components.</p>
+</div><span class='docblock autohide sub-variant' id='variant.TwoComponents.fields'><h3 class='fields'>Fields of <code>TwoComponents</code></h3>
 
-                                              <table><tr><td id='variant.TwoComponents.field.ty1'><code>ty1</code></td><td><div class='docblock'><p>Type of the first component of the format.</p>
-</div></td></tr><tr><td id='variant.TwoComponents.field.bits1'><code>bits1</code></td><td><div class='docblock'><p>Number of bits of the first component.</p>
-</div></td></tr><tr><td id='variant.TwoComponents.field.ty2'><code>ty2</code></td><td><div class='docblock'><p>Type of the second component.</p>
-</div></td></tr><tr><td id='variant.TwoComponents.field.bits2'><code>bits2</code></td><td><div class='docblock'><p>Number of bits of the second component.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.ThreeComponents'><code>ThreeComponents</code></td><td><div class='docblock'><p>The format has three components.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.TwoComponents.field.ty1'><span id='TwoComponents.v.ty1.v' class='invisible'><code>ty1:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the first component of the format.</p>
+</div></td></tr><tr><td id='variant.TwoComponents.field.bits1'><span id='TwoComponents.v.bits1.v' class='invisible'><code>bits1:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the first component.</p>
+</div></td></tr><tr><td id='variant.TwoComponents.field.ty2'><span id='TwoComponents.v.ty2.v' class='invisible'><code>ty2:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the second component.</p>
+</div></td></tr><tr><td id='variant.TwoComponents.field.bits2'><span id='TwoComponents.v.bits2.v' class='invisible'><code>bits2:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the second component.</p>
+</div></td></tr></table></span><span id="variant.ThreeComponents" class="variant small-section-header"><a href="#variant.ThreeComponents" class="anchor field"></a><span id='ThreeComponents.v' class='invisible'><code>ThreeComponents</code></span></span><div class='docblock'><p>The format has three components.</p>
+</div><span class='docblock autohide sub-variant' id='variant.ThreeComponents.fields'><h3 class='fields'>Fields of <code>ThreeComponents</code></h3>
 
-                                              <table><tr><td id='variant.ThreeComponents.field.ty1'><code>ty1</code></td><td><div class='docblock'><p>Type of the first component of the format.</p>
-</div></td></tr><tr><td id='variant.ThreeComponents.field.bits1'><code>bits1</code></td><td><div class='docblock'><p>Number of bits of the first component.</p>
-</div></td></tr><tr><td id='variant.ThreeComponents.field.ty2'><code>ty2</code></td><td><div class='docblock'><p>Type of the second component.</p>
-</div></td></tr><tr><td id='variant.ThreeComponents.field.bits2'><code>bits2</code></td><td><div class='docblock'><p>Number of bits of the second component.</p>
-</div></td></tr><tr><td id='variant.ThreeComponents.field.ty3'><code>ty3</code></td><td><div class='docblock'><p>Type of the third component.</p>
-</div></td></tr><tr><td id='variant.ThreeComponents.field.bits3'><code>bits3</code></td><td><div class='docblock'><p>Number of bits of the third component.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.FourComponents'><code>FourComponents</code></td><td><div class='docblock'><p>The format has four components.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.ThreeComponents.field.ty1'><span id='ThreeComponents.v.ty1.v' class='invisible'><code>ty1:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the first component of the format.</p>
+</div></td></tr><tr><td id='variant.ThreeComponents.field.bits1'><span id='ThreeComponents.v.bits1.v' class='invisible'><code>bits1:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the first component.</p>
+</div></td></tr><tr><td id='variant.ThreeComponents.field.ty2'><span id='ThreeComponents.v.ty2.v' class='invisible'><code>ty2:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the second component.</p>
+</div></td></tr><tr><td id='variant.ThreeComponents.field.bits2'><span id='ThreeComponents.v.bits2.v' class='invisible'><code>bits2:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the second component.</p>
+</div></td></tr><tr><td id='variant.ThreeComponents.field.ty3'><span id='ThreeComponents.v.ty3.v' class='invisible'><code>ty3:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the third component.</p>
+</div></td></tr><tr><td id='variant.ThreeComponents.field.bits3'><span id='ThreeComponents.v.bits3.v' class='invisible'><code>bits3:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the third component.</p>
+</div></td></tr></table></span><span id="variant.FourComponents" class="variant small-section-header"><a href="#variant.FourComponents" class="anchor field"></a><span id='FourComponents.v' class='invisible'><code>FourComponents</code></span></span><div class='docblock'><p>The format has four components.</p>
+</div><span class='docblock autohide sub-variant' id='variant.FourComponents.fields'><h3 class='fields'>Fields of <code>FourComponents</code></h3>
 
-                                              <table><tr><td id='variant.FourComponents.field.ty1'><code>ty1</code></td><td><div class='docblock'><p>Type of the first component of the format.</p>
-</div></td></tr><tr><td id='variant.FourComponents.field.bits1'><code>bits1</code></td><td><div class='docblock'><p>Number of bits of the first component.</p>
-</div></td></tr><tr><td id='variant.FourComponents.field.ty2'><code>ty2</code></td><td><div class='docblock'><p>Type of the second component.</p>
-</div></td></tr><tr><td id='variant.FourComponents.field.bits2'><code>bits2</code></td><td><div class='docblock'><p>Number of bits of the second component.</p>
-</div></td></tr><tr><td id='variant.FourComponents.field.ty3'><code>ty3</code></td><td><div class='docblock'><p>Type of the third component.</p>
-</div></td></tr><tr><td id='variant.FourComponents.field.bits3'><code>bits3</code></td><td><div class='docblock'><p>Number of bits of the third component.</p>
-</div></td></tr><tr><td id='variant.FourComponents.field.ty4'><code>ty4</code></td><td><div class='docblock'><p>Type of the fourth component.</p>
-</div></td></tr><tr><td id='variant.FourComponents.field.bits4'><code>bits4</code></td><td><div class='docblock'><p>Number of bits of the fourth component.</p>
-</div></td></tr></table></td></tr></table><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a></code></h3><div class='impl-items'><h4 id='method.get_total_bits' class='method'><code>fn <a href='#method.get_total_bits' class='fnname'>get_total_bits</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+                           <table><tr><td id='variant.FourComponents.field.ty1'><span id='FourComponents.v.ty1.v' class='invisible'><code>ty1:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the first component of the format.</p>
+</div></td></tr><tr><td id='variant.FourComponents.field.bits1'><span id='FourComponents.v.bits1.v' class='invisible'><code>bits1:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the first component.</p>
+</div></td></tr><tr><td id='variant.FourComponents.field.ty2'><span id='FourComponents.v.ty2.v' class='invisible'><code>ty2:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the second component.</p>
+</div></td></tr><tr><td id='variant.FourComponents.field.bits2'><span id='FourComponents.v.bits2.v' class='invisible'><code>bits2:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the second component.</p>
+</div></td></tr><tr><td id='variant.FourComponents.field.ty3'><span id='FourComponents.v.ty3.v' class='invisible'><code>ty3:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the third component.</p>
+</div></td></tr><tr><td id='variant.FourComponents.field.bits3'><span id='FourComponents.v.bits3.v' class='invisible'><code>bits3:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the third component.</p>
+</div></td></tr><tr><td id='variant.FourComponents.field.ty4'><span id='FourComponents.v.ty4.v' class='invisible'><code>ty4:&nbsp;<a class="enum" href="../../glium/texture/enum.InternalFormatType.html" title="enum glium::texture::InternalFormatType">InternalFormatType</a></code></span></td><td><div class='docblock'><p>Type of the fourth component.</p>
+</div></td></tr><tr><td id='variant.FourComponents.field.bits4'><span id='FourComponents.v.bits4.v' class='invisible'><code>bits4:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Number of bits of the fourth component.</p>
+</div></td></tr></table></span>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#100-112' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.get_total_bits' class="method"><span id='get_total_bits.v' class='invisible'><code>pub fn <a href='#method.get_total_bits' class='fnname'>get_total_bits</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#103-111' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the total number of bits of this format.</p>
-</div></div><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../../glium/texture/enum.InternalFormat.html' title='glium::texture::InternalFormat'>InternalFormat</a></code></h3><div class='impl-items'></div></section>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-Eq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="enum" href="../../glium/texture/enum.InternalFormat.html" title="enum glium::texture::InternalFormat">InternalFormat</a></code><a href='#impl-Eq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/get_format.rs.html#41' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -137,12 +159,16 @@ to use a very generic description.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -163,7 +189,7 @@ to use a very generic description.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -174,11 +200,8 @@ to use a very generic description.</p>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

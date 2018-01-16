@@ -9,13 +9,15 @@
 
     <title>x11_dl::xlib::XWindowAttributes - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a></p><script>window.sidebarCurrent = {name: 'XWindowAttributes', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct XWindowAttributes</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.x">x</a><a href="#structfield.y">y</a><a href="#structfield.width">width</a><a href="#structfield.height">height</a><a href="#structfield.border_width">border_width</a><a href="#structfield.depth">depth</a><a href="#structfield.visual">visual</a><a href="#structfield.root">root</a><a href="#structfield.class">class</a><a href="#structfield.bit_gravity">bit_gravity</a><a href="#structfield.win_gravity">win_gravity</a><a href="#structfield.backing_store">backing_store</a><a href="#structfield.backing_planes">backing_planes</a><a href="#structfield.backing_pixel">backing_pixel</a><a href="#structfield.save_under">save_under</a><a href="#structfield.colormap">colormap</a><a href="#structfield.map_installed">map_installed</a><a href="#structfield.map_state">map_state</a><a href="#structfield.all_event_masks">all_event_masks</a><a href="#structfield.your_event_mask">your_event_mask</a><a href="#structfield.do_not_propagate_mask">do_not_propagate_mask</a><a href="#structfield.override_redirect">override_redirect</a><a href="#structfield.screen">screen</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Clone">Clone</a><a href="#impl-Copy">Copy</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a></p><script>window.sidebarCurrent = {name: 'XWindowAttributes', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,65 +43,149 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a>::<wbr><a class='struct' href=''>XWindowAttributes</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-14645' class='srclink' href='../../src/x11_dl/xlib.rs.html#2381-2405' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct XWindowAttributes {
-    pub x: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub y: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub width: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub height: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub border_width: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub depth: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub visual: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.Visual.html' title='x11_dl::xlib::Visual'>Visual</a></a>,
-    pub root: <a class='type' href='../../x11_dl/xlib/type.Window.html' title='x11_dl::xlib::Window'>Window</a>,
-    pub class: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub bit_gravity: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub win_gravity: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub backing_store: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub backing_planes: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub backing_pixel: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub save_under: <a class='type' href='../../x11_dl/xlib/type.Bool.html' title='x11_dl::xlib::Bool'>Bool</a>,
-    pub colormap: <a class='type' href='../../x11_dl/xlib/type.Colormap.html' title='x11_dl::xlib::Colormap'>Colormap</a>,
-    pub map_installed: <a class='type' href='../../x11_dl/xlib/type.Bool.html' title='x11_dl::xlib::Bool'>Bool</a>,
-    pub map_state: <a class='type' href='../../libc/types/os/arch/c95/type.c_int.html' title='libc::types::os::arch::c95::c_int'>c_int</a>,
-    pub all_event_masks: <a class='type' href='../../libc/types/os/arch/c95/type.c_long.html' title='libc::types::os::arch::c95::c_long'>c_long</a>,
-    pub your_event_mask: <a class='type' href='../../libc/types/os/arch/c95/type.c_long.html' title='libc::types::os::arch::c95::c_long'>c_long</a>,
-    pub do_not_propagate_mask: <a class='type' href='../../libc/types/os/arch/c95/type.c_long.html' title='libc::types::os::arch::c95::c_long'>c_long</a>,
-    pub override_redirect: <a class='type' href='../../x11_dl/xlib/type.Bool.html' title='x11_dl::xlib::Bool'>Bool</a>,
-    pub screen: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='struct' href='../../x11_dl/xlib/struct.Screen.html' title='x11_dl::xlib::Screen'>Screen</a></a>,
-}</pre><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.x'><code>x</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.y'><code>y</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.width'><code>width</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.height'><code>height</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.border_width'><code>border_width</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.depth'><code>depth</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.visual'><code>visual</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.root'><code>root</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.class'><code>class</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.bit_gravity'><code>bit_gravity</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.win_gravity'><code>win_gravity</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.backing_store'><code>backing_store</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.backing_planes'><code>backing_planes</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.backing_pixel'><code>backing_pixel</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.save_under'><code>save_under</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.colormap'><code>colormap</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.map_installed'><code>map_installed</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.map_state'><code>map_state</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.all_event_masks'><code>all_event_masks</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.your_event_mask'><code>your_event_mask</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.do_not_propagate_mask'><code>do_not_propagate_mask</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.override_redirect'><code>override_redirect</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.screen'><code>screen</code></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../../x11_dl/xlib/struct.XWindowAttributes.html' title='x11_dl::xlib::XWindowAttributes'>XWindowAttributes</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../x11_dl/xlib/struct.XWindowAttributes.html' title='x11_dl::xlib::XWindowAttributes'>XWindowAttributes</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../x11_dl/xlib/struct.XWindowAttributes.html' title='x11_dl::xlib::XWindowAttributes'>XWindowAttributes</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../x11_dl/xlib/struct.XWindowAttributes.html' title='x11_dl::xlib::XWindowAttributes'>XWindowAttributes</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../x11_dl/xlib/struct.XWindowAttributes.html' title='x11_dl::xlib::XWindowAttributes'>XWindowAttributes</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../x11_dl/xlib/struct.XWindowAttributes.html' title='x11_dl::xlib::XWindowAttributes'>XWindowAttributes</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a>::<wbr><a class="struct" href=''>XWindowAttributes</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2434-2458' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C)]
+</div>pub struct XWindowAttributes {
+    pub x: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub y: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub width: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub height: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub border_width: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub depth: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub visual: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../../x11_dl/xlib/struct.Visual.html" title="struct x11_dl::xlib::Visual">Visual</a>,
+    pub root: <a class="type" href="../../x11_dl/xlib/type.Window.html" title="type x11_dl::xlib::Window">Window</a>,
+    pub class: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub bit_gravity: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub win_gravity: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub backing_store: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub backing_planes: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub backing_pixel: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub save_under: <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a>,
+    pub colormap: <a class="type" href="../../x11_dl/xlib/type.Colormap.html" title="type x11_dl::xlib::Colormap">Colormap</a>,
+    pub map_installed: <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a>,
+    pub map_state: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub all_event_masks: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_long.html" title="type std::os::raw::c_long">c_long</a>,
+    pub your_event_mask: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_long.html" title="type std::os::raw::c_long">c_long</a>,
+    pub do_not_propagate_mask: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_long.html" title="type std::os::raw::c_long">c_long</a>,
+    pub override_redirect: <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a>,
+    pub screen: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../../x11_dl/xlib/struct.Screen.html" title="struct x11_dl::xlib::Screen">Screen</a>,
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.x" class="structfield small-section-header">
+                           <a href="#structfield.x" class="anchor field"></a>
+                           <span id="x.v" class='invisible'>
+                           <code>x: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.y" class="structfield small-section-header">
+                           <a href="#structfield.y" class="anchor field"></a>
+                           <span id="y.v" class='invisible'>
+                           <code>y: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.width" class="structfield small-section-header">
+                           <a href="#structfield.width" class="anchor field"></a>
+                           <span id="width.v" class='invisible'>
+                           <code>width: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.height" class="structfield small-section-header">
+                           <a href="#structfield.height" class="anchor field"></a>
+                           <span id="height.v" class='invisible'>
+                           <code>height: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.border_width" class="structfield small-section-header">
+                           <a href="#structfield.border_width" class="anchor field"></a>
+                           <span id="border_width.v" class='invisible'>
+                           <code>border_width: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.depth" class="structfield small-section-header">
+                           <a href="#structfield.depth" class="anchor field"></a>
+                           <span id="depth.v" class='invisible'>
+                           <code>depth: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.visual" class="structfield small-section-header">
+                           <a href="#structfield.visual" class="anchor field"></a>
+                           <span id="visual.v" class='invisible'>
+                           <code>visual: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../../x11_dl/xlib/struct.Visual.html" title="struct x11_dl::xlib::Visual">Visual</a></code>
+                           </span></span><span id="structfield.root" class="structfield small-section-header">
+                           <a href="#structfield.root" class="anchor field"></a>
+                           <span id="root.v" class='invisible'>
+                           <code>root: <a class="type" href="../../x11_dl/xlib/type.Window.html" title="type x11_dl::xlib::Window">Window</a></code>
+                           </span></span><span id="structfield.class" class="structfield small-section-header">
+                           <a href="#structfield.class" class="anchor field"></a>
+                           <span id="class.v" class='invisible'>
+                           <code>class: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.bit_gravity" class="structfield small-section-header">
+                           <a href="#structfield.bit_gravity" class="anchor field"></a>
+                           <span id="bit_gravity.v" class='invisible'>
+                           <code>bit_gravity: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.win_gravity" class="structfield small-section-header">
+                           <a href="#structfield.win_gravity" class="anchor field"></a>
+                           <span id="win_gravity.v" class='invisible'>
+                           <code>win_gravity: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.backing_store" class="structfield small-section-header">
+                           <a href="#structfield.backing_store" class="anchor field"></a>
+                           <span id="backing_store.v" class='invisible'>
+                           <code>backing_store: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.backing_planes" class="structfield small-section-header">
+                           <a href="#structfield.backing_planes" class="anchor field"></a>
+                           <span id="backing_planes.v" class='invisible'>
+                           <code>backing_planes: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.backing_pixel" class="structfield small-section-header">
+                           <a href="#structfield.backing_pixel" class="anchor field"></a>
+                           <span id="backing_pixel.v" class='invisible'>
+                           <code>backing_pixel: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.save_under" class="structfield small-section-header">
+                           <a href="#structfield.save_under" class="anchor field"></a>
+                           <span id="save_under.v" class='invisible'>
+                           <code>save_under: <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a></code>
+                           </span></span><span id="structfield.colormap" class="structfield small-section-header">
+                           <a href="#structfield.colormap" class="anchor field"></a>
+                           <span id="colormap.v" class='invisible'>
+                           <code>colormap: <a class="type" href="../../x11_dl/xlib/type.Colormap.html" title="type x11_dl::xlib::Colormap">Colormap</a></code>
+                           </span></span><span id="structfield.map_installed" class="structfield small-section-header">
+                           <a href="#structfield.map_installed" class="anchor field"></a>
+                           <span id="map_installed.v" class='invisible'>
+                           <code>map_installed: <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a></code>
+                           </span></span><span id="structfield.map_state" class="structfield small-section-header">
+                           <a href="#structfield.map_state" class="anchor field"></a>
+                           <span id="map_state.v" class='invisible'>
+                           <code>map_state: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.all_event_masks" class="structfield small-section-header">
+                           <a href="#structfield.all_event_masks" class="anchor field"></a>
+                           <span id="all_event_masks.v" class='invisible'>
+                           <code>all_event_masks: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_long.html" title="type std::os::raw::c_long">c_long</a></code>
+                           </span></span><span id="structfield.your_event_mask" class="structfield small-section-header">
+                           <a href="#structfield.your_event_mask" class="anchor field"></a>
+                           <span id="your_event_mask.v" class='invisible'>
+                           <code>your_event_mask: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_long.html" title="type std::os::raw::c_long">c_long</a></code>
+                           </span></span><span id="structfield.do_not_propagate_mask" class="structfield small-section-header">
+                           <a href="#structfield.do_not_propagate_mask" class="anchor field"></a>
+                           <span id="do_not_propagate_mask.v" class='invisible'>
+                           <code>do_not_propagate_mask: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_long.html" title="type std::os::raw::c_long">c_long</a></code>
+                           </span></span><span id="structfield.override_redirect" class="structfield small-section-header">
+                           <a href="#structfield.override_redirect" class="anchor field"></a>
+                           <span id="override_redirect.v" class='invisible'>
+                           <code>override_redirect: <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a></code>
+                           </span></span><span id="structfield.screen" class="structfield small-section-header">
+                           <a href="#structfield.screen" class="anchor field"></a>
+                           <span id="screen.v" class='invisible'>
+                           <code>screen: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="struct" href="../../x11_dl/xlib/struct.Screen.html" title="struct x11_dl::xlib::Screen">Screen</a></code>
+                           </span></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../x11_dl/xlib/struct.XWindowAttributes.html" title="struct x11_dl::xlib::XWindowAttributes">XWindowAttributes</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../x11_dl/xlib/struct.XWindowAttributes.html" title="struct x11_dl::xlib::XWindowAttributes">XWindowAttributes</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../x11_dl/xlib/struct.XWindowAttributes.html" title="struct x11_dl::xlib::XWindowAttributes">XWindowAttributes</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../x11_dl/xlib/struct.XWindowAttributes.html" title="struct x11_dl::xlib::XWindowAttributes">XWindowAttributes</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../x11_dl/xlib/struct.XWindowAttributes.html" title="struct x11_dl::xlib::XWindowAttributes">XWindowAttributes</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../x11_dl/xlib/struct.XWindowAttributes.html" title="struct x11_dl::xlib::XWindowAttributes">XWindowAttributes</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../x11_dl/xlib/struct.XWindowAttributes.html" title="struct x11_dl::xlib::XWindowAttributes">XWindowAttributes</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2432' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -116,12 +202,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -142,7 +232,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -153,11 +243,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "x11_dl";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

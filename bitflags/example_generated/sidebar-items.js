@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Flags","This is the same `Flags` struct defined in the crate level example. Note that this struct is just for documentation purposes only, it must not be used outside this crate."]]});

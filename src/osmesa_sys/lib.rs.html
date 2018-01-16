@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/osmesa-sys-0.0.5/src/lib.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/osmesa-sys-0.1.2/lib.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>lib.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -120,86 +122,112 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
-</pre><pre class='rust '>
-<span class='comment'>// osmesa-rs: Off-Screen Mesa bindings for Rust.</span>
-<span class='comment'>// The OSMesa library is available under the MIT license.</span>
-<span class='comment'>// These bindings are public domain.</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+</pre><pre class="rust ">
+<span class="comment">// osmesa-rs: Off-Screen Mesa bindings for Rust.</span>
+<span class="comment">// The OSMesa library is available under the MIT license.</span>
+<span class="comment">// These bindings are public domain.</span>
 
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>non_snake_case</span>)]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_name</span><span class='op'>=</span><span class='string'>&quot;osmesa_sys&quot;</span>]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>crate_type</span><span class='op'>=</span><span class='string'>&quot;lib&quot;</span>]</span>
+<span class="attribute">#![<span class="ident">allow</span>(<span class="ident">non_snake_case</span>)]</span>
 
-<span class='attribute'>#[<span class='ident'>macro_use</span>]</span>
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>shared_library</span>;
-<span class='kw'>extern</span> <span class='kw'>crate</span> <span class='ident'>libc</span>;
+<span class="attribute">#[<span class="ident">macro_use</span>]</span>
+<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">shared_library</span>;
 
-<span class='kw'>use</span> <span class='ident'>libc</span>::{
-  <span class='ident'>c_char</span>,
-  <span class='ident'>c_int</span>,
-  <span class='ident'>c_uchar</span>,
-  <span class='ident'>c_uint</span>,
-  <span class='ident'>c_void</span>,
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::{
+  <span class="ident">c_char</span>,
+  <span class="ident">c_int</span>,
+  <span class="ident">c_uchar</span>,
+  <span class="ident">c_uint</span>,
+  <span class="ident">c_void</span>,
 };
 
 
-<span class='comment'>//</span>
-<span class='comment'>// functions</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// functions</span>
+<span class="comment">//</span>
 
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">target_os</span><span class="op">=</span><span class="string">&quot;macos&quot;</span>)]</span>
+<span class="kw">const</span> <span class="ident">LIB_NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;libOSMesa.dylib&quot;</span>;
 
-<span class='macro'>shared_library</span><span class='macro'>!</span>(<span class='ident'>OsMesa</span>, <span class='string'>&quot;libOSMesa.so&quot;</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaColorClamp</span> (<span class='ident'>enable</span>: <span class='ident'>c_uchar</span>),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaCreateContext</span> (<span class='ident'>format</span>: <span class='ident'>c_uint</span>, <span class='ident'>sharelist</span>: <span class='ident'>OSMesaContext</span>) <span class='op'>-&gt;</span> <span class='ident'>OSMesaContext</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaCreateContextExt</span> (<span class='ident'>format</span>: <span class='ident'>c_uint</span>, <span class='ident'>depthBits</span>: <span class='ident'>c_int</span>, <span class='ident'>stencilBits</span>: <span class='ident'>c_int</span>, <span class='ident'>accumBits</span>: <span class='ident'>c_int</span>, <span class='ident'>sharelist</span>: <span class='ident'>OSMesaContext</span>) <span class='op'>-&gt;</span> <span class='ident'>OSMesaContext</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaDestroyContext</span> (<span class='ident'>ctx</span>: <span class='ident'>OSMesaContext</span>),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaGetColorBuffer</span> (<span class='ident'>c</span>: <span class='ident'>OSMesaContext</span>, <span class='ident'>width</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>height</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>format</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>buffer</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>) <span class='op'>-&gt;</span> <span class='ident'>c_uchar</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaGetCurrentContext</span> () <span class='op'>-&gt;</span> <span class='ident'>OSMesaContext</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaGetDepthBuffer</span> (<span class='ident'>c</span>: <span class='ident'>OSMesaContext</span>, <span class='ident'>width</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>height</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>bytesPerValue</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>buffer</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>) <span class='op'>-&gt;</span> <span class='ident'>c_uchar</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaGetIntegerv</span> (<span class='ident'>pname</span>: <span class='ident'>c_int</span>, <span class='ident'>value</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaGetProcAddress</span> (<span class='ident'>funcName</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>) <span class='op'>-&gt;</span> <span class='ident'>OSMESAproc</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaMakeCurrent</span> (<span class='ident'>ctx</span>: <span class='ident'>OSMesaContext</span>, <span class='ident'>buffer</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_void</span>, <span class='ident'>_type</span>: <span class='ident'>c_uint</span>, <span class='ident'>width</span>: <span class='ident'>c_int</span>, <span class='ident'>height</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_uchar</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>OSMesaPixelStore</span> (<span class='ident'>pname</span>: <span class='ident'>c_int</span>, <span class='ident'>value</span>: <span class='ident'>c_int</span>),
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">target_os</span><span class="op">=</span><span class="string">&quot;macos&quot;</span>))]</span>
+<span class="kw">const</span> <span class="ident">LIB_NAME</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;static</span> <span class="ident">str</span> <span class="op">=</span> <span class="string">&quot;libOSMesa.so&quot;</span>;
+
+<span class="macro">shared_library</span><span class="macro">!</span>(<span class="ident">OsMesa</span>, <span class="ident">LIB_NAME</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaColorClamp</span> (<span class="ident">enable</span>: <span class="ident">c_uchar</span>),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaCreateContext</span> (<span class="ident">format</span>: <span class="ident">c_uint</span>, <span class="ident">sharelist</span>: <span class="ident">OSMesaContext</span>) <span class="op">-&gt;</span> <span class="ident">OSMesaContext</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaCreateContextExt</span> (<span class="ident">format</span>: <span class="ident">c_uint</span>, <span class="ident">depthBits</span>: <span class="ident">c_int</span>, <span class="ident">stencilBits</span>: <span class="ident">c_int</span>, <span class="ident">accumBits</span>: <span class="ident">c_int</span>, <span class="ident">sharelist</span>: <span class="ident">OSMesaContext</span>) <span class="op">-&gt;</span> <span class="ident">OSMesaContext</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaCreateContextAttribs</span>(<span class="ident">attribList</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_int</span>, <span class="ident">sharelist</span>: <span class="ident">OSMesaContext</span>) <span class="op">-&gt;</span> <span class="ident">OSMesaContext</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaDestroyContext</span> (<span class="ident">ctx</span>: <span class="ident">OSMesaContext</span>),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaGetColorBuffer</span> (<span class="ident">c</span>: <span class="ident">OSMesaContext</span>, <span class="ident">width</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">height</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">format</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-&gt;</span> <span class="ident">c_uchar</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaGetCurrentContext</span> () <span class="op">-&gt;</span> <span class="ident">OSMesaContext</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaGetDepthBuffer</span> (<span class="ident">c</span>: <span class="ident">OSMesaContext</span>, <span class="ident">width</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">height</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">bytesPerValue</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>) <span class="op">-&gt;</span> <span class="ident">c_uchar</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaGetIntegerv</span> (<span class="ident">pname</span>: <span class="ident">c_int</span>, <span class="ident">value</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaGetProcAddress</span> (<span class="ident">funcName</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>) <span class="op">-&gt;</span> <span class="ident">OSMESAproc</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaMakeCurrent</span> (<span class="ident">ctx</span>: <span class="ident">OSMesaContext</span>, <span class="ident">buffer</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">_type</span>: <span class="ident">c_uint</span>, <span class="ident">width</span>: <span class="ident">c_int</span>, <span class="ident">height</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_uchar</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">OSMesaPixelStore</span> (<span class="ident">pname</span>: <span class="ident">c_int</span>, <span class="ident">value</span>: <span class="ident">c_int</span>),
 );
 
 
-<span class='comment'>//</span>
-<span class='comment'>// types</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// types</span>
+<span class="comment">//</span>
 
 
-<span class='comment'>// opaque structs</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span> <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>osmesa_context</span>;
+<span class="comment">// opaque structs</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span> <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">osmesa_context</span>;
 
-<span class='comment'>// types</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>OSMesaContext</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>osmesa_context</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>OSMESAproc</span> <span class='op'>=</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>unsafe</span> <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> ()<span class='op'>&gt;</span>;
-
-
-<span class='comment'>//</span>
-<span class='comment'>// constants</span>
-<span class='comment'>//</span>
+<span class="comment">// types</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OSMesaContext</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">osmesa_context</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">OSMESAproc</span> <span class="op">=</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ()<span class="op">&gt;</span>;
 
 
-<span class='comment'>// context formats</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_BGRA</span>: <span class='ident'>c_uint</span> <span class='op'>=</span> <span class='number'>0x0001</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_ARGB</span>: <span class='ident'>c_uint</span> <span class='op'>=</span> <span class='number'>0x0002</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_BGR</span>: <span class='ident'>c_uint</span> <span class='op'>=</span> <span class='number'>0x0004</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_RGB_565</span>: <span class='ident'>c_uint</span> <span class='op'>=</span> <span class='number'>0x0005</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_COLOR_INDEX</span>: <span class='ident'>c_uint</span> <span class='op'>=</span> <span class='number'>0x1900</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_RGB</span>: <span class='ident'>c_uint</span> <span class='op'>=</span> <span class='number'>0x1907</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_RGBA</span>: <span class='ident'>c_uint</span> <span class='op'>=</span> <span class='number'>0x1908</span>;
+<span class="comment">//</span>
+<span class="comment">// constants</span>
+<span class="comment">//</span>
 
-<span class='comment'>// OSMesaGetIntegerv</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_WIDTH</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0020</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_HEIGHT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0021</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_FORMAT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0022</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_TYPE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0023</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_MAX_WIDTH</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0024</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_MAX_HEIGHT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0025</span>;
 
-<span class='comment'>// OSMesaPixelStore</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_ROW_LENGTH</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0010</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>OSMESA_Y_UP</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0011</span>;
+<span class="comment">// context formats</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_BGRA</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0001</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_ARGB</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0002</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_BGR</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0004</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_RGB_565</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0005</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_COLOR_INDEX</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x1900</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_RGB</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x1907</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_RGBA</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x1908</span>;
+
+<span class="comment">// OSMesaGetIntegerv</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_WIDTH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0020</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_HEIGHT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0021</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_FORMAT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0022</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0023</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_MAX_WIDTH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0024</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_MAX_HEIGHT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0025</span>;
+
+<span class="comment">// OSMesaPixelStore</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_ROW_LENGTH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0010</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_Y_UP</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0011</span>;
+
+<span class="comment">// OSMesaCreateContextAttribs</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_DEPTH_BITS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x30</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_STENCIL_BITS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x31</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_ACCUM_BITS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x32</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_PROFILE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x33</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_CORE_PROFILE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x34</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_COMPAT_PROFILE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x35</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_CONTEXT_MAJOR_VERSION</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x36</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">OSMESA_CONTEXT_MINOR_VERSION</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x37</span>;
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -218,12 +246,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -244,7 +276,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -255,11 +287,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "osmesa_sys";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["EmptyUniforms","Object that can be used when you don't have any uniforms."],["UniformsStorage","Stores uniforms."]]});

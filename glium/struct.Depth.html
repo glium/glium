@@ -9,13 +9,15 @@
 
     <title>glium::Depth - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'Depth', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct Depth</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.test">test</a><a href="#structfield.write">write</a><a href="#structfield.range">range</a><a href="#structfield.clamp">clamp</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-Default">Default</a></div></div><p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'Depth', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,36 +43,45 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glium</a>::<wbr><a class='struct' href=''>Depth</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-2060' class='srclink' href='../src/glium/draw_parameters/depth.rs.html#10-46' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>glium</a>::<wbr><a class="struct" href=''>Depth</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#10-46' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct Depth {
-    pub test: <a class='enum' href='../glium/enum.DepthTest.html' title='glium::DepthTest'>DepthTest</a>,
-    pub write: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
-    pub range: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>)</a>,
-    pub clamp: <a class='enum' href='../glium/draw_parameters/enum.DepthClamp.html' title='glium::draw_parameters::DepthClamp'>DepthClamp</a>,
+    pub test: <a class="enum" href="../glium/enum.DepthTest.html" title="enum glium::DepthTest">DepthTest</a>,
+    pub write: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+    pub range: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>,
+    pub clamp: <a class="enum" href="../glium/draw_parameters/enum.DepthClamp.html" title="enum glium::draw_parameters::DepthClamp">DepthClamp</a>,
 }</pre><div class='docblock'><p>Represents the depth parameters of a draw command.</p>
-</div><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.test'><code>test</code></td><td><div class='docblock'><p>The function that the GPU will use to determine whether to write over an existing pixel
+</div><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.test" class="structfield small-section-header">
+                           <a href="#structfield.test" class="anchor field"></a>
+                           <span id="test.v" class='invisible'>
+                           <code>test: <a class="enum" href="../glium/enum.DepthTest.html" title="enum glium::DepthTest">DepthTest</a></code>
+                           </span></span><div class='docblock'><p>The function that the GPU will use to determine whether to write over an existing pixel
 on the target. Don&#39;t forget to set <code>depth_write</code> appropriately if you use a depth test.</p>
 
 <p>See the <code>DepthTest</code> documentation for more details.</p>
 
 <p>The default is <code>Overwrite</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.write'><code>write</code></td><td><div class='docblock'><p>Sets whether the GPU will write the depth values on the depth buffer if they pass the
+</div><span id="structfield.write" class="structfield small-section-header">
+                           <a href="#structfield.write" class="anchor field"></a>
+                           <span id="write.v" class='invisible'>
+                           <code>write: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code>
+                           </span></span><div class='docblock'><p>Sets whether the GPU will write the depth values on the depth buffer if they pass the
 depth test.</p>
 
 <p>The default is <code>false</code>. You most likely want <code>true</code> if you&#39;re doing depth testing.</p>
 
 <p>If you pass <code>true</code> but don&#39;t have a depth buffer available, drawing will produce
 a <code>NoDepthBuffer</code> error.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.range'><code>range</code></td><td><div class='docblock'><p>The range of possible Z values in surface coordinates.</p>
+</div><span id="structfield.range" class="structfield small-section-header">
+                           <a href="#structfield.range" class="anchor field"></a>
+                           <span id="range.v" class='invisible'>
+                           <code>range: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code>
+                           </span></span><div class='docblock'><p>The range of possible Z values in surface coordinates.</p>
 
 <p>Just like OpenGL turns X and Y coordinates between <code>-1.0</code> and <code>1.0</code> into surface
 coordinates, it will also map your Z coordinates to a certain range which you can
@@ -82,15 +93,30 @@ in a panic. By default the depth range is <code>(0.0, 1.0)</code>.</p>
 <p>The first value of the tuple must be the &quot;near&quot; value, where <code>-1.0</code> will be mapped.
 The second value must be the &quot;far&quot; value, where <code>1.0</code> will be mapped.
 It is possible for the &quot;near&quot; value to be greater than the &quot;far&quot; value.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.clamp'><code>clamp</code></td><td><div class='docblock'><p>Sets whether the depth values of samples should be clamped to <code>0.0</code> and <code>1.0</code>.</p>
+</div><span id="structfield.clamp" class="structfield small-section-header">
+                           <a href="#structfield.clamp" class="anchor field"></a>
+                           <span id="clamp.v" class='invisible'>
+                           <code>clamp: <a class="enum" href="../glium/draw_parameters/enum.DepthClamp.html" title="enum glium::draw_parameters::DepthClamp">DepthClamp</a></code>
+                           </span></span><div class='docblock'><p>Sets whether the depth values of samples should be clamped to <code>0.0</code> and <code>1.0</code>.</p>
 
 <p>The default value is <code>NoClamp</code>.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../glium/struct.Depth.html' title='glium::Depth'>Depth</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../glium/struct.Depth.html' title='glium::Depth'>Depth</a></code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../glium/struct.Depth.html' title='glium::Depth'>Depth</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../glium/struct.Depth.html' title='glium::Depth'>Depth</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../glium/struct.Depth.html' title='glium::Depth'>Depth</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../glium/struct.Depth.html' title='glium::Depth'>Depth</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div></section>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../glium/struct.Depth.html" title="struct glium::Depth">Depth</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#9' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#9' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../glium/struct.Depth.html" title="struct glium::Depth">Depth</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#9' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../glium/struct.Depth.html" title="struct glium::Depth">Depth</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#9' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../glium/struct.Depth.html" title="struct glium::Depth">Depth</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#9' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Default' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../glium/struct.Depth.html" title="struct glium::Depth">Depth</a></code><a href='#impl-Default' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#48-58' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class="struct" href="../glium/struct.Depth.html" title="struct glium::Depth">Depth</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/depth.rs.html#50-57' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -107,12 +133,16 @@ It is possible for the &quot;near&quot; value to be greater than the &quot;far&q
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -133,7 +163,7 @@ It is possible for the &quot;near&quot; value to be greater than the &quot;far&q
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -144,11 +174,8 @@ It is possible for the &quot;near&quot; value to be greater than the &quot;far&q
     <script>
         window.rootPath = "../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

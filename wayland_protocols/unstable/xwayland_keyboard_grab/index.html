@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `xwayland_keyboard_grab` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, xwayland_keyboard_grab">
+
+    <title>wayland_protocols::unstable::xwayland_keyboard_grab - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module xwayland_keyboard_grab</p><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><p class='location'><a href='../../index.html'>wayland_protocols</a>::<wbr><a href='../index.html'>unstable</a></p><script>window.sidebarCurrent = {name: 'xwayland_keyboard_grab', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../index.html'>wayland_protocols</a>::<wbr><a href='../index.html'>unstable</a>::<wbr><a class="mod" href=''>xwayland_keyboard_grab</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/wayland_protocols/unstable.rs.html#323-361' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Protocol for grabbing the keyboard from Xwayland</p>
+
+<p>This protocol is application-specific to meet the needs of the X11
+protocol through Xwayland. It provides a way for Xwayland to request
+all keyboard events to be forwarded to a surface even when the
+surface does not have keyboard focus.</p>
+
+<p>In the X11 protocol, a client may request an &quot;active grab&quot; on the
+keyboard. On success, all key events are reported only to the
+grabbing X11 client. For details, see XGrabKeyboard(3).</p>
+
+<p>The core Wayland protocol does not have a notion of an active
+keyboard grab. When running in Xwayland, X11 applications may
+acquire an active grab inside Xwayland but that cannot be translated
+to the Wayland compositor who may set the input focus to some other
+surface. In doing so, it breaks the X11 client assumption that all
+key events are reported to the grabbing client.</p>
+
+<p>This protocol specifies a way for Xwayland to request all keyboard
+be directed to the given surface. The protocol does not guarantee
+that the compositor will honor this request and it does not
+prescribe user interfaces on how to handle the respond. For example,
+a compositor may inform the user that all key events are now
+forwarded to the given client surface, or it may ask the user for
+permission to do so.</p>
+
+<p>Compositors are required to restrict access to this application
+specific protocol to Xwayland alone.</p>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="v1/index.html"
+                                  title='mod wayland_protocols::unstable::xwayland_keyboard_grab::v1'>v1</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>
