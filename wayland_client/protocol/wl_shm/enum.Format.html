@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Format` enum in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Format">
+
+    <title>wayland_client::protocol::wl_shm::Format - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc enum">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Enum Format</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.Argb8888">Argb8888</a><a href="#variant.Xrgb8888">Xrgb8888</a><a href="#variant.C8">C8</a><a href="#variant.Rgb332">Rgb332</a><a href="#variant.Bgr233">Bgr233</a><a href="#variant.Xrgb4444">Xrgb4444</a><a href="#variant.Xbgr4444">Xbgr4444</a><a href="#variant.Rgbx4444">Rgbx4444</a><a href="#variant.Bgrx4444">Bgrx4444</a><a href="#variant.Argb4444">Argb4444</a><a href="#variant.Abgr4444">Abgr4444</a><a href="#variant.Rgba4444">Rgba4444</a><a href="#variant.Bgra4444">Bgra4444</a><a href="#variant.Xrgb1555">Xrgb1555</a><a href="#variant.Xbgr1555">Xbgr1555</a><a href="#variant.Rgbx5551">Rgbx5551</a><a href="#variant.Bgrx5551">Bgrx5551</a><a href="#variant.Argb1555">Argb1555</a><a href="#variant.Abgr1555">Abgr1555</a><a href="#variant.Rgba5551">Rgba5551</a><a href="#variant.Bgra5551">Bgra5551</a><a href="#variant.Rgb565">Rgb565</a><a href="#variant.Bgr565">Bgr565</a><a href="#variant.Rgb888">Rgb888</a><a href="#variant.Bgr888">Bgr888</a><a href="#variant.Xbgr8888">Xbgr8888</a><a href="#variant.Rgbx8888">Rgbx8888</a><a href="#variant.Bgrx8888">Bgrx8888</a><a href="#variant.Abgr8888">Abgr8888</a><a href="#variant.Rgba8888">Rgba8888</a><a href="#variant.Bgra8888">Bgra8888</a><a href="#variant.Xrgb2101010">Xrgb2101010</a><a href="#variant.Xbgr2101010">Xbgr2101010</a><a href="#variant.Rgbx1010102">Rgbx1010102</a><a href="#variant.Bgrx1010102">Bgrx1010102</a><a href="#variant.Argb2101010">Argb2101010</a><a href="#variant.Abgr2101010">Abgr2101010</a><a href="#variant.Rgba1010102">Rgba1010102</a><a href="#variant.Bgra1010102">Bgra1010102</a><a href="#variant.Yuyv">Yuyv</a><a href="#variant.Yvyu">Yvyu</a><a href="#variant.Uyvy">Uyvy</a><a href="#variant.Vyuy">Vyuy</a><a href="#variant.Ayuv">Ayuv</a><a href="#variant.Nv12">Nv12</a><a href="#variant.Nv21">Nv21</a><a href="#variant.Nv16">Nv16</a><a href="#variant.Nv61">Nv61</a><a href="#variant.Yuv410">Yuv410</a><a href="#variant.Yvu410">Yvu410</a><a href="#variant.Yuv411">Yuv411</a><a href="#variant.Yvu411">Yvu411</a><a href="#variant.Yuv420">Yuv420</a><a href="#variant.Yvu420">Yvu420</a><a href="#variant.Yuv422">Yuv422</a><a href="#variant.Yvu422">Yvu422</a><a href="#variant.Yuv444">Yuv444</a><a href="#variant.Yvu444">Yvu444</a></div><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.from_raw">from_raw</a><a href="#method.to_raw">to_raw</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_shm</a></p><script>window.sidebarCurrent = {name: 'Format', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_shm</a>::<wbr><a class="enum" href=''>Format</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#988-1105' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'><div class="docblock attributes">#[repr(u32)]
+</div>pub enum Format {
+    Argb8888,
+    Xrgb8888,
+    C8,
+    Rgb332,
+    Bgr233,
+    Xrgb4444,
+    Xbgr4444,
+    Rgbx4444,
+    Bgrx4444,
+    Argb4444,
+    Abgr4444,
+    Rgba4444,
+    Bgra4444,
+    Xrgb1555,
+    Xbgr1555,
+    Rgbx5551,
+    Bgrx5551,
+    Argb1555,
+    Abgr1555,
+    Rgba5551,
+    Bgra5551,
+    Rgb565,
+    Bgr565,
+    Rgb888,
+    Bgr888,
+    Xbgr8888,
+    Rgbx8888,
+    Bgrx8888,
+    Abgr8888,
+    Rgba8888,
+    Bgra8888,
+    Xrgb2101010,
+    Xbgr2101010,
+    Rgbx1010102,
+    Bgrx1010102,
+    Argb2101010,
+    Abgr2101010,
+    Rgba1010102,
+    Bgra1010102,
+    Yuyv,
+    Yvyu,
+    Uyvy,
+    Vyuy,
+    Ayuv,
+    Nv12,
+    Nv21,
+    Nv16,
+    Nv61,
+    Yuv410,
+    Yvu410,
+    Yuv411,
+    Yvu411,
+    Yuv420,
+    Yvu420,
+    Yuv422,
+    Yvu422,
+    Yuv444,
+    Yvu444,
+}</pre><div class='docblock'><p>pixel formats</p>
+
+<p>This describes the memory layout of an individual pixel.</p>
+
+<p>All renderers should support argb8888 and xrgb8888 but any other
+formats are optional and may not be supported by the particular
+renderer in use.</p>
+
+<p>The drm format codes match the #defines in drm_fourcc.h.
+The formats actually supported by the compositor will be
+reported by the format event.</p>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.Argb8888" class="variant small-section-header"><a href="#variant.Argb8888" class="anchor field"></a><span id='Argb8888.v' class='invisible'><code>Argb8888</code></span></span><div class='docblock'><p>32-bit ARGB format, [31:0] A:R:G:B 8:8:8:8 little endian</p>
+</div><span id="variant.Xrgb8888" class="variant small-section-header"><a href="#variant.Xrgb8888" class="anchor field"></a><span id='Xrgb8888.v' class='invisible'><code>Xrgb8888</code></span></span><div class='docblock'><p>32-bit RGB format, [31:0] x:R:G:B 8:8:8:8 little endian</p>
+</div><span id="variant.C8" class="variant small-section-header"><a href="#variant.C8" class="anchor field"></a><span id='C8.v' class='invisible'><code>C8</code></span></span><div class='docblock'><p>8-bit color index format, [7:0] C</p>
+</div><span id="variant.Rgb332" class="variant small-section-header"><a href="#variant.Rgb332" class="anchor field"></a><span id='Rgb332.v' class='invisible'><code>Rgb332</code></span></span><div class='docblock'><p>8-bit RGB format, [7:0] R:G:B 3:3:2</p>
+</div><span id="variant.Bgr233" class="variant small-section-header"><a href="#variant.Bgr233" class="anchor field"></a><span id='Bgr233.v' class='invisible'><code>Bgr233</code></span></span><div class='docblock'><p>8-bit BGR format, [7:0] B:G:R 2:3:3</p>
+</div><span id="variant.Xrgb4444" class="variant small-section-header"><a href="#variant.Xrgb4444" class="anchor field"></a><span id='Xrgb4444.v' class='invisible'><code>Xrgb4444</code></span></span><div class='docblock'><p>16-bit xRGB format, [15:0] x:R:G:B 4:4:4:4 little endian</p>
+</div><span id="variant.Xbgr4444" class="variant small-section-header"><a href="#variant.Xbgr4444" class="anchor field"></a><span id='Xbgr4444.v' class='invisible'><code>Xbgr4444</code></span></span><div class='docblock'><p>16-bit xBGR format, [15:0] x:B:G:R 4:4:4:4 little endian</p>
+</div><span id="variant.Rgbx4444" class="variant small-section-header"><a href="#variant.Rgbx4444" class="anchor field"></a><span id='Rgbx4444.v' class='invisible'><code>Rgbx4444</code></span></span><div class='docblock'><p>16-bit RGBx format, [15:0] R:G:B:x 4:4:4:4 little endian</p>
+</div><span id="variant.Bgrx4444" class="variant small-section-header"><a href="#variant.Bgrx4444" class="anchor field"></a><span id='Bgrx4444.v' class='invisible'><code>Bgrx4444</code></span></span><div class='docblock'><p>16-bit BGRx format, [15:0] B:G:R:x 4:4:4:4 little endian</p>
+</div><span id="variant.Argb4444" class="variant small-section-header"><a href="#variant.Argb4444" class="anchor field"></a><span id='Argb4444.v' class='invisible'><code>Argb4444</code></span></span><div class='docblock'><p>16-bit ARGB format, [15:0] A:R:G:B 4:4:4:4 little endian</p>
+</div><span id="variant.Abgr4444" class="variant small-section-header"><a href="#variant.Abgr4444" class="anchor field"></a><span id='Abgr4444.v' class='invisible'><code>Abgr4444</code></span></span><div class='docblock'><p>16-bit ABGR format, [15:0] A:B:G:R 4:4:4:4 little endian</p>
+</div><span id="variant.Rgba4444" class="variant small-section-header"><a href="#variant.Rgba4444" class="anchor field"></a><span id='Rgba4444.v' class='invisible'><code>Rgba4444</code></span></span><div class='docblock'><p>16-bit RBGA format, [15:0] R:G:B:A 4:4:4:4 little endian</p>
+</div><span id="variant.Bgra4444" class="variant small-section-header"><a href="#variant.Bgra4444" class="anchor field"></a><span id='Bgra4444.v' class='invisible'><code>Bgra4444</code></span></span><div class='docblock'><p>16-bit BGRA format, [15:0] B:G:R:A 4:4:4:4 little endian</p>
+</div><span id="variant.Xrgb1555" class="variant small-section-header"><a href="#variant.Xrgb1555" class="anchor field"></a><span id='Xrgb1555.v' class='invisible'><code>Xrgb1555</code></span></span><div class='docblock'><p>16-bit xRGB format, [15:0] x:R:G:B 1:5:5:5 little endian</p>
+</div><span id="variant.Xbgr1555" class="variant small-section-header"><a href="#variant.Xbgr1555" class="anchor field"></a><span id='Xbgr1555.v' class='invisible'><code>Xbgr1555</code></span></span><div class='docblock'><p>16-bit xBGR 1555 format, [15:0] x:B:G:R 1:5:5:5 little endian</p>
+</div><span id="variant.Rgbx5551" class="variant small-section-header"><a href="#variant.Rgbx5551" class="anchor field"></a><span id='Rgbx5551.v' class='invisible'><code>Rgbx5551</code></span></span><div class='docblock'><p>16-bit RGBx 5551 format, [15:0] R:G:B:x 5:5:5:1 little endian</p>
+</div><span id="variant.Bgrx5551" class="variant small-section-header"><a href="#variant.Bgrx5551" class="anchor field"></a><span id='Bgrx5551.v' class='invisible'><code>Bgrx5551</code></span></span><div class='docblock'><p>16-bit BGRx 5551 format, [15:0] B:G:R:x 5:5:5:1 little endian</p>
+</div><span id="variant.Argb1555" class="variant small-section-header"><a href="#variant.Argb1555" class="anchor field"></a><span id='Argb1555.v' class='invisible'><code>Argb1555</code></span></span><div class='docblock'><p>16-bit ARGB 1555 format, [15:0] A:R:G:B 1:5:5:5 little endian</p>
+</div><span id="variant.Abgr1555" class="variant small-section-header"><a href="#variant.Abgr1555" class="anchor field"></a><span id='Abgr1555.v' class='invisible'><code>Abgr1555</code></span></span><div class='docblock'><p>16-bit ABGR 1555 format, [15:0] A:B:G:R 1:5:5:5 little endian</p>
+</div><span id="variant.Rgba5551" class="variant small-section-header"><a href="#variant.Rgba5551" class="anchor field"></a><span id='Rgba5551.v' class='invisible'><code>Rgba5551</code></span></span><div class='docblock'><p>16-bit RGBA 5551 format, [15:0] R:G:B:A 5:5:5:1 little endian</p>
+</div><span id="variant.Bgra5551" class="variant small-section-header"><a href="#variant.Bgra5551" class="anchor field"></a><span id='Bgra5551.v' class='invisible'><code>Bgra5551</code></span></span><div class='docblock'><p>16-bit BGRA 5551 format, [15:0] B:G:R:A 5:5:5:1 little endian</p>
+</div><span id="variant.Rgb565" class="variant small-section-header"><a href="#variant.Rgb565" class="anchor field"></a><span id='Rgb565.v' class='invisible'><code>Rgb565</code></span></span><div class='docblock'><p>16-bit RGB 565 format, [15:0] R:G:B 5:6:5 little endian</p>
+</div><span id="variant.Bgr565" class="variant small-section-header"><a href="#variant.Bgr565" class="anchor field"></a><span id='Bgr565.v' class='invisible'><code>Bgr565</code></span></span><div class='docblock'><p>16-bit BGR 565 format, [15:0] B:G:R 5:6:5 little endian</p>
+</div><span id="variant.Rgb888" class="variant small-section-header"><a href="#variant.Rgb888" class="anchor field"></a><span id='Rgb888.v' class='invisible'><code>Rgb888</code></span></span><div class='docblock'><p>24-bit RGB format, [23:0] R:G:B little endian</p>
+</div><span id="variant.Bgr888" class="variant small-section-header"><a href="#variant.Bgr888" class="anchor field"></a><span id='Bgr888.v' class='invisible'><code>Bgr888</code></span></span><div class='docblock'><p>24-bit BGR format, [23:0] B:G:R little endian</p>
+</div><span id="variant.Xbgr8888" class="variant small-section-header"><a href="#variant.Xbgr8888" class="anchor field"></a><span id='Xbgr8888.v' class='invisible'><code>Xbgr8888</code></span></span><div class='docblock'><p>32-bit xBGR format, [31:0] x:B:G:R 8:8:8:8 little endian</p>
+</div><span id="variant.Rgbx8888" class="variant small-section-header"><a href="#variant.Rgbx8888" class="anchor field"></a><span id='Rgbx8888.v' class='invisible'><code>Rgbx8888</code></span></span><div class='docblock'><p>32-bit RGBx format, [31:0] R:G:B:x 8:8:8:8 little endian</p>
+</div><span id="variant.Bgrx8888" class="variant small-section-header"><a href="#variant.Bgrx8888" class="anchor field"></a><span id='Bgrx8888.v' class='invisible'><code>Bgrx8888</code></span></span><div class='docblock'><p>32-bit BGRx format, [31:0] B:G:R:x 8:8:8:8 little endian</p>
+</div><span id="variant.Abgr8888" class="variant small-section-header"><a href="#variant.Abgr8888" class="anchor field"></a><span id='Abgr8888.v' class='invisible'><code>Abgr8888</code></span></span><div class='docblock'><p>32-bit ABGR format, [31:0] A:B:G:R 8:8:8:8 little endian</p>
+</div><span id="variant.Rgba8888" class="variant small-section-header"><a href="#variant.Rgba8888" class="anchor field"></a><span id='Rgba8888.v' class='invisible'><code>Rgba8888</code></span></span><div class='docblock'><p>32-bit RGBA format, [31:0] R:G:B:A 8:8:8:8 little endian</p>
+</div><span id="variant.Bgra8888" class="variant small-section-header"><a href="#variant.Bgra8888" class="anchor field"></a><span id='Bgra8888.v' class='invisible'><code>Bgra8888</code></span></span><div class='docblock'><p>32-bit BGRA format, [31:0] B:G:R:A 8:8:8:8 little endian</p>
+</div><span id="variant.Xrgb2101010" class="variant small-section-header"><a href="#variant.Xrgb2101010" class="anchor field"></a><span id='Xrgb2101010.v' class='invisible'><code>Xrgb2101010</code></span></span><div class='docblock'><p>32-bit xRGB format, [31:0] x:R:G:B 2:10:10:10 little endian</p>
+</div><span id="variant.Xbgr2101010" class="variant small-section-header"><a href="#variant.Xbgr2101010" class="anchor field"></a><span id='Xbgr2101010.v' class='invisible'><code>Xbgr2101010</code></span></span><div class='docblock'><p>32-bit xBGR format, [31:0] x:B:G:R 2:10:10:10 little endian</p>
+</div><span id="variant.Rgbx1010102" class="variant small-section-header"><a href="#variant.Rgbx1010102" class="anchor field"></a><span id='Rgbx1010102.v' class='invisible'><code>Rgbx1010102</code></span></span><div class='docblock'><p>32-bit RGBx format, [31:0] R:G:B:x 10:10:10:2 little endian</p>
+</div><span id="variant.Bgrx1010102" class="variant small-section-header"><a href="#variant.Bgrx1010102" class="anchor field"></a><span id='Bgrx1010102.v' class='invisible'><code>Bgrx1010102</code></span></span><div class='docblock'><p>32-bit BGRx format, [31:0] B:G:R:x 10:10:10:2 little endian</p>
+</div><span id="variant.Argb2101010" class="variant small-section-header"><a href="#variant.Argb2101010" class="anchor field"></a><span id='Argb2101010.v' class='invisible'><code>Argb2101010</code></span></span><div class='docblock'><p>32-bit ARGB format, [31:0] A:R:G:B 2:10:10:10 little endian</p>
+</div><span id="variant.Abgr2101010" class="variant small-section-header"><a href="#variant.Abgr2101010" class="anchor field"></a><span id='Abgr2101010.v' class='invisible'><code>Abgr2101010</code></span></span><div class='docblock'><p>32-bit ABGR format, [31:0] A:B:G:R 2:10:10:10 little endian</p>
+</div><span id="variant.Rgba1010102" class="variant small-section-header"><a href="#variant.Rgba1010102" class="anchor field"></a><span id='Rgba1010102.v' class='invisible'><code>Rgba1010102</code></span></span><div class='docblock'><p>32-bit RGBA format, [31:0] R:G:B:A 10:10:10:2 little endian</p>
+</div><span id="variant.Bgra1010102" class="variant small-section-header"><a href="#variant.Bgra1010102" class="anchor field"></a><span id='Bgra1010102.v' class='invisible'><code>Bgra1010102</code></span></span><div class='docblock'><p>32-bit BGRA format, [31:0] B:G:R:A 10:10:10:2 little endian</p>
+</div><span id="variant.Yuyv" class="variant small-section-header"><a href="#variant.Yuyv" class="anchor field"></a><span id='Yuyv.v' class='invisible'><code>Yuyv</code></span></span><div class='docblock'><p>packed YCbCr format, [31:0] Cr0:Y1:Cb0:Y0 8:8:8:8 little endian</p>
+</div><span id="variant.Yvyu" class="variant small-section-header"><a href="#variant.Yvyu" class="anchor field"></a><span id='Yvyu.v' class='invisible'><code>Yvyu</code></span></span><div class='docblock'><p>packed YCbCr format, [31:0] Cb0:Y1:Cr0:Y0 8:8:8:8 little endian</p>
+</div><span id="variant.Uyvy" class="variant small-section-header"><a href="#variant.Uyvy" class="anchor field"></a><span id='Uyvy.v' class='invisible'><code>Uyvy</code></span></span><div class='docblock'><p>packed YCbCr format, [31:0] Y1:Cr0:Y0:Cb0 8:8:8:8 little endian</p>
+</div><span id="variant.Vyuy" class="variant small-section-header"><a href="#variant.Vyuy" class="anchor field"></a><span id='Vyuy.v' class='invisible'><code>Vyuy</code></span></span><div class='docblock'><p>packed YCbCr format, [31:0] Y1:Cb0:Y0:Cr0 8:8:8:8 little endian</p>
+</div><span id="variant.Ayuv" class="variant small-section-header"><a href="#variant.Ayuv" class="anchor field"></a><span id='Ayuv.v' class='invisible'><code>Ayuv</code></span></span><div class='docblock'><p>packed AYCbCr format, [31:0] A:Y:Cb:Cr 8:8:8:8 little endian</p>
+</div><span id="variant.Nv12" class="variant small-section-header"><a href="#variant.Nv12" class="anchor field"></a><span id='Nv12.v' class='invisible'><code>Nv12</code></span></span><div class='docblock'><p>2 plane YCbCr Cr:Cb format, 2x2 subsampled Cr:Cb plane</p>
+</div><span id="variant.Nv21" class="variant small-section-header"><a href="#variant.Nv21" class="anchor field"></a><span id='Nv21.v' class='invisible'><code>Nv21</code></span></span><div class='docblock'><p>2 plane YCbCr Cb:Cr format, 2x2 subsampled Cb:Cr plane</p>
+</div><span id="variant.Nv16" class="variant small-section-header"><a href="#variant.Nv16" class="anchor field"></a><span id='Nv16.v' class='invisible'><code>Nv16</code></span></span><div class='docblock'><p>2 plane YCbCr Cr:Cb format, 2x1 subsampled Cr:Cb plane</p>
+</div><span id="variant.Nv61" class="variant small-section-header"><a href="#variant.Nv61" class="anchor field"></a><span id='Nv61.v' class='invisible'><code>Nv61</code></span></span><div class='docblock'><p>2 plane YCbCr Cb:Cr format, 2x1 subsampled Cb:Cr plane</p>
+</div><span id="variant.Yuv410" class="variant small-section-header"><a href="#variant.Yuv410" class="anchor field"></a><span id='Yuv410.v' class='invisible'><code>Yuv410</code></span></span><div class='docblock'><p>3 plane YCbCr format, 4x4 subsampled Cb (1) and Cr (2) planes</p>
+</div><span id="variant.Yvu410" class="variant small-section-header"><a href="#variant.Yvu410" class="anchor field"></a><span id='Yvu410.v' class='invisible'><code>Yvu410</code></span></span><div class='docblock'><p>3 plane YCbCr format, 4x4 subsampled Cr (1) and Cb (2) planes</p>
+</div><span id="variant.Yuv411" class="variant small-section-header"><a href="#variant.Yuv411" class="anchor field"></a><span id='Yuv411.v' class='invisible'><code>Yuv411</code></span></span><div class='docblock'><p>3 plane YCbCr format, 4x1 subsampled Cb (1) and Cr (2) planes</p>
+</div><span id="variant.Yvu411" class="variant small-section-header"><a href="#variant.Yvu411" class="anchor field"></a><span id='Yvu411.v' class='invisible'><code>Yvu411</code></span></span><div class='docblock'><p>3 plane YCbCr format, 4x1 subsampled Cr (1) and Cb (2) planes</p>
+</div><span id="variant.Yuv420" class="variant small-section-header"><a href="#variant.Yuv420" class="anchor field"></a><span id='Yuv420.v' class='invisible'><code>Yuv420</code></span></span><div class='docblock'><p>3 plane YCbCr format, 2x2 subsampled Cb (1) and Cr (2) planes</p>
+</div><span id="variant.Yvu420" class="variant small-section-header"><a href="#variant.Yvu420" class="anchor field"></a><span id='Yvu420.v' class='invisible'><code>Yvu420</code></span></span><div class='docblock'><p>3 plane YCbCr format, 2x2 subsampled Cr (1) and Cb (2) planes</p>
+</div><span id="variant.Yuv422" class="variant small-section-header"><a href="#variant.Yuv422" class="anchor field"></a><span id='Yuv422.v' class='invisible'><code>Yuv422</code></span></span><div class='docblock'><p>3 plane YCbCr format, 2x1 subsampled Cb (1) and Cr (2) planes</p>
+</div><span id="variant.Yvu422" class="variant small-section-header"><a href="#variant.Yvu422" class="anchor field"></a><span id='Yvu422.v' class='invisible'><code>Yvu422</code></span></span><div class='docblock'><p>3 plane YCbCr format, 2x1 subsampled Cr (1) and Cb (2) planes</p>
+</div><span id="variant.Yuv444" class="variant small-section-header"><a href="#variant.Yuv444" class="anchor field"></a><span id='Yuv444.v' class='invisible'><code>Yuv444</code></span></span><div class='docblock'><p>3 plane YCbCr format, non-subsampled Cb (1) and Cr (2) planes</p>
+</div><span id="variant.Yvu444" class="variant small-section-header"><a href="#variant.Yvu444" class="anchor field"></a><span id='Yvu444.v' class='invisible'><code>Yvu444</code></span></span><div class='docblock'><p>3 plane YCbCr format, non-subsampled Cr (1) and Cb (2) planes</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1106-1173' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from_raw' class="method"><span id='from_raw.v' class='invisible'><code>pub fn <a href='#method.from_raw' class='fnname'>from_raw</a>(n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1107-1169' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.to_raw' class="method"><span id='to_raw.v' class='invisible'><code>pub fn <a href='#method.to_raw' class='fnname'>to_raw</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1170-1172' title='goto source code'>[src]</a></span></h4>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#987' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#987' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#987' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#987' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#987' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#987' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../../../wayland_client/protocol/wl_shm/enum.Format.html" title="enum wayland_client::protocol::wl_shm::Format">Format</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#987' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

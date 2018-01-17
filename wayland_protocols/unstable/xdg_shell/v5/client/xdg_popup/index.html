@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `xdg_popup` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, xdg_popup">
+
+    <title>wayland_protocols::unstable::xdg_shell::v5::client::xdg_popup - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module xdg_popup</p><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class='location'><a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>xdg_shell</a>::<wbr><a href='../../index.html'>v5</a>::<wbr><a href='../index.html'>client</a></p><script>window.sidebarCurrent = {name: 'xdg_popup', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>xdg_shell</a>::<wbr><a href='../../index.html'>v5</a>::<wbr><a href='../index.html'>client</a>::<wbr><a class="mod" href=''>xdg_popup</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/xdg-shell-v5_client_api.rs.html#939-1159' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>short-lived, popup surfaces for menus</p>
+
+<p>A popup surface is a short-lived, temporary surface that can be
+used to implement menus. It takes an explicit grab on the surface
+that will be dismissed when the user dismisses the popup. This can
+be done by the user clicking outside the surface, using the keyboard,
+or even locking the screen through closing the lid or a timeout.</p>
+
+<p>When the popup is dismissed, a popup_done event will be sent out,
+and at the same time the surface will be unmapped. The xdg_popup
+object is now inert and cannot be reactivated, so clients should
+destroy it. Explicitly destroying the xdg_popup object will also
+dismiss the popup and unmap the surface.</p>
+
+<p>Clients will receive events for all their surfaces during this
+grab (which is an &quot;owner-events&quot; grab in X11 parlance). This is
+done so that users can navigate through submenus and other
+&quot;nested&quot; popup windows without having to dismiss the topmost
+popup.</p>
+
+<p>Clients that want to dismiss the popup when another surface of
+their own is clicked should dismiss the popup using the destroy
+request.</p>
+
+<p>The parent surface must have either an xdg_surface or xdg_popup
+role.</p>
+
+<p>Specifying an xdg_popup for the parent means that the popups are
+nested, with this popup now being the topmost popup. Nested
+popups must be destroyed in the reverse order they were created
+in, e.g. the only popup you are allowed to destroy at all times
+is the topmost one.</p>
+
+<p>If there is an existing popup when creating a new popup, the
+parent must be the current topmost popup.</p>
+
+<p>A parent surface must be mapped before the new popup is mapped.</p>
+
+<p>When compositors choose to dismiss a popup, they will likely
+dismiss every nested popup as well. When a compositor dismisses
+popups, it will follow the same dismissing order as required
+from the client.</p>
+
+<p>The x and y arguments passed when creating the popup object specify
+where the top left of the popup should be placed, relative to the
+local surface coordinates of the parent surface. See
+xdg_shell.get_xdg_popup.</p>
+
+<p>The client must call wl_surface.commit on the corresponding wl_surface
+for the xdg_popup state to take effect.</p>
+
+<p>For a surface to be mapped by the compositor the client must have
+committed both the xdg_popup state and a buffer.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Implementation.html"
+                                  title='struct wayland_protocols::unstable::xdg_shell::v5::client::xdg_popup::Implementation'>Implementation</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.XdgPopup.html"
+                                  title='struct wayland_protocols::unstable::xdg_shell::v5::client::xdg_popup::XdgPopup'>XdgPopup</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../../../main.js"></script>
+    <script defer src="../../../../../../search-index.js"></script>
+</body>
+</html>

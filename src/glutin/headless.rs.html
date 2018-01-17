@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/glutin-0.4.3/src/headless.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/glutin-0.12.0/src/headless.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>headless.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -188,162 +190,154 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
-<span id="148">148</span>
-<span id="149">149</span>
-<span id="150">150</span>
-<span id="151">151</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>Api</span>;
-<span class='kw'>use</span> <span class='ident'>ContextError</span>;
-<span class='kw'>use</span> <span class='ident'>CreationError</span>;
-<span class='kw'>use</span> <span class='ident'>GlAttributes</span>;
-<span class='kw'>use</span> <span class='ident'>GlRequest</span>;
-<span class='kw'>use</span> <span class='ident'>GlContext</span>;
-<span class='kw'>use</span> <span class='ident'>PixelFormat</span>;
-<span class='kw'>use</span> <span class='ident'>PixelFormatRequirements</span>;
-<span class='kw'>use</span> <span class='ident'>Robustness</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">Api</span>;
+<span class="kw">use</span> <span class="ident">ContextError</span>;
+<span class="kw">use</span> <span class="ident">CreationError</span>;
+<span class="kw">use</span> <span class="ident">GlAttributes</span>;
+<span class="kw">use</span> <span class="ident">GlContext</span>;
+<span class="kw">use</span> <span class="ident">GlProfile</span>;
+<span class="kw">use</span> <span class="ident">GlRequest</span>;
+<span class="kw">use</span> <span class="ident">PixelFormat</span>;
+<span class="kw">use</span> <span class="ident">PixelFormatRequirements</span>;
+<span class="kw">use</span> <span class="ident">Robustness</span>;
 
-<span class='kw'>use</span> <span class='ident'>platform</span>;
+<span class="kw">use</span> <span class="ident">platform</span>;
 
-<span class='doccomment'>/// Object that allows you to build headless contexts.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>HeadlessRendererBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// The dimensions to use.</span>
-    <span class='kw'>pub</span> <span class='ident'>dimensions</span>: (<span class='ident'>u32</span>, <span class='ident'>u32</span>),
+<span class="doccomment">/// Object that allows you to build headless contexts.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HeadlessRendererBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// The dimensions to use.</span>
+    <span class="kw">pub</span> <span class="ident">dimensions</span>: (<span class="ident">u32</span>, <span class="ident">u32</span>),
 
-    <span class='doccomment'>/// The OpenGL attributes to build the context with.</span>
-    <span class='kw'>pub</span> <span class='ident'>opengl</span>: <span class='ident'>GlAttributes</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>platform</span>::<span class='ident'>HeadlessContext</span><span class='op'>&gt;</span>,
+    <span class="doccomment">/// The OpenGL attributes to build the context with.</span>
+    <span class="kw">pub</span> <span class="ident">opengl</span>: <span class="ident">GlAttributes</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">platform</span>::<span class="ident">HeadlessContext</span><span class="op">&gt;</span>,
 
-    <span class='comment'>// Should be made public once it&#39;s stabilized.</span>
-    <span class='ident'>pf_reqs</span>: <span class='ident'>PixelFormatRequirements</span>,
+    <span class="comment">// Should be made public once it&#39;s stabilized.</span>
+    <span class="ident">pf_reqs</span>: <span class="ident">PixelFormatRequirements</span>,
+
+    <span class="doccomment">/// Platform-specific configuration.</span>
+    <span class="ident">platform_specific</span>: <span class="ident">platform</span>::<span class="ident">PlatformSpecificHeadlessBuilderAttributes</span>,
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>HeadlessRendererBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Initializes a new `HeadlessRendererBuilder` with default values.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>width</span>: <span class='ident'>u32</span>, <span class='ident'>height</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>HeadlessRendererBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>HeadlessRendererBuilder</span> {
-            <span class='ident'>dimensions</span>: (<span class='ident'>width</span>, <span class='ident'>height</span>),
-            <span class='ident'>pf_reqs</span>: <span class='ident'>Default</span>::<span class='ident'>default</span>(),
-            <span class='ident'>opengl</span>: <span class='ident'>Default</span>::<span class='ident'>default</span>(),
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">HeadlessRendererBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Initializes a new `HeadlessRendererBuilder` with default values.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">HeadlessRendererBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">HeadlessRendererBuilder</span> {
+            <span class="ident">dimensions</span>: (<span class="ident">width</span>, <span class="ident">height</span>),
+            <span class="ident">pf_reqs</span>: <span class="ident">PixelFormatRequirements</span> {
+                <span class="ident">hardware_accelerated</span>: <span class="prelude-val">None</span>,
+                .. <span class="ident">Default</span>::<span class="ident">default</span>()
+            },
+            <span class="ident">opengl</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
+            <span class="ident">platform_specific</span>: <span class="ident">Default</span>::<span class="ident">default</span>(),
         }
     }
 
-    <span class='doccomment'>/// Sets how the backend should choose the OpenGL API and version.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_gl</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>request</span>: <span class='ident'>GlRequest</span>) <span class='op'>-&gt;</span> <span class='ident'>HeadlessRendererBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>opengl</span>.<span class='ident'>version</span> <span class='op'>=</span> <span class='ident'>request</span>;
-        <span class='self'>self</span>
+    <span class="doccomment">/// Sets how the backend should choose the OpenGL API and version.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_gl</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">request</span>: <span class="ident">GlRequest</span>) <span class="op">-&gt;</span> <span class="ident">HeadlessRendererBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">opengl</span>.<span class="ident">version</span> <span class="op">=</span> <span class="ident">request</span>;
+        <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Sets the *debug* flag for the OpenGL context.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value for this flag is `cfg!(ndebug)`, which means that it&#39;s enabled</span>
-    <span class='doccomment'>/// when you run `cargo build` and disabled when you run `cargo build --release`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_gl_debug_flag</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>flag</span>: <span class='ident'>bool</span>) <span class='op'>-&gt;</span> <span class='ident'>HeadlessRendererBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>opengl</span>.<span class='ident'>debug</span> <span class='op'>=</span> <span class='ident'>flag</span>;
-        <span class='self'>self</span>
+    <span class="doccomment">/// Sets the desired OpenGL context profile.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_gl_profile</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">profile</span>: <span class="ident">GlProfile</span>) <span class="op">-&gt;</span> <span class="ident">HeadlessRendererBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">opengl</span>.<span class="ident">profile</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">profile</span>);
+        <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Sets the robustness of the OpenGL context. See the docs of `Robustness`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_gl_robustness</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>robustness</span>: <span class='ident'>Robustness</span>) <span class='op'>-&gt;</span> <span class='ident'>HeadlessRendererBuilder</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>opengl</span>.<span class='ident'>robustness</span> <span class='op'>=</span> <span class='ident'>robustness</span>;
-        <span class='self'>self</span>
+    <span class="doccomment">/// Sets the *debug* flag for the OpenGL context.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value for this flag is `cfg!(ndebug)`, which means that it&#39;s enabled</span>
+    <span class="doccomment">/// when you run `cargo build` and disabled when you run `cargo build --release`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_gl_debug_flag</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">flag</span>: <span class="ident">bool</span>) <span class="op">-&gt;</span> <span class="ident">HeadlessRendererBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">opengl</span>.<span class="ident">debug</span> <span class="op">=</span> <span class="ident">flag</span>;
+        <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Builds the headless context.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Error should be very rare and only occur in case of permission denied, incompatible system,</span>
-    <span class='doccomment'>///  out of memory, etc.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>build</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>HeadlessContext</span>, <span class='ident'>CreationError</span><span class='op'>&gt;</span> {
-        <span class='ident'>platform</span>::<span class='ident'>HeadlessContext</span>::<span class='ident'>new</span>(<span class='self'>self</span>.<span class='ident'>dimensions</span>, <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>pf_reqs</span>, <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>opengl</span>)
-                .<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>w</span><span class='op'>|</span> <span class='ident'>HeadlessContext</span> { <span class='ident'>context</span>: <span class='ident'>w</span> })
+    <span class="doccomment">/// Sets the robustness of the OpenGL context. See the docs of `Robustness`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_gl_robustness</span>(<span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">robustness</span>: <span class="ident">Robustness</span>) <span class="op">-&gt;</span> <span class="ident">HeadlessRendererBuilder</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">opengl</span>.<span class="ident">robustness</span> <span class="op">=</span> <span class="ident">robustness</span>;
+        <span class="self">self</span>
     }
 
-    <span class='doccomment'>/// Builds the headless context.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The context is build in a *strict* way. That means that if the backend couldn&#39;t give</span>
-    <span class='doccomment'>/// you what you requested, an `Err` will be returned.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>build_strict</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>HeadlessContext</span>, <span class='ident'>CreationError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>build</span>()
-    }
-}
-
-<span class='doccomment'>/// Represents a headless OpenGL context.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>HeadlessContext</span> {
-    <span class='ident'>context</span>: <span class='ident'>platform</span>::<span class='ident'>HeadlessContext</span>,
-}
-
-<span class='kw'>impl</span> <span class='ident'>HeadlessContext</span> {
-    <span class='doccomment'>/// Creates a new OpenGL context</span>
-    <span class='doccomment'>/// Sets the context as the current context.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>make_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ContextError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>make_current</span>()
-    }
-    
-    <span class='doccomment'>/// Returns true if this context is the current one in this thread.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>is_current</span>()
+    <span class="doccomment">/// Builds the headless context.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Error should be very rare and only occur in case of permission denied, incompatible system,</span>
+    <span class="doccomment">///  out of memory, etc.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HeadlessContext</span>, <span class="ident">CreationError</span><span class="op">&gt;</span> {
+        <span class="ident">platform</span>::<span class="ident">HeadlessContext</span>::<span class="ident">new</span>(<span class="self">self</span>.<span class="ident">dimensions</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">pf_reqs</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">opengl</span>,
+                                       <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">platform_specific</span>)
+                .<span class="ident">map</span>(<span class="op">|</span><span class="ident">w</span><span class="op">|</span> <span class="ident">HeadlessContext</span> { <span class="ident">context</span>: <span class="ident">w</span> })
     }
 
-    <span class='doccomment'>/// Returns the address of an OpenGL function.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Contrary to `wglGetProcAddress`, all available OpenGL functions return an address.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_proc_address</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>addr</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> () {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>get_proc_address</span>(<span class='ident'>addr</span>)
-    }
-
-    <span class='doccomment'>/// Returns the API that is currently provided by this window.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// See `Window::get_api` for more infos.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_api</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Api</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>get_api</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>set_window_resize_callback</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, _: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>fn</span>(<span class='ident'>u32</span>, <span class='ident'>u32</span>)<span class='op'>&gt;</span>) {
+    <span class="doccomment">/// Builds the headless context.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The context is build in a *strict* way. That means that if the backend couldn&#39;t give</span>
+    <span class="doccomment">/// you what you requested, an `Err` will be returned.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_strict</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">HeadlessContext</span>, <span class="ident">CreationError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">build</span>()
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlContext</span> <span class='kw'>for</span> <span class='ident'>HeadlessContext</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>make_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ContextError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>make_current</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_current</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>is_current</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_proc_address</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>addr</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> () {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>get_proc_address</span>(<span class='ident'>addr</span>)
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>swap_buffers</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>ContextError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>swap_buffers</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_api</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Api</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>get_api</span>()
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_pixel_format</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>PixelFormat</span> {
-        <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>get_pixel_format</span>()
-    }
+<span class="doccomment">/// Represents a headless OpenGL context.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HeadlessContext</span> {
+    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="ident">context</span>: <span class="ident">platform</span>::<span class="ident">HeadlessContext</span>,
 }
 
+<span class="kw">impl</span> <span class="ident">GlContext</span> <span class="kw">for</span> <span class="ident">HeadlessContext</span> {
+    <span class="doccomment">/// Creates a new OpenGL context</span>
+    <span class="doccomment">/// Sets the context as the current context.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">unsafe</span> <span class="kw">fn</span> <span class="ident">make_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ContextError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">make_current</span>()
+    }
+
+    <span class="doccomment">/// Returns true if this context is the current one in this thread.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_current</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">is_current</span>()
+    }
+
+    <span class="doccomment">/// Returns the address of an OpenGL function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Contrary to `wglGetProcAddress`, all available OpenGL functions return an address.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_proc_address</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">addr</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> () {
+        <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">get_proc_address</span>(<span class="ident">addr</span>)
+    }
+
+    <span class="doccomment">/// Returns the API that is currently provided by this window.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// See `Window::get_api` for more infos.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_api</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Api</span> {
+        <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">get_api</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">swap_buffers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">ContextError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">swap_buffers</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_pixel_format</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">PixelFormat</span> {
+        <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">get_pixel_format</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">resize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_width</span>: <span class="ident">u32</span>, <span class="ident">_height</span>: <span class="ident">u32</span>) {
+        <span class="comment">// This method does not mean anything for a HeadlessContext.</span>
+        <span class="macro">unimplemented</span><span class="macro">!</span>()
+    }
+}
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -362,12 +356,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -388,7 +386,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -399,11 +397,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glutin";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

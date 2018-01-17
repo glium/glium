@@ -9,13 +9,15 @@
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -313,276 +315,336 @@
 <span id="270">270</span>
 <span id="271">271</span>
 <span id="272">272</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>error</span>::<span class='ident'>Error</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>sync</span>::<span class='ident'>Mutex</span>;
-<span class='kw'>use</span> <span class='ident'>CapabilitiesSource</span>;
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
+<span id="296">296</span>
+<span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
+<span id="302">302</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Items related to creating an OpenGL program.</span>
 
-<span class='kw'>use</span> <span class='ident'>gl</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Api</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Version</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">sync</span>::<span class="ident">Mutex</span>;
+<span class="kw">use</span> <span class="ident">CapabilitiesSource</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>compute</span>::{<span class='ident'>ComputeShader</span>, <span class='ident'>ComputeCommand</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>program</span>::<span class='ident'>Program</span>;
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>reflection</span>::{<span class='ident'>Uniform</span>, <span class='ident'>UniformBlock</span>, <span class='ident'>BlockLayout</span>, <span class='ident'>OutputPrimitives</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>reflection</span>::{<span class='ident'>Attribute</span>, <span class='ident'>TransformFeedbackVarying</span>, <span class='ident'>TransformFeedbackBuffer</span>, <span class='ident'>TransformFeedbackMode</span>};
+<span class="kw">use</span> <span class="ident">gl</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Api</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
 
-<span class='kw'>mod</span> <span class='ident'>compute</span>;
-<span class='kw'>mod</span> <span class='ident'>program</span>;
-<span class='kw'>mod</span> <span class='ident'>raw</span>;
-<span class='kw'>mod</span> <span class='ident'>reflection</span>;
-<span class='kw'>mod</span> <span class='ident'>shader</span>;
-<span class='kw'>mod</span> <span class='ident'>uniforms_storage</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">compute</span>::{<span class="ident">ComputeShader</span>, <span class="ident">ComputeCommand</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">program</span>::<span class="ident">Program</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">reflection</span>::{<span class="ident">Uniform</span>, <span class="ident">UniformBlock</span>, <span class="ident">BlockLayout</span>, <span class="ident">OutputPrimitives</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">reflection</span>::{<span class="ident">Attribute</span>, <span class="ident">TransformFeedbackVarying</span>, <span class="ident">TransformFeedbackBuffer</span>, <span class="ident">TransformFeedbackMode</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">reflection</span>::{<span class="ident">ShaderStage</span>, <span class="ident">SubroutineData</span>, <span class="ident">SubroutineUniform</span>};
 
-<span class='doccomment'>/// Returns true if the backend supports geometry shaders.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_geometry_shader_supported</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> <span class='kw'>where</span> <span class='ident'>C</span>: <span class='ident'>CapabilitiesSource</span> {
-    <span class='ident'>shader</span>::<span class='ident'>check_shader_type_compatibility</span>(<span class='ident'>ctxt</span>, <span class='ident'>gl</span>::<span class='ident'>GEOMETRY_SHADER</span>)
+<span class="kw">mod</span> <span class="ident">compute</span>;
+<span class="kw">mod</span> <span class="ident">program</span>;
+<span class="kw">mod</span> <span class="ident">raw</span>;
+<span class="kw">mod</span> <span class="ident">reflection</span>;
+<span class="kw">mod</span> <span class="ident">shader</span>;
+<span class="kw">mod</span> <span class="ident">uniforms_storage</span>;
+<span class="kw">mod</span> <span class="ident">binary_header</span>;
+
+<span class="doccomment">/// Returns true if the backend supports geometry shaders.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_geometry_shader_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+    <span class="ident">shader</span>::<span class="ident">check_shader_type_compatibility</span>(<span class="ident">ctxt</span>, <span class="ident">gl</span>::<span class="ident">GEOMETRY_SHADER</span>)
 }
 
-<span class='doccomment'>/// Returns true if the backend supports tessellation shaders.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_tessellation_shader_supported</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> <span class='kw'>where</span> <span class='ident'>C</span>: <span class='ident'>CapabilitiesSource</span> {
-    <span class='ident'>shader</span>::<span class='ident'>check_shader_type_compatibility</span>(<span class='ident'>ctxt</span>, <span class='ident'>gl</span>::<span class='ident'>TESS_CONTROL_SHADER</span>)
+<span class="doccomment">/// Returns true if the backend supports tessellation shaders.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_tessellation_shader_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+    <span class="ident">shader</span>::<span class="ident">check_shader_type_compatibility</span>(<span class="ident">ctxt</span>, <span class="ident">gl</span>::<span class="ident">TESS_CONTROL_SHADER</span>)
 }
 
-<span class='doccomment'>/// Returns true if the backend supports creating and retreiving binary format.</span>
-<span class='attribute'>#[<span class='ident'>inline</span>]</span>
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_binary_supported</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> <span class='kw'>where</span> <span class='ident'>C</span>: <span class='ident'>CapabilitiesSource</span> {
-    <span class='ident'>ctxt</span>.<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>4</span>, <span class='number'>1</span>) <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>2</span>, <span class='number'>0</span>)
-        <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>get_extensions</span>().<span class='ident'>gl_arb_get_programy_binary</span>
+<span class="doccomment">/// Returns true if the backend supports creating and retrieving binary format.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_binary_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+    <span class="ident">ctxt</span>.<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">4</span>, <span class="number">1</span>) <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">2</span>, <span class="number">0</span>)
+        <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">get_extensions</span>().<span class="ident">gl_arb_get_programy_binary</span>
 }
 
-<span class='doccomment'>/// Some shader compilers have race-condition issues, so we lock this mutex</span>
-<span class='doccomment'>/// in the GL thread every time we compile a shader or link a program.</span>
-<span class='comment'>// TODO: replace by a StaticMutex</span>
-<span class='macro'>lazy_static</span><span class='macro'>!</span> {
-    <span class='kw'>static</span> <span class='kw-2'>ref</span> <span class='ident'>COMPILER_GLOBAL_LOCK</span>: <span class='ident'>Mutex</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> <span class='op'>=</span> <span class='ident'>Mutex</span>::<span class='ident'>new</span>(());
+<span class="doccomment">/// Returns true if the backend supports shader subroutines.</span>
+<span class="attribute">#[<span class="ident">inline</span>]</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_subroutine_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+    <span class="comment">// WORKAROUND: Windows only; NVIDIA doesn&#39;t actually return a valid function pointer for</span>
+    <span class="comment">//              GetProgramStageiv despite supporting ARB_shader_subroutine; see #1439</span>
+    <span class="kw">if</span> <span class="macro">cfg</span><span class="macro">!</span>(<span class="ident">target_os</span> <span class="op">=</span> <span class="string">&quot;windows&quot;</span>)
+        <span class="op">&amp;&amp;</span> <span class="ident">ctxt</span>.<span class="ident">get_version</span>() <span class="op">&lt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">4</span>, <span class="number">0</span>)
+        <span class="op">&amp;&amp;</span> <span class="ident">ctxt</span>.<span class="ident">get_capabilities</span>().<span class="ident">vendor</span> <span class="op">==</span> <span class="string">&quot;NVIDIA Corporation&quot;</span> {
+        <span class="kw">return</span> <span class="bool-val">false</span>;
+    }
+    <span class="ident">ctxt</span>.<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">4</span>, <span class="number">0</span>) <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">get_extensions</span>().<span class="ident">gl_arb_shader_subroutine</span>
 }
 
-<span class='doccomment'>/// Error that can be triggered when creating a `Program`.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ProgramCreationError</span> {
-    <span class='doccomment'>/// Error while compiling one of the shaders.</span>
-    <span class='ident'>CompilationError</span>(<span class='ident'>String</span>),
-
-    <span class='doccomment'>/// Error while linking the program.</span>
-    <span class='ident'>LinkingError</span>(<span class='ident'>String</span>),
-
-    <span class='doccomment'>/// One of the requested shader types is not supported by the backend.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Usually the case for geometry shaders.</span>
-    <span class='ident'>ShaderTypeNotSupported</span>,
-
-    <span class='doccomment'>/// The OpenGL implementation doesn&#39;t provide a compiler.</span>
-    <span class='ident'>CompilationNotSupported</span>,
-
-    <span class='doccomment'>/// You have requested transform feedback varyings, but transform feedback is not supported</span>
-    <span class='doccomment'>/// by the backend.</span>
-    <span class='ident'>TransformFeedbackNotSupported</span>,
-
-    <span class='doccomment'>/// You have requested point size setting from the shader, but it&#39;s not</span>
-    <span class='doccomment'>/// supported by the backend.</span>
-    <span class='ident'>PointSizeNotSupported</span>,
+<span class="doccomment">/// Some shader compilers have race-condition issues, so we lock this mutex</span>
+<span class="doccomment">/// in the GL thread every time we compile a shader or link a program.</span>
+<span class="comment">// TODO: replace by a StaticMutex</span>
+<span class="macro">lazy_static</span><span class="macro">!</span> {
+    <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">COMPILER_GLOBAL_LOCK</span>: <span class="ident">Mutex</span><span class="op">&lt;</span>()<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Mutex</span>::<span class="ident">new</span>(());
 }
 
-<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>ProgramCreationError</span> {
-    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>formatter</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>fmt</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>CompilationError</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=&gt;</span>
-                <span class='ident'>formatter</span>.<span class='ident'>write_fmt</span>(<span class='macro'>format_args</span><span class='macro'>!</span>(<span class='string'>&quot;Compilation error in one of the shaders: {}&quot;</span>, <span class='ident'>s</span>)),
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>LinkingError</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=&gt;</span>
-                <span class='ident'>formatter</span>.<span class='ident'>write_fmt</span>(<span class='macro'>format_args</span><span class='macro'>!</span>(<span class='string'>&quot;Error while linking shaders together: {}&quot;</span>, <span class='ident'>s</span>)),
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>ShaderTypeNotSupported</span> <span class='op'>=&gt;</span>
-                <span class='ident'>formatter</span>.<span class='ident'>write_str</span>(<span class='string'>&quot;One of the request shader type is \
-                                    not supported by the backend&quot;</span>),
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>CompilationNotSupported</span> <span class='op'>=&gt;</span>
-                <span class='ident'>formatter</span>.<span class='ident'>write_str</span>(<span class='string'>&quot;The backend doesn&#39;t support shaders compilation&quot;</span>),
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>TransformFeedbackNotSupported</span> <span class='op'>=&gt;</span> 
-                <span class='ident'>formatter</span>.<span class='ident'>write_str</span>(<span class='string'>&quot;You requested transform feedback, but this feature is not \
-                                     supported by the backend&quot;</span>),
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>PointSizeNotSupported</span> <span class='op'>=&gt;</span>
-                <span class='ident'>formatter</span>.<span class='ident'>write_str</span>(<span class='string'>&quot;You requested point size setting, but it&#39;s not \
-                                     supported by the backend&quot;</span>),
+<span class="doccomment">/// Error that can be triggered when creating a `Program`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProgramCreationError</span> {
+    <span class="doccomment">/// Error while compiling one of the shaders.</span>
+    <span class="ident">CompilationError</span>(<span class="ident">String</span>),
+
+    <span class="doccomment">/// Error while linking the program.</span>
+    <span class="ident">LinkingError</span>(<span class="ident">String</span>),
+
+    <span class="doccomment">/// One of the requested shader types is not supported by the backend.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Usually the case for geometry shaders.</span>
+    <span class="ident">ShaderTypeNotSupported</span>,
+
+    <span class="doccomment">/// The OpenGL implementation doesn&#39;t provide a compiler.</span>
+    <span class="ident">CompilationNotSupported</span>,
+
+    <span class="doccomment">/// You have requested transform feedback varyings, but transform feedback is not supported</span>
+    <span class="doccomment">/// by the backend.</span>
+    <span class="ident">TransformFeedbackNotSupported</span>,
+
+    <span class="doccomment">/// You have requested point size setting from the shader, but it&#39;s not</span>
+    <span class="doccomment">/// supported by the backend.</span>
+    <span class="ident">PointSizeNotSupported</span>,
+
+    <span class="doccomment">/// The glium-specific binary header was not found or is corrupt.</span>
+    <span class="ident">BinaryHeaderError</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">ProgramCreationError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ProgramCreationError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">CompilationError</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}: {}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>(), <span class="ident">s</span>),
+            <span class="ident">LinkingError</span>(<span class="kw-2">ref</span> <span class="ident">s</span>) <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}: {}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>(), <span class="ident">s</span>),
+            _ <span class="op">=&gt;</span>
+                <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>()),
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Error</span> <span class='kw'>for</span> <span class='ident'>ProgramCreationError</span> {
-    <span class='kw'>fn</span> <span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>CompilationError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;Compilation error in one of the \
-                                                           shaders&quot;</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>LinkingError</span>(_) <span class='op'>=&gt;</span> <span class='string'>&quot;Error while linking shaders together&quot;</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>ShaderTypeNotSupported</span> <span class='op'>=&gt;</span> <span class='string'>&quot;One of the request shader type is \
-                                                              not supported by the backend&quot;</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>CompilationNotSupported</span> <span class='op'>=&gt;</span> <span class='string'>&quot;The backend doesn&#39;t support \
-                                                               shaders compilation&quot;</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>TransformFeedbackNotSupported</span> <span class='op'>=&gt;</span> <span class='string'>&quot;Transform feedback is not \
-                                                                     supported by the backend.&quot;</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramCreationError</span>::<span class='ident'>PointSizeNotSupported</span> <span class='op'>=&gt;</span> <span class='string'>&quot;Point size is not supported by \
-                                                             the backend.&quot;</span>,
-        }
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>cause</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Error</span><span class='op'>&gt;</span> {
-        <span class='prelude-val'>None</span>
-    }
-}
-
-<span class='doccomment'>/// Error type that is returned by the `program!` macro.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ProgramChooserCreationError</span> {
-    <span class='doccomment'>/// No available version has been found.</span>
-    <span class='ident'>NoVersion</span>,
-
-    <span class='doccomment'>/// A version has been found but it triggered the given error.</span>
-    <span class='ident'>ProgramCreationError</span>(<span class='ident'>ProgramCreationError</span>),
-}
-
-<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>ProgramChooserCreationError</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>formatter</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>fmt</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
-        <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>formatter</span>, <span class='string'>&quot;{}&quot;</span>, <span class='self'>self</span>.<span class='ident'>description</span>())
-    }
-}
-
-<span class='kw'>impl</span> <span class='ident'>Error</span> <span class='kw'>for</span> <span class='ident'>ProgramChooserCreationError</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramChooserCreationError</span>::<span class='ident'>NoVersion</span> <span class='op'>=&gt;</span> <span class='string'>&quot;No version of the program has been found \
-                                                        for the current OpenGL version.&quot;</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramChooserCreationError</span>::<span class='ident'>ProgramCreationError</span>(<span class='kw-2'>ref</span> <span class='ident'>err</span>) <span class='op'>=&gt;</span> <span class='ident'>err</span>.<span class='ident'>description</span>(),
-        }
-    }
-
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>cause</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Error</span><span class='op'>&gt;</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramChooserCreationError</span>::<span class='ident'>NoVersion</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>ProgramChooserCreationError</span>::<span class='ident'>ProgramCreationError</span>(<span class='kw-2'>ref</span> <span class='ident'>err</span>) <span class='op'>=&gt;</span> <span class='prelude-val'>Some</span>(<span class='ident'>err</span>),
+<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ProgramCreationError</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ProgramCreationError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">CompilationError</span>(_) <span class="op">=&gt;</span>
+                <span class="string">&quot;Compilation error in one of the shaders&quot;</span>,
+            <span class="ident">LinkingError</span>(_) <span class="op">=&gt;</span>
+                <span class="string">&quot;Error while linking shaders together&quot;</span>,
+            <span class="ident">ShaderTypeNotSupported</span> <span class="op">=&gt;</span>
+                <span class="string">&quot;One of the request shader type is not supported by the backend&quot;</span>,
+            <span class="ident">CompilationNotSupported</span> <span class="op">=&gt;</span>
+                <span class="string">&quot;The backend doesn&#39;t support shaders compilation&quot;</span>,
+            <span class="ident">TransformFeedbackNotSupported</span> <span class="op">=&gt;</span>
+                <span class="string">&quot;Transform feedback is not supported by the backend.&quot;</span>,
+            <span class="ident">PointSizeNotSupported</span> <span class="op">=&gt;</span>
+                <span class="string">&quot;Point size is not supported by the backend.&quot;</span>,
+            <span class="ident">BinaryHeaderError</span> <span class="op">=&gt;</span>
+                <span class="string">&quot;The glium-specific binary header was not found or is corrupt.&quot;</span>,
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>ProgramCreationError</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ProgramChooserCreationError</span> {
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>err</span>: <span class='ident'>ProgramCreationError</span>) <span class='op'>-&gt;</span> <span class='ident'>ProgramChooserCreationError</span> {
-        <span class='ident'>ProgramChooserCreationError</span>::<span class='ident'>ProgramCreationError</span>(<span class='ident'>err</span>)
+<span class="doccomment">/// Error type that is returned by the `program!` macro.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProgramChooserCreationError</span> {
+    <span class="doccomment">/// No available version has been found.</span>
+    <span class="ident">NoVersion</span>,
+
+    <span class="doccomment">/// A version has been found but it triggered the given error.</span>
+    <span class="ident">ProgramCreationError</span>(<span class="ident">ProgramCreationError</span>),
+}
+
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">ProgramChooserCreationError</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>())
     }
 }
 
-<span class='doccomment'>/// Error while retreiving the binary representation of a program.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>GetBinaryError</span> {
-    <span class='doccomment'>/// The backend doesn&#39;t support binary.</span>
-    <span class='ident'>NotSupported</span>,
+<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">ProgramChooserCreationError</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ProgramChooserCreationError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">ProgramCreationError</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) <span class="op">=&gt;</span> <span class="ident">err</span>.<span class="ident">description</span>(),
+            <span class="ident">NoVersion</span> <span class="op">=&gt;</span> <span class="string">&quot;No version of the program has been found for the current OpenGL version.&quot;</span>,
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">cause</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ProgramChooserCreationError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">ProgramCreationError</span>(<span class="kw-2">ref</span> <span class="ident">err</span>) <span class="op">=&gt;</span> <span class="prelude-val">Some</span>(<span class="ident">err</span>),
+            _ <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+        }
+    }
 }
 
-<span class='doccomment'>/// Input when creating a program.</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>ProgramCreationInput</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Use GLSL source code.</span>
-    <span class='ident'>SourceCode</span> {
-        <span class='doccomment'>/// Source code of the vertex shader.</span>
-        <span class='ident'>vertex_shader</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>,
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">ProgramCreationError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ProgramChooserCreationError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">err</span>: <span class="ident">ProgramCreationError</span>) <span class="op">-&gt;</span> <span class="ident">ProgramChooserCreationError</span> {
+        <span class="ident">ProgramChooserCreationError</span>::<span class="ident">ProgramCreationError</span>(<span class="ident">err</span>)
+    }
+}
 
-        <span class='doccomment'>/// Source code of the optional tessellation control shader.</span>
-        <span class='ident'>tessellation_control_shader</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+<span class="doccomment">/// Error while retrieving the binary representation of a program.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">GetBinaryError</span> {
+    <span class="doccomment">/// The backend doesn&#39;t support binary.</span>
+    <span class="ident">NotSupported</span>,
+    <span class="doccomment">/// The backend does not supply any binary formats.</span>
+    <span class="ident">NoFormats</span>,
+}
 
-        <span class='doccomment'>/// Source code of the optional tessellation evaluation shader.</span>
-        <span class='ident'>tessellation_evaluation_shader</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">GetBinaryError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>())
+    }
+}
 
-        <span class='doccomment'>/// Source code of the optional geometry shader.</span>
-        <span class='ident'>geometry_shader</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">GetBinaryError</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">GetBinaryError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">NotSupported</span> <span class="op">=&gt;</span> <span class="string">&quot;The backend doesn&#39;t support binary&quot;</span>,
+            <span class="ident">NoFormats</span> <span class="op">=&gt;</span> <span class="string">&quot;The backend does not supply any binary formats.&quot;</span>,
+        }
+    }
+}
 
-        <span class='doccomment'>/// Source code of the fragment shader.</span>
-        <span class='ident'>fragment_shader</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>,
+<span class="doccomment">/// Input when creating a program.</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ProgramCreationInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Use GLSL source code.</span>
+    <span class="ident">SourceCode</span> {
+        <span class="doccomment">/// Source code of the vertex shader.</span>
+        <span class="ident">vertex_shader</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
 
-        <span class='doccomment'>/// The list of variables and mode to use for transform feedback.</span>
-        <span class='doccomment'>///</span>
-        <span class='doccomment'>/// The information specified here will be passed to the OpenGL linker. If you pass</span>
-        <span class='doccomment'>/// `None`, then you won&#39;t be able to use transform feedback.</span>
-        <span class='ident'>transform_feedback_varyings</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span>(<span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>, <span class='ident'>TransformFeedbackMode</span>)<span class='op'>&gt;</span>,
+        <span class="doccomment">/// Source code of the optional tessellation control shader.</span>
+        <span class="ident">tessellation_control_shader</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
 
-        <span class='doccomment'>/// Whether the fragment shader outputs colors in `sRGB` or `RGB`. This is false by default,</span>
-        <span class='doccomment'>/// meaning that the program outputs `RGB`.</span>
-        <span class='doccomment'>///</span>
-        <span class='doccomment'>/// If this is false, then `GL_FRAMEBUFFER_SRGB` will be enabled when this program is used</span>
-        <span class='doccomment'>/// (if it is supported).</span>
-        <span class='ident'>outputs_srgb</span>: <span class='ident'>bool</span>,
+        <span class="doccomment">/// Source code of the optional tessellation evaluation shader.</span>
+        <span class="ident">tessellation_evaluation_shader</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
 
-        <span class='doccomment'>/// Whether the shader uses point size.</span>
-        <span class='ident'>uses_point_size</span>: <span class='ident'>bool</span>,
+        <span class="doccomment">/// Source code of the optional geometry shader.</span>
+        <span class="ident">geometry_shader</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
+
+        <span class="doccomment">/// Source code of the fragment shader.</span>
+        <span class="ident">fragment_shader</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+
+        <span class="doccomment">/// The list of variables and mode to use for transform feedback.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// The information specified here will be passed to the OpenGL linker. If you pass</span>
+        <span class="doccomment">/// `None`, then you won&#39;t be able to use transform feedback.</span>
+        <span class="ident">transform_feedback_varyings</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">TransformFeedbackMode</span>)<span class="op">&gt;</span>,
+
+        <span class="doccomment">/// Whether the fragment shader outputs colors in `sRGB` or `RGB`. This is false by default,</span>
+        <span class="doccomment">/// meaning that the program outputs `RGB`.</span>
+        <span class="doccomment">///</span>
+        <span class="doccomment">/// If this is false, then `GL_FRAMEBUFFER_SRGB` will be enabled when this program is used</span>
+        <span class="doccomment">/// (if it is supported).</span>
+        <span class="ident">outputs_srgb</span>: <span class="ident">bool</span>,
+
+        <span class="doccomment">/// Whether the shader uses point size.</span>
+        <span class="ident">uses_point_size</span>: <span class="ident">bool</span>,
     },
 
-    <span class='doccomment'>/// Use a precompiled binary.</span>
-    <span class='ident'>Binary</span> {
-        <span class='doccomment'>/// The data.</span>
-        <span class='ident'>data</span>: <span class='ident'>Binary</span>,
+    <span class="doccomment">/// Use a precompiled binary.</span>
+    <span class="ident">Binary</span> {
+        <span class="doccomment">/// The data.</span>
+        <span class="ident">data</span>: <span class="ident">Binary</span>,
 
-        <span class='doccomment'>/// See `SourceCode::outputs_srgb`.</span>
-        <span class='ident'>outputs_srgb</span>: <span class='ident'>bool</span>,
+        <span class="doccomment">/// See `SourceCode::outputs_srgb`.</span>
+        <span class="ident">outputs_srgb</span>: <span class="ident">bool</span>,
 
-        <span class='doccomment'>/// Whether the shader uses point size.</span>
-        <span class='ident'>uses_point_size</span>: <span class='ident'>bool</span>,
+        <span class="doccomment">/// Whether the shader uses point size.</span>
+        <span class="ident">uses_point_size</span>: <span class="ident">bool</span>,
     }
 }
 
-<span class='doccomment'>/// Represents the source code of a program.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>SourceCode</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Source code of the vertex shader.</span>
-    <span class='kw'>pub</span> <span class='ident'>vertex_shader</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>,
+<span class="doccomment">/// Represents the source code of a program.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SourceCode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Source code of the vertex shader.</span>
+    <span class="kw">pub</span> <span class="ident">vertex_shader</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
 
-    <span class='doccomment'>/// Source code of the optional tessellation control shader.</span>
-    <span class='kw'>pub</span> <span class='ident'>tessellation_control_shader</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+    <span class="doccomment">/// Source code of the optional tessellation control shader.</span>
+    <span class="kw">pub</span> <span class="ident">tessellation_control_shader</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
 
-    <span class='doccomment'>/// Source code of the optional tessellation evaluation shader.</span>
-    <span class='kw'>pub</span> <span class='ident'>tessellation_evaluation_shader</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+    <span class="doccomment">/// Source code of the optional tessellation evaluation shader.</span>
+    <span class="kw">pub</span> <span class="ident">tessellation_evaluation_shader</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
 
-    <span class='doccomment'>/// Source code of the optional geometry shader.</span>
-    <span class='kw'>pub</span> <span class='ident'>geometry_shader</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span>,
+    <span class="doccomment">/// Source code of the optional geometry shader.</span>
+    <span class="kw">pub</span> <span class="ident">geometry_shader</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>,
 
-    <span class='doccomment'>/// Source code of the fragment shader.</span>
-    <span class='kw'>pub</span> <span class='ident'>fragment_shader</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>,
+    <span class="doccomment">/// Source code of the fragment shader.</span>
+    <span class="kw">pub</span> <span class="ident">fragment_shader</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>SourceCode</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;&gt;</span> <span class='kw'>for</span> <span class='ident'>ProgramCreationInput</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>code</span>: <span class='ident'>SourceCode</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>ProgramCreationInput</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>SourceCode</span> { <span class='ident'>vertex_shader</span>, <span class='ident'>fragment_shader</span>, <span class='ident'>geometry_shader</span>,
-                         <span class='ident'>tessellation_control_shader</span>, <span class='ident'>tessellation_evaluation_shader</span> } <span class='op'>=</span> <span class='ident'>code</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">SourceCode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span> <span class="kw">for</span> <span class="ident">ProgramCreationInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">code</span>: <span class="ident">SourceCode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">ProgramCreationInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">SourceCode</span> { <span class="ident">vertex_shader</span>, <span class="ident">fragment_shader</span>, <span class="ident">geometry_shader</span>,
+                         <span class="ident">tessellation_control_shader</span>, <span class="ident">tessellation_evaluation_shader</span> } <span class="op">=</span> <span class="ident">code</span>;
 
-        <span class='ident'>ProgramCreationInput</span>::<span class='ident'>SourceCode</span> {
-            <span class='ident'>vertex_shader</span>: <span class='ident'>vertex_shader</span>,
-            <span class='ident'>tessellation_control_shader</span>: <span class='ident'>tessellation_control_shader</span>,
-            <span class='ident'>tessellation_evaluation_shader</span>: <span class='ident'>tessellation_evaluation_shader</span>,
-            <span class='ident'>geometry_shader</span>: <span class='ident'>geometry_shader</span>,
-            <span class='ident'>fragment_shader</span>: <span class='ident'>fragment_shader</span>,
-            <span class='ident'>transform_feedback_varyings</span>: <span class='prelude-val'>None</span>,
-            <span class='ident'>outputs_srgb</span>: <span class='boolval'>false</span>,
-            <span class='ident'>uses_point_size</span>: <span class='boolval'>false</span>,
+        <span class="ident">ProgramCreationInput</span>::<span class="ident">SourceCode</span> {
+            <span class="ident">vertex_shader</span>: <span class="ident">vertex_shader</span>,
+            <span class="ident">tessellation_control_shader</span>: <span class="ident">tessellation_control_shader</span>,
+            <span class="ident">tessellation_evaluation_shader</span>: <span class="ident">tessellation_evaluation_shader</span>,
+            <span class="ident">geometry_shader</span>: <span class="ident">geometry_shader</span>,
+            <span class="ident">fragment_shader</span>: <span class="ident">fragment_shader</span>,
+            <span class="ident">transform_feedback_varyings</span>: <span class="prelude-val">None</span>,
+            <span class="ident">outputs_srgb</span>: <span class="bool-val">false</span>,
+            <span class="ident">uses_point_size</span>: <span class="bool-val">false</span>,
         }
     }
 }
 
-<span class='doccomment'>/// Represents the compiled binary data of a program.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Binary</span> {
-    <span class='doccomment'>/// An implementation-defined format.</span>
-    <span class='kw'>pub</span> <span class='ident'>format</span>: <span class='ident'>u32</span>,
+<span class="doccomment">/// Represents the compiled binary data of a program.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Binary</span> {
+    <span class="doccomment">/// An implementation-defined format.</span>
+    <span class="kw">pub</span> <span class="ident">format</span>: <span class="ident">u32</span>,
 
-    <span class='doccomment'>/// The binary data.</span>
-    <span class='kw'>pub</span> <span class='ident'>content</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>,
+    <span class="doccomment">/// The binary data.</span>
+    <span class="kw">pub</span> <span class="ident">content</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>Binary</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ProgramCreationInput</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>binary</span>: <span class='ident'>Binary</span>) <span class='op'>-&gt;</span> <span class='ident'>ProgramCreationInput</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>ProgramCreationInput</span>::<span class='ident'>Binary</span> {
-            <span class='ident'>data</span>: <span class='ident'>binary</span>,
-            <span class='ident'>outputs_srgb</span>: <span class='boolval'>false</span>,
-            <span class='ident'>uses_point_size</span>: <span class='boolval'>false</span>,
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Binary</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ProgramCreationInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">binary</span>: <span class="ident">Binary</span>) <span class="op">-&gt;</span> <span class="ident">ProgramCreationInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">ProgramCreationInput</span>::<span class="ident">Binary</span> {
+            <span class="ident">data</span>: <span class="ident">binary</span>,
+            <span class="ident">outputs_srgb</span>: <span class="bool-val">false</span>,
+            <span class="ident">uses_point_size</span>: <span class="bool-val">false</span>,
         }
     }
 }
@@ -604,12 +666,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -630,7 +696,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -641,11 +707,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

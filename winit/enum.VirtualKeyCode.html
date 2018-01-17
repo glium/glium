@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `VirtualKeyCode` enum in crate `winit`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, VirtualKeyCode">
+
+    <title>winit::VirtualKeyCode - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc enum">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Enum VirtualKeyCode</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.Key1">Key1</a><a href="#variant.Key2">Key2</a><a href="#variant.Key3">Key3</a><a href="#variant.Key4">Key4</a><a href="#variant.Key5">Key5</a><a href="#variant.Key6">Key6</a><a href="#variant.Key7">Key7</a><a href="#variant.Key8">Key8</a><a href="#variant.Key9">Key9</a><a href="#variant.Key0">Key0</a><a href="#variant.A">A</a><a href="#variant.B">B</a><a href="#variant.C">C</a><a href="#variant.D">D</a><a href="#variant.E">E</a><a href="#variant.F">F</a><a href="#variant.G">G</a><a href="#variant.H">H</a><a href="#variant.I">I</a><a href="#variant.J">J</a><a href="#variant.K">K</a><a href="#variant.L">L</a><a href="#variant.M">M</a><a href="#variant.N">N</a><a href="#variant.O">O</a><a href="#variant.P">P</a><a href="#variant.Q">Q</a><a href="#variant.R">R</a><a href="#variant.S">S</a><a href="#variant.T">T</a><a href="#variant.U">U</a><a href="#variant.V">V</a><a href="#variant.W">W</a><a href="#variant.X">X</a><a href="#variant.Y">Y</a><a href="#variant.Z">Z</a><a href="#variant.Escape">Escape</a><a href="#variant.F1">F1</a><a href="#variant.F2">F2</a><a href="#variant.F3">F3</a><a href="#variant.F4">F4</a><a href="#variant.F5">F5</a><a href="#variant.F6">F6</a><a href="#variant.F7">F7</a><a href="#variant.F8">F8</a><a href="#variant.F9">F9</a><a href="#variant.F10">F10</a><a href="#variant.F11">F11</a><a href="#variant.F12">F12</a><a href="#variant.F13">F13</a><a href="#variant.F14">F14</a><a href="#variant.F15">F15</a><a href="#variant.Snapshot">Snapshot</a><a href="#variant.Scroll">Scroll</a><a href="#variant.Pause">Pause</a><a href="#variant.Insert">Insert</a><a href="#variant.Home">Home</a><a href="#variant.Delete">Delete</a><a href="#variant.End">End</a><a href="#variant.PageDown">PageDown</a><a href="#variant.PageUp">PageUp</a><a href="#variant.Left">Left</a><a href="#variant.Up">Up</a><a href="#variant.Right">Right</a><a href="#variant.Down">Down</a><a href="#variant.Back">Back</a><a href="#variant.Return">Return</a><a href="#variant.Space">Space</a><a href="#variant.Compose">Compose</a><a href="#variant.Numlock">Numlock</a><a href="#variant.Numpad0">Numpad0</a><a href="#variant.Numpad1">Numpad1</a><a href="#variant.Numpad2">Numpad2</a><a href="#variant.Numpad3">Numpad3</a><a href="#variant.Numpad4">Numpad4</a><a href="#variant.Numpad5">Numpad5</a><a href="#variant.Numpad6">Numpad6</a><a href="#variant.Numpad7">Numpad7</a><a href="#variant.Numpad8">Numpad8</a><a href="#variant.Numpad9">Numpad9</a><a href="#variant.AbntC1">AbntC1</a><a href="#variant.AbntC2">AbntC2</a><a href="#variant.Add">Add</a><a href="#variant.Apostrophe">Apostrophe</a><a href="#variant.Apps">Apps</a><a href="#variant.At">At</a><a href="#variant.Ax">Ax</a><a href="#variant.Backslash">Backslash</a><a href="#variant.Calculator">Calculator</a><a href="#variant.Capital">Capital</a><a href="#variant.Colon">Colon</a><a href="#variant.Comma">Comma</a><a href="#variant.Convert">Convert</a><a href="#variant.Decimal">Decimal</a><a href="#variant.Divide">Divide</a><a href="#variant.Equals">Equals</a><a href="#variant.Grave">Grave</a><a href="#variant.Kana">Kana</a><a href="#variant.Kanji">Kanji</a><a href="#variant.LAlt">LAlt</a><a href="#variant.LBracket">LBracket</a><a href="#variant.LControl">LControl</a><a href="#variant.LMenu">LMenu</a><a href="#variant.LShift">LShift</a><a href="#variant.LWin">LWin</a><a href="#variant.Mail">Mail</a><a href="#variant.MediaSelect">MediaSelect</a><a href="#variant.MediaStop">MediaStop</a><a href="#variant.Minus">Minus</a><a href="#variant.Multiply">Multiply</a><a href="#variant.Mute">Mute</a><a href="#variant.MyComputer">MyComputer</a><a href="#variant.NavigateForward">NavigateForward</a><a href="#variant.NavigateBackward">NavigateBackward</a><a href="#variant.NextTrack">NextTrack</a><a href="#variant.NoConvert">NoConvert</a><a href="#variant.NumpadComma">NumpadComma</a><a href="#variant.NumpadEnter">NumpadEnter</a><a href="#variant.NumpadEquals">NumpadEquals</a><a href="#variant.OEM102">OEM102</a><a href="#variant.Period">Period</a><a href="#variant.PlayPause">PlayPause</a><a href="#variant.Power">Power</a><a href="#variant.PrevTrack">PrevTrack</a><a href="#variant.RAlt">RAlt</a><a href="#variant.RBracket">RBracket</a><a href="#variant.RControl">RControl</a><a href="#variant.RMenu">RMenu</a><a href="#variant.RShift">RShift</a><a href="#variant.RWin">RWin</a><a href="#variant.Semicolon">Semicolon</a><a href="#variant.Slash">Slash</a><a href="#variant.Sleep">Sleep</a><a href="#variant.Stop">Stop</a><a href="#variant.Subtract">Subtract</a><a href="#variant.Sysrq">Sysrq</a><a href="#variant.Tab">Tab</a><a href="#variant.Underline">Underline</a><a href="#variant.Unlabeled">Unlabeled</a><a href="#variant.VolumeDown">VolumeDown</a><a href="#variant.VolumeUp">VolumeUp</a><a href="#variant.Wake">Wake</a><a href="#variant.WebBack">WebBack</a><a href="#variant.WebFavorites">WebFavorites</a><a href="#variant.WebForward">WebForward</a><a href="#variant.WebHome">WebHome</a><a href="#variant.WebRefresh">WebRefresh</a><a href="#variant.WebSearch">WebSearch</a><a href="#variant.WebStop">WebStop</a><a href="#variant.Yen">Yen</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Hash">Hash</a><a href="#impl-PartialEq">PartialEq</a><a href="#impl-Eq">Eq</a><a href="#impl-Clone">Clone</a><a href="#impl-Copy">Copy</a></div></div><p class='location'><a href='index.html'>winit</a></p><script>window.sidebarCurrent = {name: 'VirtualKeyCode', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>winit</a>::<wbr><a class="enum" href=''>VirtualKeyCode</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/winit/events.rs.html#248-429' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'><div class="docblock attributes">#[repr(u32)]
+</div>pub enum VirtualKeyCode {
+    Key1,
+    Key2,
+    Key3,
+    Key4,
+    Key5,
+    Key6,
+    Key7,
+    Key8,
+    Key9,
+    Key0,
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+    I,
+    J,
+    K,
+    L,
+    M,
+    N,
+    O,
+    P,
+    Q,
+    R,
+    S,
+    T,
+    U,
+    V,
+    W,
+    X,
+    Y,
+    Z,
+    Escape,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12,
+    F13,
+    F14,
+    F15,
+    Snapshot,
+    Scroll,
+    Pause,
+    Insert,
+    Home,
+    Delete,
+    End,
+    PageDown,
+    PageUp,
+    Left,
+    Up,
+    Right,
+    Down,
+    Back,
+    Return,
+    Space,
+    Compose,
+    Numlock,
+    Numpad0,
+    Numpad1,
+    Numpad2,
+    Numpad3,
+    Numpad4,
+    Numpad5,
+    Numpad6,
+    Numpad7,
+    Numpad8,
+    Numpad9,
+    AbntC1,
+    AbntC2,
+    Add,
+    Apostrophe,
+    Apps,
+    At,
+    Ax,
+    Backslash,
+    Calculator,
+    Capital,
+    Colon,
+    Comma,
+    Convert,
+    Decimal,
+    Divide,
+    Equals,
+    Grave,
+    Kana,
+    Kanji,
+    LAlt,
+    LBracket,
+    LControl,
+    LMenu,
+    LShift,
+    LWin,
+    Mail,
+    MediaSelect,
+    MediaStop,
+    Minus,
+    Multiply,
+    Mute,
+    MyComputer,
+    NavigateForward,
+    NavigateBackward,
+    NextTrack,
+    NoConvert,
+    NumpadComma,
+    NumpadEnter,
+    NumpadEquals,
+    OEM102,
+    Period,
+    PlayPause,
+    Power,
+    PrevTrack,
+    RAlt,
+    RBracket,
+    RControl,
+    RMenu,
+    RShift,
+    RWin,
+    Semicolon,
+    Slash,
+    Sleep,
+    Stop,
+    Subtract,
+    Sysrq,
+    Tab,
+    Underline,
+    Unlabeled,
+    VolumeDown,
+    VolumeUp,
+    Wake,
+    WebBack,
+    WebFavorites,
+    WebForward,
+    WebHome,
+    WebRefresh,
+    WebSearch,
+    WebStop,
+    Yen,
+}</pre><div class='docblock'><p>Symbolic name for a keyboard key.</p>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.Key1" class="variant small-section-header"><a href="#variant.Key1" class="anchor field"></a><span id='Key1.v' class='invisible'><code>Key1</code></span></span><div class='docblock'><p>The &#39;1&#39; key over the letters.</p>
+</div><span id="variant.Key2" class="variant small-section-header"><a href="#variant.Key2" class="anchor field"></a><span id='Key2.v' class='invisible'><code>Key2</code></span></span><div class='docblock'><p>The &#39;2&#39; key over the letters.</p>
+</div><span id="variant.Key3" class="variant small-section-header"><a href="#variant.Key3" class="anchor field"></a><span id='Key3.v' class='invisible'><code>Key3</code></span></span><div class='docblock'><p>The &#39;3&#39; key over the letters.</p>
+</div><span id="variant.Key4" class="variant small-section-header"><a href="#variant.Key4" class="anchor field"></a><span id='Key4.v' class='invisible'><code>Key4</code></span></span><div class='docblock'><p>The &#39;4&#39; key over the letters.</p>
+</div><span id="variant.Key5" class="variant small-section-header"><a href="#variant.Key5" class="anchor field"></a><span id='Key5.v' class='invisible'><code>Key5</code></span></span><div class='docblock'><p>The &#39;5&#39; key over the letters.</p>
+</div><span id="variant.Key6" class="variant small-section-header"><a href="#variant.Key6" class="anchor field"></a><span id='Key6.v' class='invisible'><code>Key6</code></span></span><div class='docblock'><p>The &#39;6&#39; key over the letters.</p>
+</div><span id="variant.Key7" class="variant small-section-header"><a href="#variant.Key7" class="anchor field"></a><span id='Key7.v' class='invisible'><code>Key7</code></span></span><div class='docblock'><p>The &#39;7&#39; key over the letters.</p>
+</div><span id="variant.Key8" class="variant small-section-header"><a href="#variant.Key8" class="anchor field"></a><span id='Key8.v' class='invisible'><code>Key8</code></span></span><div class='docblock'><p>The &#39;8&#39; key over the letters.</p>
+</div><span id="variant.Key9" class="variant small-section-header"><a href="#variant.Key9" class="anchor field"></a><span id='Key9.v' class='invisible'><code>Key9</code></span></span><div class='docblock'><p>The &#39;9&#39; key over the letters.</p>
+</div><span id="variant.Key0" class="variant small-section-header"><a href="#variant.Key0" class="anchor field"></a><span id='Key0.v' class='invisible'><code>Key0</code></span></span><div class='docblock'><p>The &#39;0&#39; key over the &#39;O&#39; and &#39;P&#39; keys.</p>
+</div><span id="variant.A" class="variant small-section-header"><a href="#variant.A" class="anchor field"></a><span id='A.v' class='invisible'><code>A</code></span></span><span id="variant.B" class="variant small-section-header"><a href="#variant.B" class="anchor field"></a><span id='B.v' class='invisible'><code>B</code></span></span><span id="variant.C" class="variant small-section-header"><a href="#variant.C" class="anchor field"></a><span id='C.v' class='invisible'><code>C</code></span></span><span id="variant.D" class="variant small-section-header"><a href="#variant.D" class="anchor field"></a><span id='D.v' class='invisible'><code>D</code></span></span><span id="variant.E" class="variant small-section-header"><a href="#variant.E" class="anchor field"></a><span id='E.v' class='invisible'><code>E</code></span></span><span id="variant.F" class="variant small-section-header"><a href="#variant.F" class="anchor field"></a><span id='F.v' class='invisible'><code>F</code></span></span><span id="variant.G" class="variant small-section-header"><a href="#variant.G" class="anchor field"></a><span id='G.v' class='invisible'><code>G</code></span></span><span id="variant.H" class="variant small-section-header"><a href="#variant.H" class="anchor field"></a><span id='H.v' class='invisible'><code>H</code></span></span><span id="variant.I" class="variant small-section-header"><a href="#variant.I" class="anchor field"></a><span id='I.v' class='invisible'><code>I</code></span></span><span id="variant.J" class="variant small-section-header"><a href="#variant.J" class="anchor field"></a><span id='J.v' class='invisible'><code>J</code></span></span><span id="variant.K" class="variant small-section-header"><a href="#variant.K" class="anchor field"></a><span id='K.v' class='invisible'><code>K</code></span></span><span id="variant.L" class="variant small-section-header"><a href="#variant.L" class="anchor field"></a><span id='L.v' class='invisible'><code>L</code></span></span><span id="variant.M" class="variant small-section-header"><a href="#variant.M" class="anchor field"></a><span id='M.v' class='invisible'><code>M</code></span></span><span id="variant.N" class="variant small-section-header"><a href="#variant.N" class="anchor field"></a><span id='N.v' class='invisible'><code>N</code></span></span><span id="variant.O" class="variant small-section-header"><a href="#variant.O" class="anchor field"></a><span id='O.v' class='invisible'><code>O</code></span></span><span id="variant.P" class="variant small-section-header"><a href="#variant.P" class="anchor field"></a><span id='P.v' class='invisible'><code>P</code></span></span><span id="variant.Q" class="variant small-section-header"><a href="#variant.Q" class="anchor field"></a><span id='Q.v' class='invisible'><code>Q</code></span></span><span id="variant.R" class="variant small-section-header"><a href="#variant.R" class="anchor field"></a><span id='R.v' class='invisible'><code>R</code></span></span><span id="variant.S" class="variant small-section-header"><a href="#variant.S" class="anchor field"></a><span id='S.v' class='invisible'><code>S</code></span></span><span id="variant.T" class="variant small-section-header"><a href="#variant.T" class="anchor field"></a><span id='T.v' class='invisible'><code>T</code></span></span><span id="variant.U" class="variant small-section-header"><a href="#variant.U" class="anchor field"></a><span id='U.v' class='invisible'><code>U</code></span></span><span id="variant.V" class="variant small-section-header"><a href="#variant.V" class="anchor field"></a><span id='V.v' class='invisible'><code>V</code></span></span><span id="variant.W" class="variant small-section-header"><a href="#variant.W" class="anchor field"></a><span id='W.v' class='invisible'><code>W</code></span></span><span id="variant.X" class="variant small-section-header"><a href="#variant.X" class="anchor field"></a><span id='X.v' class='invisible'><code>X</code></span></span><span id="variant.Y" class="variant small-section-header"><a href="#variant.Y" class="anchor field"></a><span id='Y.v' class='invisible'><code>Y</code></span></span><span id="variant.Z" class="variant small-section-header"><a href="#variant.Z" class="anchor field"></a><span id='Z.v' class='invisible'><code>Z</code></span></span><span id="variant.Escape" class="variant small-section-header"><a href="#variant.Escape" class="anchor field"></a><span id='Escape.v' class='invisible'><code>Escape</code></span></span><div class='docblock'><p>The Escape key, next to F1.</p>
+</div><span id="variant.F1" class="variant small-section-header"><a href="#variant.F1" class="anchor field"></a><span id='F1.v' class='invisible'><code>F1</code></span></span><span id="variant.F2" class="variant small-section-header"><a href="#variant.F2" class="anchor field"></a><span id='F2.v' class='invisible'><code>F2</code></span></span><span id="variant.F3" class="variant small-section-header"><a href="#variant.F3" class="anchor field"></a><span id='F3.v' class='invisible'><code>F3</code></span></span><span id="variant.F4" class="variant small-section-header"><a href="#variant.F4" class="anchor field"></a><span id='F4.v' class='invisible'><code>F4</code></span></span><span id="variant.F5" class="variant small-section-header"><a href="#variant.F5" class="anchor field"></a><span id='F5.v' class='invisible'><code>F5</code></span></span><span id="variant.F6" class="variant small-section-header"><a href="#variant.F6" class="anchor field"></a><span id='F6.v' class='invisible'><code>F6</code></span></span><span id="variant.F7" class="variant small-section-header"><a href="#variant.F7" class="anchor field"></a><span id='F7.v' class='invisible'><code>F7</code></span></span><span id="variant.F8" class="variant small-section-header"><a href="#variant.F8" class="anchor field"></a><span id='F8.v' class='invisible'><code>F8</code></span></span><span id="variant.F9" class="variant small-section-header"><a href="#variant.F9" class="anchor field"></a><span id='F9.v' class='invisible'><code>F9</code></span></span><span id="variant.F10" class="variant small-section-header"><a href="#variant.F10" class="anchor field"></a><span id='F10.v' class='invisible'><code>F10</code></span></span><span id="variant.F11" class="variant small-section-header"><a href="#variant.F11" class="anchor field"></a><span id='F11.v' class='invisible'><code>F11</code></span></span><span id="variant.F12" class="variant small-section-header"><a href="#variant.F12" class="anchor field"></a><span id='F12.v' class='invisible'><code>F12</code></span></span><span id="variant.F13" class="variant small-section-header"><a href="#variant.F13" class="anchor field"></a><span id='F13.v' class='invisible'><code>F13</code></span></span><span id="variant.F14" class="variant small-section-header"><a href="#variant.F14" class="anchor field"></a><span id='F14.v' class='invisible'><code>F14</code></span></span><span id="variant.F15" class="variant small-section-header"><a href="#variant.F15" class="anchor field"></a><span id='F15.v' class='invisible'><code>F15</code></span></span><span id="variant.Snapshot" class="variant small-section-header"><a href="#variant.Snapshot" class="anchor field"></a><span id='Snapshot.v' class='invisible'><code>Snapshot</code></span></span><div class='docblock'><p>Print Screen/SysRq.</p>
+</div><span id="variant.Scroll" class="variant small-section-header"><a href="#variant.Scroll" class="anchor field"></a><span id='Scroll.v' class='invisible'><code>Scroll</code></span></span><div class='docblock'><p>Scroll Lock.</p>
+</div><span id="variant.Pause" class="variant small-section-header"><a href="#variant.Pause" class="anchor field"></a><span id='Pause.v' class='invisible'><code>Pause</code></span></span><div class='docblock'><p>Pause/Break key, next to Scroll lock.</p>
+</div><span id="variant.Insert" class="variant small-section-header"><a href="#variant.Insert" class="anchor field"></a><span id='Insert.v' class='invisible'><code>Insert</code></span></span><div class='docblock'><p><code>Insert</code>, next to Backspace.</p>
+</div><span id="variant.Home" class="variant small-section-header"><a href="#variant.Home" class="anchor field"></a><span id='Home.v' class='invisible'><code>Home</code></span></span><span id="variant.Delete" class="variant small-section-header"><a href="#variant.Delete" class="anchor field"></a><span id='Delete.v' class='invisible'><code>Delete</code></span></span><span id="variant.End" class="variant small-section-header"><a href="#variant.End" class="anchor field"></a><span id='End.v' class='invisible'><code>End</code></span></span><span id="variant.PageDown" class="variant small-section-header"><a href="#variant.PageDown" class="anchor field"></a><span id='PageDown.v' class='invisible'><code>PageDown</code></span></span><span id="variant.PageUp" class="variant small-section-header"><a href="#variant.PageUp" class="anchor field"></a><span id='PageUp.v' class='invisible'><code>PageUp</code></span></span><span id="variant.Left" class="variant small-section-header"><a href="#variant.Left" class="anchor field"></a><span id='Left.v' class='invisible'><code>Left</code></span></span><span id="variant.Up" class="variant small-section-header"><a href="#variant.Up" class="anchor field"></a><span id='Up.v' class='invisible'><code>Up</code></span></span><span id="variant.Right" class="variant small-section-header"><a href="#variant.Right" class="anchor field"></a><span id='Right.v' class='invisible'><code>Right</code></span></span><span id="variant.Down" class="variant small-section-header"><a href="#variant.Down" class="anchor field"></a><span id='Down.v' class='invisible'><code>Down</code></span></span><span id="variant.Back" class="variant small-section-header"><a href="#variant.Back" class="anchor field"></a><span id='Back.v' class='invisible'><code>Back</code></span></span><div class='docblock'><p>The Backspace key, right over Enter.</p>
+</div><span id="variant.Return" class="variant small-section-header"><a href="#variant.Return" class="anchor field"></a><span id='Return.v' class='invisible'><code>Return</code></span></span><div class='docblock'><p>The Enter key.</p>
+</div><span id="variant.Space" class="variant small-section-header"><a href="#variant.Space" class="anchor field"></a><span id='Space.v' class='invisible'><code>Space</code></span></span><div class='docblock'><p>The space bar.</p>
+</div><span id="variant.Compose" class="variant small-section-header"><a href="#variant.Compose" class="anchor field"></a><span id='Compose.v' class='invisible'><code>Compose</code></span></span><div class='docblock'><p>The &quot;Compose&quot; key on Linux.</p>
+</div><span id="variant.Numlock" class="variant small-section-header"><a href="#variant.Numlock" class="anchor field"></a><span id='Numlock.v' class='invisible'><code>Numlock</code></span></span><span id="variant.Numpad0" class="variant small-section-header"><a href="#variant.Numpad0" class="anchor field"></a><span id='Numpad0.v' class='invisible'><code>Numpad0</code></span></span><span id="variant.Numpad1" class="variant small-section-header"><a href="#variant.Numpad1" class="anchor field"></a><span id='Numpad1.v' class='invisible'><code>Numpad1</code></span></span><span id="variant.Numpad2" class="variant small-section-header"><a href="#variant.Numpad2" class="anchor field"></a><span id='Numpad2.v' class='invisible'><code>Numpad2</code></span></span><span id="variant.Numpad3" class="variant small-section-header"><a href="#variant.Numpad3" class="anchor field"></a><span id='Numpad3.v' class='invisible'><code>Numpad3</code></span></span><span id="variant.Numpad4" class="variant small-section-header"><a href="#variant.Numpad4" class="anchor field"></a><span id='Numpad4.v' class='invisible'><code>Numpad4</code></span></span><span id="variant.Numpad5" class="variant small-section-header"><a href="#variant.Numpad5" class="anchor field"></a><span id='Numpad5.v' class='invisible'><code>Numpad5</code></span></span><span id="variant.Numpad6" class="variant small-section-header"><a href="#variant.Numpad6" class="anchor field"></a><span id='Numpad6.v' class='invisible'><code>Numpad6</code></span></span><span id="variant.Numpad7" class="variant small-section-header"><a href="#variant.Numpad7" class="anchor field"></a><span id='Numpad7.v' class='invisible'><code>Numpad7</code></span></span><span id="variant.Numpad8" class="variant small-section-header"><a href="#variant.Numpad8" class="anchor field"></a><span id='Numpad8.v' class='invisible'><code>Numpad8</code></span></span><span id="variant.Numpad9" class="variant small-section-header"><a href="#variant.Numpad9" class="anchor field"></a><span id='Numpad9.v' class='invisible'><code>Numpad9</code></span></span><span id="variant.AbntC1" class="variant small-section-header"><a href="#variant.AbntC1" class="anchor field"></a><span id='AbntC1.v' class='invisible'><code>AbntC1</code></span></span><span id="variant.AbntC2" class="variant small-section-header"><a href="#variant.AbntC2" class="anchor field"></a><span id='AbntC2.v' class='invisible'><code>AbntC2</code></span></span><span id="variant.Add" class="variant small-section-header"><a href="#variant.Add" class="anchor field"></a><span id='Add.v' class='invisible'><code>Add</code></span></span><span id="variant.Apostrophe" class="variant small-section-header"><a href="#variant.Apostrophe" class="anchor field"></a><span id='Apostrophe.v' class='invisible'><code>Apostrophe</code></span></span><span id="variant.Apps" class="variant small-section-header"><a href="#variant.Apps" class="anchor field"></a><span id='Apps.v' class='invisible'><code>Apps</code></span></span><span id="variant.At" class="variant small-section-header"><a href="#variant.At" class="anchor field"></a><span id='At.v' class='invisible'><code>At</code></span></span><span id="variant.Ax" class="variant small-section-header"><a href="#variant.Ax" class="anchor field"></a><span id='Ax.v' class='invisible'><code>Ax</code></span></span><span id="variant.Backslash" class="variant small-section-header"><a href="#variant.Backslash" class="anchor field"></a><span id='Backslash.v' class='invisible'><code>Backslash</code></span></span><span id="variant.Calculator" class="variant small-section-header"><a href="#variant.Calculator" class="anchor field"></a><span id='Calculator.v' class='invisible'><code>Calculator</code></span></span><span id="variant.Capital" class="variant small-section-header"><a href="#variant.Capital" class="anchor field"></a><span id='Capital.v' class='invisible'><code>Capital</code></span></span><span id="variant.Colon" class="variant small-section-header"><a href="#variant.Colon" class="anchor field"></a><span id='Colon.v' class='invisible'><code>Colon</code></span></span><span id="variant.Comma" class="variant small-section-header"><a href="#variant.Comma" class="anchor field"></a><span id='Comma.v' class='invisible'><code>Comma</code></span></span><span id="variant.Convert" class="variant small-section-header"><a href="#variant.Convert" class="anchor field"></a><span id='Convert.v' class='invisible'><code>Convert</code></span></span><span id="variant.Decimal" class="variant small-section-header"><a href="#variant.Decimal" class="anchor field"></a><span id='Decimal.v' class='invisible'><code>Decimal</code></span></span><span id="variant.Divide" class="variant small-section-header"><a href="#variant.Divide" class="anchor field"></a><span id='Divide.v' class='invisible'><code>Divide</code></span></span><span id="variant.Equals" class="variant small-section-header"><a href="#variant.Equals" class="anchor field"></a><span id='Equals.v' class='invisible'><code>Equals</code></span></span><span id="variant.Grave" class="variant small-section-header"><a href="#variant.Grave" class="anchor field"></a><span id='Grave.v' class='invisible'><code>Grave</code></span></span><span id="variant.Kana" class="variant small-section-header"><a href="#variant.Kana" class="anchor field"></a><span id='Kana.v' class='invisible'><code>Kana</code></span></span><span id="variant.Kanji" class="variant small-section-header"><a href="#variant.Kanji" class="anchor field"></a><span id='Kanji.v' class='invisible'><code>Kanji</code></span></span><span id="variant.LAlt" class="variant small-section-header"><a href="#variant.LAlt" class="anchor field"></a><span id='LAlt.v' class='invisible'><code>LAlt</code></span></span><span id="variant.LBracket" class="variant small-section-header"><a href="#variant.LBracket" class="anchor field"></a><span id='LBracket.v' class='invisible'><code>LBracket</code></span></span><span id="variant.LControl" class="variant small-section-header"><a href="#variant.LControl" class="anchor field"></a><span id='LControl.v' class='invisible'><code>LControl</code></span></span><span id="variant.LMenu" class="variant small-section-header"><a href="#variant.LMenu" class="anchor field"></a><span id='LMenu.v' class='invisible'><code>LMenu</code></span></span><span id="variant.LShift" class="variant small-section-header"><a href="#variant.LShift" class="anchor field"></a><span id='LShift.v' class='invisible'><code>LShift</code></span></span><span id="variant.LWin" class="variant small-section-header"><a href="#variant.LWin" class="anchor field"></a><span id='LWin.v' class='invisible'><code>LWin</code></span></span><span id="variant.Mail" class="variant small-section-header"><a href="#variant.Mail" class="anchor field"></a><span id='Mail.v' class='invisible'><code>Mail</code></span></span><span id="variant.MediaSelect" class="variant small-section-header"><a href="#variant.MediaSelect" class="anchor field"></a><span id='MediaSelect.v' class='invisible'><code>MediaSelect</code></span></span><span id="variant.MediaStop" class="variant small-section-header"><a href="#variant.MediaStop" class="anchor field"></a><span id='MediaStop.v' class='invisible'><code>MediaStop</code></span></span><span id="variant.Minus" class="variant small-section-header"><a href="#variant.Minus" class="anchor field"></a><span id='Minus.v' class='invisible'><code>Minus</code></span></span><span id="variant.Multiply" class="variant small-section-header"><a href="#variant.Multiply" class="anchor field"></a><span id='Multiply.v' class='invisible'><code>Multiply</code></span></span><span id="variant.Mute" class="variant small-section-header"><a href="#variant.Mute" class="anchor field"></a><span id='Mute.v' class='invisible'><code>Mute</code></span></span><span id="variant.MyComputer" class="variant small-section-header"><a href="#variant.MyComputer" class="anchor field"></a><span id='MyComputer.v' class='invisible'><code>MyComputer</code></span></span><span id="variant.NavigateForward" class="variant small-section-header"><a href="#variant.NavigateForward" class="anchor field"></a><span id='NavigateForward.v' class='invisible'><code>NavigateForward</code></span></span><span id="variant.NavigateBackward" class="variant small-section-header"><a href="#variant.NavigateBackward" class="anchor field"></a><span id='NavigateBackward.v' class='invisible'><code>NavigateBackward</code></span></span><span id="variant.NextTrack" class="variant small-section-header"><a href="#variant.NextTrack" class="anchor field"></a><span id='NextTrack.v' class='invisible'><code>NextTrack</code></span></span><span id="variant.NoConvert" class="variant small-section-header"><a href="#variant.NoConvert" class="anchor field"></a><span id='NoConvert.v' class='invisible'><code>NoConvert</code></span></span><span id="variant.NumpadComma" class="variant small-section-header"><a href="#variant.NumpadComma" class="anchor field"></a><span id='NumpadComma.v' class='invisible'><code>NumpadComma</code></span></span><span id="variant.NumpadEnter" class="variant small-section-header"><a href="#variant.NumpadEnter" class="anchor field"></a><span id='NumpadEnter.v' class='invisible'><code>NumpadEnter</code></span></span><span id="variant.NumpadEquals" class="variant small-section-header"><a href="#variant.NumpadEquals" class="anchor field"></a><span id='NumpadEquals.v' class='invisible'><code>NumpadEquals</code></span></span><span id="variant.OEM102" class="variant small-section-header"><a href="#variant.OEM102" class="anchor field"></a><span id='OEM102.v' class='invisible'><code>OEM102</code></span></span><span id="variant.Period" class="variant small-section-header"><a href="#variant.Period" class="anchor field"></a><span id='Period.v' class='invisible'><code>Period</code></span></span><span id="variant.PlayPause" class="variant small-section-header"><a href="#variant.PlayPause" class="anchor field"></a><span id='PlayPause.v' class='invisible'><code>PlayPause</code></span></span><span id="variant.Power" class="variant small-section-header"><a href="#variant.Power" class="anchor field"></a><span id='Power.v' class='invisible'><code>Power</code></span></span><span id="variant.PrevTrack" class="variant small-section-header"><a href="#variant.PrevTrack" class="anchor field"></a><span id='PrevTrack.v' class='invisible'><code>PrevTrack</code></span></span><span id="variant.RAlt" class="variant small-section-header"><a href="#variant.RAlt" class="anchor field"></a><span id='RAlt.v' class='invisible'><code>RAlt</code></span></span><span id="variant.RBracket" class="variant small-section-header"><a href="#variant.RBracket" class="anchor field"></a><span id='RBracket.v' class='invisible'><code>RBracket</code></span></span><span id="variant.RControl" class="variant small-section-header"><a href="#variant.RControl" class="anchor field"></a><span id='RControl.v' class='invisible'><code>RControl</code></span></span><span id="variant.RMenu" class="variant small-section-header"><a href="#variant.RMenu" class="anchor field"></a><span id='RMenu.v' class='invisible'><code>RMenu</code></span></span><span id="variant.RShift" class="variant small-section-header"><a href="#variant.RShift" class="anchor field"></a><span id='RShift.v' class='invisible'><code>RShift</code></span></span><span id="variant.RWin" class="variant small-section-header"><a href="#variant.RWin" class="anchor field"></a><span id='RWin.v' class='invisible'><code>RWin</code></span></span><span id="variant.Semicolon" class="variant small-section-header"><a href="#variant.Semicolon" class="anchor field"></a><span id='Semicolon.v' class='invisible'><code>Semicolon</code></span></span><span id="variant.Slash" class="variant small-section-header"><a href="#variant.Slash" class="anchor field"></a><span id='Slash.v' class='invisible'><code>Slash</code></span></span><span id="variant.Sleep" class="variant small-section-header"><a href="#variant.Sleep" class="anchor field"></a><span id='Sleep.v' class='invisible'><code>Sleep</code></span></span><span id="variant.Stop" class="variant small-section-header"><a href="#variant.Stop" class="anchor field"></a><span id='Stop.v' class='invisible'><code>Stop</code></span></span><span id="variant.Subtract" class="variant small-section-header"><a href="#variant.Subtract" class="anchor field"></a><span id='Subtract.v' class='invisible'><code>Subtract</code></span></span><span id="variant.Sysrq" class="variant small-section-header"><a href="#variant.Sysrq" class="anchor field"></a><span id='Sysrq.v' class='invisible'><code>Sysrq</code></span></span><span id="variant.Tab" class="variant small-section-header"><a href="#variant.Tab" class="anchor field"></a><span id='Tab.v' class='invisible'><code>Tab</code></span></span><span id="variant.Underline" class="variant small-section-header"><a href="#variant.Underline" class="anchor field"></a><span id='Underline.v' class='invisible'><code>Underline</code></span></span><span id="variant.Unlabeled" class="variant small-section-header"><a href="#variant.Unlabeled" class="anchor field"></a><span id='Unlabeled.v' class='invisible'><code>Unlabeled</code></span></span><span id="variant.VolumeDown" class="variant small-section-header"><a href="#variant.VolumeDown" class="anchor field"></a><span id='VolumeDown.v' class='invisible'><code>VolumeDown</code></span></span><span id="variant.VolumeUp" class="variant small-section-header"><a href="#variant.VolumeUp" class="anchor field"></a><span id='VolumeUp.v' class='invisible'><code>VolumeUp</code></span></span><span id="variant.Wake" class="variant small-section-header"><a href="#variant.Wake" class="anchor field"></a><span id='Wake.v' class='invisible'><code>Wake</code></span></span><span id="variant.WebBack" class="variant small-section-header"><a href="#variant.WebBack" class="anchor field"></a><span id='WebBack.v' class='invisible'><code>WebBack</code></span></span><span id="variant.WebFavorites" class="variant small-section-header"><a href="#variant.WebFavorites" class="anchor field"></a><span id='WebFavorites.v' class='invisible'><code>WebFavorites</code></span></span><span id="variant.WebForward" class="variant small-section-header"><a href="#variant.WebForward" class="anchor field"></a><span id='WebForward.v' class='invisible'><code>WebForward</code></span></span><span id="variant.WebHome" class="variant small-section-header"><a href="#variant.WebHome" class="anchor field"></a><span id='WebHome.v' class='invisible'><code>WebHome</code></span></span><span id="variant.WebRefresh" class="variant small-section-header"><a href="#variant.WebRefresh" class="anchor field"></a><span id='WebRefresh.v' class='invisible'><code>WebRefresh</code></span></span><span id="variant.WebSearch" class="variant small-section-header"><a href="#variant.WebSearch" class="anchor field"></a><span id='WebSearch.v' class='invisible'><code>WebSearch</code></span></span><span id="variant.WebStop" class="variant small-section-header"><a href="#variant.WebStop" class="anchor field"></a><span id='WebStop.v' class='invisible'><code>WebStop</code></span></span><span id="variant.Yen" class="variant small-section-header"><a href="#variant.Yen" class="anchor field"></a><span id='Yen.v' class='invisible'><code>Yen</code></span></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Hash' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html" title="trait core::hash::Hash">Hash</a> for <a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a></code><a href='#impl-Hash' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.hash' class="method"><span id='hash.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash' class='fnname'>hash</a>&lt;__H:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>&gt;(&amp;self, __arg_0: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>__H)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Feeds this value into the given [<code>Hasher</code>]. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#tymethod.hash">Read more</a></p>
+</div><h4 id='method.hash_slice' class="method"><span id='hash_slice.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice' class='fnname'>hash_slice</a>&lt;H&gt;(data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[Self]</a>, state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>H) <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;H: <a class="trait" href="https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html" title="trait core::hash::Hasher">Hasher</a>,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.3.0'>1.3.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/hash/mod.rs.html#202-208' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Feeds a slice of this type into the given [<code>Hasher</code>]. <a href="https://doc.rust-lang.org/nightly/core/hash/trait.Hash.html#method.hash_slice">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-Eq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a></code><a href='#impl-Eq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="enum" href="../winit/enum.VirtualKeyCode.html" title="enum winit::VirtualKeyCode">VirtualKeyCode</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#246' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "winit";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

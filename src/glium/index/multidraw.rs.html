@@ -9,13 +9,15 @@
 
     <title>multidraw.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -293,257 +295,257 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! Allows one to draw multiple geometry located in the same buffer.</span>
-<span class='doccomment'>//!</span>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Deref</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>DerefMut</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>os</span>::<span class='ident'>raw</span>;
+</pre><pre class="rust ">
+<span class="doccomment">//! Allows one to draw multiple geometry located in the same buffer.</span>
+<span class="doccomment">//!</span>
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">Deref</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::<span class="ident">DerefMut</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>;
 
-<span class='kw'>use</span> <span class='ident'>backend</span>::<span class='ident'>Facade</span>;
-<span class='kw'>use</span> <span class='ident'>buffer</span>::{<span class='ident'>BufferCreationError</span>, <span class='ident'>BufferType</span>, <span class='ident'>BufferMode</span>, <span class='ident'>Buffer</span>};
-<span class='kw'>use</span> <span class='ident'>buffer</span>::{<span class='ident'>BufferSlice</span>, <span class='ident'>BufferMutSlice</span>};
-<span class='kw'>use</span> <span class='ident'>index</span>::{<span class='ident'>IndicesSource</span>, <span class='ident'>PrimitiveType</span>, <span class='ident'>IndexBuffer</span>, <span class='ident'>Index</span>};
+<span class="kw">use</span> <span class="ident">backend</span>::<span class="ident">Facade</span>;
+<span class="kw">use</span> <span class="ident">buffer</span>::{<span class="ident">BufferCreationError</span>, <span class="ident">BufferType</span>, <span class="ident">BufferMode</span>, <span class="ident">Buffer</span>};
+<span class="kw">use</span> <span class="ident">buffer</span>::{<span class="ident">BufferSlice</span>, <span class="ident">BufferMutSlice</span>};
+<span class="kw">use</span> <span class="ident">index</span>::{<span class="ident">IndicesSource</span>, <span class="ident">PrimitiveType</span>, <span class="ident">IndexBuffer</span>, <span class="ident">Index</span>};
 
-<span class='doccomment'>/// Represents an element in a list of draw commands.</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DrawCommandNoIndices</span> {
-    <span class='doccomment'>/// Number of vertices to draw.</span>
-    <span class='kw'>pub</span> <span class='ident'>count</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// Number of instances to draw. If it&#39;s `0`, nothing will be drawn.</span>
-    <span class='kw'>pub</span> <span class='ident'>instance_count</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// First vertex to draw in the vertices source.</span>
-    <span class='kw'>pub</span> <span class='ident'>first_index</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// Numero of the first instance to draw.</span>
-    <span class='kw'>pub</span> <span class='ident'>base_instance</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
+<span class="doccomment">/// Represents an element in a list of draw commands.</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawCommandNoIndices</span> {
+    <span class="doccomment">/// Number of vertices to draw.</span>
+    <span class="kw">pub</span> <span class="ident">count</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// Number of instances to draw. If it&#39;s `0`, nothing will be drawn.</span>
+    <span class="kw">pub</span> <span class="ident">instance_count</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// First vertex to draw in the vertices source.</span>
+    <span class="kw">pub</span> <span class="ident">first_index</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// Numero of the first instance to draw.</span>
+    <span class="kw">pub</span> <span class="ident">base_instance</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
 }
 
-<span class='macro'>implement_uniform_block</span><span class='macro'>!</span>(<span class='ident'>DrawCommandNoIndices</span>, <span class='ident'>count</span>, <span class='ident'>instance_count</span>,
-                         <span class='ident'>first_index</span>, <span class='ident'>base_instance</span>);
+<span class="macro">implement_uniform_block</span><span class="macro">!</span>(<span class="ident">DrawCommandNoIndices</span>, <span class="ident">count</span>, <span class="ident">instance_count</span>,
+                         <span class="ident">first_index</span>, <span class="ident">base_instance</span>);
 
-<span class='doccomment'>/// Represents an element in a list of draw commands.</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DrawCommandIndices</span> {
-    <span class='doccomment'>/// Number of indices to use in the index buffer.</span>
-    <span class='kw'>pub</span> <span class='ident'>count</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// Number of instances to draw. If it&#39;s `0`, nothing will be drawn.</span>
-    <span class='kw'>pub</span> <span class='ident'>instance_count</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// First index to draw in the index buffer.</span>
-    <span class='kw'>pub</span> <span class='ident'>first_index</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// Value to add to each index.</span>
-    <span class='kw'>pub</span> <span class='ident'>base_vertex</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// Numero of the first instance to draw.</span>
-    <span class='kw'>pub</span> <span class='ident'>base_instance</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
+<span class="doccomment">/// Represents an element in a list of draw commands.</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawCommandIndices</span> {
+    <span class="doccomment">/// Number of indices to use in the index buffer.</span>
+    <span class="kw">pub</span> <span class="ident">count</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// Number of instances to draw. If it&#39;s `0`, nothing will be drawn.</span>
+    <span class="kw">pub</span> <span class="ident">instance_count</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// First index to draw in the index buffer.</span>
+    <span class="kw">pub</span> <span class="ident">first_index</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// Value to add to each index.</span>
+    <span class="kw">pub</span> <span class="ident">base_vertex</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// Numero of the first instance to draw.</span>
+    <span class="kw">pub</span> <span class="ident">base_instance</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
 }
 
-<span class='macro'>implement_uniform_block</span><span class='macro'>!</span>(<span class='ident'>DrawCommandIndices</span>, <span class='ident'>count</span>, <span class='ident'>instance_count</span>, <span class='ident'>first_index</span>,
-                         <span class='ident'>base_vertex</span>, <span class='ident'>base_instance</span>);
+<span class="macro">implement_uniform_block</span><span class="macro">!</span>(<span class="ident">DrawCommandIndices</span>, <span class="ident">count</span>, <span class="ident">instance_count</span>, <span class="ident">first_index</span>,
+                         <span class="ident">base_vertex</span>, <span class="ident">base_instance</span>);
 
-<span class='doccomment'>/// A buffer containing a list of draw commands.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span> {
-    <span class='ident'>buffer</span>: <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span>,
+<span class="doccomment">/// A buffer containing a list of draw commands.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawCommandsNoIndicesBuffer</span> {
+    <span class="ident">buffer</span>: <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span> {
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                    <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsNoIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                    <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+<span class="kw">impl</span> <span class="ident">DrawCommandsNoIndicesBuffer</span> {
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                    <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsNoIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                    <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Default</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsNoIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Default</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsNoIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty_dynamic</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                            <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsNoIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                            <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_dynamic</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                            <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsNoIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                            <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Dynamic</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsNoIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Dynamic</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsNoIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty_persistent</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                               <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsNoIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                               <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_persistent</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                               <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsNoIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                               <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Persistent</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsNoIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Persistent</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsNoIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty_immutable</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                              <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsNoIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                              <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_immutable</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                              <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsNoIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                              <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Immutable</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsNoIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Immutable</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsNoIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an indices source from this buffer and a primitives type. This indices source can</span>
-    <span class='doccomment'>/// be passed to the `draw()` function.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_primitive_type</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>primitives</span>: <span class='ident'>PrimitiveType</span>) <span class='op'>-&gt;</span> <span class='ident'>IndicesSource</span> {
-        <span class='ident'>IndicesSource</span>::<span class='ident'>MultidrawArray</span> {
-            <span class='ident'>buffer</span>: <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>as_slice_any</span>(),
-            <span class='ident'>primitives</span>: <span class='ident'>primitives</span>,
+    <span class="doccomment">/// Builds an indices source from this buffer and a primitives type. This indices source can</span>
+    <span class="doccomment">/// be passed to the `draw()` function.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_primitive_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">primitives</span>: <span class="ident">PrimitiveType</span>) <span class="op">-&gt;</span> <span class="ident">IndicesSource</span> {
+        <span class="ident">IndicesSource</span>::<span class="ident">MultidrawArray</span> {
+            <span class="ident">buffer</span>: <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">as_slice_any</span>(),
+            <span class="ident">primitives</span>: <span class="ident">primitives</span>,
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span>;
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">DrawCommandsNoIndicesBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buffer</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>buffer</span>
+<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">DrawCommandsNoIndicesBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>BufferSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span>) <span class='op'>-&gt;</span> <span class='ident'>BufferSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>b</span>;
-        <span class='ident'>b</span>.<span class='ident'>as_slice</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DrawCommandsNoIndicesBuffer</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BufferSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DrawCommandsNoIndicesBuffer</span>) <span class="op">-&gt;</span> <span class="ident">BufferSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">b</span>;
+        <span class="ident">b</span>.<span class="ident">as_slice</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>BufferMutSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>DrawCommandsNoIndicesBuffer</span>) <span class='op'>-&gt;</span> <span class='ident'>BufferMutSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandNoIndices</span>]<span class='op'>&gt;</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='ident'>b</span>;
-        <span class='ident'>b</span>.<span class='ident'>as_mut_slice</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">DrawCommandsNoIndicesBuffer</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BufferMutSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">DrawCommandsNoIndicesBuffer</span>) <span class="op">-&gt;</span> <span class="ident">BufferMutSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandNoIndices</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">b</span>;
+        <span class="ident">b</span>.<span class="ident">as_mut_slice</span>()
     }
 }
 
-<span class='doccomment'>/// A buffer containing a list of draw commands.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DrawCommandsIndicesBuffer</span> {
-    <span class='ident'>buffer</span>: <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span>,
+<span class="doccomment">/// A buffer containing a list of draw commands.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DrawCommandsIndicesBuffer</span> {
+    <span class="ident">buffer</span>: <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>DrawCommandsIndicesBuffer</span> {
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                    <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                    <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+<span class="kw">impl</span> <span class="ident">DrawCommandsIndicesBuffer</span> {
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                    <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                    <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Default</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Default</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty_dynamic</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                            <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                            <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_dynamic</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                            <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                            <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Dynamic</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Dynamic</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty_persistent</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                               <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                               <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_persistent</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                               <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                               <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Persistent</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Persistent</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an empty buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The parameter indicates the number of elements.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>empty_immutable</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>elements</span>: <span class='ident'>usize</span>)
-                              <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DrawCommandsIndicesBuffer</span>, <span class='ident'>BufferCreationError</span><span class='op'>&gt;</span>
-                              <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds an empty buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The parameter indicates the number of elements.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">empty_immutable</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">elements</span>: <span class="ident">usize</span>)
+                              <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DrawCommandsIndicesBuffer</span>, <span class="ident">BufferCreationError</span><span class="op">&gt;</span>
+                              <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>buf</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>Buffer</span>::<span class='ident'>empty_array</span>(<span class='ident'>facade</span>, <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span>,
-                                               <span class='ident'>elements</span>, <span class='ident'>BufferMode</span>::<span class='ident'>Immutable</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DrawCommandsIndicesBuffer</span> { <span class='ident'>buffer</span>: <span class='ident'>buf</span> })
+        <span class="kw">let</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">Buffer</span>::<span class="ident">empty_array</span>(<span class="ident">facade</span>, <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span>,
+                                               <span class="ident">elements</span>, <span class="ident">BufferMode</span>::<span class="ident">Immutable</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">DrawCommandsIndicesBuffer</span> { <span class="ident">buffer</span>: <span class="ident">buf</span> })
     }
 
-    <span class='doccomment'>/// Builds an indices source from this buffer and a primitives type. This indices source can</span>
-    <span class='doccomment'>/// be passed to the `draw()` function.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_index_buffer</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>T</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='self'>self</span>, <span class='ident'>index_buffer</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>IndexBuffer</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>)
-                                    <span class='op'>-&gt;</span> <span class='ident'>IndicesSource</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>Index</span>
+    <span class="doccomment">/// Builds an indices source from this buffer and a primitives type. This indices source can</span>
+    <span class="doccomment">/// be passed to the `draw()` function.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_index_buffer</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="self">self</span>, <span class="ident">index_buffer</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">IndexBuffer</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>)
+                                    <span class="op">-&gt;</span> <span class="ident">IndicesSource</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Index</span>
     {
-        <span class='ident'>IndicesSource</span>::<span class='ident'>MultidrawElement</span> {
-            <span class='ident'>commands</span>: <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>as_slice_any</span>(),
-            <span class='ident'>indices</span>: <span class='ident'>index_buffer</span>.<span class='ident'>as_slice_any</span>(),
-            <span class='ident'>data_type</span>: <span class='ident'>index_buffer</span>.<span class='ident'>get_indices_type</span>(),
-            <span class='ident'>primitives</span>: <span class='ident'>index_buffer</span>.<span class='ident'>get_primitives_type</span>(),
+        <span class="ident">IndicesSource</span>::<span class="ident">MultidrawElement</span> {
+            <span class="ident">commands</span>: <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">as_slice_any</span>(),
+            <span class="ident">indices</span>: <span class="ident">index_buffer</span>.<span class="ident">as_slice_any</span>(),
+            <span class="ident">data_type</span>: <span class="ident">index_buffer</span>.<span class="ident">get_indices_type</span>(),
+            <span class="ident">primitives</span>: <span class="ident">index_buffer</span>.<span class="ident">get_primitives_type</span>(),
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>DrawCommandsIndicesBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span>;
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">DrawCommandsIndicesBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buffer</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>DrawCommandsIndicesBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>buffer</span>
+<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">DrawCommandsIndicesBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>DrawCommandsIndicesBuffer</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>BufferSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>DrawCommandsIndicesBuffer</span>) <span class='op'>-&gt;</span> <span class='ident'>BufferSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='op'>*</span><span class='ident'>b</span>;
-        <span class='ident'>b</span>.<span class='ident'>as_slice</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DrawCommandsIndicesBuffer</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BufferSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DrawCommandsIndicesBuffer</span>) <span class="op">-&gt;</span> <span class="ident">BufferSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">*</span><span class="ident">b</span>;
+        <span class="ident">b</span>.<span class="ident">as_slice</span>()
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>DrawCommandsIndicesBuffer</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>BufferMutSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='kw-2'>mut</span> <span class='ident'>DrawCommandsIndicesBuffer</span>) <span class='op'>-&gt;</span> <span class='ident'>BufferMutSlice</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, [<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> {
-        <span class='kw'>let</span> <span class='ident'>b</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>Buffer</span><span class='op'>&lt;</span>[<span class='ident'>DrawCommandIndices</span>]<span class='op'>&gt;</span> <span class='op'>=</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='ident'>b</span>;
-        <span class='ident'>b</span>.<span class='ident'>as_mut_slice</span>()
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">DrawCommandsIndicesBuffer</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">BufferMutSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="kw-2">mut</span> <span class="ident">DrawCommandsIndicesBuffer</span>) <span class="op">-&gt;</span> <span class="ident">BufferMutSlice</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, [<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">Buffer</span><span class="op">&lt;</span>[<span class="ident">DrawCommandIndices</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">b</span>;
+        <span class="ident">b</span>.<span class="ident">as_mut_slice</span>()
     }
 }
 </pre>
@@ -564,12 +566,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -590,7 +596,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -601,11 +607,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

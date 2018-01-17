@@ -9,13 +9,15 @@
 
     <title>glium::glutin::os::unix::WindowExt - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc trait">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../../../index.html'>glium</a>::<wbr><a href='../../index.html'>glutin</a>::<wbr><a href='../index.html'>os</a>::<wbr><a href='index.html'>unix</a></p><script>window.sidebarCurrent = {name: 'WindowExt', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait WindowExt</p><div class="block items"><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.get_xlib_window">get_xlib_window</a><a href="#tymethod.get_xlib_display">get_xlib_display</a><a href="#tymethod.get_xlib_screen_id">get_xlib_screen_id</a><a href="#tymethod.get_xlib_xconnection">get_xlib_xconnection</a><a href="#tymethod.send_xim_spot">send_xim_spot</a><a href="#tymethod.get_xcb_connection">get_xcb_connection</a><a href="#tymethod.get_wayland_surface">get_wayland_surface</a><a href="#tymethod.get_wayland_display">get_wayland_display</a><a href="#tymethod.is_ready">is_ready</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../../../index.html'>glium</a>::<wbr><a href='../../index.html'>glutin</a>::<wbr><a href='../index.html'>os</a>::<wbr><a href='index.html'>unix</a></p><script>window.sidebarCurrent = {name: 'WindowExt', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,36 +43,66 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../../../index.html'>glium</a>::<wbr><a href='../../index.html'>glutin</a>::<wbr><a href='../index.html'>os</a>::<wbr><a href='index.html'>unix</a>::<wbr><a class='trait' href=''>WindowExt</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-5244' class='srclink' href='../../../../glutin/os/unix/trait.WindowExt.html?gotosrc=5244' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../../../index.html'>glium</a>::<wbr><a href='../../index.html'>glutin</a>::<wbr><a href='../index.html'>os</a>::<wbr><a href='index.html'>unix</a>::<wbr><a class="trait" href=''>WindowExt</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../src/winit/os/unix.rs.html#80-128' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait WindowExt {
-    fn <a href='#tymethod.get_xlib_window' class='fnname'>get_xlib_window</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../../../../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a>&gt;;
-    fn <a href='#tymethod.get_xlib_display' class='fnname'>get_xlib_display</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../../../../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a>&gt;;
-}</pre><div class='docblock'><p>Additional methods on <code>Window</code> that are specific to unix.</p>
+    fn <a href='#tymethod.get_xlib_window' class='fnname'>get_xlib_window</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_xlib_display' class='fnname'>get_xlib_display</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_xlib_screen_id' class='fnname'>get_xlib_screen_id</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_xlib_xconnection' class='fnname'>get_xlib_xconnection</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/arc/struct.Arc.html" title="struct alloc::arc::Arc">Arc</a>&lt;XConnection&gt;&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.send_xim_spot' class='fnname'>send_xim_spot</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>);
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_xcb_connection' class='fnname'>get_xcb_connection</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_wayland_surface' class='fnname'>get_wayland_surface</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_wayland_display' class='fnname'>get_wayland_display</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;;
+<div class='item-spacer'></div>    fn <a href='#tymethod.is_ready' class='fnname'>is_ready</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+}</pre><div class='docblock'><p>Additional methods on <code>Window</code> that are specific to Unix.</p>
 </div>
-            <h2 id='required-methods'>Required Methods</h2>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='tymethod.get_xlib_window' class='method stab '><code>fn <a href='#tymethod.get_xlib_window' class='fnname'>get_xlib_window</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../../../../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a>&gt;</code></h3><div class='docblock'><p>Returns a pointer to the <code>Window</code> object of xlib that is used by this window.</p>
+        <h3 id='tymethod.get_xlib_window' class='method'><span id='get_xlib_window.v' class='invisible'><code>fn <a href='#tymethod.get_xlib_window' class='fnname'>get_xlib_window</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u64.html">u64</a>&gt;</code></span></h3><div class='docblock'><p>Returns the ID of the <code>Window</code> xlib object that is used by this window.</p>
+
+<p>Returns <code>None</code> if the window doesn&#39;t use xlib (if it uses wayland for example).</p>
+</div><h3 id='tymethod.get_xlib_display' class='method'><span id='get_xlib_display.v' class='invisible'><code>fn <a href='#tymethod.get_xlib_display' class='fnname'>get_xlib_display</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;</code></span></h3><div class='docblock'><p>Returns a pointer to the <code>Display</code> object of xlib that is used by this window.</p>
 
 <p>Returns <code>None</code> if the window doesn&#39;t use xlib (if it uses wayland for example).</p>
 
 <p>The pointer will become invalid when the glutin <code>Window</code> is destroyed.</p>
-</div><h3 id='tymethod.get_xlib_display' class='method stab '><code>fn <a href='#tymethod.get_xlib_display' class='fnname'>get_xlib_display</a>(&amp;self) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.pointer.html'>*mut <a class='enum' href='../../../../libc/enum.c_void.html' title='libc::c_void'>c_void</a></a>&gt;</code></h3><div class='docblock'><p>Returns a pointer to the <code>Display</code> object of xlib that is used by this window.</p>
+</div><h3 id='tymethod.get_xlib_screen_id' class='method'><span id='get_xlib_screen_id.v' class='invisible'><code>fn <a href='#tymethod.get_xlib_screen_id' class='fnname'>get_xlib_screen_id</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>&gt;</code></span></h3><h3 id='tymethod.get_xlib_xconnection' class='method'><span id='get_xlib_xconnection.v' class='invisible'><code>fn <a href='#tymethod.get_xlib_xconnection' class='fnname'>get_xlib_xconnection</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/arc/struct.Arc.html" title="struct alloc::arc::Arc">Arc</a>&lt;XConnection&gt;&gt;</code></span></h3><h3 id='tymethod.send_xim_spot' class='method'><span id='send_xim_spot.v' class='invisible'><code>fn <a href='#tymethod.send_xim_spot' class='fnname'>send_xim_spot</a>(&amp;self, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a>)</code></span></h3><h3 id='tymethod.get_xcb_connection' class='method'><span id='get_xcb_connection.v' class='invisible'><code>fn <a href='#tymethod.get_xcb_connection' class='fnname'>get_xcb_connection</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;</code></span></h3><div class='docblock'><p>This function returns the underlying <code>xcb_connection_t</code> of an xlib <code>Display</code>.</p>
 
 <p>Returns <code>None</code> if the window doesn&#39;t use xlib (if it uses wayland for example).</p>
 
 <p>The pointer will become invalid when the glutin <code>Window</code> is destroyed.</p>
+</div><h3 id='tymethod.get_wayland_surface' class='method'><span id='get_wayland_surface.v' class='invisible'><code>fn <a href='#tymethod.get_wayland_surface' class='fnname'>get_wayland_surface</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;</code></span></h3><div class='docblock'><p>Returns a pointer to the <code>wl_surface</code> object of wayland that is used by this window.</p>
+
+<p>Returns <code>None</code> if the window doesn&#39;t use wayland (if it uses xlib for example).</p>
+
+<p>The pointer will become invalid when the glutin <code>Window</code> is destroyed.</p>
+</div><h3 id='tymethod.get_wayland_display' class='method'><span id='get_wayland_display.v' class='invisible'><code>fn <a href='#tymethod.get_wayland_display' class='fnname'>get_wayland_display</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a>&gt;</code></span></h3><div class='docblock'><p>Returns a pointer to the <code>wl_display</code> object of wayland that is used by this window.</p>
+
+<p>Returns <code>None</code> if the window doesn&#39;t use wayland (if it uses xlib for example).</p>
+
+<p>The pointer will become invalid when the glutin <code>Window</code> is destroyed.</p>
+</div><h3 id='tymethod.is_ready' class='method'><span id='is_ready.v' class='invisible'><code>fn <a href='#tymethod.is_ready' class='fnname'>is_ready</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span></h3><div class='stability'><div class='stab deprecated'>Deprecated</div></div><div class='docblock'><p>Check if the window is ready for drawing</p>
+
+<p>It is a remnant of a previous implementation detail for the
+wayland backend, and is no longer relevant.</p>
+
+<p>Always return true.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl <a class='trait' href='../../../../glium/glutin/os/unix/trait.WindowExt.html' title='glium::glutin::os::unix::WindowExt'>WindowExt</a> for <a class='struct' href='../../../../glium/glutin/struct.Window.html' title='glium::glutin::Window'>Window</a></code></li>
+    <li><div class='out-of-band'><a class='srclink' href='../../../../src/winit/os/unix.rs.html#130-196' title='goto source code'>[src]</a></div><code>impl WindowExt for <a class="struct" href="../../../../glium/glutin/struct.Window.html" title="struct glium::glutin::Window">Window</a></code></li>
 </ul><script type="text/javascript" async
-                              src="../../../../implementors/glutin/os/unix/trait.WindowExt.js">
-                      </script></section>
+                         src="../../../../implementors/winit/os/unix/trait.WindowExt.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -87,12 +119,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -113,7 +149,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -124,11 +160,8 @@
     <script>
         window.rootPath = "../../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../../jquery.js"></script>
     <script src="../../../../main.js"></script>
-    
     <script defer src="../../../../search-index.js"></script>
 </body>
 </html>

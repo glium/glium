@@ -9,13 +9,15 @@
 
     <title>mod.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -359,322 +361,322 @@
 <span id="316">316</span>
 <span id="317">317</span>
 <span id="318">318</span>
-</pre><pre class='rust '>
-<span class='doccomment'>//! A buffer is a memory location accessible to the video card.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! The purpose of buffers is to serve as a space where the GPU can read from or write data to.</span>
-<span class='doccomment'>//! It can contain a list of vertices, indices, uniform data, etc.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! # Buffers management in glium</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! There are three levels of abstraction in glium:</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//!  - An `Alloc` corresponds to an OpenGL buffer object and is unsafe to use.</span>
-<span class='doccomment'>//!    This type is not public.</span>
-<span class='doccomment'>//!  - A `Buffer` wraps around an `Alloc` and provides safety by handling the data type and fences.</span>
-<span class='doccomment'>//!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, etc. types are</span>
-<span class='doccomment'>//!    abstractions over a `Buffer` indicating their specific purpose. They implement `Deref`</span>
-<span class='doccomment'>//!    for the `Buffer`. These types are in the `vertex`, `index`, etc. modules.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! # Unsized types</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! In order to put some data in a buffer, it must implement the `Content` trait. This trait is</span>
-<span class='doccomment'>//! automatically implemented on all `Sized` types and on slices (like `[u8]`). This means that</span>
-<span class='doccomment'>//! you can create a `Buffer&lt;Foo&gt;` (if `Foo` is sized) or a `Buffer&lt;[u8]&gt;` for example without</span>
-<span class='doccomment'>//! worrying about it.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! However unsized structs don&#39;t automatically implement this trait and you must call the</span>
-<span class='doccomment'>//! `implement_buffer_content!` macro on them. You must then use the `empty_unsized` constructor.</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! ```no_run</span>
-<span class='doccomment'>//! # #[macro_use] extern crate glium; fn main() {</span>
-<span class='doccomment'>//! # use std::mem;</span>
-<span class='doccomment'>//! # use glium::buffer::{BufferType, BufferMode};</span>
-<span class='doccomment'>//! # let display: glium::Display = unsafe { mem::uninitialized() };</span>
-<span class='doccomment'>//! struct Data {</span>
-<span class='doccomment'>//!     data: [f32],        // `[f32]` is unsized, therefore `Data` is unsized too</span>
-<span class='doccomment'>//! }</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! implement_buffer_content!(Data);    // without this, you can&#39;t put `Data` in a glium buffer</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! // creates a buffer of 64 bytes, which thus holds 8 f32s</span>
-<span class='doccomment'>//! let mut buffer = glium::buffer::Buffer::&lt;Data&gt;::empty_unsized(&amp;display, BufferType::UniformBuffer,</span>
-<span class='doccomment'>//!                                                               64, BufferMode::Default).unwrap();</span>
-<span class='doccomment'>//!</span>
-<span class='doccomment'>//! // you can then write to it like you normally would</span>
-<span class='doccomment'>//! buffer.map().data[4] = 2.1;</span>
-<span class='doccomment'>//! # }</span>
-<span class='doccomment'>//! ```</span>
-<span class='doccomment'>//!</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>view</span>::{<span class='ident'>Buffer</span>, <span class='ident'>BufferAny</span>, <span class='ident'>BufferMutSlice</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>view</span>::{<span class='ident'>BufferSlice</span>, <span class='ident'>BufferAnySlice</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>alloc</span>::{<span class='ident'>Mapping</span>, <span class='ident'>WriteMapping</span>, <span class='ident'>ReadMapping</span>, <span class='ident'>ReadError</span>, <span class='ident'>CopyError</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>alloc</span>::{<span class='ident'>is_buffer_read_supported</span>};
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>fences</span>::<span class='ident'>Inserter</span>;
+</pre><pre class="rust ">
+<span class="doccomment">//! A buffer is a memory location accessible to the video card.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! The purpose of buffers is to serve as a space where the GPU can read from or write data to.</span>
+<span class="doccomment">//! It can contain a list of vertices, indices, uniform data, etc.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Buffers management in glium</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! There are three levels of abstraction in glium:</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//!  - An `Alloc` corresponds to an OpenGL buffer object and is unsafe to use.</span>
+<span class="doccomment">//!    This type is not public.</span>
+<span class="doccomment">//!  - A `Buffer` wraps around an `Alloc` and provides safety by handling the data type and fences.</span>
+<span class="doccomment">//!  - The `VertexBuffer`, `IndexBuffer`, `UniformBuffer`, `PixelBuffer`, etc. types are</span>
+<span class="doccomment">//!    abstractions over a `Buffer` indicating their specific purpose. They implement `Deref`</span>
+<span class="doccomment">//!    for the `Buffer`. These types are in the `vertex`, `index`, etc. modules.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! # Unsized types</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! In order to put some data in a buffer, it must implement the `Content` trait. This trait is</span>
+<span class="doccomment">//! automatically implemented on all `Sized` types and on slices (like `[u8]`). This means that</span>
+<span class="doccomment">//! you can create a `Buffer&lt;Foo&gt;` (if `Foo` is sized) or a `Buffer&lt;[u8]&gt;` for example without</span>
+<span class="doccomment">//! worrying about it.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! However unsized structs don&#39;t automatically implement this trait and you must call the</span>
+<span class="doccomment">//! `implement_buffer_content!` macro on them. You must then use the `empty_unsized` constructor.</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! ```no_run</span>
+<span class="doccomment">//! # #[macro_use] extern crate glium; fn main() {</span>
+<span class="doccomment">//! # use std::mem;</span>
+<span class="doccomment">//! # use glium::buffer::{BufferType, BufferMode};</span>
+<span class="doccomment">//! # let display: glium::Display = unsafe { mem::uninitialized() };</span>
+<span class="doccomment">//! struct Data {</span>
+<span class="doccomment">//!     data: [f32],        // `[f32]` is unsized, therefore `Data` is unsized too</span>
+<span class="doccomment">//! }</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! implement_buffer_content!(Data);    // without this, you can&#39;t put `Data` in a glium buffer</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // creates a buffer of 64 bytes, which thus holds 8 f32s</span>
+<span class="doccomment">//! let mut buffer = glium::buffer::Buffer::&lt;Data&gt;::empty_unsized(&amp;display, BufferType::UniformBuffer,</span>
+<span class="doccomment">//!                                                               64, BufferMode::Default).unwrap();</span>
+<span class="doccomment">//!</span>
+<span class="doccomment">//! // you can then write to it like you normally would</span>
+<span class="doccomment">//! buffer.map().data[4] = 2.1;</span>
+<span class="doccomment">//! # }</span>
+<span class="doccomment">//! ```</span>
+<span class="doccomment">//!</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">view</span>::{<span class="ident">Buffer</span>, <span class="ident">BufferAny</span>, <span class="ident">BufferMutSlice</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">view</span>::{<span class="ident">BufferSlice</span>, <span class="ident">BufferAnySlice</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">alloc</span>::{<span class="ident">Mapping</span>, <span class="ident">WriteMapping</span>, <span class="ident">ReadMapping</span>, <span class="ident">ReadError</span>, <span class="ident">CopyError</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">alloc</span>::{<span class="ident">is_buffer_read_supported</span>};
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">fences</span>::<span class="ident">Inserter</span>;
 
-<span class='doccomment'>/// DEPRECATED. Only here for backward compatibility.</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>view</span>::<span class='ident'>Buffer</span> <span class='kw'>as</span> <span class='ident'>BufferView</span>;
-<span class='doccomment'>/// DEPRECATED. Only here for backward compatibility.</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>view</span>::<span class='ident'>BufferSlice</span> <span class='kw'>as</span> <span class='ident'>BufferViewSlice</span>;
-<span class='doccomment'>/// DEPRECATED. Only here for backward compatibility.</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>view</span>::<span class='ident'>BufferMutSlice</span> <span class='kw'>as</span> <span class='ident'>BufferViewMutSlice</span>;
-<span class='doccomment'>/// DEPRECATED. Only here for backward compatibility.</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>view</span>::<span class='ident'>BufferAny</span> <span class='kw'>as</span> <span class='ident'>BufferViewAny</span>;
-<span class='doccomment'>/// DEPRECATED. Only here for backward compatibility.</span>
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='self'>self</span>::<span class='ident'>view</span>::<span class='ident'>BufferAnySlice</span> <span class='kw'>as</span> <span class='ident'>BufferViewAnySlice</span>;
+<span class="doccomment">/// DEPRECATED. Only here for backward compatibility.</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">view</span>::<span class="ident">Buffer</span> <span class="kw">as</span> <span class="ident">BufferView</span>;
+<span class="doccomment">/// DEPRECATED. Only here for backward compatibility.</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">view</span>::<span class="ident">BufferSlice</span> <span class="kw">as</span> <span class="ident">BufferViewSlice</span>;
+<span class="doccomment">/// DEPRECATED. Only here for backward compatibility.</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">view</span>::<span class="ident">BufferMutSlice</span> <span class="kw">as</span> <span class="ident">BufferViewMutSlice</span>;
+<span class="doccomment">/// DEPRECATED. Only here for backward compatibility.</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">view</span>::<span class="ident">BufferAny</span> <span class="kw">as</span> <span class="ident">BufferViewAny</span>;
+<span class="doccomment">/// DEPRECATED. Only here for backward compatibility.</span>
+<span class="kw">pub</span> <span class="kw">use</span> <span class="self">self</span>::<span class="ident">view</span>::<span class="ident">BufferAnySlice</span> <span class="kw">as</span> <span class="ident">BufferViewAnySlice</span>;
 
-<span class='kw'>use</span> <span class='ident'>gl</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>error</span>::<span class='ident'>Error</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>slice</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">mem</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">slice</span>;
 
-<span class='kw'>mod</span> <span class='ident'>alloc</span>;
-<span class='kw'>mod</span> <span class='ident'>fences</span>;
-<span class='kw'>mod</span> <span class='ident'>view</span>;
+<span class="kw">mod</span> <span class="ident">alloc</span>;
+<span class="kw">mod</span> <span class="ident">fences</span>;
+<span class="kw">mod</span> <span class="ident">view</span>;
 
-<span class='doccomment'>/// Trait for types of data that can be put inside buffers.</span>
-<span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>trait</span> <span class='ident'>Content</span> {
-    <span class='doccomment'>/// A type that holds a sized version of the content.</span>
-    <span class='kw'>type</span> <span class='ident'>Owned</span>;
+<span class="doccomment">/// Trait for types of data that can be put inside buffers.</span>
+<span class="kw">pub</span> <span class="kw">unsafe</span> <span class="kw">trait</span> <span class="ident">Content</span> {
+    <span class="doccomment">/// A type that holds a sized version of the content.</span>
+    <span class="kw">type</span> <span class="ident">Owned</span>;
 
-    <span class='doccomment'>/// Prepares an output buffer, then turns this buffer into an `Owned`.</span>
-    <span class='kw'>fn</span> <span class='ident'>read</span><span class='op'>&lt;</span><span class='ident'>F</span>, <span class='ident'>E</span><span class='op'>&gt;</span>(<span class='ident'>size</span>: <span class='ident'>usize</span>, <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Self</span>::<span class='ident'>Owned</span>, <span class='ident'>E</span><span class='op'>&gt;</span>
-                  <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>FnOnce</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='kw'>Self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>E</span><span class='op'>&gt;</span>;
+    <span class="doccomment">/// Prepares an output buffer, then turns this buffer into an `Owned`.</span>
+    <span class="kw">fn</span> <span class="ident">read</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>::<span class="ident">Owned</span>, <span class="ident">E</span><span class="op">&gt;</span>
+                  <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">Self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span>;
 
-    <span class='doccomment'>/// Returns the size of each element.</span>
-    <span class='kw'>fn</span> <span class='ident'>get_elements_size</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span>;
+    <span class="doccomment">/// Returns the size of each element.</span>
+    <span class="kw">fn</span> <span class="ident">get_elements_size</span>() <span class="op">-&gt;</span> <span class="ident">usize</span>;
 
-    <span class='doccomment'>/// Produces a pointer to the data.</span>
-    <span class='kw'>fn</span> <span class='ident'>to_void_ptr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> ();
+    <span class="doccomment">/// Produces a pointer to the data.</span>
+    <span class="kw">fn</span> <span class="ident">to_void_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> ();
 
-    <span class='doccomment'>/// Builds a pointer to this type from a raw pointer.</span>
-    <span class='kw'>fn</span> <span class='ident'>ref_from_ptr</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='ident'>ptr</span>: <span class='op'>*</span><span class='kw-2'>mut</span> (), <span class='ident'>size</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='op'>*</span><span class='kw-2'>mut</span> <span class='kw'>Self</span><span class='op'>&gt;</span>;
+    <span class="doccomment">/// Builds a pointer to this type from a raw pointer.</span>
+    <span class="kw">fn</span> <span class="ident">ref_from_ptr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> (), <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="self">Self</span><span class="op">&gt;</span>;
 
-    <span class='doccomment'>/// Returns true if the size is suitable to store a type like this.</span>
-    <span class='kw'>fn</span> <span class='ident'>is_size_suitable</span>(<span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span>;
+    <span class="doccomment">/// Returns true if the size is suitable to store a type like this.</span>
+    <span class="kw">fn</span> <span class="ident">is_size_suitable</span>(<span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">bool</span>;
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>Content</span> <span class='kw'>for</span> <span class='ident'>T</span> <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>Copy</span> {
-    <span class='kw'>type</span> <span class='ident'>Owned</span> <span class='op'>=</span> <span class='ident'>T</span>;
+<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Content</span> <span class="kw">for</span> <span class="ident">T</span> <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Copy</span> {
+    <span class="kw">type</span> <span class="ident">Owned</span> <span class="op">=</span> <span class="ident">T</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>read</span><span class='op'>&lt;</span><span class='ident'>F</span>, <span class='ident'>E</span><span class='op'>&gt;</span>(<span class='ident'>size</span>: <span class='ident'>usize</span>, <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>T</span>, <span class='ident'>E</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>FnOnce</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>T</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>E</span><span class='op'>&gt;</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>size</span> <span class='op'>==</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>());
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='kw'>unsafe</span> { <span class='ident'>mem</span>::<span class='ident'>uninitialized</span>() };
-        <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>f</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>value</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">read</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">T</span>, <span class="ident">E</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">T</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span> {
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">size</span> <span class="op">==</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>());
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="kw">unsafe</span> { <span class="ident">mem</span>::<span class="ident">uninitialized</span>() };
+        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_elements_size</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_elements_size</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_void_ptr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> () {
-        <span class='self'>self</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>T</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> ()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_void_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> () {
+        <span class="self">self</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> ()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>ref_from_ptr</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='ident'>ptr</span>: <span class='op'>*</span><span class='kw-2'>mut</span> (), <span class='ident'>size</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>T</span><span class='op'>&gt;</span> {
-        <span class='kw'>if</span> <span class='ident'>size</span> <span class='op'>!=</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>() {
-            <span class='kw'>return</span> <span class='prelude-val'>None</span>;
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">ref_from_ptr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> (), <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span><span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">size</span> <span class="op">!=</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class='prelude-val'>Some</span>(<span class='ident'>ptr</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>T</span>)
+        <span class="prelude-val">Some</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_size_suitable</span>(<span class='ident'>size</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>size</span> <span class='op'>==</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_size_suitable</span>(<span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">size</span> <span class="op">==</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 }
 
-<span class='kw'>unsafe</span> <span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span> <span class='ident'>Content</span> <span class='kw'>for</span> [<span class='ident'>T</span>] <span class='kw'>where</span> <span class='ident'>T</span>: <span class='ident'>Copy</span> {
-    <span class='kw'>type</span> <span class='ident'>Owned</span> <span class='op'>=</span> <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>;
+<span class="kw">unsafe</span> <span class="kw">impl</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Content</span> <span class="kw">for</span> [<span class="ident">T</span>] <span class="kw">where</span> <span class="ident">T</span>: <span class="ident">Copy</span> {
+    <span class="kw">type</span> <span class="ident">Owned</span> <span class="op">=</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>read</span><span class='op'>&lt;</span><span class='ident'>F</span>, <span class='ident'>E</span><span class='op'>&gt;</span>(<span class='ident'>size</span>: <span class='ident'>usize</span>, <span class='ident'>f</span>: <span class='ident'>F</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>, <span class='ident'>E</span><span class='op'>&gt;</span>
-                  <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>FnOnce</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>T</span>]) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>E</span><span class='op'>&gt;</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">read</span><span class="op">&lt;</span><span class="ident">F</span>, <span class="ident">E</span><span class="op">&gt;</span>(<span class="ident">size</span>: <span class="ident">usize</span>, <span class="ident">f</span>: <span class="ident">F</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>, <span class="ident">E</span><span class="op">&gt;</span>
+                  <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">FnOnce</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">T</span>]) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">E</span><span class="op">&gt;</span>
     {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>size</span> <span class='op'>%</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='number'>0</span>);
-        <span class='kw'>let</span> <span class='ident'>len</span> <span class='op'>=</span> <span class='ident'>size</span> <span class='op'>/</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>();
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>value</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>with_capacity</span>(<span class='ident'>len</span>);
-        <span class='kw'>unsafe</span> { <span class='ident'>value</span>.<span class='ident'>set_len</span>(<span class='ident'>len</span>) };
-        <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>f</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>value</span>));
-        <span class='prelude-val'>Ok</span>(<span class='ident'>value</span>)
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">size</span> <span class="op">%</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>);
+        <span class="kw">let</span> <span class="ident">len</span> <span class="op">=</span> <span class="ident">size</span> <span class="op">/</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">value</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">with_capacity</span>(<span class="ident">len</span>);
+        <span class="kw">unsafe</span> { <span class="ident">value</span>.<span class="ident">set_len</span>(<span class="ident">len</span>) };
+        <span class="macro">try</span><span class="macro">!</span>(<span class="ident">f</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">value</span>));
+        <span class="prelude-val">Ok</span>(<span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_elements_size</span>() <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_elements_size</span>() <span class="op">-&gt;</span> <span class="ident">usize</span> {
+        <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_void_ptr</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> () {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>[<span class='number'>0</span>] <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>T</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw'>const</span> ()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_void_ptr</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> () {
+        <span class="kw-2">&amp;</span><span class="self">self</span>[<span class="number">0</span>] <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">T</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> ()
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>ref_from_ptr</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span>(<span class='ident'>ptr</span>: <span class='op'>*</span><span class='kw-2'>mut</span> (), <span class='ident'>size</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='op'>*</span><span class='kw-2'>mut</span> [<span class='ident'>T</span>]<span class='op'>&gt;</span> {
-        <span class='kw'>if</span> <span class='ident'>size</span> <span class='op'>%</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>() <span class='op'>!=</span> <span class='number'>0</span> {
-            <span class='kw'>return</span> <span class='prelude-val'>None</span>;
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">ref_from_ptr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> (), <span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">*</span><span class="kw-2">mut</span> [<span class="ident">T</span>]<span class="op">&gt;</span> {
+        <span class="kw">if</span> <span class="ident">size</span> <span class="op">%</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">!=</span> <span class="number">0</span> {
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
 
-        <span class='kw'>let</span> <span class='ident'>ptr</span> <span class='op'>=</span> <span class='ident'>ptr</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>T</span>;
-        <span class='kw'>let</span> <span class='ident'>size</span> <span class='op'>=</span> <span class='ident'>size</span> <span class='op'>/</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>();
-        <span class='prelude-val'>Some</span>(<span class='kw'>unsafe</span> { <span class='ident'>slice</span>::<span class='ident'>from_raw_parts_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='ident'>ptr</span>, <span class='ident'>size</span>) <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> [<span class='ident'>T</span>] })
+        <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">T</span>;
+        <span class="kw">let</span> <span class="ident">size</span> <span class="op">=</span> <span class="ident">size</span> <span class="op">/</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>();
+        <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="ident">slice</span>::<span class="ident">from_raw_parts_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="ident">ptr</span>, <span class="ident">size</span>) <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> [<span class="ident">T</span>] })
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>is_size_suitable</span>(<span class='ident'>size</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='ident'>size</span> <span class='op'>%</span> <span class='ident'>mem</span>::<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>T</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='number'>0</span>
-    }
-}
-
-<span class='doccomment'>/// Error that can happen when creating a buffer.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>BufferCreationError</span> {
-    <span class='doccomment'>/// Not enough memory to create the buffer.</span>
-    <span class='ident'>OutOfMemory</span>,
-
-    <span class='doccomment'>/// This type of buffer is not supported.</span>
-    <span class='ident'>BufferTypeNotSupported</span>,
-}
-
-<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>BufferCreationError</span> {
-    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>formatter</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
-        <span class='self'>self</span>.<span class='ident'>description</span>().<span class='ident'>fmt</span>(<span class='ident'>formatter</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">is_size_suitable</span>(<span class="ident">size</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="ident">size</span> <span class="op">%</span> <span class="ident">mem</span>::<span class="ident">size_of</span>::<span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>() <span class="op">==</span> <span class="number">0</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Error</span> <span class='kw'>for</span> <span class='ident'>BufferCreationError</span> {
-    <span class='kw'>fn</span> <span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
-        <span class='kw'>match</span> <span class='self'>self</span> {
-            <span class='kw-2'>&amp;</span><span class='ident'>BufferCreationError</span>::<span class='ident'>OutOfMemory</span> <span class='op'>=&gt;</span> <span class='string'>&quot;Not enough memory to create the buffer&quot;</span>,
-            <span class='kw-2'>&amp;</span><span class='ident'>BufferCreationError</span>::<span class='ident'>BufferTypeNotSupported</span> <span class='op'>=&gt;</span> <span class='string'>&quot;This type of buffer is not supported&quot;</span>,
+<span class="doccomment">/// Error that can happen when creating a buffer.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BufferCreationError</span> {
+    <span class="doccomment">/// Not enough memory to create the buffer.</span>
+    <span class="ident">OutOfMemory</span>,
+
+    <span class="doccomment">/// This type of buffer is not supported.</span>
+    <span class="ident">BufferTypeNotSupported</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">BufferCreationError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>())
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">BufferCreationError</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="kw-2">&amp;</span><span class="ident">BufferCreationError</span>::<span class="ident">OutOfMemory</span> <span class="op">=&gt;</span> <span class="string">&quot;Not enough memory to create the buffer&quot;</span>,
+            <span class="kw-2">&amp;</span><span class="ident">BufferCreationError</span>::<span class="ident">BufferTypeNotSupported</span> <span class="op">=&gt;</span> <span class="string">&quot;This type of buffer is not supported&quot;</span>,
         }
     }
 }
 
-<span class='doccomment'>/// How the buffer is created.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>BufferMode</span> {
-    <span class='doccomment'>/// This is the default mode suitable for any usage. Will never be slow, will never be fast</span>
-    <span class='doccomment'>/// either.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Other modes should always be preferred, but you can use this one if you don&#39;t know what</span>
-    <span class='doccomment'>/// will happen to the buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Implementation</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Tries to use `glBufferStorage` with the `GL_DYNAMIC_STORAGE_BIT` flag.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If this function is not available, falls back to `glBufferData` with `GL_STATIC_DRAW`.</span>
-    <span class='doccomment'>///</span>
-    <span class='ident'>Default</span>,
+<span class="doccomment">/// How the buffer is created.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BufferMode</span> {
+    <span class="doccomment">/// This is the default mode suitable for any usage. Will never be slow, will never be fast</span>
+    <span class="doccomment">/// either.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Other modes should always be preferred, but you can use this one if you don&#39;t know what</span>
+    <span class="doccomment">/// will happen to the buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Implementation</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Tries to use `glBufferStorage` with the `GL_DYNAMIC_STORAGE_BIT` flag.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this function is not available, falls back to `glBufferData` with `GL_STATIC_DRAW`.</span>
+    <span class="doccomment">///</span>
+    <span class="ident">Default</span>,
 
-    <span class='doccomment'>/// The mode to use when you modify a buffer multiple times per frame. Simiar to `Default` in</span>
-    <span class='doccomment'>/// that it is suitable for most usages.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Use this if you do a quick succession of modify the buffer, draw, modify, draw, etc. This</span>
-    <span class='doccomment'>/// is something that you shouldn&#39;t do by the way.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// With this mode, the OpenGL driver automatically manages the buffer for us. It will try to</span>
-    <span class='doccomment'>/// find the most appropriate storage depending on how we use it. It is guaranteed to never be</span>
-    <span class='doccomment'>/// too slow, but it won&#39;t be too fast either.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Implementation</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Tries to use `glBufferStorage` with the `GL_DYNAMIC_STORAGE_BIT` and</span>
-    <span class='doccomment'>/// `GL_CLIENT_STORAGE_BIT` flags.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If this function is not available, falls back to `glBufferData` with `GL_DYNAMIC_DRAW`.</span>
-    <span class='doccomment'>///</span>
-    <span class='ident'>Dynamic</span>,
+    <span class="doccomment">/// The mode to use when you modify a buffer multiple times per frame. Similar to `Default` in</span>
+    <span class="doccomment">/// that it is suitable for most usages.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Use this if you do a quick succession of modify the buffer, draw, modify, draw, etc. This</span>
+    <span class="doccomment">/// is something that you shouldn&#39;t do by the way.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// With this mode, the OpenGL driver automatically manages the buffer for us. It will try to</span>
+    <span class="doccomment">/// find the most appropriate storage depending on how we use it. It is guaranteed to never be</span>
+    <span class="doccomment">/// too slow, but it won&#39;t be too fast either.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Implementation</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Tries to use `glBufferStorage` with the `GL_DYNAMIC_STORAGE_BIT` and</span>
+    <span class="doccomment">/// `GL_CLIENT_STORAGE_BIT` flags.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this function is not available, falls back to `glBufferData` with `GL_DYNAMIC_DRAW`.</span>
+    <span class="doccomment">///</span>
+    <span class="ident">Dynamic</span>,
 
-    <span class='doccomment'>/// Optimized for when you modify a buffer exactly once per frame. You can modify it more than</span>
-    <span class='doccomment'>/// once per frame, but if you modify it too often things will slow down.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// With this mode, glium automatically handles synchronization to prevent the buffer from</span>
-    <span class='doccomment'>/// being access by both the GPU and the CPU simultaneously. If you try to modify the buffer,</span>
-    <span class='doccomment'>/// the execution will block until the GPU has finished using it. For this reason, a quick</span>
-    <span class='doccomment'>/// succession of modifying and drawing using the same buffer will be very slow.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// When using persistent mapping, it is recommended to use triple buffering. This is done by</span>
-    <span class='doccomment'>/// creating a buffer that has three times the capacity that it would normally have. You modify</span>
-    <span class='doccomment'>/// and draw the first third, then modify and draw the second third, then the last part, then</span>
-    <span class='doccomment'>/// go back to the first third, etc.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Implementation</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Tries to use `glBufferStorage` with `GL_MAP_PERSISTENT_BIT`. Sync fences are automatically</span>
-    <span class='doccomment'>/// managed by glium.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If this function is not available, falls back to `glBufferData` with `GL_DYNAMIC_DRAW`.</span>
-    <span class='doccomment'>///</span>
-    <span class='ident'>Persistent</span>,
+    <span class="doccomment">/// Optimized for when you modify a buffer exactly once per frame. You can modify it more than</span>
+    <span class="doccomment">/// once per frame, but if you modify it too often things will slow down.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// With this mode, glium automatically handles synchronization to prevent the buffer from</span>
+    <span class="doccomment">/// being access by both the GPU and the CPU simultaneously. If you try to modify the buffer,</span>
+    <span class="doccomment">/// the execution will block until the GPU has finished using it. For this reason, a quick</span>
+    <span class="doccomment">/// succession of modifying and drawing using the same buffer will be very slow.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// When using persistent mapping, it is recommended to use triple buffering. This is done by</span>
+    <span class="doccomment">/// creating a buffer that has three times the capacity that it would normally have. You modify</span>
+    <span class="doccomment">/// and draw the first third, then modify and draw the second third, then the last part, then</span>
+    <span class="doccomment">/// go back to the first third, etc.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Implementation</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Tries to use `glBufferStorage` with `GL_MAP_PERSISTENT_BIT`. Sync fences are automatically</span>
+    <span class="doccomment">/// managed by glium.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this function is not available, falls back to `glBufferData` with `GL_DYNAMIC_DRAW`.</span>
+    <span class="doccomment">///</span>
+    <span class="ident">Persistent</span>,
 
-    <span class='doccomment'>/// Optimized when you will never touch the content of the buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Immutable buffers should be created once and never touched again. Modifying their content</span>
-    <span class='doccomment'>/// is permitted, but is very slow.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Implementation</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Tries to use `glBufferStorage` without any flag. Modifications are done by creating</span>
-    <span class='doccomment'>/// temporary buffers and making the GPU copy the data from the temporary buffer to the real</span>
-    <span class='doccomment'>/// one.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If this function is not available, falls back to `glBufferData` with `GL_STATIC_DRAW`.</span>
-    <span class='doccomment'>///</span>
-    <span class='ident'>Immutable</span>,
+    <span class="doccomment">/// Optimized when you will never touch the content of the buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Immutable buffers should be created once and never touched again. Modifying their content</span>
+    <span class="doccomment">/// is permitted, but is very slow.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Implementation</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Tries to use `glBufferStorage` without any flag. Modifications are done by creating</span>
+    <span class="doccomment">/// temporary buffers and making the GPU copy the data from the temporary buffer to the real</span>
+    <span class="doccomment">/// one.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If this function is not available, falls back to `glBufferData` with `GL_STATIC_DRAW`.</span>
+    <span class="doccomment">///</span>
+    <span class="ident">Immutable</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>BufferMode</span> {
-    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='ident'>BufferMode</span> {
-        <span class='ident'>BufferMode</span>::<span class='ident'>Default</span>
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">BufferMode</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">BufferMode</span> {
+        <span class="ident">BufferMode</span>::<span class="ident">Default</span>
     }
 }
 
-<span class='doccomment'>/// Type of a buffer.</span>
-<span class='attribute'>#[<span class='ident'>doc</span>(<span class='ident'>hidden</span>)]</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>BufferType</span> {
-    <span class='ident'>ArrayBuffer</span>,
-    <span class='ident'>PixelPackBuffer</span>,
-    <span class='ident'>PixelUnpackBuffer</span>,
-    <span class='ident'>UniformBuffer</span>,
-    <span class='ident'>CopyReadBuffer</span>,
-    <span class='ident'>CopyWriteBuffer</span>,
-    <span class='ident'>AtomicCounterBuffer</span>,
-    <span class='ident'>DispatchIndirectBuffer</span>,
-    <span class='ident'>DrawIndirectBuffer</span>,
-    <span class='ident'>QueryBuffer</span>,
-    <span class='ident'>ShaderStorageBuffer</span>,
-    <span class='ident'>TextureBuffer</span>,
-    <span class='ident'>TransformFeedbackBuffer</span>,
-    <span class='ident'>ElementArrayBuffer</span>,
+<span class="doccomment">/// Type of a buffer.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">allow</span>(<span class="ident">missing_docs</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BufferType</span> {
+    <span class="ident">ArrayBuffer</span>,
+    <span class="ident">PixelPackBuffer</span>,
+    <span class="ident">PixelUnpackBuffer</span>,
+    <span class="ident">UniformBuffer</span>,
+    <span class="ident">CopyReadBuffer</span>,
+    <span class="ident">CopyWriteBuffer</span>,
+    <span class="ident">AtomicCounterBuffer</span>,
+    <span class="ident">DispatchIndirectBuffer</span>,
+    <span class="ident">DrawIndirectBuffer</span>,
+    <span class="ident">QueryBuffer</span>,
+    <span class="ident">ShaderStorageBuffer</span>,
+    <span class="ident">TextureBuffer</span>,
+    <span class="ident">TransformFeedbackBuffer</span>,
+    <span class="ident">ElementArrayBuffer</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>BufferType</span> {
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>BufferType</span>::<span class='ident'>ArrayBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ARRAY_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>PixelPackBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>PIXEL_PACK_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>PixelUnpackBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>PIXEL_UNPACK_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>UniformBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>UNIFORM_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>CopyReadBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>COPY_READ_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>CopyWriteBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>COPY_WRITE_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>AtomicCounterBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ATOMIC_COUNTER_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>DispatchIndirectBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>DISPATCH_INDIRECT_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>DrawIndirectBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>DRAW_INDIRECT_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>QueryBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>QUERY_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>ShaderStorageBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>SHADER_STORAGE_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>TextureBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>TEXTURE_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>TransformFeedbackBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>TRANSFORM_FEEDBACK_BUFFER</span>,
-            <span class='ident'>BufferType</span>::<span class='ident'>ElementArrayBuffer</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ELEMENT_ARRAY_BUFFER</span>,
+<span class="kw">impl</span> <span class="ident">BufferType</span> {
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">BufferType</span>::<span class="ident">ArrayBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ARRAY_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">PixelPackBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">PIXEL_PACK_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">PixelUnpackBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">PIXEL_UNPACK_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">UniformBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">UNIFORM_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">CopyReadBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">COPY_READ_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">CopyWriteBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">COPY_WRITE_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">AtomicCounterBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ATOMIC_COUNTER_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">DispatchIndirectBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">DISPATCH_INDIRECT_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">DrawIndirectBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">DRAW_INDIRECT_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">QueryBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">QUERY_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">ShaderStorageBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">SHADER_STORAGE_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">TextureBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">TEXTURE_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">TransformFeedbackBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">TRANSFORM_FEEDBACK_BUFFER</span>,
+            <span class="ident">BufferType</span>::<span class="ident">ElementArrayBuffer</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ELEMENT_ARRAY_BUFFER</span>,
         }
     }
 }
@@ -696,12 +698,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -722,7 +728,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -733,11 +739,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

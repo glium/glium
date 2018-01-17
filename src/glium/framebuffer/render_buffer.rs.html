@@ -9,13 +9,15 @@
 
     <title>render_buffer.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -496,8 +498,24 @@
 <span id="453">453</span>
 <span id="454">454</span>
 <span id="455">455</span>
-</pre><pre class='rust '>
-<span class='doccomment'>/*!
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+</pre><pre class="rust ">
+<span class="doccomment">/*!
 
 A render buffer is similar to a texture, but is optimized for usage as a draw target.
 
@@ -506,450 +524,466 @@ You should prefer render buffers over textures when you know that you don&#39;t 
 the data of the render buffer.
 
 */</span>
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>rc</span>::<span class='ident'>Rc</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>ops</span>::{<span class='ident'>Deref</span>, <span class='ident'>DerefMut</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>mem</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">rc</span>::<span class="ident">Rc</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">ops</span>::{<span class="ident">Deref</span>, <span class="ident">DerefMut</span>};
+<span class="kw">use</span> <span class="ident">std</span>::{ <span class="ident">mem</span>, <span class="ident">fmt</span> };
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">error</span>::<span class="ident">Error</span>;
 
-<span class='kw'>use</span> <span class='ident'>framebuffer</span>::{<span class='ident'>ColorAttachment</span>, <span class='ident'>ToColorAttachment</span>};
-<span class='kw'>use</span> <span class='ident'>framebuffer</span>::{<span class='ident'>DepthAttachment</span>, <span class='ident'>ToDepthAttachment</span>};
-<span class='kw'>use</span> <span class='ident'>framebuffer</span>::{<span class='ident'>StencilAttachment</span>, <span class='ident'>ToStencilAttachment</span>};
-<span class='kw'>use</span> <span class='ident'>framebuffer</span>::{<span class='ident'>DepthStencilAttachment</span>, <span class='ident'>ToDepthStencilAttachment</span>};
-<span class='kw'>use</span> <span class='ident'>texture</span>::{<span class='ident'>UncompressedFloatFormat</span>, <span class='ident'>DepthFormat</span>, <span class='ident'>StencilFormat</span>, <span class='ident'>DepthStencilFormat</span>, <span class='ident'>TextureKind</span>};
+<span class="kw">use</span> <span class="ident">framebuffer</span>::{<span class="ident">ColorAttachment</span>, <span class="ident">ToColorAttachment</span>};
+<span class="kw">use</span> <span class="ident">framebuffer</span>::{<span class="ident">DepthAttachment</span>, <span class="ident">ToDepthAttachment</span>};
+<span class="kw">use</span> <span class="ident">framebuffer</span>::{<span class="ident">StencilAttachment</span>, <span class="ident">ToStencilAttachment</span>};
+<span class="kw">use</span> <span class="ident">framebuffer</span>::{<span class="ident">DepthStencilAttachment</span>, <span class="ident">ToDepthStencilAttachment</span>};
+<span class="kw">use</span> <span class="ident">texture</span>::{<span class="ident">UncompressedFloatFormat</span>, <span class="ident">DepthFormat</span>, <span class="ident">StencilFormat</span>, <span class="ident">DepthStencilFormat</span>, <span class="ident">TextureKind</span>};
 
-<span class='kw'>use</span> <span class='ident'>image_format</span>;
+<span class="kw">use</span> <span class="ident">image_format</span>;
 
-<span class='kw'>use</span> <span class='ident'>gl</span>;
-<span class='kw'>use</span> <span class='ident'>GlObject</span>;
-<span class='kw'>use</span> <span class='ident'>fbo</span>::<span class='ident'>FramebuffersContainer</span>;
-<span class='kw'>use</span> <span class='ident'>backend</span>::<span class='ident'>Facade</span>;
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>Context</span>;
-<span class='kw'>use</span> <span class='ident'>ContextExt</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Version</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Api</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
+<span class="kw">use</span> <span class="ident">GlObject</span>;
+<span class="kw">use</span> <span class="ident">fbo</span>::<span class="ident">FramebuffersContainer</span>;
+<span class="kw">use</span> <span class="ident">backend</span>::<span class="ident">Facade</span>;
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">Context</span>;
+<span class="kw">use</span> <span class="ident">ContextExt</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Api</span>;
 
-<span class='doccomment'>/// Error while creating a render buffer.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>CreationError</span> {
-    <span class='doccomment'>/// The requested format is not supported.</span>
-    <span class='ident'>FormatNotSupported</span>,
+<span class="doccomment">/// Error while creating a render buffer.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">CreationError</span> {
+    <span class="doccomment">/// The requested format is not supported.</span>
+    <span class="ident">FormatNotSupported</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>image_format</span>::<span class='ident'>FormatNotSupportedError</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>CreationError</span> {
-    <span class='kw'>fn</span> <span class='ident'>from</span>(_: <span class='ident'>image_format</span>::<span class='ident'>FormatNotSupportedError</span>) <span class='op'>-&gt;</span> <span class='ident'>CreationError</span> {
-        <span class='ident'>CreationError</span>::<span class='ident'>FormatNotSupported</span>
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Display</span> <span class="kw">for</span> <span class="ident">CreationError</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">fmt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="ident">fmt</span>::<span class="prelude-ty">Result</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">fmt</span>, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.<span class="ident">description</span>())
     }
 }
 
-<span class='doccomment'>/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Contrary to a texture, you can&#39;t sample or modify the content of the `RenderBuffer`.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>RenderBuffer</span> {
-    <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>,
+<span class="kw">impl</span> <span class="ident">Error</span> <span class="kw">for</span> <span class="ident">CreationError</span> {
+    <span class="kw">fn</span> <span class="ident">description</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
+        <span class="kw">use</span> <span class="self">self</span>::<span class="ident">CreationError</span>::<span class="kw-2">*</span>;
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">FormatNotSupported</span> <span class="op">=&gt;</span> <span class="string">&quot;The requested format is not supported&quot;</span>,
+        }
+    }
 }
 
-<span class='kw'>impl</span> <span class='ident'>RenderBuffer</span> {
-    <span class='doccomment'>/// Builds a new render buffer.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>format</span>: <span class='ident'>UncompressedFloatFormat</span>, <span class='ident'>width</span>: <span class='ident'>u32</span>, <span class='ident'>height</span>: <span class='ident'>u32</span>)
-                  <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>RenderBuffer</span>, <span class='ident'>CreationError</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
-    {
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='ident'>image_format</span>::<span class='ident'>TextureFormatRequest</span>::<span class='ident'>Specific</span>(<span class='ident'>image_format</span>::<span class='ident'>TextureFormat</span>::<span class='ident'>UncompressedFloat</span>(<span class='ident'>format</span>));
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>image_format</span>::<span class='ident'>format_request_to_glenum</span>(<span class='kw-2'>&amp;</span><span class='ident'>facade</span>.<span class='ident'>get_context</span>(), <span class='ident'>format</span>, <span class='ident'>image_format</span>::<span class='ident'>RequestType</span>::<span class='ident'>Renderbuffer</span>));
+<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">image_format</span>::<span class="ident">FormatNotSupportedError</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CreationError</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(_: <span class="ident">image_format</span>::<span class="ident">FormatNotSupportedError</span>) <span class="op">-&gt;</span> <span class="ident">CreationError</span> {
+        <span class="ident">CreationError</span>::<span class="ident">FormatNotSupported</span>
+    }
+}
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>RenderBuffer</span> {
-            <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>::<span class='ident'>new</span>(<span class='ident'>facade</span>, <span class='ident'>format</span>, <span class='ident'>TextureKind</span>::<span class='ident'>Float</span>, <span class='ident'>width</span>, <span class='ident'>height</span>, <span class='prelude-val'>None</span>)
+<span class="doccomment">/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Contrary to a texture, you can&#39;t sample or modify the content of the `RenderBuffer`.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RenderBuffer</span> {
+    <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">RenderBuffer</span> {
+    <span class="doccomment">/// Builds a new render buffer.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">format</span>: <span class="ident">UncompressedFloatFormat</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>)
+                  <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">RenderBuffer</span>, <span class="ident">CreationError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
+    {
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">image_format</span>::<span class="ident">TextureFormatRequest</span>::<span class="ident">Specific</span>(<span class="ident">image_format</span>::<span class="ident">TextureFormat</span>::<span class="ident">UncompressedFloat</span>(<span class="ident">format</span>));
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">image_format</span>::<span class="ident">format_request_to_glenum</span>(<span class="kw-2">&amp;</span><span class="ident">facade</span>.<span class="ident">get_context</span>(), <span class="ident">format</span>, <span class="ident">image_format</span>::<span class="ident">RequestType</span>::<span class="ident">Renderbuffer</span>));
+
+        <span class="prelude-val">Ok</span>(<span class="ident">RenderBuffer</span> {
+            <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>::<span class="ident">new</span>(<span class="ident">facade</span>, <span class="ident">format</span>, <span class="ident">TextureKind</span>::<span class="ident">Float</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="prelude-val">None</span>)
         })
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>ToColorAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>RenderBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_color_attachment</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>ColorAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>ColorAttachment</span>::<span class='ident'>RenderBuffer</span>(<span class='self'>self</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToColorAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">RenderBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_color_attachment</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">ColorAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">ColorAttachment</span>::<span class="ident">RenderBuffer</span>(<span class="self">self</span>)
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>RenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>RenderBufferAny</span>;
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">RenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">RenderBufferAny</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buffer</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>RenderBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>buffer</span>
+<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">RenderBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlObject</span> <span class='kw'>for</span> <span class='ident'>RenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Id</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>;
+<span class="kw">impl</span> <span class="ident">GlObject</span> <span class="kw">for</span> <span class="ident">RenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Id</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span> {
-        <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>get_id</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span> {
+        <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">get_id</span>()
     }
 }
 
-<span class='doccomment'>/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Contrary to a texture, you can&#39;t sample or modify the content of the `DepthRenderBuffer` directly.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DepthRenderBuffer</span> {
-    <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>,
+<span class="doccomment">/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Contrary to a texture, you can&#39;t sample or modify the content of the `DepthRenderBuffer` directly.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DepthRenderBuffer</span> {
+    <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>DepthRenderBuffer</span> {
-    <span class='doccomment'>/// Builds a new render buffer.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>format</span>: <span class='ident'>DepthFormat</span>, <span class='ident'>width</span>: <span class='ident'>u32</span>, <span class='ident'>height</span>: <span class='ident'>u32</span>)
-                  <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DepthRenderBuffer</span>, <span class='ident'>CreationError</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+<span class="kw">impl</span> <span class="ident">DepthRenderBuffer</span> {
+    <span class="doccomment">/// Builds a new render buffer.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">format</span>: <span class="ident">DepthFormat</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>)
+                  <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DepthRenderBuffer</span>, <span class="ident">CreationError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='ident'>image_format</span>::<span class='ident'>TextureFormatRequest</span>::<span class='ident'>Specific</span>(<span class='ident'>image_format</span>::<span class='ident'>TextureFormat</span>::<span class='ident'>DepthFormat</span>(<span class='ident'>format</span>));
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>image_format</span>::<span class='ident'>format_request_to_glenum</span>(<span class='kw-2'>&amp;</span><span class='ident'>facade</span>.<span class='ident'>get_context</span>(), <span class='ident'>format</span>, <span class='ident'>image_format</span>::<span class='ident'>RequestType</span>::<span class='ident'>Renderbuffer</span>));
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">image_format</span>::<span class="ident">TextureFormatRequest</span>::<span class="ident">Specific</span>(<span class="ident">image_format</span>::<span class="ident">TextureFormat</span>::<span class="ident">DepthFormat</span>(<span class="ident">format</span>));
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">image_format</span>::<span class="ident">format_request_to_glenum</span>(<span class="kw-2">&amp;</span><span class="ident">facade</span>.<span class="ident">get_context</span>(), <span class="ident">format</span>, <span class="ident">image_format</span>::<span class="ident">RequestType</span>::<span class="ident">Renderbuffer</span>));
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DepthRenderBuffer</span> {
-            <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>::<span class='ident'>new</span>(<span class='ident'>facade</span>, <span class='ident'>format</span>, <span class='ident'>TextureKind</span>::<span class='ident'>Depth</span>, <span class='ident'>width</span>, <span class='ident'>height</span>, <span class='prelude-val'>None</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">DepthRenderBuffer</span> {
+            <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>::<span class="ident">new</span>(<span class="ident">facade</span>, <span class="ident">format</span>, <span class="ident">TextureKind</span>::<span class="ident">Depth</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="prelude-val">None</span>)
         })
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>ToDepthAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>DepthRenderBuffer</span> {
-    <span class='kw'>fn</span> <span class='ident'>to_depth_attachment</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>DepthAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>DepthAttachment</span>::<span class='ident'>RenderBuffer</span>(<span class='self'>self</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToDepthAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DepthRenderBuffer</span> {
+    <span class="kw">fn</span> <span class="ident">to_depth_attachment</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DepthAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">DepthAttachment</span>::<span class="ident">RenderBuffer</span>(<span class="self">self</span>)
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>DepthRenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>RenderBufferAny</span>;
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">DepthRenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">RenderBufferAny</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buffer</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>DepthRenderBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>buffer</span>
+<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">DepthRenderBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlObject</span> <span class='kw'>for</span> <span class='ident'>DepthRenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Id</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>;
+<span class="kw">impl</span> <span class="ident">GlObject</span> <span class="kw">for</span> <span class="ident">DepthRenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Id</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span> {
-        <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>get_id</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span> {
+        <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">get_id</span>()
     }
 }
 
-<span class='doccomment'>/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Contrary to a texture, you can&#39;t sample or modify the content of the `StencilRenderBuffer` directly.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>StencilRenderBuffer</span> {
-    <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>,
+<span class="doccomment">/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Contrary to a texture, you can&#39;t sample or modify the content of the `StencilRenderBuffer` directly.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">StencilRenderBuffer</span> {
+    <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>StencilRenderBuffer</span> {
-    <span class='doccomment'>/// Builds a new render buffer.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>format</span>: <span class='ident'>StencilFormat</span>, <span class='ident'>width</span>: <span class='ident'>u32</span>, <span class='ident'>height</span>: <span class='ident'>u32</span>)
-                  <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>StencilRenderBuffer</span>, <span class='ident'>CreationError</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+<span class="kw">impl</span> <span class="ident">StencilRenderBuffer</span> {
+    <span class="doccomment">/// Builds a new render buffer.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">format</span>: <span class="ident">StencilFormat</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>)
+                  <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">StencilRenderBuffer</span>, <span class="ident">CreationError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='ident'>image_format</span>::<span class='ident'>TextureFormatRequest</span>::<span class='ident'>Specific</span>(<span class='ident'>image_format</span>::<span class='ident'>TextureFormat</span>::<span class='ident'>StencilFormat</span>(<span class='ident'>format</span>));
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>image_format</span>::<span class='ident'>format_request_to_glenum</span>(<span class='kw-2'>&amp;</span><span class='ident'>facade</span>.<span class='ident'>get_context</span>(), <span class='ident'>format</span>, <span class='ident'>image_format</span>::<span class='ident'>RequestType</span>::<span class='ident'>Renderbuffer</span>));
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">image_format</span>::<span class="ident">TextureFormatRequest</span>::<span class="ident">Specific</span>(<span class="ident">image_format</span>::<span class="ident">TextureFormat</span>::<span class="ident">StencilFormat</span>(<span class="ident">format</span>));
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">image_format</span>::<span class="ident">format_request_to_glenum</span>(<span class="kw-2">&amp;</span><span class="ident">facade</span>.<span class="ident">get_context</span>(), <span class="ident">format</span>, <span class="ident">image_format</span>::<span class="ident">RequestType</span>::<span class="ident">Renderbuffer</span>));
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>StencilRenderBuffer</span> {
-            <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>::<span class='ident'>new</span>(<span class='ident'>facade</span>, <span class='ident'>format</span>, <span class='ident'>TextureKind</span>::<span class='ident'>Stencil</span>, <span class='ident'>width</span>, <span class='ident'>height</span>, <span class='prelude-val'>None</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">StencilRenderBuffer</span> {
+            <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>::<span class="ident">new</span>(<span class="ident">facade</span>, <span class="ident">format</span>, <span class="ident">TextureKind</span>::<span class="ident">Stencil</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="prelude-val">None</span>)
         })
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>ToStencilAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>StencilRenderBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_stencil_attachment</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>StencilAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>StencilAttachment</span>::<span class='ident'>RenderBuffer</span>(<span class='self'>self</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToStencilAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">StencilRenderBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_stencil_attachment</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">StencilAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">StencilAttachment</span>::<span class="ident">RenderBuffer</span>(<span class="self">self</span>)
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>StencilRenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>RenderBufferAny</span>;
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">StencilRenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">RenderBufferAny</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buffer</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>StencilRenderBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>buffer</span>
+<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">StencilRenderBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlObject</span> <span class='kw'>for</span> <span class='ident'>StencilRenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Id</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>;
+<span class="kw">impl</span> <span class="ident">GlObject</span> <span class="kw">for</span> <span class="ident">StencilRenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Id</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span> {
-        <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>get_id</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span> {
+        <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">get_id</span>()
     }
 }
 
-<span class='doccomment'>/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Contrary to a texture, you can&#39;t sample or modify the content of the `DepthStencilRenderBuffer` directly.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>DepthStencilRenderBuffer</span> {
-    <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>,
+<span class="doccomment">/// A render buffer is similar to a texture, but is optimized for usage as a draw target.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Contrary to a texture, you can&#39;t sample or modify the content of the `DepthStencilRenderBuffer` directly.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DepthStencilRenderBuffer</span> {
+    <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>DepthStencilRenderBuffer</span> {
-    <span class='doccomment'>/// Builds a new render buffer.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>format</span>: <span class='ident'>DepthStencilFormat</span>, <span class='ident'>width</span>: <span class='ident'>u32</span>, <span class='ident'>height</span>: <span class='ident'>u32</span>)
-                  <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>DepthStencilRenderBuffer</span>, <span class='ident'>CreationError</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+<span class="kw">impl</span> <span class="ident">DepthStencilRenderBuffer</span> {
+    <span class="doccomment">/// Builds a new render buffer.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">format</span>: <span class="ident">DepthStencilFormat</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>)
+                  <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">DepthStencilRenderBuffer</span>, <span class="ident">CreationError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='ident'>image_format</span>::<span class='ident'>TextureFormatRequest</span>::<span class='ident'>Specific</span>(<span class='ident'>image_format</span>::<span class='ident'>TextureFormat</span>::<span class='ident'>DepthStencilFormat</span>(<span class='ident'>format</span>));
-        <span class='kw'>let</span> <span class='ident'>format</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>image_format</span>::<span class='ident'>format_request_to_glenum</span>(<span class='kw-2'>&amp;</span><span class='ident'>facade</span>.<span class='ident'>get_context</span>(), <span class='ident'>format</span>, <span class='ident'>image_format</span>::<span class='ident'>RequestType</span>::<span class='ident'>Renderbuffer</span>));
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="ident">image_format</span>::<span class="ident">TextureFormatRequest</span>::<span class="ident">Specific</span>(<span class="ident">image_format</span>::<span class="ident">TextureFormat</span>::<span class="ident">DepthStencilFormat</span>(<span class="ident">format</span>));
+        <span class="kw">let</span> <span class="ident">format</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">image_format</span>::<span class="ident">format_request_to_glenum</span>(<span class="kw-2">&amp;</span><span class="ident">facade</span>.<span class="ident">get_context</span>(), <span class="ident">format</span>, <span class="ident">image_format</span>::<span class="ident">RequestType</span>::<span class="ident">Renderbuffer</span>));
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>DepthStencilRenderBuffer</span> {
-            <span class='ident'>buffer</span>: <span class='ident'>RenderBufferAny</span>::<span class='ident'>new</span>(<span class='ident'>facade</span>, <span class='ident'>format</span>, <span class='ident'>TextureKind</span>::<span class='ident'>DepthStencil</span>, <span class='ident'>width</span>, <span class='ident'>height</span>, <span class='prelude-val'>None</span>)
+        <span class="prelude-val">Ok</span>(<span class="ident">DepthStencilRenderBuffer</span> {
+            <span class="ident">buffer</span>: <span class="ident">RenderBufferAny</span>::<span class="ident">new</span>(<span class="ident">facade</span>, <span class="ident">format</span>, <span class="ident">TextureKind</span>::<span class="ident">DepthStencil</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="prelude-val">None</span>)
         })
     }
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>ToDepthStencilAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>DepthStencilRenderBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_depth_stencil_attachment</span>(<span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>DepthStencilAttachment</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> {
-        <span class='ident'>DepthStencilAttachment</span>::<span class='ident'>RenderBuffer</span>(<span class='self'>self</span>)
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToDepthStencilAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">DepthStencilRenderBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_depth_stencil_attachment</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">DepthStencilAttachment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+        <span class="ident">DepthStencilAttachment</span>::<span class="ident">RenderBuffer</span>(<span class="self">self</span>)
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>DepthStencilRenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>RenderBufferAny</span>;
+<span class="kw">impl</span> <span class="ident">Deref</span> <span class="kw">for</span> <span class="ident">DepthStencilRenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Target</span> <span class="op">=</span> <span class="ident">RenderBufferAny</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>buffer</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>DerefMut</span> <span class='kw'>for</span> <span class='ident'>DepthStencilRenderBuffer</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>deref_mut</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>RenderBufferAny</span> {
-        <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>buffer</span>
+<span class="kw">impl</span> <span class="ident">DerefMut</span> <span class="kw">for</span> <span class="ident">DepthStencilRenderBuffer</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">deref_mut</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RenderBufferAny</span> {
+        <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">buffer</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlObject</span> <span class='kw'>for</span> <span class='ident'>DepthStencilRenderBuffer</span> {
-    <span class='kw'>type</span> <span class='ident'>Id</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>;
+<span class="kw">impl</span> <span class="ident">GlObject</span> <span class="kw">for</span> <span class="ident">DepthStencilRenderBuffer</span> {
+    <span class="kw">type</span> <span class="ident">Id</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span> {
-        <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>get_id</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span> {
+        <span class="self">self</span>.<span class="ident">buffer</span>.<span class="ident">get_id</span>()
     }
 }
 
-<span class='doccomment'>/// A RenderBuffer of indeterminate type.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>RenderBufferAny</span> {
-    <span class='ident'>context</span>: <span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Context</span><span class='op'>&gt;</span>,
-    <span class='ident'>id</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>,
-    <span class='ident'>width</span>: <span class='ident'>u32</span>,
-    <span class='ident'>height</span>: <span class='ident'>u32</span>,
-    <span class='ident'>samples</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>,
-    <span class='ident'>kind</span>: <span class='ident'>TextureKind</span>,
+<span class="doccomment">/// A RenderBuffer of indeterminate type.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RenderBufferAny</span> {
+    <span class="ident">context</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span>,
+    <span class="ident">id</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>,
+    <span class="ident">width</span>: <span class="ident">u32</span>,
+    <span class="ident">height</span>: <span class="ident">u32</span>,
+    <span class="ident">samples</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>,
+    <span class="ident">kind</span>: <span class="ident">TextureKind</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>RenderBufferAny</span> {
-    <span class='doccomment'>/// Builds a new render buffer.</span>
-    <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>format</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span>, <span class='ident'>kind</span>: <span class='ident'>TextureKind</span>, <span class='ident'>width</span>: <span class='ident'>u32</span>, <span class='ident'>height</span>: <span class='ident'>u32</span>,
-              <span class='ident'>samples</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>RenderBufferAny</span>
-        <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+<span class="kw">impl</span> <span class="ident">RenderBufferAny</span> {
+    <span class="doccomment">/// Builds a new render buffer.</span>
+    <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">format</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span>, <span class="ident">kind</span>: <span class="ident">TextureKind</span>, <span class="ident">width</span>: <span class="ident">u32</span>, <span class="ident">height</span>: <span class="ident">u32</span>,
+              <span class="ident">samples</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span>) <span class="op">-&gt;</span> <span class="ident">RenderBufferAny</span>
+        <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>unsafe</span> {
-            <span class='comment'>// TODO: check that dimensions don&#39;t exceed GL_MAX_RENDERBUFFER_SIZE</span>
-            <span class='comment'>// FIXME: gles2 only supports very few formats</span>
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ctxt</span> <span class='op'>=</span> <span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>make_current</span>();
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>id</span> <span class='op'>=</span> <span class='ident'>mem</span>::<span class='ident'>uninitialized</span>();
+        <span class="kw">unsafe</span> {
+            <span class="comment">// TODO: check that dimensions don&#39;t exceed GL_MAX_RENDERBUFFER_SIZE</span>
+            <span class="comment">// FIXME: gles2 only supports very few formats</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">make_current</span>();
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">id</span> <span class="op">=</span> <span class="ident">mem</span>::<span class="ident">uninitialized</span>();
 
-            <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>4</span>, <span class='number'>5</span>) <span class='op'>||</span>
-               <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_arb_direct_state_access</span>
+            <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">4</span>, <span class="number">5</span>) <span class="op">||</span>
+               <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_arb_direct_state_access</span>
             {
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>CreateRenderbuffers</span>(<span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>id</span>);
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>samples</span>) <span class='op'>=</span> <span class='ident'>samples</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>NamedRenderbufferStorageMultisample</span>(<span class='ident'>id</span>, <span class='ident'>samples</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                                <span class='ident'>format</span>, <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                                <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
-                } <span class='kw'>else</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>NamedRenderbufferStorage</span>(<span class='ident'>id</span>, <span class='ident'>format</span>, <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                     <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">CreateRenderbuffers</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">id</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">samples</span>) <span class="op">=</span> <span class="ident">samples</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">NamedRenderbufferStorageMultisample</span>(<span class="ident">id</span>, <span class="ident">samples</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                                <span class="ident">format</span>, <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                                <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
+                } <span class="kw">else</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">NamedRenderbufferStorage</span>(<span class="ident">id</span>, <span class="ident">format</span>, <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                     <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
                 }
 
-            } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>samples</span>.<span class='ident'>is_some</span>() <span class='op'>&amp;&amp;</span> (<span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                                            <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                                            <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_apple_framebuffer_multisample</span> <span class='op'>||</span>
-                                            <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_angle_framebuffer_multisample</span> <span class='op'>||</span>
-                                            <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_multisampled_render_to_texture</span> <span class='op'>||</span>
-                                            <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_nv_framebuffer_multisample</span>)
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">samples</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> (<span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span>
+                                            <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span>
+                                            <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_apple_framebuffer_multisample</span> <span class="op">||</span>
+                                            <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_angle_framebuffer_multisample</span> <span class="op">||</span>
+                                            <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_multisampled_render_to_texture</span> <span class="op">||</span>
+                                            <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_nv_framebuffer_multisample</span>)
             {
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>GenRenderbuffers</span>(<span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>BindRenderbuffer</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>, <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>=</span> <span class='ident'>id</span>;
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">GenRenderbuffers</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">BindRenderbuffer</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>, <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">=</span> <span class="ident">id</span>;
 
-                <span class='kw'>let</span> <span class='ident'>samples</span> <span class='op'>=</span> <span class='ident'>samples</span>.<span class='ident'>unwrap</span>();
+                <span class="kw">let</span> <span class="ident">samples</span> <span class="op">=</span> <span class="ident">samples</span>.<span class="ident">unwrap</span>();
 
-                <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                   <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>3</span>, <span class='number'>0</span>)
+                <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span>
+                   <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">3</span>, <span class="number">0</span>)
                 {
-                    <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorageMultisample</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>, 
-                                                           <span class='ident'>samples</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                           <span class='ident'>format</span>,
-                                                           <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                           <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                    <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorageMultisample</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>,
+                                                           <span class="ident">samples</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                           <span class="ident">format</span>,
+                                                           <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                           <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-                } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_apple_framebuffer_multisample</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorageMultisampleAPPLE</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>,
-                                                                <span class='ident'>samples</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                                <span class='ident'>format</span>,
-                                                                <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                                <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_apple_framebuffer_multisample</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorageMultisampleAPPLE</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>,
+                                                                <span class="ident">samples</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                                <span class="ident">format</span>,
+                                                                <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                                <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-                } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_angle_framebuffer_multisample</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorageMultisampleANGLE</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>,
-                                                                <span class='ident'>samples</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                                <span class='ident'>format</span>,
-                                                                <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                                <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_angle_framebuffer_multisample</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorageMultisampleANGLE</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>,
+                                                                <span class="ident">samples</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                                <span class="ident">format</span>,
+                                                                <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                                <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-                } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_multisampled_render_to_texture</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorageMultisampleEXT</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>,
-                                                              <span class='ident'>samples</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                              <span class='ident'>format</span>,
-                                                              <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                              <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_multisampled_render_to_texture</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorageMultisampleEXT</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>,
+                                                              <span class="ident">samples</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                              <span class="ident">format</span>,
+                                                              <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                              <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-                } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_nv_framebuffer_multisample</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorageMultisampleNV</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>,
-                                                             <span class='ident'>samples</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                             <span class='ident'>format</span>,
-                                                             <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                             <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_nv_framebuffer_multisample</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorageMultisampleNV</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>,
+                                                             <span class="ident">samples</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                             <span class="ident">format</span>,
+                                                             <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                             <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-                } <span class='kw'>else</span> {
-                    <span class='macro'>unreachable</span><span class='macro'>!</span>();
+                } <span class="kw">else</span> {
+                    <span class="macro">unreachable</span><span class="macro">!</span>();
                 }
 
-            } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>samples</span>.<span class='ident'>is_none</span>() <span class='op'>&amp;&amp;</span> (<span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                                            <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>2</span>, <span class='number'>0</span>))
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">samples</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> (<span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span>
+                                            <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">2</span>, <span class="number">0</span>))
             {
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>GenRenderbuffers</span>(<span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>BindRenderbuffer</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>, <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>=</span> <span class='ident'>id</span>;
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorage</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER</span>, <span class='ident'>format</span>,
-                                            <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                            <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">GenRenderbuffers</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">BindRenderbuffer</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>, <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">=</span> <span class="ident">id</span>;
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorage</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER</span>, <span class="ident">format</span>,
+                                            <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                            <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-            } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>samples</span>.<span class='ident'>is_some</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_framebuffer_object</span> <span class='op'>&amp;&amp;</span>
-                      <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_framebuffer_multisample</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">samples</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_framebuffer_object</span> <span class="op">&amp;&amp;</span>
+                      <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_framebuffer_multisample</span>
             {
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>GenRenderbuffersEXT</span>(<span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>BindRenderbufferEXT</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER_EXT</span>, <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>=</span> <span class='ident'>id</span>;
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">GenRenderbuffersEXT</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">BindRenderbufferEXT</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER_EXT</span>, <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">=</span> <span class="ident">id</span>;
 
-                <span class='kw'>let</span> <span class='ident'>samples</span> <span class='op'>=</span> <span class='ident'>samples</span>.<span class='ident'>unwrap</span>();
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorageMultisampleEXT</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER_EXT</span>,
-                                                          <span class='ident'>samples</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                          <span class='ident'>format</span>,
-                                                          <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                                          <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+                <span class="kw">let</span> <span class="ident">samples</span> <span class="op">=</span> <span class="ident">samples</span>.<span class="ident">unwrap</span>();
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorageMultisampleEXT</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER_EXT</span>,
+                                                          <span class="ident">samples</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                          <span class="ident">format</span>,
+                                                          <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                                          <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-            } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>samples</span>.<span class='ident'>is_none</span>() <span class='op'>&amp;&amp;</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_framebuffer_object</span> {
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>GenRenderbuffersEXT</span>(<span class='number'>1</span>, <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>BindRenderbufferEXT</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER_EXT</span>, <span class='ident'>id</span>);
-                <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>=</span> <span class='ident'>id</span>;
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>RenderbufferStorageEXT</span>(<span class='ident'>gl</span>::<span class='ident'>RENDERBUFFER_EXT</span>, <span class='ident'>format</span>,
-                                               <span class='ident'>width</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>,
-                                               <span class='ident'>height</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLsizei</span>);
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">samples</span>.<span class="ident">is_none</span>() <span class="op">&amp;&amp;</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_framebuffer_object</span> {
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">GenRenderbuffersEXT</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">BindRenderbufferEXT</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER_EXT</span>, <span class="ident">id</span>);
+                <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">=</span> <span class="ident">id</span>;
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">RenderbufferStorageEXT</span>(<span class="ident">gl</span>::<span class="ident">RENDERBUFFER_EXT</span>, <span class="ident">format</span>,
+                                               <span class="ident">width</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>,
+                                               <span class="ident">height</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLsizei</span>);
 
-            } <span class='kw'>else</span> {
-                <span class='macro'>unreachable</span><span class='macro'>!</span>();
+            } <span class="kw">else</span> {
+                <span class="macro">unreachable</span><span class="macro">!</span>();
             }
 
-            <span class='ident'>RenderBufferAny</span> {
-                <span class='ident'>context</span>: <span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>clone</span>(),
-                <span class='ident'>id</span>: <span class='ident'>id</span>,
-                <span class='ident'>width</span>: <span class='ident'>width</span>,
-                <span class='ident'>height</span>: <span class='ident'>height</span>,
-                <span class='ident'>samples</span>: <span class='ident'>samples</span>,
-                <span class='ident'>kind</span>: <span class='ident'>kind</span>,
-            }
-        }
-    }
-
-    <span class='doccomment'>/// Returns the dimensions of the render buffer.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_dimensions</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> (<span class='ident'>u32</span>, <span class='ident'>u32</span>) {
-        (<span class='self'>self</span>.<span class='ident'>width</span>, <span class='self'>self</span>.<span class='ident'>height</span>)
-    }
-
-    <span class='doccomment'>/// Returns the number of samples of the render buffer, or `None` if multisampling isn&#39;t</span>
-    <span class='doccomment'>/// enabled.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_samples</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>samples</span>
-    }
-
-    <span class='doccomment'>/// Returns the context used to create this renderbuffer.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_context</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>Rc</span><span class='op'>&lt;</span><span class='ident'>Context</span><span class='op'>&gt;</span> {
-        <span class='kw-2'>&amp;</span><span class='self'>self</span>.<span class='ident'>context</span>
-    }
-
-    <span class='doccomment'>/// Returns the kind of renderbuffer.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>kind</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>TextureKind</span> {
-        <span class='self'>self</span>.<span class='ident'>kind</span>
-    }
-}
-
-<span class='kw'>impl</span> <span class='ident'>Drop</span> <span class='kw'>for</span> <span class='ident'>RenderBufferAny</span> {
-    <span class='kw'>fn</span> <span class='ident'>drop</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='kw'>unsafe</span> {
-            <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ctxt</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>make_current</span>();
-
-            <span class='comment'>// removing FBOs which contain this buffer</span>
-            <span class='ident'>FramebuffersContainer</span>::<span class='ident'>purge_renderbuffer</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>ctxt</span>, <span class='self'>self</span>.<span class='ident'>id</span>);
-
-            <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-               <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>2</span>, <span class='number'>0</span>)
-            {
-                <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>==</span> <span class='self'>self</span>.<span class='ident'>id</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>=</span> <span class='number'>0</span>;
-                }
-
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>DeleteRenderbuffers</span>(<span class='number'>1</span>, [ <span class='self'>self</span>.<span class='ident'>id</span> ].<span class='ident'>as_ptr</span>());
-
-            } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_framebuffer_object</span> {
-                <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>==</span> <span class='self'>self</span>.<span class='ident'>id</span> {
-                    <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>renderbuffer</span> <span class='op'>=</span> <span class='number'>0</span>;
-                }
-
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>DeleteRenderbuffersEXT</span>(<span class='number'>1</span>, [ <span class='self'>self</span>.<span class='ident'>id</span> ].<span class='ident'>as_ptr</span>());
-
-            } <span class='kw'>else</span> {
-                <span class='macro'>unreachable</span><span class='macro'>!</span>();
+            <span class="ident">RenderBufferAny</span> {
+                <span class="ident">context</span>: <span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">clone</span>(),
+                <span class="ident">id</span>: <span class="ident">id</span>,
+                <span class="ident">width</span>: <span class="ident">width</span>,
+                <span class="ident">height</span>: <span class="ident">height</span>,
+                <span class="ident">samples</span>: <span class="ident">samples</span>,
+                <span class="ident">kind</span>: <span class="ident">kind</span>,
             }
         }
     }
+
+    <span class="doccomment">/// Returns the dimensions of the render buffer.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_dimensions</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> (<span class="ident">u32</span>, <span class="ident">u32</span>) {
+        (<span class="self">self</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">height</span>)
+    }
+
+    <span class="doccomment">/// Returns the number of samples of the render buffer, or `None` if multisampling isn&#39;t</span>
+    <span class="doccomment">/// enabled.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_samples</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">samples</span>
+    }
+
+    <span class="doccomment">/// Returns the context used to create this renderbuffer.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_context</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Context</span><span class="op">&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">context</span>
+    }
+
+    <span class="doccomment">/// Returns the kind of renderbuffer.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">kind</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">TextureKind</span> {
+        <span class="self">self</span>.<span class="ident">kind</span>
+    }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlObject</span> <span class='kw'>for</span> <span class='ident'>RenderBufferAny</span> {
-    <span class='kw'>type</span> <span class='ident'>Id</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>;
-    
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span> {
-        <span class='self'>self</span>.<span class='ident'>id</span>
+<span class="kw">impl</span> <span class="ident">Drop</span> <span class="kw">for</span> <span class="ident">RenderBufferAny</span> {
+    <span class="kw">fn</span> <span class="ident">drop</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">unsafe</span> {
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ctxt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">context</span>.<span class="ident">make_current</span>();
+
+            <span class="comment">// removing FBOs which contain this buffer</span>
+            <span class="ident">FramebuffersContainer</span>::<span class="ident">purge_renderbuffer</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ctxt</span>, <span class="self">self</span>.<span class="ident">id</span>);
+
+            <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span>
+               <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">2</span>, <span class="number">0</span>)
+            {
+                <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">=</span> <span class="number">0</span>;
+                }
+
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">DeleteRenderbuffers</span>(<span class="number">1</span>, [ <span class="self">self</span>.<span class="ident">id</span> ].<span class="ident">as_ptr</span>());
+
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_framebuffer_object</span> {
+                <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">id</span> {
+                    <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">renderbuffer</span> <span class="op">=</span> <span class="number">0</span>;
+                }
+
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">DeleteRenderbuffersEXT</span>(<span class="number">1</span>, [ <span class="self">self</span>.<span class="ident">id</span> ].<span class="ident">as_ptr</span>());
+
+            } <span class="kw">else</span> {
+                <span class="macro">unreachable</span><span class="macro">!</span>();
+            }
+        }
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">GlObject</span> <span class="kw">for</span> <span class="ident">RenderBufferAny</span> {
+    <span class="kw">type</span> <span class="ident">Id</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>;
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span> {
+        <span class="self">self</span>.<span class="ident">id</span>
     }
 }
 </pre>
@@ -970,12 +1004,16 @@ the data of the render buffer.
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -996,7 +1034,7 @@ the data of the render buffer.
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -1007,11 +1045,8 @@ the data of the render buffer.
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

@@ -9,13 +9,15 @@
 
     <title>glium::draw_parameters::DrawParameters - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a></p><script>window.sidebarCurrent = {name: 'DrawParameters', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct DrawParameters</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.depth">depth</a><a href="#structfield.stencil">stencil</a><a href="#structfield.blend">blend</a><a href="#structfield.color_mask">color_mask</a><a href="#structfield.line_width">line_width</a><a href="#structfield.point_size">point_size</a><a href="#structfield.backface_culling">backface_culling</a><a href="#structfield.polygon_mode">polygon_mode</a><a href="#structfield.multisampling">multisampling</a><a href="#structfield.dithering">dithering</a><a href="#structfield.viewport">viewport</a><a href="#structfield.scissor">scissor</a><a href="#structfield.draw_primitives">draw_primitives</a><a href="#structfield.samples_passed_query">samples_passed_query</a><a href="#structfield.time_elapsed_query">time_elapsed_query</a><a href="#structfield.primitives_generated_query">primitives_generated_query</a><a href="#structfield.transform_feedback_primitives_written_query">transform_feedback_primitives_written_query</a><a href="#structfield.condition">condition</a><a href="#structfield.transform_feedback">transform_feedback</a><a href="#structfield.smooth">smooth</a><a href="#structfield.provoking_vertex">provoking_vertex</a><a href="#structfield.primitive_bounding_box">primitive_bounding_box</a><a href="#structfield.primitive_restart_index">primitive_restart_index</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-Default">Default</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a></p><script>window.sidebarCurrent = {name: 'DrawParameters', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,57 +43,71 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a>::<wbr><a class='struct' href=''>DrawParameters</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-2894' class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#246-381' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>draw_parameters</a>::<wbr><a class="struct" href=''>DrawParameters</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#246-388' title='goto source code'>[src]</a></span></h1>
 <pre class='rust struct'>pub struct DrawParameters&lt;'a&gt; {
-    pub depth: <a class='struct' href='../../glium/struct.Depth.html' title='glium::Depth'>Depth</a>,
-    pub stencil: <a class='struct' href='../../glium/draw_parameters/struct.Stencil.html' title='glium::draw_parameters::Stencil'>Stencil</a>,
-    pub blend: <a class='struct' href='../../glium/struct.Blend.html' title='glium::Blend'>Blend</a>,
-    pub color_mask: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>)</a>,
-    pub line_width: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;,
-    pub point_size: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;,
-    pub backface_culling: <a class='enum' href='../../glium/draw_parameters/enum.BackfaceCullingMode.html' title='glium::draw_parameters::BackfaceCullingMode'>BackfaceCullingMode</a>,
-    pub polygon_mode: <a class='enum' href='../../glium/draw_parameters/enum.PolygonMode.html' title='glium::draw_parameters::PolygonMode'>PolygonMode</a>,
-    pub multisampling: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
-    pub dithering: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
-    pub viewport: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../glium/struct.Rect.html' title='glium::Rect'>Rect</a>&gt;,
-    pub scissor: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../glium/struct.Rect.html' title='glium::Rect'>Rect</a>&gt;,
-    pub draw_primitives: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>,
-    pub samples_passed_query: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../glium/draw_parameters/enum.SamplesQueryParam.html' title='glium::draw_parameters::SamplesQueryParam'>SamplesQueryParam</a>&lt;'a&gt;&gt;,
-    pub time_elapsed_query: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a <a class='struct' href='../../glium/draw_parameters/struct.TimeElapsedQuery.html' title='glium::draw_parameters::TimeElapsedQuery'>TimeElapsedQuery</a>&gt;,
-    pub primitives_generated_query: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a <a class='struct' href='../../glium/draw_parameters/struct.PrimitivesGeneratedQuery.html' title='glium::draw_parameters::PrimitivesGeneratedQuery'>PrimitivesGeneratedQuery</a>&gt;,
-    pub transform_feedback_primitives_written_query: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a <a class='struct' href='../../glium/draw_parameters/struct.TransformFeedbackPrimitivesWrittenQuery.html' title='glium::draw_parameters::TransformFeedbackPrimitivesWrittenQuery'>TransformFeedbackPrimitivesWrittenQuery</a>&gt;,
-    pub condition: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='struct' href='../../glium/draw_parameters/struct.ConditionalRendering.html' title='glium::draw_parameters::ConditionalRendering'>ConditionalRendering</a>&lt;'a&gt;&gt;,
-    pub transform_feedback: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;&amp;'a <a class='struct' href='../../glium/vertex/struct.TransformFeedbackSession.html' title='glium::vertex::TransformFeedbackSession'>TransformFeedbackSession</a>&lt;'a&gt;&gt;,
-    pub smooth: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../glium/draw_parameters/enum.Smooth.html' title='glium::draw_parameters::Smooth'>Smooth</a>&gt;,
-    pub provoking_vertex: <a class='enum' href='../../glium/draw_parameters/enum.ProvokingVertex.html' title='glium::draw_parameters::ProvokingVertex'>ProvokingVertex</a>,
-    pub primitive_bounding_box: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>(<a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;, <a class='struct' href='https://doc.rust-lang.org/nightly/core/ops/struct.Range.html' title='core::ops::Range'>Range</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.f32.html'>f32</a>&gt;)</a>,
+    pub depth: <a class="struct" href="../../glium/struct.Depth.html" title="struct glium::Depth">Depth</a>,
+    pub stencil: <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a>,
+    pub blend: <a class="struct" href="../../glium/struct.Blend.html" title="struct glium::Blend">Blend</a>,
+    pub color_mask: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>,
+    pub line_width: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;,
+    pub point_size: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;,
+    pub backface_culling: <a class="enum" href="../../glium/draw_parameters/enum.BackfaceCullingMode.html" title="enum glium::draw_parameters::BackfaceCullingMode">BackfaceCullingMode</a>,
+    pub polygon_mode: <a class="enum" href="../../glium/draw_parameters/enum.PolygonMode.html" title="enum glium::draw_parameters::PolygonMode">PolygonMode</a>,
+    pub multisampling: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+    pub dithering: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+    pub viewport: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../glium/struct.Rect.html" title="struct glium::Rect">Rect</a>&gt;,
+    pub scissor: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../glium/struct.Rect.html" title="struct glium::Rect">Rect</a>&gt;,
+    pub draw_primitives: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
+    pub samples_passed_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../../glium/draw_parameters/enum.SamplesQueryParam.html" title="enum glium::draw_parameters::SamplesQueryParam">SamplesQueryParam</a>&lt;'a&gt;&gt;,
+    pub time_elapsed_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/draw_parameters/struct.TimeElapsedQuery.html" title="struct glium::draw_parameters::TimeElapsedQuery">TimeElapsedQuery</a>&gt;,
+    pub primitives_generated_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/draw_parameters/struct.PrimitivesGeneratedQuery.html" title="struct glium::draw_parameters::PrimitivesGeneratedQuery">PrimitivesGeneratedQuery</a>&gt;,
+    pub transform_feedback_primitives_written_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/draw_parameters/struct.TransformFeedbackPrimitivesWrittenQuery.html" title="struct glium::draw_parameters::TransformFeedbackPrimitivesWrittenQuery">TransformFeedbackPrimitivesWrittenQuery</a>&gt;,
+    pub condition: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../glium/draw_parameters/struct.ConditionalRendering.html" title="struct glium::draw_parameters::ConditionalRendering">ConditionalRendering</a>&lt;'a&gt;&gt;,
+    pub transform_feedback: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/vertex/struct.TransformFeedbackSession.html" title="struct glium::vertex::TransformFeedbackSession">TransformFeedbackSession</a>&lt;'a&gt;&gt;,
+    pub smooth: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../../glium/draw_parameters/enum.Smooth.html" title="enum glium::draw_parameters::Smooth">Smooth</a>&gt;,
+    pub provoking_vertex: <a class="enum" href="../../glium/draw_parameters/enum.ProvokingVertex.html" title="enum glium::draw_parameters::ProvokingVertex">ProvokingVertex</a>,
+    pub primitive_bounding_box: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>,
+    pub primitive_restart_index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>,
 }</pre><div class='docblock'><p>Represents the parameters to use when drawing.</p>
 
 <p>Example:</p>
-<pre class='rust rust-example-rendered'>
-<span class='kw'>let</span> <span class='ident'>params</span> <span class='op'>=</span> <span class='ident'>glium</span>::<span class='ident'>DrawParameters</span> {
-    <span class='ident'>depth</span>: <span class='ident'>glium</span>::<span class='ident'>Depth</span> {
-        <span class='ident'>test</span>: <span class='ident'>glium</span>::<span class='ident'>DepthTest</span>::<span class='ident'>IfLess</span>,
-        <span class='ident'>write</span>: <span class='boolval'>true</span>,
-        .. <span class='ident'>Default</span>::<span class='ident'>default</span>()
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">glium</span>::<span class="ident">DrawParameters</span> {
+    <span class="ident">depth</span>: <span class="ident">glium</span>::<span class="ident">Depth</span> {
+        <span class="ident">test</span>: <span class="ident">glium</span>::<span class="ident">DepthTest</span>::<span class="ident">IfLess</span>,
+        <span class="ident">write</span>: <span class="bool-val">true</span>,
+        .. <span class="ident">Default</span>::<span class="ident">default</span>()
     },
-    .. <span class='ident'>Default</span>::<span class='ident'>default</span>()
+    .. <span class="ident">Default</span>::<span class="ident">default</span>()
 };</pre>
-</div><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.depth'><code>depth</code></td><td><div class='docblock'><p>How the fragment will interact with the depth buffer.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.stencil'><code>stencil</code></td><td><div class='docblock'><p>How the fragment will interact with the stencil buffer.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.blend'><code>blend</code></td><td><div class='docblock'><p>The effect that the GPU will use to merge the existing pixel with the pixel that is
+</div><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.depth" class="structfield small-section-header">
+                           <a href="#structfield.depth" class="anchor field"></a>
+                           <span id="depth.v" class='invisible'>
+                           <code>depth: <a class="struct" href="../../glium/struct.Depth.html" title="struct glium::Depth">Depth</a></code>
+                           </span></span><div class='docblock'><p>How the fragment will interact with the depth buffer.</p>
+</div><span id="structfield.stencil" class="structfield small-section-header">
+                           <a href="#structfield.stencil" class="anchor field"></a>
+                           <span id="stencil.v" class='invisible'>
+                           <code>stencil: <a class="struct" href="../../glium/draw_parameters/struct.Stencil.html" title="struct glium::draw_parameters::Stencil">Stencil</a></code>
+                           </span></span><div class='docblock'><p>How the fragment will interact with the stencil buffer.</p>
+</div><span id="structfield.blend" class="structfield small-section-header">
+                           <a href="#structfield.blend" class="anchor field"></a>
+                           <span id="blend.v" class='invisible'>
+                           <code>blend: <a class="struct" href="../../glium/struct.Blend.html" title="struct glium::Blend">Blend</a></code>
+                           </span></span><div class='docblock'><p>The effect that the GPU will use to merge the existing pixel with the pixel that is
 being written.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.color_mask'><code>color_mask</code></td><td><div class='docblock'><p>Allows you to disable some color components.</p>
+</div><span id="structfield.color_mask" class="structfield small-section-header">
+                           <a href="#structfield.color_mask" class="anchor field"></a>
+                           <span id="color_mask.v" class='invisible'>
+                           <code>color_mask: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code>
+                           </span></span><div class='docblock'><p>Allows you to disable some color components.</p>
 
 <p>This affects all attachments to the framebuffer. It&#39;s at the same level as the
 blending function.</p>
@@ -99,37 +115,58 @@ blending function.</p>
 <p>The parameters are in order: red, green, blue, alpha. <code>true</code> means that the given
 component will be written, <code>false</code> means that it will be ignored. The default value
 is <code>(true, true, true, true)</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.line_width'><code>line_width</code></td><td><div class='docblock'><p>Width in pixels of the lines to draw when drawing lines.</p>
+</div><span id="structfield.line_width" class="structfield small-section-header">
+                           <a href="#structfield.line_width" class="anchor field"></a>
+                           <span id="line_width.v" class='invisible'>
+                           <code>line_width: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;</code>
+                           </span></span><div class='docblock'><p>Width in pixels of the lines to draw when drawing lines.</p>
 
 <p><code>None</code> means &quot;don&#39;t care&quot;. Use this when you don&#39;t draw lines.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.point_size'><code>point_size</code></td><td><div class='docblock'><p>Diameter in pixels of the points to draw when drawing points.</p>
+</div><span id="structfield.point_size" class="structfield small-section-header">
+                           <a href="#structfield.point_size" class="anchor field"></a>
+                           <span id="point_size.v" class='invisible'>
+                           <code>point_size: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;</code>
+                           </span></span><div class='docblock'><p>Diameter in pixels of the points to draw when drawing points.</p>
 
 <p><code>None</code> means &quot;don&#39;t care&quot;. Use this when you don&#39;t draw points.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.backface_culling'><code>backface_culling</code></td><td><div class='docblock'><p>Whether or not the GPU should filter out some faces.</p>
+</div><span id="structfield.backface_culling" class="structfield small-section-header">
+                           <a href="#structfield.backface_culling" class="anchor field"></a>
+                           <span id="backface_culling.v" class='invisible'>
+                           <code>backface_culling: <a class="enum" href="../../glium/draw_parameters/enum.BackfaceCullingMode.html" title="enum glium::draw_parameters::BackfaceCullingMode">BackfaceCullingMode</a></code>
+                           </span></span><div class='docblock'><p>Whether or not the GPU should filter out some faces.</p>
 
 <p>After the vertex shader stage, the GPU will try to remove the faces that aren&#39;t facing
 the camera.</p>
 
 <p>See the <code>BackfaceCullingMode</code> documentation for more infos.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.polygon_mode'><code>polygon_mode</code></td><td><div class='docblock'><p>How to render polygons. The default value is <code>Fill</code>.</p>
+</div><span id="structfield.polygon_mode" class="structfield small-section-header">
+                           <a href="#structfield.polygon_mode" class="anchor field"></a>
+                           <span id="polygon_mode.v" class='invisible'>
+                           <code>polygon_mode: <a class="enum" href="../../glium/draw_parameters/enum.PolygonMode.html" title="enum glium::draw_parameters::PolygonMode">PolygonMode</a></code>
+                           </span></span><div class='docblock'><p>How to render polygons. The default value is <code>Fill</code>.</p>
 
 <p>See the documentation of <code>PolygonMode</code> for more infos.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.multisampling'><code>multisampling</code></td><td><div class='docblock'><p>Whether multisample antialiasing (MSAA) should be used. Default value is <code>true</code>.</p>
+</div><span id="structfield.multisampling" class="structfield small-section-header">
+                           <a href="#structfield.multisampling" class="anchor field"></a>
+                           <span id="multisampling.v" class='invisible'>
+                           <code>multisampling: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code>
+                           </span></span><div class='docblock'><p>Whether multisample antialiasing (MSAA) should be used. Default value is <code>true</code>.</p>
 
 <p>Note that you will need to set the appropriate option when creating the window.
 The recommended way to do is to leave this to <code>true</code>, and adjust the option when
 creating the window.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.dithering'><code>dithering</code></td><td><div class='docblock'><p>Whether dithering is activated. Default value is <code>true</code>.</p>
+</div><span id="structfield.dithering" class="structfield small-section-header">
+                           <a href="#structfield.dithering" class="anchor field"></a>
+                           <span id="dithering.v" class='invisible'>
+                           <code>dithering: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code>
+                           </span></span><div class='docblock'><p>Whether dithering is activated. Default value is <code>true</code>.</p>
 
 <p>Dithering will smoothen the transition between colors in your color buffer.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.viewport'><code>viewport</code></td><td><div class='docblock'><p>The viewport to use when drawing.</p>
+</div><span id="structfield.viewport" class="structfield small-section-header">
+                           <a href="#structfield.viewport" class="anchor field"></a>
+                           <span id="viewport.v" class='invisible'>
+                           <code>viewport: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../glium/struct.Rect.html" title="struct glium::Rect">Rect</a>&gt;</code>
+                           </span></span><div class='docblock'><p>The viewport to use when drawing.</p>
 
 <p>The X and Y positions of your vertices are mapped to the viewport so that <code>(-1, -1)</code>
 corresponds to the lower-left hand corner and <code>(1, 1)</code> corresponds to the top-right
@@ -138,13 +175,19 @@ hand corner. Any pixel outside of the viewport is discarded.</p>
 <p>You can specify a viewport greater than the target if you want to stretch the image.</p>
 
 <p><code>None</code> means &quot;use the whole surface&quot;.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.scissor'><code>scissor</code></td><td><div class='docblock'><p>If specified, only pixels in this rect will be displayed. Default is <code>None</code>.</p>
+</div><span id="structfield.scissor" class="structfield small-section-header">
+                           <a href="#structfield.scissor" class="anchor field"></a>
+                           <span id="scissor.v" class='invisible'>
+                           <code>scissor: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../glium/struct.Rect.html" title="struct glium::Rect">Rect</a>&gt;</code>
+                           </span></span><div class='docblock'><p>If specified, only pixels in this rect will be displayed. Default is <code>None</code>.</p>
 
 <p>This is different from a viewport. The image will stretch to fill the viewport, but
 not the scissor box.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.draw_primitives'><code>draw_primitives</code></td><td><div class='docblock'><p>If <code>false</code>, the pipeline will stop after the primitives generation stage. The default
+</div><span id="structfield.draw_primitives" class="structfield small-section-header">
+                           <a href="#structfield.draw_primitives" class="anchor field"></a>
+                           <span id="draw_primitives.v" class='invisible'>
+                           <code>draw_primitives: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code>
+                           </span></span><div class='docblock'><p>If <code>false</code>, the pipeline will stop after the primitives generation stage. The default
 value is <code>true</code>.</p>
 
 <p>If <code>false</code>, the fragment shader of your program won&#39;t be executed.</p>
@@ -154,35 +197,62 @@ support this feature.</p>
 
 <p>This parameter may seem pointless, but it can be useful when you use transform
 feedback or if you just use your shaders to write to a buffer.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.samples_passed_query'><code>samples_passed_query</code></td><td><div class='docblock'><p>If set, each sample (ie. usually each pixel) written to the output adds one to the
+</div><span id="structfield.samples_passed_query" class="structfield small-section-header">
+                           <a href="#structfield.samples_passed_query" class="anchor field"></a>
+                           <span id="samples_passed_query.v" class='invisible'>
+                           <code>samples_passed_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../../glium/draw_parameters/enum.SamplesQueryParam.html" title="enum glium::draw_parameters::SamplesQueryParam">SamplesQueryParam</a>&lt;'a&gt;&gt;</code>
+                           </span></span><div class='docblock'><p>If set, each sample (ie. usually each pixel) written to the output adds one to the
 counter of the <code>SamplesPassedQuery</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.time_elapsed_query'><code>time_elapsed_query</code></td><td><div class='docblock'><p>If set, the time it took for the GPU to execute this draw command is added to the total
+</div><span id="structfield.time_elapsed_query" class="structfield small-section-header">
+                           <a href="#structfield.time_elapsed_query" class="anchor field"></a>
+                           <span id="time_elapsed_query.v" class='invisible'>
+                           <code>time_elapsed_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/draw_parameters/struct.TimeElapsedQuery.html" title="struct glium::draw_parameters::TimeElapsedQuery">TimeElapsedQuery</a>&gt;</code>
+                           </span></span><div class='docblock'><p>If set, the time it took for the GPU to execute this draw command is added to the total
 stored inside the <code>TimeElapsedQuery</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.primitives_generated_query'><code>primitives_generated_query</code></td><td><div class='docblock'><p>If set, the number of primitives generated is added to the total stored inside the query.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.transform_feedback_primitives_written_query'><code>transform_feedback_primitives_written_query</code></td><td><div class='docblock'><p>If set, the number of vertices written by transform feedback.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.condition'><code>condition</code></td><td><div class='docblock'><p>If set, the commands will only be executed if the specified query contains <code>true</code> or
+</div><span id="structfield.primitives_generated_query" class="structfield small-section-header">
+                           <a href="#structfield.primitives_generated_query" class="anchor field"></a>
+                           <span id="primitives_generated_query.v" class='invisible'>
+                           <code>primitives_generated_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/draw_parameters/struct.PrimitivesGeneratedQuery.html" title="struct glium::draw_parameters::PrimitivesGeneratedQuery">PrimitivesGeneratedQuery</a>&gt;</code>
+                           </span></span><div class='docblock'><p>If set, the number of primitives generated is added to the total stored inside the query.</p>
+</div><span id="structfield.transform_feedback_primitives_written_query" class="structfield small-section-header">
+                           <a href="#structfield.transform_feedback_primitives_written_query" class="anchor field"></a>
+                           <span id="transform_feedback_primitives_written_query.v" class='invisible'>
+                           <code>transform_feedback_primitives_written_query: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/draw_parameters/struct.TransformFeedbackPrimitivesWrittenQuery.html" title="struct glium::draw_parameters::TransformFeedbackPrimitivesWrittenQuery">TransformFeedbackPrimitivesWrittenQuery</a>&gt;</code>
+                           </span></span><div class='docblock'><p>If set, the number of vertices written by transform feedback.</p>
+</div><span id="structfield.condition" class="structfield small-section-header">
+                           <a href="#structfield.condition" class="anchor field"></a>
+                           <span id="condition.v" class='invisible'>
+                           <code>condition: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="../../glium/draw_parameters/struct.ConditionalRendering.html" title="struct glium::draw_parameters::ConditionalRendering">ConditionalRendering</a>&lt;'a&gt;&gt;</code>
+                           </span></span><div class='docblock'><p>If set, the commands will only be executed if the specified query contains <code>true</code> or
 a number different than 0.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.transform_feedback'><code>transform_feedback</code></td><td><div class='docblock'><p>If set, then the generated primitives will be written back to a buffer.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.smooth'><code>smooth</code></td><td><div class='docblock'><p>If set, then the generated primitives will be smoothed.</p>
+</div><span id="structfield.transform_feedback" class="structfield small-section-header">
+                           <a href="#structfield.transform_feedback" class="anchor field"></a>
+                           <span id="transform_feedback.v" class='invisible'>
+                           <code>transform_feedback: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;'a <a class="struct" href="../../glium/vertex/struct.TransformFeedbackSession.html" title="struct glium::vertex::TransformFeedbackSession">TransformFeedbackSession</a>&lt;'a&gt;&gt;</code>
+                           </span></span><div class='docblock'><p>If set, then the generated primitives will be written back to a buffer.</p>
+</div><span id="structfield.smooth" class="structfield small-section-header">
+                           <a href="#structfield.smooth" class="anchor field"></a>
+                           <span id="smooth.v" class='invisible'>
+                           <code>smooth: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../../glium/draw_parameters/enum.Smooth.html" title="enum glium::draw_parameters::Smooth">Smooth</a>&gt;</code>
+                           </span></span><div class='docblock'><p>If set, then the generated primitives will be smoothed.</p>
 
 <p>Note that blending needs to be enabled for this to work.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.provoking_vertex'><code>provoking_vertex</code></td><td><div class='docblock'><p>In your vertex shader or geometry shader, you have the possibility to mark some output
+</div><span id="structfield.provoking_vertex" class="structfield small-section-header">
+                           <a href="#structfield.provoking_vertex" class="anchor field"></a>
+                           <span id="provoking_vertex.v" class='invisible'>
+                           <code>provoking_vertex: <a class="enum" href="../../glium/draw_parameters/enum.ProvokingVertex.html" title="enum glium::draw_parameters::ProvokingVertex">ProvokingVertex</a></code>
+                           </span></span><div class='docblock'><p>In your vertex shader or geometry shader, you have the possibility to mark some output
 varyings as <code>flat</code>. If this is the case, the value of one of the vertices will be used
 for the whole primitive. This variable allows you to specify which vertex.</p>
 
 <p>The default value is <code>LastVertex</code>, as this is the default in OpenGL. Any other value can
 potentially trigger a <code>ProvokingVertexNotSupported</code> error. Most notably OpenGL ES doesn&#39;t
 support anything else but <code>LastVertex</code>.</p>
-</div></td></tr><tr class='stab '>
-                                  <td id='structfield.primitive_bounding_box'><code>primitive_bounding_box</code></td><td><div class='docblock'><p>Hint for the GPU of the bounding box of the geometry.</p>
+</div><span id="structfield.primitive_bounding_box" class="structfield small-section-header">
+                           <a href="#structfield.primitive_bounding_box" class="anchor field"></a>
+                           <span id="primitive_bounding_box.v" class='invisible'>
+                           <code>primitive_bounding_box: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;, <a class="struct" href="https://doc.rust-lang.org/nightly/core/ops/range/struct.Range.html" title="struct core::ops::range::Range">Range</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>&gt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code>
+                           </span></span><div class='docblock'><p>Hint for the GPU of the bounding box of the geometry.</p>
 
 <p>If you&#39;re using geometry shaders or tessellation shaders, it can be extremely advantageous
 for the GPU to know where on the screen the primitive is. This field specifies the
@@ -195,11 +265,31 @@ drawn is implementation-specific.</p>
 
 <p>Since this is purely an optimization, this parameter is ignored if the backend doesn&#39;t
 support it.</p>
-</div></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#method.default' class='fnname'>default</a>() -&gt; <a class='struct' href='../../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>&lt;'a&gt;</code></h4>
-</div><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='struct' href='../../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl&lt;'a&gt; <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>&lt;'a&gt;</code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../glium/draw_parameters/struct.DrawParameters.html' title='glium::draw_parameters::DrawParameters'>DrawParameters</a>&lt;'a&gt;</code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+</div><span id="structfield.primitive_restart_index" class="structfield small-section-header">
+                           <a href="#structfield.primitive_restart_index" class="anchor field"></a>
+                           <span id="primitive_restart_index.v" class='invisible'>
+                           <code>primitive_restart_index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code>
+                           </span></span><div class='docblock'><p>If enabled, will split the index buffer (if any is used in the draw call) 
+at the MAX value of the IndexType (u8::MAX, u16::MAX or u32::MAX) and start a new primitive
+of the same type (&quot;primitive restarting&quot;). Supported on &gt; OpenGL 3.1 or OpenGL ES 3.0. 
+If the backend does not support GL_PRIMITIVE_RESTART_FIXED_INDEX, an Error 
+of type <code>FixedIndexRestartingNotSupported</code> will be returned.</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../glium/draw_parameters/struct.DrawParameters.html" title="struct glium::draw_parameters::DrawParameters">DrawParameters</a>&lt;'a&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#245' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../glium/draw_parameters/struct.DrawParameters.html" title="struct glium::draw_parameters::DrawParameters">DrawParameters</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#245' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../glium/draw_parameters/struct.DrawParameters.html" title="struct glium::draw_parameters::DrawParameters">DrawParameters</a>&lt;'a&gt;</code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#245' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#245' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Default' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html" title="trait core::default::Default">Default</a> for <a class="struct" href="../../glium/draw_parameters/struct.DrawParameters.html" title="struct glium::draw_parameters::DrawParameters">DrawParameters</a>&lt;'a&gt;</code><a href='#impl-Default' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#428-456' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.default' class="method"><span id='default.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; <a class="struct" href="../../glium/draw_parameters/struct.DrawParameters.html" title="struct glium::draw_parameters::DrawParameters">DrawParameters</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/draw_parameters/mod.rs.html#429-455' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the &quot;default value&quot; for a type. <a href="https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -216,12 +306,16 @@ support it.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -242,7 +336,7 @@ support it.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -253,11 +347,8 @@ support it.</p>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

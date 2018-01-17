@@ -9,13 +9,15 @@
 
     <title>compute.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -259,225 +261,263 @@
 <span id="216">216</span>
 <span id="217">217</span>
 <span id="218">218</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>gl</span>;
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">gl</span>;
 
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>CommandContext</span>;
-<span class='kw'>use</span> <span class='ident'>backend</span>::<span class='ident'>Facade</span>;
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">CommandContext</span>;
+<span class="kw">use</span> <span class="ident">backend</span>::<span class="ident">Facade</span>;
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>error</span>::<span class='ident'>Error</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>hash_map</span>::{<span class='self'>self</span>, <span class='ident'>HashMap</span>};
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>os</span>::<span class='ident'>raw</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::{<span class="self">self</span>, <span class="ident">HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">BuildHasherDefault</span>;
 
-<span class='kw'>use</span> <span class='ident'>CapabilitiesSource</span>;
-<span class='kw'>use</span> <span class='ident'>GlObject</span>;
-<span class='kw'>use</span> <span class='ident'>ProgramExt</span>;
-<span class='kw'>use</span> <span class='ident'>Handle</span>;
-<span class='kw'>use</span> <span class='ident'>RawUniformValue</span>;
+<span class="kw">use</span> <span class="ident">fnv</span>::<span class="ident">FnvHasher</span>;
 
-<span class='kw'>use</span> <span class='ident'>program</span>::{<span class='ident'>COMPILER_GLOBAL_LOCK</span>, <span class='ident'>ProgramCreationError</span>, <span class='ident'>Binary</span>, <span class='ident'>GetBinaryError</span>};
+<span class="kw">use</span> <span class="ident">CapabilitiesSource</span>;
+<span class="kw">use</span> <span class="ident">GlObject</span>;
+<span class="kw">use</span> <span class="ident">ProgramExt</span>;
+<span class="kw">use</span> <span class="ident">Handle</span>;
+<span class="kw">use</span> <span class="ident">RawUniformValue</span>;
 
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>reflection</span>::{<span class='ident'>Uniform</span>, <span class='ident'>UniformBlock</span>};
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>shader</span>::{<span class='ident'>build_shader</span>, <span class='ident'>check_shader_type_compatibility</span>};
+<span class="kw">use</span> <span class="ident">program</span>::{<span class="ident">COMPILER_GLOBAL_LOCK</span>, <span class="ident">ProgramCreationError</span>, <span class="ident">Binary</span>, <span class="ident">GetBinaryError</span>};
 
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>raw</span>::<span class='ident'>RawProgram</span>;
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">reflection</span>::{<span class="ident">Uniform</span>, <span class="ident">UniformBlock</span>};
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">reflection</span>::{<span class="ident">ShaderStage</span>, <span class="ident">SubroutineData</span>};
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">shader</span>::{<span class="ident">build_shader</span>, <span class="ident">check_shader_type_compatibility</span>};
 
-<span class='kw'>use</span> <span class='ident'>buffer</span>::<span class='ident'>BufferSlice</span>;
-<span class='kw'>use</span> <span class='ident'>uniforms</span>::<span class='ident'>Uniforms</span>;
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">raw</span>::<span class="ident">RawProgram</span>;
 
-<span class='doccomment'>/// A combination of compute shaders linked together.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ComputeShader</span> {
-    <span class='ident'>raw</span>: <span class='ident'>RawProgram</span>,
+<span class="kw">use</span> <span class="ident">buffer</span>::<span class="ident">BufferSlice</span>;
+<span class="kw">use</span> <span class="ident">uniforms</span>::<span class="ident">Uniforms</span>;
+
+<span class="doccomment">/// A combination of compute shaders linked together.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ComputeShader</span> {
+    <span class="ident">raw</span>: <span class="ident">RawProgram</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>ComputeShader</span> {
-    <span class='doccomment'>/// Returns true if the backend supports compute shaders.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>is_supported</span><span class='op'>&lt;</span><span class='ident'>C</span><span class='op'>&gt;</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='ident'>C</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> <span class='kw'>where</span> <span class='ident'>C</span>: <span class='ident'>CapabilitiesSource</span> {
-        <span class='ident'>check_shader_type_compatibility</span>(<span class='ident'>ctxt</span>, <span class='ident'>gl</span>::<span class='ident'>COMPUTE_SHADER</span>)
+<span class="kw">impl</span> <span class="ident">ComputeShader</span> {
+    <span class="doccomment">/// Returns true if the backend supports compute shaders.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_supported</span><span class="op">&lt;</span><span class="ident">C</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="ident">C</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> <span class="kw">where</span> <span class="ident">C</span>: <span class="ident">CapabilitiesSource</span> {
+        <span class="ident">check_shader_type_compatibility</span>(<span class="ident">ctxt</span>, <span class="ident">gl</span>::<span class="ident">COMPUTE_SHADER</span>)
     }
 
-    <span class='doccomment'>/// Builds a new compute shader from some source code.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_source</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>src</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>ComputeShader</span>, <span class='ident'>ProgramCreationError</span><span class='op'>&gt;</span>
-                          <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds a new compute shader from some source code.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_source</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">src</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ComputeShader</span>, <span class="ident">ProgramCreationError</span><span class="op">&gt;</span>
+                          <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>_lock</span> <span class='op'>=</span> <span class='ident'>COMPILER_GLOBAL_LOCK</span>.<span class='ident'>lock</span>();
+        <span class="kw">let</span> <span class="ident">_lock</span> <span class="op">=</span> <span class="ident">COMPILER_GLOBAL_LOCK</span>.<span class="ident">lock</span>();
 
-        <span class='kw'>let</span> <span class='ident'>shader</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>build_shader</span>(<span class='ident'>facade</span>, <span class='ident'>gl</span>::<span class='ident'>COMPUTE_SHADER</span>, <span class='ident'>src</span>));
+        <span class="kw">let</span> <span class="ident">shader</span> <span class="op">=</span> <span class="macro">try</span><span class="macro">!</span>(<span class="ident">build_shader</span>(<span class="ident">facade</span>, <span class="ident">gl</span>::<span class="ident">COMPUTE_SHADER</span>, <span class="ident">src</span>));
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>ComputeShader</span> {
-            <span class='ident'>raw</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>RawProgram</span>::<span class='ident'>from_shaders</span>(<span class='ident'>facade</span>, <span class='kw-2'>&amp;</span>[<span class='ident'>shader</span>], <span class='boolval'>false</span>, <span class='boolval'>false</span>, <span class='prelude-val'>None</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">ComputeShader</span> {
+            <span class="ident">raw</span>: <span class="macro">try</span><span class="macro">!</span>(<span class="ident">RawProgram</span>::<span class="ident">from_shaders</span>(<span class="ident">facade</span>, <span class="kw-2">&amp;</span>[<span class="ident">shader</span>], <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="prelude-val">None</span>))
         })
     }
 
-    <span class='doccomment'>/// Builds a new compute shader from some binary.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_binary</span><span class='op'>&lt;</span><span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>data</span>: <span class='ident'>Binary</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>ComputeShader</span>, <span class='ident'>ProgramCreationError</span><span class='op'>&gt;</span>
-                          <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds a new compute shader from some binary.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_binary</span><span class="op">&lt;</span><span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">data</span>: <span class="ident">Binary</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">ComputeShader</span>, <span class="ident">ProgramCreationError</span><span class="op">&gt;</span>
+                          <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>_lock</span> <span class='op'>=</span> <span class='ident'>COMPILER_GLOBAL_LOCK</span>.<span class='ident'>lock</span>();
+        <span class="kw">let</span> <span class="ident">_lock</span> <span class="op">=</span> <span class="ident">COMPILER_GLOBAL_LOCK</span>.<span class="ident">lock</span>();
 
-        <span class='prelude-val'>Ok</span>(<span class='ident'>ComputeShader</span> {
-            <span class='ident'>raw</span>: <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>RawProgram</span>::<span class='ident'>from_binary</span>(<span class='ident'>facade</span>, <span class='ident'>data</span>))
+        <span class="prelude-val">Ok</span>(<span class="ident">ComputeShader</span> {
+            <span class="ident">raw</span>: <span class="macro">try</span><span class="macro">!</span>(<span class="ident">RawProgram</span>::<span class="ident">from_binary</span>(<span class="ident">facade</span>, <span class="ident">data</span>))
         })
     }
 
-    <span class='doccomment'>/// Executes the compute shader.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// `x * y * z` work groups will be started. The current work group can be retreived with</span>
-    <span class='doccomment'>/// `gl_WorkGroupID`. Inside each work group, additional local work groups can be started</span>
-    <span class='doccomment'>/// depending on the attributes of the compute shader itself.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>execute</span><span class='op'>&lt;</span><span class='ident'>U</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>uniforms</span>: <span class='ident'>U</span>, <span class='ident'>x</span>: <span class='ident'>u32</span>, <span class='ident'>y</span>: <span class='ident'>u32</span>, <span class='ident'>z</span>: <span class='ident'>u32</span>) <span class='kw'>where</span> <span class='ident'>U</span>: <span class='ident'>Uniforms</span> {
-        <span class='kw'>unsafe</span> { <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>dispatch_compute</span>(<span class='ident'>uniforms</span>, <span class='ident'>x</span>, <span class='ident'>y</span>, <span class='ident'>z</span>) }.<span class='ident'>unwrap</span>();       <span class='comment'>// FIXME: return error</span>
+    <span class="doccomment">/// Executes the compute shader.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// `x * y * z` work groups will be started. The current work group can be retrieved with</span>
+    <span class="doccomment">/// `gl_WorkGroupID`. Inside each work group, additional local work groups can be started</span>
+    <span class="doccomment">/// depending on the attributes of the compute shader itself.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uniforms</span>: <span class="ident">U</span>, <span class="ident">x</span>: <span class="ident">u32</span>, <span class="ident">y</span>: <span class="ident">u32</span>, <span class="ident">z</span>: <span class="ident">u32</span>) <span class="kw">where</span> <span class="ident">U</span>: <span class="ident">Uniforms</span> {
+        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">dispatch_compute</span>(<span class="ident">uniforms</span>, <span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) }.<span class="ident">unwrap</span>();       <span class="comment">// FIXME: return error</span>
     }
 
-    <span class='doccomment'>/// Executes the compute shader.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This is similar to `execute`, except that the parameters are stored in a buffer.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>execute_indirect</span><span class='op'>&lt;</span><span class='ident'>U</span><span class='op'>&gt;</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>uniforms</span>: <span class='ident'>U</span>, <span class='ident'>buffer</span>: <span class='ident'>BufferSlice</span><span class='op'>&lt;</span><span class='ident'>ComputeCommand</span><span class='op'>&gt;</span>)
-                               <span class='kw'>where</span> <span class='ident'>U</span>: <span class='ident'>Uniforms</span>
+    <span class="doccomment">/// Executes the compute shader.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This is similar to `execute`, except that the parameters are stored in a buffer.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">execute_indirect</span><span class="op">&lt;</span><span class="ident">U</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">uniforms</span>: <span class="ident">U</span>, <span class="ident">buffer</span>: <span class="ident">BufferSlice</span><span class="op">&lt;</span><span class="ident">ComputeCommand</span><span class="op">&gt;</span>)
+                               <span class="kw">where</span> <span class="ident">U</span>: <span class="ident">Uniforms</span>
     {
-        <span class='kw'>unsafe</span> { <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>dispatch_compute_indirect</span>(<span class='ident'>uniforms</span>, <span class='ident'>buffer</span>) }.<span class='ident'>unwrap</span>();       <span class='comment'>// FIXME: return error</span>
+        <span class="kw">unsafe</span> { <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">dispatch_compute_indirect</span>(<span class="ident">uniforms</span>, <span class="ident">buffer</span>) }.<span class="ident">unwrap</span>();       <span class="comment">// FIXME: return error</span>
     }
 
-    <span class='doccomment'>/// Returns the program&#39;s compiled binary.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// You can store the result in a file, then reload it later. This avoids having to compile</span>
-    <span class='doccomment'>/// the source code every time.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_binary</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Binary</span>, <span class='ident'>GetBinaryError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_binary</span>()
+    <span class="doccomment">/// Returns the program&#39;s compiled binary.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// You can store the result in a file, then reload it later. This avoids having to compile</span>
+    <span class="doccomment">/// the source code every time.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_binary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Binary</span>, <span class="ident">GetBinaryError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_binary</span>()
     }
 
-    <span class='doccomment'>/// Returns informations about a uniform variable, if it exists.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_uniform</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Uniform</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform</span>(<span class='ident'>name</span>)
-    }
-    
-    <span class='doccomment'>/// Returns an iterator to the list of uniforms.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// for (name, uniform) in program.uniforms() {</span>
-    <span class='doccomment'>///     println!(&quot;Name: {} - Type: {:?}&quot;, name, uniform.ty);</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>uniforms</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>hash_map</span>::<span class='ident'>Iter</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>Uniform</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>uniforms</span>()
-    }
-    
-    <span class='doccomment'>/// Returns a list of uniform blocks.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// for (name, uniform) in program.get_uniform_blocks() {</span>
-    <span class='doccomment'>///     println!(&quot;Name: {}&quot;, name);</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_uniform_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform_blocks</span>()
+    <span class="doccomment">/// Returns informations about a uniform variable, if it exists.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_uniform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Uniform</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform</span>(<span class="ident">name</span>)
     }
 
-    <span class='doccomment'>/// Returns the list of shader storage blocks.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// for (name, uniform) in program.get_shader_storage_blocks() {</span>
-    <span class='doccomment'>///     println!(&quot;Name: {}&quot;, name);</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_shader_storage_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_shader_storage_blocks</span>()
+    <span class="doccomment">/// Returns an iterator to the list of uniforms.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (name, uniform) in program.uniforms() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {} - Type: {:?}&quot;, name, uniform.ty);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniforms</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">hash_map</span>::<span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Uniform</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">uniforms</span>()
+    }
+
+    <span class="doccomment">/// Returns a list of uniform blocks.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (name, uniform) in program.get_uniform_blocks() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {}&quot;, name);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_uniform_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+                              <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform_blocks</span>()
+    }
+
+    <span class="doccomment">/// Returns the list of shader storage blocks.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (name, uniform) in program.get_shader_storage_blocks() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {}&quot;, name);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_shader_storage_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+            <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_shader_storage_blocks</span>()
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span> <span class='kw'>for</span> <span class='ident'>ComputeShader</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>formatter</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>fmt</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
-        <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>formatter</span>, <span class='string'>&quot;{:?}&quot;</span>, <span class='self'>self</span>.<span class='ident'>raw</span>)
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">ComputeShader</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">formatter</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="ident">raw</span>)
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlObject</span> <span class='kw'>for</span> <span class='ident'>ComputeShader</span> {
-    <span class='kw'>type</span> <span class='ident'>Id</span> <span class='op'>=</span> <span class='ident'>Handle</span>;
+<span class="kw">impl</span> <span class="ident">GlObject</span> <span class="kw">for</span> <span class="ident">ComputeShader</span> {
+    <span class="kw">type</span> <span class="ident">Id</span> <span class="op">=</span> <span class="ident">Handle</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Handle</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_id</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Handle</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_id</span>()
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>ProgramExt</span> <span class='kw'>for</span> <span class='ident'>ComputeShader</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>use_program</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>) {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>use_program</span>(<span class='ident'>ctxt</span>)
+<span class="kw">impl</span> <span class="ident">ProgramExt</span> <span class="kw">for</span> <span class="ident">ComputeShader</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">use_program</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>) {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">use_program</span>(<span class="ident">ctxt</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>set_uniform</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>uniform_location</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLint</span>,
-                   <span class='ident'>value</span>: <span class='kw-2'>&amp;</span><span class='ident'>RawUniformValue</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_uniform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">uniform_location</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLint</span>,
+                   <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">RawUniformValue</span>)
     {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>set_uniform</span>(<span class='ident'>ctxt</span>, <span class='ident'>uniform_location</span>, <span class='ident'>value</span>)
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_uniform</span>(<span class="ident">ctxt</span>, <span class="ident">uniform_location</span>, <span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>set_uniform_block_binding</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>block_location</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>,
-                                 <span class='ident'>value</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_uniform_block_binding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">block_location</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>,
+                                 <span class="ident">value</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>)
     {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>set_uniform_block_binding</span>(<span class='ident'>ctxt</span>, <span class='ident'>block_location</span>, <span class='ident'>value</span>)
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_uniform_block_binding</span>(<span class="ident">ctxt</span>, <span class="ident">block_location</span>, <span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>set_shader_storage_block_binding</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>,
-                                        <span class='ident'>block_location</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>,
-                                        <span class='ident'>value</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_shader_storage_block_binding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>,
+                                        <span class="ident">block_location</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>,
+                                        <span class="ident">value</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>)
     {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>set_shader_storage_block_binding</span>(<span class='ident'>ctxt</span>, <span class='ident'>block_location</span>, <span class='ident'>value</span>)
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_shader_storage_block_binding</span>(<span class="ident">ctxt</span>, <span class="ident">block_location</span>, <span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_uniform</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Uniform</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform</span>(<span class='ident'>name</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_subroutine_uniforms_for_stage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>,
+                                         <span class="ident">stage</span>: <span class="ident">ShaderStage</span>,
+                                         <span class="ident">indices</span>: <span class="kw-2">&amp;</span>[<span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>])
+    {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_subroutine_uniforms_for_stage</span>(<span class="ident">ctxt</span>, <span class="ident">stage</span>, <span class="ident">indices</span>);
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_uniform_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform_blocks</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_uniform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Uniform</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform</span>(<span class="ident">name</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_shader_storage_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_shader_storage_blocks</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_uniform_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform_blocks</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_shader_storage_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+                                 <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_shader_storage_blocks</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_subroutine_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">SubroutineData</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_subroutine_data</span>()
     }
 }
 
-<span class='doccomment'>/// Represents a compute shader command waiting to be dispatched.</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Debug</span>, <span class='ident'>Copy</span>, <span class='ident'>Clone</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ComputeCommand</span> {
-    <span class='doccomment'>/// Number of X groups.</span>
-    <span class='kw'>pub</span> <span class='ident'>num_groups_x</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// Number of Y groups.</span>
-    <span class='kw'>pub</span> <span class='ident'>num_groups_y</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
-    <span class='doccomment'>/// Number of Z groups.</span>
-    <span class='kw'>pub</span> <span class='ident'>num_groups_z</span>: <span class='ident'>raw</span>::<span class='ident'>c_uint</span>,
+<span class="doccomment">/// Represents a compute shader command waiting to be dispatched.</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ComputeCommand</span> {
+    <span class="doccomment">/// Number of X groups.</span>
+    <span class="kw">pub</span> <span class="ident">num_groups_x</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// Number of Y groups.</span>
+    <span class="kw">pub</span> <span class="ident">num_groups_y</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
+    <span class="doccomment">/// Number of Z groups.</span>
+    <span class="kw">pub</span> <span class="ident">num_groups_z</span>: <span class="ident">raw</span>::<span class="ident">c_uint</span>,
 }
 
-<span class='macro'>implement_uniform_block</span><span class='macro'>!</span>(<span class='ident'>ComputeCommand</span>, <span class='ident'>num_groups_x</span>, <span class='ident'>num_groups_y</span>, <span class='ident'>num_groups_z</span>);
+<span class="macro">implement_uniform_block</span><span class="macro">!</span>(<span class="ident">ComputeCommand</span>, <span class="ident">num_groups_x</span>, <span class="ident">num_groups_y</span>, <span class="ident">num_groups_z</span>);
 </pre>
 </section>
     <section id='search' class="content hidden"></section>
@@ -496,12 +536,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -522,7 +566,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -533,11 +577,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

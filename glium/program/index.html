@@ -9,13 +9,15 @@
 
     <title>glium::program - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'program', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module program</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'><a href='../index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'program', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,196 +43,185 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>glium</a>::<wbr><a class='mod' href=''>program</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-4675' class='srclink' href='../../src/glium/program/mod.rs.html#1-272' title='goto source code'>[src]</a></span></h1>
-<h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>glium</a>::<wbr><a class="mod" href=''>program</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/program/mod.rs.html#1-302' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Items related to creating an OpenGL program.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Attribute.html'
-                               title='glium::program::Attribute'>Attribute</a></td>
-                        <td class='docblock short'>
-                             <p>Information about an attribute of a program (except its name).</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Binary.html'
-                               title='glium::program::Binary'>Binary</a></td>
-                        <td class='docblock short'>
-                             <p>Represents the compiled binary data of a program.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.ComputeCommand.html'
-                               title='glium::program::ComputeCommand'>ComputeCommand</a></td>
-                        <td class='docblock short'>
-                             <p>Represents a compute shader command waiting to be dispatched.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.ComputeShader.html'
-                               title='glium::program::ComputeShader'>ComputeShader</a></td>
-                        <td class='docblock short'>
-                             <p>A combination of compute shaders linked together.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Program.html'
-                               title='glium::program::Program'>Program</a></td>
-                        <td class='docblock short'>
-                             <p>A combination of shaders linked together.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.SourceCode.html'
-                               title='glium::program::SourceCode'>SourceCode</a></td>
-                        <td class='docblock short'>
-                             <p>Represents the source code of a program.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.TransformFeedbackBuffer.html'
-                               title='glium::program::TransformFeedbackBuffer'>TransformFeedbackBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>Describes the layout of a buffer that can receive transform feedback output.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.TransformFeedbackVarying.html'
-                               title='glium::program::TransformFeedbackVarying'>TransformFeedbackVarying</a></td>
-                        <td class='docblock short'>
-                             <p>Describes a varying that is being output with transform feedback.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.Uniform.html'
-                               title='glium::program::Uniform'>Uniform</a></td>
-                        <td class='docblock short'>
-                             <p>Information about a uniform (except its name).</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.UniformBlock.html'
-                               title='glium::program::UniformBlock'>UniformBlock</a></td>
-                        <td class='docblock short'>
-                             <p>Information about a uniform block (except its name).</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Attribute.html"
+                                  title='struct glium::program::Attribute'>Attribute</a></td>
+                           <td class='docblock-short'>
+                                <p>Information about an attribute of a program (except its name).</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Binary.html"
+                                  title='struct glium::program::Binary'>Binary</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents the compiled binary data of a program.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ComputeCommand.html"
+                                  title='struct glium::program::ComputeCommand'>ComputeCommand</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents a compute shader command waiting to be dispatched.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ComputeShader.html"
+                                  title='struct glium::program::ComputeShader'>ComputeShader</a></td>
+                           <td class='docblock-short'>
+                                <p>A combination of compute shaders linked together.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Program.html"
+                                  title='struct glium::program::Program'>Program</a></td>
+                           <td class='docblock-short'>
+                                <p>A combination of shaders linked together.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SourceCode.html"
+                                  title='struct glium::program::SourceCode'>SourceCode</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents the source code of a program.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SubroutineData.html"
+                                  title='struct glium::program::SubroutineData'>SubroutineData</a></td>
+                           <td class='docblock-short'>
+                                <p>Contains all subroutine data of a program.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SubroutineUniform.html"
+                                  title='struct glium::program::SubroutineUniform'>SubroutineUniform</a></td>
+                           <td class='docblock-short'>
+                                <p>Information about a Subroutine Uniform (except name)</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.TransformFeedbackBuffer.html"
+                                  title='struct glium::program::TransformFeedbackBuffer'>TransformFeedbackBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes the layout of a buffer that can receive transform feedback output.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.TransformFeedbackVarying.html"
+                                  title='struct glium::program::TransformFeedbackVarying'>TransformFeedbackVarying</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes a varying that is being output with transform feedback.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Uniform.html"
+                                  title='struct glium::program::Uniform'>Uniform</a></td>
+                           <td class='docblock-short'>
+                                <p>Information about a uniform (except its name).</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.UniformBlock.html"
+                                  title='struct glium::program::UniformBlock'>UniformBlock</a></td>
+                           <td class='docblock-short'>
+                                <p>Information about a uniform block (except its name).</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.BlockLayout.html'
-                               title='glium::program::BlockLayout'>BlockLayout</a></td>
-                        <td class='docblock short'>
-                             <p>Layout of a shader storage buffer or a uniform buffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.GetBinaryError.html'
-                               title='glium::program::GetBinaryError'>GetBinaryError</a></td>
-                        <td class='docblock short'>
-                             <p>Error while retreiving the binary representation of a program.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.OutputPrimitives.html'
-                               title='glium::program::OutputPrimitives'>OutputPrimitives</a></td>
-                        <td class='docblock short'>
-                             <p>Type of primitives that is being output by transform feedback.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.ProgramChooserCreationError.html'
-                               title='glium::program::ProgramChooserCreationError'>ProgramChooserCreationError</a></td>
-                        <td class='docblock short'>
-                             <p>Error type that is returned by the <code>program!</code> macro.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.ProgramCreationError.html'
-                               title='glium::program::ProgramCreationError'>ProgramCreationError</a></td>
-                        <td class='docblock short'>
-                             <p>Error that can be triggered when creating a <code>Program</code>.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.ProgramCreationInput.html'
-                               title='glium::program::ProgramCreationInput'>ProgramCreationInput</a></td>
-                        <td class='docblock short'>
-                             <p>Input when creating a program.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.TransformFeedbackMode.html'
-                               title='glium::program::TransformFeedbackMode'>TransformFeedbackMode</a></td>
-                        <td class='docblock short'>
-                             <p>Type of transform feedback. Only used with the legacy interface.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.BlockLayout.html"
+                                  title='enum glium::program::BlockLayout'>BlockLayout</a></td>
+                           <td class='docblock-short'>
+                                <p>Layout of a shader storage buffer or a uniform buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.GetBinaryError.html"
+                                  title='enum glium::program::GetBinaryError'>GetBinaryError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error while retrieving the binary representation of a program.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.OutputPrimitives.html"
+                                  title='enum glium::program::OutputPrimitives'>OutputPrimitives</a></td>
+                           <td class='docblock-short'>
+                                <p>Type of primitives that is being output by transform feedback.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ProgramChooserCreationError.html"
+                                  title='enum glium::program::ProgramChooserCreationError'>ProgramChooserCreationError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error type that is returned by the <code>program!</code> macro.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ProgramCreationError.html"
+                                  title='enum glium::program::ProgramCreationError'>ProgramCreationError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error that can be triggered when creating a <code>Program</code>.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ProgramCreationInput.html"
+                                  title='enum glium::program::ProgramCreationInput'>ProgramCreationInput</a></td>
+                           <td class='docblock-short'>
+                                <p>Input when creating a program.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ShaderStage.html"
+                                  title='enum glium::program::ShaderStage'>ShaderStage</a></td>
+                           <td class='docblock-short'>
+                                <p>The different stages of the program pipeline.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.TransformFeedbackMode.html"
+                                  title='enum glium::program::TransformFeedbackMode'>TransformFeedbackMode</a></td>
+                           <td class='docblock-short'>
+                                <p>Type of transform feedback. Only used with the legacy interface.</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.is_binary_supported.html'
-                               title='glium::program::is_binary_supported'>is_binary_supported</a></td>
-                        <td class='docblock short'>
-                             <p>Returns true if the backend supports creating and retreiving binary format.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.is_geometry_shader_supported.html'
-                               title='glium::program::is_geometry_shader_supported'>is_geometry_shader_supported</a></td>
-                        <td class='docblock short'>
-                             <p>Returns true if the backend supports geometry shaders.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.is_tessellation_shader_supported.html'
-                               title='glium::program::is_tessellation_shader_supported'>is_tessellation_shader_supported</a></td>
-                        <td class='docblock short'>
-                             <p>Returns true if the backend supports tessellation shaders.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.is_binary_supported.html"
+                                  title='fn glium::program::is_binary_supported'>is_binary_supported</a></td>
+                           <td class='docblock-short'>
+                                <p>Returns true if the backend supports creating and retrieving binary format.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.is_geometry_shader_supported.html"
+                                  title='fn glium::program::is_geometry_shader_supported'>is_geometry_shader_supported</a></td>
+                           <td class='docblock-short'>
+                                <p>Returns true if the backend supports geometry shaders.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.is_subroutine_supported.html"
+                                  title='fn glium::program::is_subroutine_supported'>is_subroutine_supported</a></td>
+                           <td class='docblock-short'>
+                                <p>Returns true if the backend supports shader subroutines.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.is_tessellation_shader_supported.html"
+                                  title='fn glium::program::is_tessellation_shader_supported'>is_tessellation_shader_supported</a></td>
+                           <td class='docblock-short'>
+                                <p>Returns true if the backend supports tessellation shaders.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -247,12 +238,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -273,7 +268,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -284,11 +279,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

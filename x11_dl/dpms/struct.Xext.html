@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Xext` struct in crate `x11_dl`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Xext">
+
+    <title>x11_dl::dpms::Xext - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Xext</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.DPMSQueryExtension">DPMSQueryExtension</a><a href="#structfield.DPMSGetVersion">DPMSGetVersion</a><a href="#structfield.DPMSCapable">DPMSCapable</a><a href="#structfield.DPMSSetTimeouts">DPMSSetTimeouts</a><a href="#structfield.DPMSGetTimeouts">DPMSGetTimeouts</a><a href="#structfield.DPMSEnable">DPMSEnable</a><a href="#structfield.DPMSDisable">DPMSDisable</a><a href="#structfield.DPMSForceLevel">DPMSForceLevel</a><a href="#structfield.DPMSInfo">DPMSInfo</a></div><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.open">open</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Send">Send</a><a href="#impl-Sync">Sync</a></div></div><p class='location'><a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>dpms</a></p><script>window.sidebarCurrent = {name: 'Xext', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>dpms</a>::<wbr><a class="struct" href=''>Xext</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/x11_dl/link.rs.html#27-33' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Xext {
+    pub DPMSQueryExtension: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a>,
+    pub DPMSGetVersion: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a>,
+    pub DPMSCapable: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a>,
+    pub DPMSSetTimeouts: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a>,
+    pub DPMSGetTimeouts: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a>,
+    pub DPMSEnable: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a>,
+    pub DPMSDisable: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a>,
+    pub DPMSForceLevel: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a>,
+    pub DPMSInfo: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.BOOL.html" title="type x11_dl::xmd::BOOL">BOOL</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a>,
+    // some fields omitted
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.DPMSQueryExtension" class="structfield small-section-header">
+                           <a href="#structfield.DPMSQueryExtension" class="anchor field"></a>
+                           <span id="DPMSQueryExtension.v" class='invisible'>
+                           <code>DPMSQueryExtension: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a></code>
+                           </span></span><span id="structfield.DPMSGetVersion" class="structfield small-section-header">
+                           <a href="#structfield.DPMSGetVersion" class="anchor field"></a>
+                           <span id="DPMSGetVersion.v" class='invisible'>
+                           <code>DPMSGetVersion: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a></code>
+                           </span></span><span id="structfield.DPMSCapable" class="structfield small-section-header">
+                           <a href="#structfield.DPMSCapable" class="anchor field"></a>
+                           <span id="DPMSCapable.v" class='invisible'>
+                           <code>DPMSCapable: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a></code>
+                           </span></span><span id="structfield.DPMSSetTimeouts" class="structfield small-section-header">
+                           <a href="#structfield.DPMSSetTimeouts" class="anchor field"></a>
+                           <span id="DPMSSetTimeouts.v" class='invisible'>
+                           <code>DPMSSetTimeouts: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a></code>
+                           </span></span><span id="structfield.DPMSGetTimeouts" class="structfield small-section-header">
+                           <a href="#structfield.DPMSGetTimeouts" class="anchor field"></a>
+                           <span id="DPMSGetTimeouts.v" class='invisible'>
+                           <code>DPMSGetTimeouts: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Bool.html" title="type x11_dl::xlib::Bool">Bool</a></code>
+                           </span></span><span id="structfield.DPMSEnable" class="structfield small-section-header">
+                           <a href="#structfield.DPMSEnable" class="anchor field"></a>
+                           <span id="DPMSEnable.v" class='invisible'>
+                           <code>DPMSEnable: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a></code>
+                           </span></span><span id="structfield.DPMSDisable" class="structfield small-section-header">
+                           <a href="#structfield.DPMSDisable" class="anchor field"></a>
+                           <span id="DPMSDisable.v" class='invisible'>
+                           <code>DPMSDisable: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a></code>
+                           </span></span><span id="structfield.DPMSForceLevel" class="structfield small-section-header">
+                           <a href="#structfield.DPMSForceLevel" class="anchor field"></a>
+                           <span id="DPMSForceLevel.v" class='invisible'>
+                           <code>DPMSForceLevel: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a></code>
+                           </span></span><span id="structfield.DPMSInfo" class="structfield small-section-header">
+                           <a href="#structfield.DPMSInfo" class="anchor field"></a>
+                           <span id="DPMSInfo.v" class='invisible'>
+                           <code>DPMSInfo: unsafe extern &quot;C&quot; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xlib/type.Display.html" title="type x11_dl::xlib::Display">Display</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.CARD16.html" title="type x11_dl::xmd::CARD16">CARD16</a>, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="type" href="../../x11_dl/xmd/type.BOOL.html" title="type x11_dl::xmd::BOOL">BOOL</a>) -&gt; <a class="type" href="../../x11_dl/xlib/type.Status.html" title="type x11_dl::xlib::Status">Status</a></code>
+                           </span></span>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../x11_dl/dpms/struct.Xext.html" title="struct x11_dl::dpms::Xext">Xext</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/link.rs.html#38-66' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.open' class="method"><span id='open.v' class='invisible'><code>pub fn <a href='#method.open' class='fnname'>open</a>() -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="struct" href="../../x11_dl/dpms/struct.Xext.html" title="struct x11_dl::dpms::Xext">Xext</a>, <a class="struct" href="../../x11_dl/error/struct.OpenError.html" title="struct x11_dl::error::OpenError">OpenError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/link.rs.html#54-65' title='goto source code'>[src]</a></span></h4>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Send' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="../../x11_dl/dpms/struct.Xext.html" title="struct x11_dl::dpms::Xext">Xext</a></code><a href='#impl-Send' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/link.rs.html#35' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Sync' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="../../x11_dl/dpms/struct.Xext.html" title="struct x11_dl::dpms::Xext">Xext</a></code><a href='#impl-Sync' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/link.rs.html#36' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "x11_dl";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

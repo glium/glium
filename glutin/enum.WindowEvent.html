@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WindowEvent` enum in crate `glutin`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WindowEvent">
+
+    <title>glutin::WindowEvent - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc enum">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Enum WindowEvent</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.Resized">Resized</a><a href="#variant.Moved">Moved</a><a href="#variant.Closed">Closed</a><a href="#variant.DroppedFile">DroppedFile</a><a href="#variant.HoveredFile">HoveredFile</a><a href="#variant.HoveredFileCancelled">HoveredFileCancelled</a><a href="#variant.ReceivedCharacter">ReceivedCharacter</a><a href="#variant.Focused">Focused</a><a href="#variant.KeyboardInput">KeyboardInput</a><a href="#variant.CursorMoved">CursorMoved</a><a href="#variant.CursorEntered">CursorEntered</a><a href="#variant.CursorLeft">CursorLeft</a><a href="#variant.MouseWheel">MouseWheel</a><a href="#variant.MouseInput">MouseInput</a><a href="#variant.TouchpadPressure">TouchpadPressure</a><a href="#variant.AxisMotion">AxisMotion</a><a href="#variant.Refresh">Refresh</a><a href="#variant.Touch">Touch</a><a href="#variant.HiDPIFactorChanged">HiDPIFactorChanged</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Clone">Clone</a></div></div><p class='location'><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'WindowEvent', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>glutin</a>::<wbr><a class="enum" href=''>WindowEvent</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/winit/events.rs.html#25-104' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'>pub enum WindowEvent {
+    Resized(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    Moved(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>),
+    Closed,
+    DroppedFile(<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.PathBuf.html" title="struct std::path::PathBuf">PathBuf</a>),
+    HoveredFile(<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.PathBuf.html" title="struct std::path::PathBuf">PathBuf</a>),
+    HoveredFileCancelled,
+    ReceivedCharacter(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>),
+    Focused(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>),
+    KeyboardInput {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+        input: <a class="struct" href="../glutin/struct.KeyboardInput.html" title="struct glutin::KeyboardInput">KeyboardInput</a>,
+    },
+    CursorMoved {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+        position: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a>,
+        modifiers: <a class="struct" href="../glutin/struct.ModifiersState.html" title="struct glutin::ModifiersState">ModifiersState</a>,
+    },
+    CursorEntered {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+    },
+    CursorLeft {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+    },
+    MouseWheel {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+        delta: <a class="enum" href="../glutin/enum.MouseScrollDelta.html" title="enum glutin::MouseScrollDelta">MouseScrollDelta</a>,
+        phase: <a class="enum" href="../glutin/enum.TouchPhase.html" title="enum glutin::TouchPhase">TouchPhase</a>,
+        modifiers: <a class="struct" href="../glutin/struct.ModifiersState.html" title="struct glutin::ModifiersState">ModifiersState</a>,
+    },
+    MouseInput {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+        state: <a class="enum" href="../glutin/enum.ElementState.html" title="enum glutin::ElementState">ElementState</a>,
+        button: <a class="enum" href="../glutin/enum.MouseButton.html" title="enum glutin::MouseButton">MouseButton</a>,
+        modifiers: <a class="struct" href="../glutin/struct.ModifiersState.html" title="struct glutin::ModifiersState">ModifiersState</a>,
+    },
+    TouchpadPressure {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+        pressure: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>,
+        stage: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a>,
+    },
+    AxisMotion {
+        device_id: <a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a>,
+        axis: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,
+        value: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>,
+    },
+    Refresh,
+    Touch(<a class="struct" href="../glutin/struct.Touch.html" title="struct glutin::Touch">Touch</a>),
+    HiDPIFactorChanged(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>),
+}</pre><div class='docblock'><p>Describes an event from a <code>Window</code>.</p>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.Resized" class="variant small-section-header"><a href="#variant.Resized" class="anchor field"></a><span id='Resized.v' class='invisible'><code>Resized(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>,&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code></span></span><div class='docblock'><p>The size of the window has changed.</p>
+</div><span id="variant.Moved" class="variant small-section-header"><a href="#variant.Moved" class="anchor field"></a><span id='Moved.v' class='invisible'><code>Moved(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>,&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code></span></span><div class='docblock'><p>The position of the window has changed.</p>
+</div><span id="variant.Closed" class="variant small-section-header"><a href="#variant.Closed" class="anchor field"></a><span id='Closed.v' class='invisible'><code>Closed</code></span></span><div class='docblock'><p>The window has been closed.</p>
+</div><span id="variant.DroppedFile" class="variant small-section-header"><a href="#variant.DroppedFile" class="anchor field"></a><span id='DroppedFile.v' class='invisible'><code>DroppedFile(<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.PathBuf.html" title="struct std::path::PathBuf">PathBuf</a>)</code></span></span><div class='docblock'><p>A file has been dropped into the window.</p>
+</div><span id="variant.HoveredFile" class="variant small-section-header"><a href="#variant.HoveredFile" class="anchor field"></a><span id='HoveredFile.v' class='invisible'><code>HoveredFile(<a class="struct" href="https://doc.rust-lang.org/nightly/std/path/struct.PathBuf.html" title="struct std::path::PathBuf">PathBuf</a>)</code></span></span><div class='docblock'><p>A file is being hovered over the window.</p>
+</div><span id="variant.HoveredFileCancelled" class="variant small-section-header"><a href="#variant.HoveredFileCancelled" class="anchor field"></a><span id='HoveredFileCancelled.v' class='invisible'><code>HoveredFileCancelled</code></span></span><div class='docblock'><p>A file was hovered, but has exited the window.</p>
+</div><span id="variant.ReceivedCharacter" class="variant small-section-header"><a href="#variant.ReceivedCharacter" class="anchor field"></a><span id='ReceivedCharacter.v' class='invisible'><code>ReceivedCharacter(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.char.html">char</a>)</code></span></span><div class='docblock'><p>The window received a unicode character.</p>
+</div><span id="variant.Focused" class="variant small-section-header"><a href="#variant.Focused" class="anchor field"></a><span id='Focused.v' class='invisible'><code>Focused(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>)</code></span></span><div class='docblock'><p>The window gained or lost focus.</p>
+
+<p>The parameter is true if the window has gained focus, and false if it has lost focus.</p>
+</div><span id="variant.KeyboardInput" class="variant small-section-header"><a href="#variant.KeyboardInput" class="anchor field"></a><span id='KeyboardInput.v' class='invisible'><code>KeyboardInput</code></span></span><div class='docblock'><p>An event from the keyboard has been received.</p>
+</div><span class='docblock autohide sub-variant' id='variant.KeyboardInput.fields'><h3 class='fields'>Fields of <code>KeyboardInput</code></h3>
+
+                           <table><tr><td id='variant.KeyboardInput.field.device_id'><span id='KeyboardInput.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr><tr><td id='variant.KeyboardInput.field.input'><span id='KeyboardInput.v.input.v' class='invisible'><code>input:&nbsp;<a class="struct" href="../glutin/struct.KeyboardInput.html" title="struct glutin::KeyboardInput">KeyboardInput</a></code></span></td><td></td></tr></table></span><span id="variant.CursorMoved" class="variant small-section-header"><a href="#variant.CursorMoved" class="anchor field"></a><span id='CursorMoved.v' class='invisible'><code>CursorMoved</code></span></span><div class='docblock'><p>The cursor has moved on the window.</p>
+</div><span class='docblock autohide sub-variant' id='variant.CursorMoved.fields'><h3 class='fields'>Fields of <code>CursorMoved</code></h3>
+
+                           <table><tr><td id='variant.CursorMoved.field.device_id'><span id='CursorMoved.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr><tr><td id='variant.CursorMoved.field.position'><span id='CursorMoved.v.position.v' class='invisible'><code>position:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></span></td><td><div class='docblock'><p>(x,y) coords in pixels relative to the top-left corner of the window. Because the range of this data is
+limited by the display area and it may have been transformed by the OS to implement effects such as cursor
+acceleration, it should not be used to implement non-cursor-like interactions such as 3D camera control.</p>
+</div></td></tr><tr><td id='variant.CursorMoved.field.modifiers'><span id='CursorMoved.v.modifiers.v' class='invisible'><code>modifiers:&nbsp;<a class="struct" href="../glutin/struct.ModifiersState.html" title="struct glutin::ModifiersState">ModifiersState</a></code></span></td><td></td></tr></table></span><span id="variant.CursorEntered" class="variant small-section-header"><a href="#variant.CursorEntered" class="anchor field"></a><span id='CursorEntered.v' class='invisible'><code>CursorEntered</code></span></span><div class='docblock'><p>The cursor has entered the window.</p>
+</div><span class='docblock autohide sub-variant' id='variant.CursorEntered.fields'><h3 class='fields'>Fields of <code>CursorEntered</code></h3>
+
+                           <table><tr><td id='variant.CursorEntered.field.device_id'><span id='CursorEntered.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr></table></span><span id="variant.CursorLeft" class="variant small-section-header"><a href="#variant.CursorLeft" class="anchor field"></a><span id='CursorLeft.v' class='invisible'><code>CursorLeft</code></span></span><div class='docblock'><p>The cursor has left the window.</p>
+</div><span class='docblock autohide sub-variant' id='variant.CursorLeft.fields'><h3 class='fields'>Fields of <code>CursorLeft</code></h3>
+
+                           <table><tr><td id='variant.CursorLeft.field.device_id'><span id='CursorLeft.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr></table></span><span id="variant.MouseWheel" class="variant small-section-header"><a href="#variant.MouseWheel" class="anchor field"></a><span id='MouseWheel.v' class='invisible'><code>MouseWheel</code></span></span><div class='docblock'><p>A mouse wheel movement or touchpad scroll occurred.</p>
+</div><span class='docblock autohide sub-variant' id='variant.MouseWheel.fields'><h3 class='fields'>Fields of <code>MouseWheel</code></h3>
+
+                           <table><tr><td id='variant.MouseWheel.field.device_id'><span id='MouseWheel.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr><tr><td id='variant.MouseWheel.field.delta'><span id='MouseWheel.v.delta.v' class='invisible'><code>delta:&nbsp;<a class="enum" href="../glutin/enum.MouseScrollDelta.html" title="enum glutin::MouseScrollDelta">MouseScrollDelta</a></code></span></td><td></td></tr><tr><td id='variant.MouseWheel.field.phase'><span id='MouseWheel.v.phase.v' class='invisible'><code>phase:&nbsp;<a class="enum" href="../glutin/enum.TouchPhase.html" title="enum glutin::TouchPhase">TouchPhase</a></code></span></td><td></td></tr><tr><td id='variant.MouseWheel.field.modifiers'><span id='MouseWheel.v.modifiers.v' class='invisible'><code>modifiers:&nbsp;<a class="struct" href="../glutin/struct.ModifiersState.html" title="struct glutin::ModifiersState">ModifiersState</a></code></span></td><td></td></tr></table></span><span id="variant.MouseInput" class="variant small-section-header"><a href="#variant.MouseInput" class="anchor field"></a><span id='MouseInput.v' class='invisible'><code>MouseInput</code></span></span><div class='docblock'><p>An mouse button press has been received.</p>
+</div><span class='docblock autohide sub-variant' id='variant.MouseInput.fields'><h3 class='fields'>Fields of <code>MouseInput</code></h3>
+
+                           <table><tr><td id='variant.MouseInput.field.device_id'><span id='MouseInput.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr><tr><td id='variant.MouseInput.field.state'><span id='MouseInput.v.state.v' class='invisible'><code>state:&nbsp;<a class="enum" href="../glutin/enum.ElementState.html" title="enum glutin::ElementState">ElementState</a></code></span></td><td></td></tr><tr><td id='variant.MouseInput.field.button'><span id='MouseInput.v.button.v' class='invisible'><code>button:&nbsp;<a class="enum" href="../glutin/enum.MouseButton.html" title="enum glutin::MouseButton">MouseButton</a></code></span></td><td></td></tr><tr><td id='variant.MouseInput.field.modifiers'><span id='MouseInput.v.modifiers.v' class='invisible'><code>modifiers:&nbsp;<a class="struct" href="../glutin/struct.ModifiersState.html" title="struct glutin::ModifiersState">ModifiersState</a></code></span></td><td></td></tr></table></span><span id="variant.TouchpadPressure" class="variant small-section-header"><a href="#variant.TouchpadPressure" class="anchor field"></a><span id='TouchpadPressure.v' class='invisible'><code>TouchpadPressure</code></span></span><div class='docblock'><p>Touchpad pressure event.</p>
+
+<p>At the moment, only supported on Apple forcetouch-capable macbooks.
+The parameters are: pressure level (value between 0 and 1 representing how hard the touchpad
+is being pressed) and stage (integer representing the click level).</p>
+</div><span class='docblock autohide sub-variant' id='variant.TouchpadPressure.fields'><h3 class='fields'>Fields of <code>TouchpadPressure</code></h3>
+
+                           <table><tr><td id='variant.TouchpadPressure.field.device_id'><span id='TouchpadPressure.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr><tr><td id='variant.TouchpadPressure.field.pressure'><span id='TouchpadPressure.v.pressure.v' class='invisible'><code>pressure:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a></code></span></td><td></td></tr><tr><td id='variant.TouchpadPressure.field.stage'><span id='TouchpadPressure.v.stage.v' class='invisible'><code>stage:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i64.html">i64</a></code></span></td><td></td></tr></table></span><span id="variant.AxisMotion" class="variant small-section-header"><a href="#variant.AxisMotion" class="anchor field"></a><span id='AxisMotion.v' class='invisible'><code>AxisMotion</code></span></span><div class='docblock'><p>Motion on some analog axis. May report data redundant to other, more specific events.</p>
+</div><span class='docblock autohide sub-variant' id='variant.AxisMotion.fields'><h3 class='fields'>Fields of <code>AxisMotion</code></h3>
+
+                           <table><tr><td id='variant.AxisMotion.field.device_id'><span id='AxisMotion.v.device_id.v' class='invisible'><code>device_id:&nbsp;<a class="struct" href="../glutin/struct.DeviceId.html" title="struct glutin::DeviceId">DeviceId</a></code></span></td><td></td></tr><tr><td id='variant.AxisMotion.field.axis'><span id='AxisMotion.v.axis.v' class='invisible'><code>axis:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span></td><td></td></tr><tr><td id='variant.AxisMotion.field.value'><span id='AxisMotion.v.value.v' class='invisible'><code>value:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a></code></span></td><td></td></tr></table></span><span id="variant.Refresh" class="variant small-section-header"><a href="#variant.Refresh" class="anchor field"></a><span id='Refresh.v' class='invisible'><code>Refresh</code></span></span><div class='docblock'><p>The window needs to be redrawn.</p>
+</div><span id="variant.Touch" class="variant small-section-header"><a href="#variant.Touch" class="anchor field"></a><span id='Touch.v' class='invisible'><code>Touch(<a class="struct" href="../glutin/struct.Touch.html" title="struct glutin::Touch">Touch</a>)</code></span></span><div class='docblock'><p>Touch event has been received</p>
+</div><span id="variant.HiDPIFactorChanged" class="variant small-section-header"><a href="#variant.HiDPIFactorChanged" class="anchor field"></a><span id='HiDPIFactorChanged.v' class='invisible'><code>HiDPIFactorChanged(<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a>)</code></span></span><div class='docblock'><p>DPI scaling factor of the window has changed.</p>
+
+<p>The following actions cause DPI changes:</p>
+
+<ul>
+<li>A user changes the resolution.</li>
+<li>A user changes the desktop scaling value (e.g. in Control Panel on Windows).</li>
+<li>A user moves the application window to a display with a different DPI.</li>
+</ul>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../glutin/enum.WindowEvent.html" title="enum glutin::WindowEvent">WindowEvent</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#24' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html" title="struct core::fmt::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#24' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../glutin/enum.WindowEvent.html" title="enum glutin::WindowEvent">WindowEvent</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#24' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../glutin/enum.WindowEvent.html" title="enum glutin::WindowEvent">WindowEvent</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/winit/events.rs.html#24' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "glutin";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

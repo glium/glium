@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `xdg_positioner` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, xdg_positioner">
+
+    <title>wayland_protocols::xdg_shell::client::xdg_positioner - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module xdg_positioner</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><p class='location'><a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>xdg_shell</a>::<wbr><a href='../index.html'>client</a></p><script>window.sidebarCurrent = {name: 'xdg_positioner', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>xdg_shell</a>::<wbr><a href='../index.html'>client</a>::<wbr><a class="mod" href=''>xdg_positioner</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/xdg-shell_client_api.rs.html#291-697' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>child surface positioner</p>
+
+<p>The xdg_positioner provides a collection of rules for the placement of a
+child surface relative to a parent surface. Rules can be defined to ensure
+the child surface remains within the visible area&#39;s borders, and to
+specify how the child surface changes its position, such as sliding along
+an axis, or flipping around a rectangle. These positioner-created rules are
+constrained by the requirement that a child surface must intersect with or
+be at least partially adjacent to its parent surface.</p>
+
+<p>See the various requests for details about possible rules.</p>
+
+<p>At the time of the request, the compositor makes a copy of the rules
+specified by the xdg_positioner. Thus, after the request is complete the
+xdg_positioner object can be destroyed or reused; further changes to the
+object will have no effect on previous usages.</p>
+
+<p>For an xdg_positioner object to be considered complete, it must have a
+non-zero size set by set_size, and a non-zero anchor rectangle set by
+set_anchor_rect. Passing an incomplete xdg_positioner object when
+positioning a surface raises an error.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ConstraintAdjustment.html"
+                                  title='struct wayland_protocols::xdg_shell::client::xdg_positioner::ConstraintAdjustment'>ConstraintAdjustment</a></td>
+                           <td class='docblock-short'>
+                                <p>constraint adjustments</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.XdgPositioner.html"
+                                  title='struct wayland_protocols::xdg_shell::client::xdg_positioner::XdgPositioner'>XdgPositioner</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Anchor.html"
+                                  title='enum wayland_protocols::xdg_shell::client::xdg_positioner::Anchor'>Anchor</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Error.html"
+                                  title='enum wayland_protocols::xdg_shell::client::xdg_positioner::Error'>Error</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Gravity.html"
+                                  title='enum wayland_protocols::xdg_shell::client::xdg_positioner::Gravity'>Gravity</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../main.js"></script>
+    <script defer src="../../../../search-index.js"></script>
+</body>
+</html>

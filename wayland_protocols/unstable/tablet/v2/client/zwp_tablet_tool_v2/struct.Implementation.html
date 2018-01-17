@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Implementation` struct in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Implementation">
+
+    <title>wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Implementation - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Implementation</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.type_">type_</a><a href="#structfield.hardware_serial">hardware_serial</a><a href="#structfield.hardware_id_wacom">hardware_id_wacom</a><a href="#structfield.capability">capability</a><a href="#structfield.done">done</a><a href="#structfield.removed">removed</a><a href="#structfield.proximity_in">proximity_in</a><a href="#structfield.proximity_out">proximity_out</a><a href="#structfield.down">down</a><a href="#structfield.up">up</a><a href="#structfield.motion">motion</a><a href="#structfield.pressure">pressure</a><a href="#structfield.distance">distance</a><a href="#structfield.tilt">tilt</a><a href="#structfield.rotation">rotation</a><a href="#structfield.slider">slider</a><a href="#structfield.wheel">wheel</a><a href="#structfield.button">button</a><a href="#structfield.frame">frame</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>tablet</a>::<wbr><a href='../../index.html'>v2</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>zwp_tablet_tool_v2</a></p><script>window.sidebarCurrent = {name: 'Implementation', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>tablet</a>::<wbr><a href='../../index.html'>v2</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>zwp_tablet_tool_v2</a>::<wbr><a class="struct" href=''>Implementation</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/tablet-v2_client_api.rs.html#710-954' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Implementation&lt;ID&gt; {
+    pub type_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, tool_type: <a class="enum" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/enum.Type.html" title="enum wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Type">Type</a>),
+    pub hardware_serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, hardware_serial_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, hardware_serial_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub hardware_id_wacom: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, hardware_id_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, hardware_id_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub capability: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, capability: <a class="enum" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/enum.Capability.html" title="enum wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Capability">Capability</a>),
+    pub done: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>),
+    pub removed: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>),
+    pub proximity_in: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, tablet: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_v2/struct.ZwpTabletV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_v2::ZwpTabletV2">ZwpTabletV2</a>, surface: &amp;WlSurface),
+    pub proximity_out: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>),
+    pub down: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub up: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>),
+    pub motion: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>),
+    pub pressure: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, pressure: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub distance: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, distance: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub tilt: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, tilt_x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, tilt_y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>),
+    pub rotation: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, degrees: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>),
+    pub slider: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, position: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>),
+    pub wheel: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, degrees: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, clicks: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>),
+    pub button: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, button: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, state: <a class="enum" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/enum.ButtonState.html" title="enum wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ButtonState">ButtonState</a>),
+    pub frame: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.type_" class="structfield small-section-header">
+                           <a href="#structfield.type_" class="anchor field"></a>
+                           <span id="type_.v" class='invisible'>
+                           <code>type_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, tool_type: <a class="enum" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/enum.Type.html" title="enum wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Type">Type</a>)</code>
+                           </span></span><div class='docblock'><p>tool type</p>
+
+<p>The tool type is the high-level type of the tool and usually decides
+the interaction expected from this tool.</p>
+
+<p>This event is sent in the initial burst of events before the
+wp_tablet_tool.done event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, tool_type</p>
+</div><span id="structfield.hardware_serial" class="structfield small-section-header">
+                           <a href="#structfield.hardware_serial" class="anchor field"></a>
+                           <span id="hardware_serial.v" class='invisible'>
+                           <code>hardware_serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, hardware_serial_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, hardware_serial_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>unique hardware serial number of the tool</p>
+
+<p>If the physical tool can be identified by a unique 64-bit serial
+number, this event notifies the client of this serial number.</p>
+
+<p>If multiple tablets are available in the same seat and the tool is
+uniquely identifiable by the serial number, that tool may move
+between tablets.</p>
+
+<p>Otherwise, if the tool has no serial number and this event is
+missing, the tool is tied to the tablet it first comes into
+proximity with. Even if the physical tool is used on multiple
+tablets, separate wp_tablet_tool objects will be created, one per
+tablet.</p>
+
+<p>This event is sent in the initial burst of events before the
+wp_tablet_tool.done event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, hardware_serial_hi, hardware_serial_lo</p>
+</div><span id="structfield.hardware_id_wacom" class="structfield small-section-header">
+                           <a href="#structfield.hardware_id_wacom" class="anchor field"></a>
+                           <span id="hardware_id_wacom.v" class='invisible'>
+                           <code>hardware_id_wacom: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, hardware_id_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, hardware_id_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>hardware id notification in Wacom&#39;s format</p>
+
+<p>This event notifies the client of a hardware id available on this tool.</p>
+
+<p>The hardware id is a device-specific 64-bit id that provides extra
+information about the tool in use, beyond the wl_tool.type
+enumeration. The format of the id is specific to tablets made by
+Wacom Inc. For example, the hardware id of a Wacom Grip
+Pen (a stylus) is 0x802.</p>
+
+<p>This event is sent in the initial burst of events before the
+wp_tablet_tool.done event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, hardware_id_hi, hardware_id_lo</p>
+</div><span id="structfield.capability" class="structfield small-section-header">
+                           <a href="#structfield.capability" class="anchor field"></a>
+                           <span id="capability.v" class='invisible'>
+                           <code>capability: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, capability: <a class="enum" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/enum.Capability.html" title="enum wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Capability">Capability</a>)</code>
+                           </span></span><div class='docblock'><p>tool capability notification</p>
+
+<p>This event notifies the client of any capabilities of this tool,
+beyond the main set of x/y axes and tip up/down detection.</p>
+
+<p>One event is sent for each extra capability available on this tool.</p>
+
+<p>This event is sent in the initial burst of events before the
+wp_tablet_tool.done event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, capability</p>
+</div><span id="structfield.done" class="structfield small-section-header">
+                           <a href="#structfield.done" class="anchor field"></a>
+                           <span id="done.v" class='invisible'>
+                           <code>done: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>)</code>
+                           </span></span><div class='docblock'><p>tool description events sequence complete</p>
+
+<p>This event signals the end of the initial burst of descriptive
+events. A client may consider the static description of the tool to
+be complete and finalize initialization of the tool.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2</p>
+</div><span id="structfield.removed" class="structfield small-section-header">
+                           <a href="#structfield.removed" class="anchor field"></a>
+                           <span id="removed.v" class='invisible'>
+                           <code>removed: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>)</code>
+                           </span></span><div class='docblock'><p>tool removed</p>
+
+<p>This event is sent when the tool is removed from the system and will
+send no further events. Should the physical tool come back into
+proximity later, a new wp_tablet_tool object will be created.</p>
+
+<p>It is compositor-dependent when a tool is removed. A compositor may
+remove a tool on proximity out, tablet removal or any other reason.
+A compositor may also keep a tool alive until shutdown.</p>
+
+<p>If the tool is currently in proximity, a proximity_out event will be
+sent before the removed event. See wp_tablet_tool.proximity_out for
+the handling of any buttons logically down.</p>
+
+<p>When this event is received, the client must wp_tablet_tool.destroy
+the object.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2</p>
+</div><span id="structfield.proximity_in" class="structfield small-section-header">
+                           <a href="#structfield.proximity_in" class="anchor field"></a>
+                           <span id="proximity_in.v" class='invisible'>
+                           <code>proximity_in: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, tablet: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_v2/struct.ZwpTabletV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_v2::ZwpTabletV2">ZwpTabletV2</a>, surface: &amp;WlSurface)</code>
+                           </span></span><div class='docblock'><p>proximity in event</p>
+
+<p>Notification that this tool is focused on a certain surface.</p>
+
+<p>This event can be received when the tool has moved from one surface to
+another, or when the tool has come back into proximity above the
+surface.</p>
+
+<p>If any button is logically down when the tool comes into proximity,
+the respective button event is sent after the proximity_in event but
+within the same frame as the proximity_in event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, serial, tablet, surface</p>
+</div><span id="structfield.proximity_out" class="structfield small-section-header">
+                           <a href="#structfield.proximity_out" class="anchor field"></a>
+                           <span id="proximity_out.v" class='invisible'>
+                           <code>proximity_out: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>)</code>
+                           </span></span><div class='docblock'><p>proximity out event</p>
+
+<p>Notification that this tool has either left proximity, or is no
+longer focused on a certain surface.</p>
+
+<p>When the tablet tool leaves proximity of the tablet, button release
+events are sent for each button that was held down at the time of
+leaving proximity. These events are sent before the proximity_out
+event but within the same wp_tablet.frame.</p>
+
+<p>If the tool stays within proximity of the tablet, but the focus
+changes from one surface to another, a button release event may not
+be sent until the button is actually released or the tool leaves the
+proximity of the tablet.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2</p>
+</div><span id="structfield.down" class="structfield small-section-header">
+                           <a href="#structfield.down" class="anchor field"></a>
+                           <span id="down.v" class='invisible'>
+                           <code>down: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>tablet tool is making contact</p>
+
+<p>Sent whenever the tablet tool comes in contact with the surface of the
+tablet.</p>
+
+<p>If the tool is already in contact with the tablet when entering the
+input region, the client owning said region will receive a
+wp_tablet.proximity_in event, followed by a wp_tablet.down
+event and a wp_tablet.frame event.</p>
+
+<p>Note that this event describes logical contact, not physical
+contact. On some devices, a compositor may not consider a tool in
+logical contact until a minimum physical pressure threshold is
+exceeded.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, serial</p>
+</div><span id="structfield.up" class="structfield small-section-header">
+                           <a href="#structfield.up" class="anchor field"></a>
+                           <span id="up.v" class='invisible'>
+                           <code>up: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>)</code>
+                           </span></span><div class='docblock'><p>tablet tool is no longer making contact</p>
+
+<p>Sent whenever the tablet tool stops making contact with the surface of
+the tablet, or when the tablet tool moves out of the input region
+and the compositor grab (if any) is dismissed.</p>
+
+<p>If the tablet tool moves out of the input region while in contact
+with the surface of the tablet and the compositor does not have an
+ongoing grab on the surface, the client owning said region will
+receive a wp_tablet.up event, followed by a wp_tablet.proximity_out
+event and a wp_tablet.frame event. If the compositor has an ongoing
+grab on this device, this event sequence is sent whenever the grab
+is dismissed in the future.</p>
+
+<p>Note that this event describes logical contact, not physical
+contact. On some devices, a compositor may not consider a tool out
+of logical contact until physical pressure falls below a specific
+threshold.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2</p>
+</div><span id="structfield.motion" class="structfield small-section-header">
+                           <a href="#structfield.motion" class="anchor field"></a>
+                           <span id="motion.v" class='invisible'>
+                           <code>motion: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>)</code>
+                           </span></span><div class='docblock'><p>motion event</p>
+
+<p>Sent whenever a tablet tool moves.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, x, y</p>
+</div><span id="structfield.pressure" class="structfield small-section-header">
+                           <a href="#structfield.pressure" class="anchor field"></a>
+                           <span id="pressure.v" class='invisible'>
+                           <code>pressure: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, pressure: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>pressure change event</p>
+
+<p>Sent whenever the pressure axis on a tool changes. The value of this
+event is normalized to a value between 0 and 65535.</p>
+
+<p>Note that pressure may be nonzero even when a tool is not in logical
+contact. See the down and up events for more details.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, pressure</p>
+</div><span id="structfield.distance" class="structfield small-section-header">
+                           <a href="#structfield.distance" class="anchor field"></a>
+                           <span id="distance.v" class='invisible'>
+                           <code>distance: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, distance: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>distance change event</p>
+
+<p>Sent whenever the distance axis on a tool changes. The value of this
+event is normalized to a value between 0 and 65535.</p>
+
+<p>Note that distance may be nonzero even when a tool is not in logical
+contact. See the down and up events for more details.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, distance</p>
+</div><span id="structfield.tilt" class="structfield small-section-header">
+                           <a href="#structfield.tilt" class="anchor field"></a>
+                           <span id="tilt.v" class='invisible'>
+                           <code>tilt: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, tilt_x: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, tilt_y: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>)</code>
+                           </span></span><div class='docblock'><p>tilt change event</p>
+
+<p>Sent whenever one or both of the tilt axes on a tool change. Each tilt
+value is in degrees, relative to the z-axis of the tablet.
+The angle is positive when the top of a tool tilts along the
+positive x or y axis.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, tilt_x, tilt_y</p>
+</div><span id="structfield.rotation" class="structfield small-section-header">
+                           <a href="#structfield.rotation" class="anchor field"></a>
+                           <span id="rotation.v" class='invisible'>
+                           <code>rotation: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, degrees: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>)</code>
+                           </span></span><div class='docblock'><p>z-rotation change event</p>
+
+<p>Sent whenever the z-rotation axis on the tool changes. The
+rotation value is in degrees clockwise from the tool&#39;s
+logical neutral position.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, degrees</p>
+</div><span id="structfield.slider" class="structfield small-section-header">
+                           <a href="#structfield.slider" class="anchor field"></a>
+                           <span id="slider.v" class='invisible'>
+                           <code>slider: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, position: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code>
+                           </span></span><div class='docblock'><p>Slider position change event</p>
+
+<p>Sent whenever the slider position on the tool changes. The
+value is normalized between -65535 and 65535, with 0 as the logical
+neutral position of the slider.</p>
+
+<p>The slider is available on e.g. the Wacom Airbrush tool.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, position</p>
+</div><span id="structfield.wheel" class="structfield small-section-header">
+                           <a href="#structfield.wheel" class="anchor field"></a>
+                           <span id="wheel.v" class='invisible'>
+                           <code>wheel: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, degrees: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, clicks: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code>
+                           </span></span><div class='docblock'><p>Wheel delta event</p>
+
+<p>Sent whenever the wheel on the tool emits an event. This event
+contains two values for the same axis change. The degrees value is
+in the same orientation as the wl_pointer.vertical_scroll axis. The
+clicks value is in discrete logical clicks of the mouse wheel. This
+value may be zero if the movement of the wheel was less
+than one logical click.</p>
+
+<p>Clients should choose either value and avoid mixing degrees and
+clicks. The compositor may accumulate values smaller than a logical
+click and emulate click events when a certain threshold is met.
+Thus, wl_tablet_tool.wheel events with non-zero clicks values may
+have different degrees values.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, degrees, clicks</p>
+</div><span id="structfield.button" class="structfield small-section-header">
+                           <a href="#structfield.button" class="anchor field"></a>
+                           <span id="button.v" class='invisible'>
+                           <code>button: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, button: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, state: <a class="enum" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/enum.ButtonState.html" title="enum wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ButtonState">ButtonState</a>)</code>
+                           </span></span><div class='docblock'><p>button event</p>
+
+<p>Sent whenever a button on the tool is pressed or released.</p>
+
+<p>If a button is held down when the tool moves in or out of proximity,
+button events are generated by the compositor. See
+wp_tablet_tool.proximity_in and wp_tablet_tool.proximity_out for
+details.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, serial, button, state</p>
+</div><span id="structfield.frame" class="structfield small-section-header">
+                           <a href="#structfield.frame" class="anchor field"></a>
+                           <span id="frame.v" class='invisible'>
+                           <code>frame: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_tablet_tool_v2: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.ZwpTabletToolV2.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::ZwpTabletToolV2">ZwpTabletToolV2</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>frame event</p>
+
+<p>Marks the end of a series of axis and/or button updates from the
+tablet. The Wayland protocol requires axis updates to be sent
+sequentially, however all events within a frame should be considered
+one hardware event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_tablet_tool_v2, time</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.Implementation.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/tablet-v2_client_api.rs.html#956' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.Implementation.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/tablet-v2_client_api.rs.html#957-961' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.Implementation.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Implementation">Implementation</a>&lt;ID&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/tablet-v2_client_api.rs.html#958-960' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.Implementation.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/tablet-v2_client_api.rs.html#963-987' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/tablet/v2/client/zwp_tablet_tool_v2/struct.Implementation.html" title="struct wayland_protocols::unstable::tablet::v2::client::zwp_tablet_tool_v2::Implementation">Implementation</a>&lt;ID&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/tablet-v2_client_api.rs.html#964-986' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../../../main.js"></script>
+    <script defer src="../../../../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Implementation` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Implementation">
+
+    <title>wayland_client::protocol::wl_data_source::Implementation - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Implementation</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.target">target</a><a href="#structfield.send">send</a><a href="#structfield.cancelled">cancelled</a><a href="#structfield.dnd_drop_performed">dnd_drop_performed</a><a href="#structfield.dnd_finished">dnd_finished</a><a href="#structfield.action">action</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_data_source</a></p><script>window.sidebarCurrent = {name: 'Implementation', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../index.html'>wayland_client</a>::<wbr><a href='../index.html'>protocol</a>::<wbr><a href='index.html'>wl_data_source</a>::<wbr><a class="struct" href=''>Implementation</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1929-2033' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Implementation&lt;ID&gt; {
+    pub target: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>, mime_type: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;),
+    pub send: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>, mime_type: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, fd: <a class="type" href="https://doc.rust-lang.org/nightly/std/sys/imp/ext/io/type.RawFd.html" title="type std::sys::imp::ext::io::RawFd">RawFd</a>),
+    pub cancelled: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>),
+    pub dnd_drop_performed: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>),
+    pub dnd_finished: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>),
+    pub action: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>, dnd_action: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.target" class="structfield small-section-header">
+                           <a href="#structfield.target" class="anchor field"></a>
+                           <span id="target.v" class='invisible'>
+                           <code>target: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>, mime_type: <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>&gt;)</code>
+                           </span></span><div class='docblock'><p>a target accepts an offered mime type</p>
+
+<p>Sent when a target accepts pointer_focus or motion events.  If
+a target does not accept any of the offered types, type is NULL.</p>
+
+<p>Used for feedback during drag-and-drop.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wl_data_source, mime_type</p>
+</div><span id="structfield.send" class="structfield small-section-header">
+                           <a href="#structfield.send" class="anchor field"></a>
+                           <span id="send.v" class='invisible'>
+                           <code>send: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>, mime_type: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, fd: <a class="type" href="https://doc.rust-lang.org/nightly/std/sys/imp/ext/io/type.RawFd.html" title="type std::sys::imp::ext::io::RawFd">RawFd</a>)</code>
+                           </span></span><div class='docblock'><p>send the data</p>
+
+<p>Request for data from the client.  Send the data as the
+specified mime type over the passed file descriptor, then
+close it.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wl_data_source, mime_type, fd</p>
+</div><span id="structfield.cancelled" class="structfield small-section-header">
+                           <a href="#structfield.cancelled" class="anchor field"></a>
+                           <span id="cancelled.v" class='invisible'>
+                           <code>cancelled: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>)</code>
+                           </span></span><div class='docblock'><p>selection was cancelled</p>
+
+<p>This data source is no longer valid. There are several reasons why
+this could happen:</p>
+
+<ul>
+<li>The data source has been replaced by another data source.</li>
+<li>The drag-and-drop operation was performed, but the drop destination
+did not accept any of the mime types offered through
+wl_data_source.target.</li>
+<li>The drag-and-drop operation was performed, but the drop destination
+did not select any of the actions present in the mask offered through
+wl_data_source.action.</li>
+<li>The drag-and-drop operation was performed but didn&#39;t happen over a
+surface.</li>
+<li>The compositor cancelled the drag-and-drop operation (e.g. compositor
+dependent timeouts to avoid stale drag-and-drop transfers).</li>
+</ul>
+
+<p>The client should clean up and destroy this data source.</p>
+
+<p>For objects of version 2 or older, wl_data_source.cancelled will
+only be emitted if the data source was replaced by another data
+source.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wl_data_source</p>
+</div><span id="structfield.dnd_drop_performed" class="structfield small-section-header">
+                           <a href="#structfield.dnd_drop_performed" class="anchor field"></a>
+                           <span id="dnd_drop_performed.v" class='invisible'>
+                           <code>dnd_drop_performed: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>)</code>
+                           </span></span><div class='docblock'><p>the drag-and-drop operation physically finished</p>
+
+<p>The user performed the drop action. This event does not indicate
+acceptance, wl_data_source.cancelled may still be emitted afterwards
+if the drop destination does not accept any mime type.</p>
+
+<p>However, this event might however not be received if the compositor
+cancelled the drag-and-drop operation before this event could happen.</p>
+
+<p>Note that the data_source may still be used in the future and should
+not be destroyed here.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wl_data_source</p>
+
+<p>This request only exists since version 3 of the interface</p>
+</div><span id="structfield.dnd_finished" class="structfield small-section-header">
+                           <a href="#structfield.dnd_finished" class="anchor field"></a>
+                           <span id="dnd_finished.v" class='invisible'>
+                           <code>dnd_finished: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>)</code>
+                           </span></span><div class='docblock'><p>the drag-and-drop operation concluded</p>
+
+<p>The drop destination finished interoperating with this data
+source, so the client is now free to destroy this data source and
+free all associated data.</p>
+
+<p>If the action used to perform the operation was &quot;move&quot;, the
+source can now delete the transferred data.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wl_data_source</p>
+
+<p>This request only exists since version 3 of the interface</p>
+</div><span id="structfield.action" class="structfield small-section-header">
+                           <a href="#structfield.action" class="anchor field"></a>
+                           <span id="action.v" class='invisible'>
+                           <code>action: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wl_data_source: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a>, dnd_action: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>notify the selected action</p>
+
+<p>This event indicates the action selected by the compositor after
+matching the source/destination side actions. Only one action (or
+none) will be offered here.</p>
+
+<p>This event can be emitted multiple times during the drag-and-drop
+operation, mainly in response to destination side changes through
+wl_data_offer.set_actions, and as the data device enters/leaves
+surfaces.</p>
+
+<p>It is only possible to receive this event after
+wl_data_source.dnd_drop_performed if the drag-and-drop operation
+ended in an &quot;ask&quot; action, in which case the final wl_data_source.action
+event will happen immediately before wl_data_source.dnd_finished.</p>
+
+<p>Compositors may also change the selected action on the fly, mainly
+in response to keyboard modifier changes during the drag-and-drop
+operation.</p>
+
+<p>The most recent action received is always the valid one. The chosen
+action may change alongside negotiation (e.g. an &quot;ask&quot; action can turn
+into a &quot;move&quot; operation), so the effects of the final action must
+always be applied in wl_data_offer.dnd_finished.</p>
+
+<p>Clients can trigger cursor surface changes from this point, so
+they reflect the current action.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wl_data_source, dnd_action</p>
+
+<p>This request only exists since version 3 of the interface</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.Implementation.html" title="struct wayland_client::protocol::wl_data_source::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2035' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.Implementation.html" title="struct wayland_client::protocol::wl_data_source::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2036-2040' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.Implementation.html" title="struct wayland_client::protocol::wl_data_source::Implementation">Implementation</a>&lt;ID&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2037-2039' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.Implementation.html" title="struct wayland_client::protocol::wl_data_source::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2042-2053' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../../../wayland_client/protocol/wl_data_source/struct.Implementation.html" title="struct wayland_client::protocol::wl_data_source::Implementation">Implementation</a>&lt;ID&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2043-2052' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../../../main.js"></script>
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `wp_presentation` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, wp_presentation">
+
+    <title>wayland_protocols::presentation_time::client::wp_presentation - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module wp_presentation</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><p class='location'><a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>presentation_time</a>::<wbr><a href='../index.html'>client</a></p><script>window.sidebarCurrent = {name: 'wp_presentation', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>presentation_time</a>::<wbr><a href='../index.html'>client</a>::<wbr><a class="mod" href=''>wp_presentation</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#28-282' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>timed presentation related wl_surface requests</p>
+
+<p>The main feature of this interface is accurate presentation
+timing feedback to ensure smooth video playback while maintaining
+audio/video synchronization. Some features use the concept of a
+presentation clock, which is defined in the
+presentation.clock_id event.</p>
+
+<p>A content update for a wl_surface is submitted by a
+wl_surface.commit request. Request &#39;feedback&#39; associates with
+the wl_surface.commit and provides feedback on the content
+update, particularly the final realized presentation time.</p>
+
+<p>When the final realized presentation time is available, e.g.
+after a framebuffer flip completes, the requested
+presentation_feedback.presented events are sent. The final
+presentation time can differ from the compositor&#39;s predicted
+display update time and the update&#39;s target time, especially
+when the compositor misses its target vertical blanking period.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Implementation.html"
+                                  title='struct wayland_protocols::presentation_time::client::wp_presentation::Implementation'>Implementation</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.WpPresentation.html"
+                                  title='struct wayland_protocols::presentation_time::client::wp_presentation::WpPresentation'>WpPresentation</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Error.html"
+                                  title='enum wayland_protocols::presentation_time::client::wp_presentation::Error'>Error</a></td>
+                           <td class='docblock-short'>
+                                <p>fatal presentation errors</p>
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../main.js"></script>
+    <script defer src="../../../../search-index.js"></script>
+</body>
+</html>

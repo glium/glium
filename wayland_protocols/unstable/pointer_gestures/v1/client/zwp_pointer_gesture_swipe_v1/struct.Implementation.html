@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Implementation` struct in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Implementation">
+
+    <title>wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::Implementation - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Implementation</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.begin">begin</a><a href="#structfield.update">update</a><a href="#structfield.end">end</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>pointer_gestures</a>::<wbr><a href='../../index.html'>v1</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>zwp_pointer_gesture_swipe_v1</a></p><script>window.sidebarCurrent = {name: 'Implementation', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>pointer_gestures</a>::<wbr><a href='../../index.html'>v1</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>zwp_pointer_gesture_swipe_v1</a>::<wbr><a class="struct" href=''>Implementation</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/pointer-gestures-v1_client_api.rs.html#285-315' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Implementation&lt;ID&gt; {
+    pub begin: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_pointer_gesture_swipe_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.ZwpPointerGestureSwipeV1.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::ZwpPointerGestureSwipeV1">ZwpPointerGestureSwipeV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, surface: &amp;WlSurface, fingers: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub update: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_pointer_gesture_swipe_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.ZwpPointerGestureSwipeV1.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::ZwpPointerGestureSwipeV1">ZwpPointerGestureSwipeV1</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, dx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, dy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>),
+    pub end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_pointer_gesture_swipe_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.ZwpPointerGestureSwipeV1.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::ZwpPointerGestureSwipeV1">ZwpPointerGestureSwipeV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, cancelled: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>),
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.begin" class="structfield small-section-header">
+                           <a href="#structfield.begin" class="anchor field"></a>
+                           <span id="begin.v" class='invisible'>
+                           <code>begin: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_pointer_gesture_swipe_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.ZwpPointerGestureSwipeV1.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::ZwpPointerGestureSwipeV1">ZwpPointerGestureSwipeV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, surface: &amp;WlSurface, fingers: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>multi-finger swipe begin</p>
+
+<p>This event is sent when a multi-finger swipe gesture is detected
+on the device.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_pointer_gesture_swipe_v1, serial, time, surface, fingers</p>
+</div><span id="structfield.update" class="structfield small-section-header">
+                           <a href="#structfield.update" class="anchor field"></a>
+                           <span id="update.v" class='invisible'>
+                           <code>update: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_pointer_gesture_swipe_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.ZwpPointerGestureSwipeV1.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::ZwpPointerGestureSwipeV1">ZwpPointerGestureSwipeV1</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, dx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>, dy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f64.html">f64</a>)</code>
+                           </span></span><div class='docblock'><p>multi-finger swipe motion</p>
+
+<p>This event is sent when a multi-finger swipe gesture changes the
+position of the logical center.</p>
+
+<p>The dx and dy coordinates are relative coordinates of the logical
+center of the gesture compared to the previous event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_pointer_gesture_swipe_v1, time, dx, dy</p>
+</div><span id="structfield.end" class="structfield small-section-header">
+                           <a href="#structfield.end" class="anchor field"></a>
+                           <span id="end.v" class='invisible'>
+                           <code>end: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_pointer_gesture_swipe_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.ZwpPointerGestureSwipeV1.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::ZwpPointerGestureSwipeV1">ZwpPointerGestureSwipeV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, cancelled: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code>
+                           </span></span><div class='docblock'><p>multi-finger swipe end</p>
+
+<p>This event is sent when a multi-finger swipe gesture ceases to
+be valid. This may happen when one or more fingers are lifted or
+the gesture is cancelled.</p>
+
+<p>When a gesture is cancelled, the client should undo state changes
+caused by this gesture. What causes a gesture to be cancelled is
+implementation-dependent.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_pointer_gesture_swipe_v1, serial, time, cancelled</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/pointer-gestures-v1_client_api.rs.html#317' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/pointer-gestures-v1_client_api.rs.html#318-322' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::Implementation">Implementation</a>&lt;ID&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/pointer-gestures-v1_client_api.rs.html#319-321' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/pointer-gestures-v1_client_api.rs.html#324-332' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/pointer_gestures/v1/client/zwp_pointer_gesture_swipe_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::pointer_gestures::v1::client::zwp_pointer_gesture_swipe_v1::Implementation">Implementation</a>&lt;ID&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/pointer-gestures-v1_client_api.rs.html#325-331' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../../../main.js"></script>
+    <script defer src="../../../../../../search-index.js"></script>
+</body>
+</html>

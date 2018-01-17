@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Aabb2","A two-dimensional AABB, aka a rectangle."],["Aabb3","A three-dimensional AABB, aka a rectangular prism."]],"trait":[["Aabb",""]]});

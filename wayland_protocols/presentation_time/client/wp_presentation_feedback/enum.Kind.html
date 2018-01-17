@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Kind` enum in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Kind">
+
+    <title>wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc enum">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Enum Kind</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.Vsync">Vsync</a><a href="#variant.HwClock">HwClock</a><a href="#variant.HwCompletion">HwCompletion</a><a href="#variant.ZeroCopy">ZeroCopy</a></div><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.from_raw">from_raw</a><a href="#method.to_raw">to_raw</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>presentation_time</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>wp_presentation_feedback</a></p><script>window.sidebarCurrent = {name: 'Kind', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>presentation_time</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>wp_presentation_feedback</a>::<wbr><a class="enum" href=''>Kind</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#462-471' title='goto source code'>[src]</a></span></h1>
+<pre class='rust enum'><div class="docblock attributes">#[repr(u32)]
+</div>pub enum Kind {
+    Vsync,
+    HwClock,
+    HwCompletion,
+    ZeroCopy,
+}</pre><div class='docblock'><p>bitmask of flags in presented event</p>
+
+<p>These flags provide information about how the presentation of
+the related content update was done. The intent is to help
+clients assess the reliability of the feedback and the visual
+quality with respect to possible tearing and timings. The
+flags are:</p>
+
+<p>VSYNC:
+The presentation was synchronized to the &quot;vertical retrace&quot; by
+the display hardware such that tearing does not happen.
+Relying on user space scheduling is not acceptable for this
+flag. If presentation is done by a copy to the active
+frontbuffer, then it must guarantee that tearing cannot
+happen.</p>
+
+<p>HW_CLOCK:
+The display hardware provided measurements that the hardware
+driver converted into a presentation timestamp. Sampling a
+clock in user space is not acceptable for this flag.</p>
+
+<p>HW_COMPLETION:
+The display hardware signalled that it started using the new
+image content. The opposite of this is e.g. a timer being used
+to guess when the display hardware has switched to the new
+image content.</p>
+
+<p>ZERO_COPY:
+The presentation of this update was done zero-copy. This means
+the buffer from the client was given to display hardware as
+is, without copying it. Compositing with OpenGL counts as
+copying, even if textured directly from the client buffer.
+Possible zero-copy cases include direct scanout of a
+fullscreen surface and a surface on a hardware overlay.</p>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.Vsync" class="variant small-section-header"><a href="#variant.Vsync" class="anchor field"></a><span id='Vsync.v' class='invisible'><code>Vsync</code></span></span><div class='docblock'><p>presentation was vsync&#39;d</p>
+</div><span id="variant.HwClock" class="variant small-section-header"><a href="#variant.HwClock" class="anchor field"></a><span id='HwClock.v' class='invisible'><code>HwClock</code></span></span><div class='docblock'><p>hardware provided the presentation timestamp</p>
+</div><span id="variant.HwCompletion" class="variant small-section-header"><a href="#variant.HwCompletion" class="anchor field"></a><span id='HwCompletion.v' class='invisible'><code>HwCompletion</code></span></span><div class='docblock'><p>hardware signalled the start of the presentation</p>
+</div><span id="variant.ZeroCopy" class="variant small-section-header"><a href="#variant.ZeroCopy" class="anchor field"></a><span id='ZeroCopy.v' class='invisible'><code>ZeroCopy</code></span></span><div class='docblock'><p>presentation was done zero-copy</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#472-485' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from_raw' class="method"><span id='from_raw.v' class='invisible'><code>pub fn <a href='#method.from_raw' class='fnname'>from_raw</a>(n: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;<a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#473-481' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.to_raw' class="method"><span id='to_raw.v' class='invisible'><code>pub fn <a href='#method.to_raw' class='fnname'>to_raw</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#482-484' title='goto source code'>[src]</a></span></h4>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#461' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#461' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#461' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#461' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#461' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#461' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/enum.Kind.html" title="enum wayland_protocols::presentation_time::client::wp_presentation_feedback::Kind">Kind</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#461' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../main.js"></script>
+    <script defer src="../../../../search-index.js"></script>
+</body>
+</html>

@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/x11-dl-2.2.1/src/xinerama.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/x11-dl-2.17.2/src/xinerama.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>xinerama.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1"> 1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
 <span id="2"> 2</span>
 <span id="3"> 3</span>
 <span id="4"> 4</span>
@@ -107,72 +109,72 @@
 <span id="64">64</span>
 <span id="65">65</span>
 <span id="66">66</span>
-</pre><pre class='rust '>
-<span class='comment'>// x11-rs: Rust bindings for X11 libraries</span>
-<span class='comment'>// The X11 libraries are available under the MIT license.</span>
-<span class='comment'>// These bindings are public domain.</span>
+</pre><pre class="rust ">
+<span class="comment">// x11-rs: Rust bindings for X11 libraries</span>
+<span class="comment">// The X11 libraries are available under the MIT license.</span>
+<span class="comment">// These bindings are public domain.</span>
 
-<span class='kw'>use</span> <span class='ident'>libc</span>::{
-  <span class='ident'>c_int</span>,
-  <span class='ident'>c_short</span>,
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::{
+  <span class="ident">c_int</span>,
+  <span class="ident">c_short</span>,
 };
 
-<span class='kw'>use</span> ::<span class='ident'>xlib</span>::{
-  <span class='ident'>Bool</span>,
-  <span class='ident'>Display</span>,
-  <span class='ident'>Drawable</span>,
-  <span class='ident'>Status</span>,
-  <span class='ident'>Window</span>,
-  <span class='ident'>XID</span>,
+<span class="kw">use</span> ::<span class="ident">xlib</span>::{
+  <span class="ident">Bool</span>,
+  <span class="ident">Display</span>,
+  <span class="ident">Drawable</span>,
+  <span class="ident">Status</span>,
+  <span class="ident">Window</span>,
+  <span class="ident">XID</span>,
 };
 
 
-<span class='comment'>//</span>
-<span class='comment'>// functions</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// functions</span>
+<span class="comment">//</span>
 
 
-<span class='macro'>x11_link</span><span class='macro'>!</span> { <span class='ident'>Xlib</span>, [<span class='string'>&quot;libXinerama.so&quot;</span>, <span class='string'>&quot;libXinerama.so.1&quot;</span>],
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XineramaIsActive</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>) <span class='op'>-&gt;</span> <span class='ident'>Bool</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XineramaQueryExtension</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>event_base</span>: <span class='ident'>c_int</span>, <span class='ident'>error_base</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>Bool</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XineramaQueryScreens</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>number</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XineramaScreenInfo</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XineramaQueryVersion</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>major_versionp</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>minor_versionp</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>Status</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XPanoramiXAllocInfo</span> () <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XPanoramiXInfo</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XPanoramiXGetScreenCount</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>drawable</span>: <span class='ident'>Drawable</span>, <span class='ident'>panoramiX_info</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XPanoramiXInfo</span>) <span class='op'>-&gt;</span> <span class='ident'>Status</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XPanoramiXGetScreenSize</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>drawable</span>: <span class='ident'>Drawable</span>, <span class='ident'>screen_num</span>: <span class='ident'>c_int</span>, <span class='ident'>panoramiX_info</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XPanoramiXInfo</span>) <span class='op'>-&gt;</span> <span class='ident'>Status</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XPanoramiXGetState</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>drawable</span>: <span class='ident'>Drawable</span>, <span class='ident'>panoramiX_info</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XPanoramiXInfo</span>) <span class='op'>-&gt;</span> <span class='ident'>Status</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XPanoramiXQueryExtension</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>event_base_return</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>error_base_return</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>Bool</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XPanoramiXQueryVersion</span> (<span class='ident'>dpy</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>major_version_return</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>minor_version_return</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>Status</span>,
-<span class='ident'>variadic</span>:
-<span class='ident'>globals</span>:
+<span class="macro">x11_link</span><span class="macro">!</span> { <span class="ident">Xlib</span>, <span class="ident">xinerama</span>, [<span class="string">&quot;libXinerama.so.1&quot;</span>, <span class="string">&quot;libXinerama.so&quot;</span>], <span class="number">10</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XineramaIsActive</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>) <span class="op">-&gt;</span> <span class="ident">Bool</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XineramaQueryExtension</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">event_base</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">error_base</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">Bool</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XineramaQueryScreens</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">number</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XineramaScreenInfo</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XineramaQueryVersion</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">major_versionp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">minor_versionp</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">Status</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XPanoramiXAllocInfo</span> () <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XPanoramiXInfo</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XPanoramiXGetScreenCount</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">drawable</span>: <span class="ident">Drawable</span>, <span class="ident">panoramiX_info</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XPanoramiXInfo</span>) <span class="op">-&gt;</span> <span class="ident">Status</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XPanoramiXGetScreenSize</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">drawable</span>: <span class="ident">Drawable</span>, <span class="ident">screen_num</span>: <span class="ident">c_int</span>, <span class="ident">panoramiX_info</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XPanoramiXInfo</span>) <span class="op">-&gt;</span> <span class="ident">Status</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XPanoramiXGetState</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">drawable</span>: <span class="ident">Drawable</span>, <span class="ident">panoramiX_info</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XPanoramiXInfo</span>) <span class="op">-&gt;</span> <span class="ident">Status</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XPanoramiXQueryExtension</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">event_base_return</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">error_base_return</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">Bool</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XPanoramiXQueryVersion</span> (<span class="ident">dpy</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">major_version_return</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">minor_version_return</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">Status</span>,
+<span class="ident">variadic</span>:
+<span class="ident">globals</span>:
 }
 
 
-<span class='comment'>//</span>
-<span class='comment'>// types</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// types</span>
+<span class="comment">//</span>
 
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XineramaScreenInfo</span> {
-  <span class='kw'>pub</span> <span class='ident'>screen_number</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>x_org</span>: <span class='ident'>c_short</span>,
-  <span class='kw'>pub</span> <span class='ident'>y_org</span>: <span class='ident'>c_short</span>,
-  <span class='kw'>pub</span> <span class='ident'>width</span>: <span class='ident'>c_short</span>,
-  <span class='kw'>pub</span> <span class='ident'>height</span>: <span class='ident'>c_short</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XineramaScreenInfo</span> {
+  <span class="kw">pub</span> <span class="ident">screen_number</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">x_org</span>: <span class="ident">c_short</span>,
+  <span class="kw">pub</span> <span class="ident">y_org</span>: <span class="ident">c_short</span>,
+  <span class="kw">pub</span> <span class="ident">width</span>: <span class="ident">c_short</span>,
+  <span class="kw">pub</span> <span class="ident">height</span>: <span class="ident">c_short</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XPanoramiXInfo</span> {
-  <span class='kw'>pub</span> <span class='ident'>window</span>: <span class='ident'>Window</span>,
-  <span class='kw'>pub</span> <span class='ident'>screen</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>State</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>width</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>height</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>ScreenCount</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>eventMask</span>: <span class='ident'>XID</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XPanoramiXInfo</span> {
+  <span class="kw">pub</span> <span class="ident">window</span>: <span class="ident">Window</span>,
+  <span class="kw">pub</span> <span class="ident">screen</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">State</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">width</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">height</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">ScreenCount</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">eventMask</span>: <span class="ident">XID</span>,
 }
 </pre>
 </section>
@@ -192,12 +194,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -218,7 +224,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -229,11 +235,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "x11_dl";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

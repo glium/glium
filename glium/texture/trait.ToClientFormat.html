@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `ToClientFormat` trait in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, ToClientFormat">
+
+    <title>glium::texture::ToClientFormat - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc trait">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Trait ToClientFormat</p><div class="block items"><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.rgb_format">rgb_format</a><a href="#tymethod.rgba_format">rgba_format</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-ToClientFormat">u8</a><a href="#impl-ToClientFormat">i8</a><a href="#impl-ToClientFormat">u16</a><a href="#impl-ToClientFormat">i16</a><a href="#impl-ToClientFormat">u32</a><a href="#impl-ToClientFormat">i32</a><a href="#impl-ToClientFormat">f32</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'ToClientFormat', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a>::<wbr><a class="trait" href=''>ToClientFormat</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/texture/mod.rs.html#403-406' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub trait ToClientFormat {
+    fn <a href='#tymethod.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a>;
+}</pre>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
+            <div class='methods'>
+        <h3 id='tymethod.rgb_format' class='method'><span id='rgb_format.v' class='invisible'><code>fn <a href='#tymethod.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span></h3><h3 id='tymethod.rgba_format' class='method'><span id='rgba_format.v' class='invisible'><code>fn <a href='#tymethod.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span></h3></div>
+                <h2 id='foreign-impls' class='small-section-header'>
+                  Implementations on Foreign Types<a href='#foreign-impls' class='anchor'></a>
+                </h2>
+            <h3 id='impl-ToClientFormat' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/texture/trait.ToClientFormat.html" title="trait glium::texture::ToClientFormat">ToClientFormat</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a></code><a href='#impl-ToClientFormat' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#408-411' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='method.rgb_format' class="method"><span id='rgb_format.v-1' class='invisible'><code>fn <a href='#method.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#409' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.rgba_format' class="method"><span id='rgba_format.v-1' class='invisible'><code>fn <a href='#method.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#410' title='goto source code'>[src]</a></span></h4>
+</div></span><h3 id='impl-ToClientFormat-1' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/texture/trait.ToClientFormat.html" title="trait glium::texture::ToClientFormat">ToClientFormat</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i8.html">i8</a></code><a href='#impl-ToClientFormat-1' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#413-416' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='method.rgb_format-1' class="method"><span id='rgb_format.v-2' class='invisible'><code>fn <a href='#method.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#414' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.rgba_format-1' class="method"><span id='rgba_format.v-2' class='invisible'><code>fn <a href='#method.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#415' title='goto source code'>[src]</a></span></h4>
+</div></span><h3 id='impl-ToClientFormat-2' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/texture/trait.ToClientFormat.html" title="trait glium::texture::ToClientFormat">ToClientFormat</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u16.html">u16</a></code><a href='#impl-ToClientFormat-2' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#418-421' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='method.rgb_format-2' class="method"><span id='rgb_format.v-3' class='invisible'><code>fn <a href='#method.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#419' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.rgba_format-2' class="method"><span id='rgba_format.v-3' class='invisible'><code>fn <a href='#method.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#420' title='goto source code'>[src]</a></span></h4>
+</div></span><h3 id='impl-ToClientFormat-3' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/texture/trait.ToClientFormat.html" title="trait glium::texture::ToClientFormat">ToClientFormat</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i16.html">i16</a></code><a href='#impl-ToClientFormat-3' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#423-426' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='method.rgb_format-3' class="method"><span id='rgb_format.v-4' class='invisible'><code>fn <a href='#method.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#424' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.rgba_format-3' class="method"><span id='rgba_format.v-4' class='invisible'><code>fn <a href='#method.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#425' title='goto source code'>[src]</a></span></h4>
+</div></span><h3 id='impl-ToClientFormat-4' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/texture/trait.ToClientFormat.html" title="trait glium::texture::ToClientFormat">ToClientFormat</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code><a href='#impl-ToClientFormat-4' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#428-431' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='method.rgb_format-4' class="method"><span id='rgb_format.v-5' class='invisible'><code>fn <a href='#method.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#429' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.rgba_format-4' class="method"><span id='rgba_format.v-5' class='invisible'><code>fn <a href='#method.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#430' title='goto source code'>[src]</a></span></h4>
+</div></span><h3 id='impl-ToClientFormat-5' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/texture/trait.ToClientFormat.html" title="trait glium::texture::ToClientFormat">ToClientFormat</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a></code><a href='#impl-ToClientFormat-5' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#433-436' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='method.rgb_format-5' class="method"><span id='rgb_format.v-6' class='invisible'><code>fn <a href='#method.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#434' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.rgba_format-5' class="method"><span id='rgba_format.v-6' class='invisible'><code>fn <a href='#method.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#435' title='goto source code'>[src]</a></span></h4>
+</div></span><h3 id='impl-ToClientFormat-6' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/texture/trait.ToClientFormat.html" title="trait glium::texture::ToClientFormat">ToClientFormat</a> for <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.f32.html">f32</a></code><a href='#impl-ToClientFormat-6' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#438-441' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='method.rgb_format-6' class="method"><span id='rgb_format.v-7' class='invisible'><code>fn <a href='#method.rgb_format' class='fnname'>rgb_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#439' title='goto source code'>[src]</a></span></h4>
+<h4 id='method.rgba_format-6' class="method"><span id='rgba_format.v-7' class='invisible'><code>fn <a href='#method.rgba_format' class='fnname'>rgba_format</a>() -&gt; <a class="enum" href="../../glium/texture/enum.ClientFormat.html" title="enum glium::texture::ClientFormat">ClientFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#440' title='goto source code'>[src]</a></span></h4>
+</div></span>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
+        <ul class='item-list' id='implementors-list'>
+    </ul><script type="text/javascript" async
+                         src="../../implementors/glium/texture/trait.ToClientFormat.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

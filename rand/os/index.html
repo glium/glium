@@ -9,13 +9,15 @@
 
     <title>rand::os - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     <link rel="shortcut icon" href="https://www.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,8 +28,8 @@
     
 
     <nav class="sidebar">
-        <a href='../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='' width='100'></a>
-        <p class='location'><a href='../index.html'>rand</a></p><script>window.sidebarCurrent = {name: 'os', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <a href='../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='logo' width='100'></a>
+        <p class='location'>Module os</p><div class="block items"><ul><li><a href="#structs">Structs</a></li></ul></div><p class='location'><a href='../index.html'>rand</a></p><script>window.sidebarCurrent = {name: 'os', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,26 +43,24 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>rand</a>::<wbr><a class='mod' href=''>os</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1352' class='srclink' href='../../src/rand/os.rs.html#11-450' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>rand</a>::<wbr><a class="mod" href=''>os</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/rand/os.rs.html#11-600' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Interfaces to the operating system provided random number
 generators.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.OsRng.html'
-                               title='rand::os::OsRng'>OsRng</a></td>
-                        <td class='docblock short'>
-                             <p>A random number generator that retrieves randomness straight from
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.OsRng.html"
+                                  title='struct rand::os::OsRng'>OsRng</a></td>
+                           <td class='docblock-short'>
+                                <p>A random number generator that retrieves randomness straight from
 the operating system. Platform sources:</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -77,12 +77,16 @@ the operating system. Platform sources:</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -103,7 +107,7 @@ the operating system. Platform sources:</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -114,11 +118,8 @@ the operating system. Platform sources:</p>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "rand";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

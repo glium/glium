@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Compositor","A wayland compositor."],["Region","Region represent a set of pixel."],["SurfaceId","An opaque unique identifier to a surface, can be tested for equality."],["WSurface","A wayland Surface."]]});

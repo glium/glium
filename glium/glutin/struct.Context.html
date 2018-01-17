@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Context` struct in crate `glium`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Context">
+
+    <title>glium::glutin::Context - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Context</p><div class="block items"><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-GlContext">GlContext</a><a href="#impl-GlContextExt">GlContextExt</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>glutin</a></p><script>window.sidebarCurrent = {name: 'Context', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>glutin</a>::<wbr><a class="struct" href=''>Context</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glutin/lib.rs.html#149-151' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Context { /* fields omitted */ }</pre><div class='docblock'><p>Represents an OpenGL context.</p>
+
+<p>A <code>Context</code> is normally associated with a single Window, however <code>Context</code>s can be <em>shared</em>
+between multiple windows.</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">context</span> <span class="op">=</span> <span class="ident">glutin</span>::<span class="ident">ContextBuilder</span>::<span class="ident">new</span>()
+    .<span class="ident">with_vsync</span>(<span class="bool-val">true</span>)
+    .<span class="ident">with_multisampling</span>(<span class="number">8</span>)
+    .<span class="ident">with_shared_lists</span>(<span class="ident">some_gl_window</span>.<span class="ident">context</span>());</pre>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-GlContext' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/glutin/trait.GlContext.html" title="trait glium::glutin::GlContext">GlContext</a> for <a class="struct" href="../../glium/glutin/struct.Context.html" title="struct glium::glutin::Context">Context</a></code><a href='#impl-GlContext' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#341-369' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.make_current' class="method"><span id='make_current.v' class='invisible'><code>unsafe fn <a href='../../glium/glutin/trait.GlContext.html#tymethod.make_current' class='fnname'>make_current</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="enum" href="../../glium/glutin/enum.ContextError.html" title="enum glium::glutin::ContextError">ContextError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#342-344' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Sets the context as the current context.</p>
+</div><h4 id='method.is_current' class="method"><span id='is_current.v' class='invisible'><code>fn <a href='../../glium/glutin/trait.GlContext.html#tymethod.is_current' class='fnname'>is_current</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#346-348' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns true if this context is the current one in this thread.</p>
+</div><h4 id='method.get_proc_address' class="method"><span id='get_proc_address.v' class='invisible'><code>fn <a href='../../glium/glutin/trait.GlContext.html#tymethod.get_proc_address' class='fnname'>get_proc_address</a>(&amp;self, addr: &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#350-352' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the address of an OpenGL function.</p>
+</div><h4 id='method.swap_buffers' class="method"><span id='swap_buffers.v' class='invisible'><code>fn <a href='../../glium/glutin/trait.GlContext.html#tymethod.swap_buffers' class='fnname'>swap_buffers</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="enum" href="../../glium/glutin/enum.ContextError.html" title="enum glium::glutin::ContextError">ContextError</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#354-356' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Swaps the buffers in case of double or triple buffering. <a href="../../glium/glutin/trait.GlContext.html#tymethod.swap_buffers">Read more</a></p>
+</div><h4 id='method.get_api' class="method"><span id='get_api.v' class='invisible'><code>fn <a href='../../glium/glutin/trait.GlContext.html#tymethod.get_api' class='fnname'>get_api</a>(&amp;self) -&gt; <a class="enum" href="../../glium/glutin/enum.Api.html" title="enum glium::glutin::Api">Api</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#358-360' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the OpenGL API being used.</p>
+</div><h4 id='method.get_pixel_format' class="method"><span id='get_pixel_format.v' class='invisible'><code>fn <a href='../../glium/glutin/trait.GlContext.html#tymethod.get_pixel_format' class='fnname'>get_pixel_format</a>(&amp;self) -&gt; <a class="struct" href="../../glium/glutin/struct.PixelFormat.html" title="struct glium::glutin::PixelFormat">PixelFormat</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#362-364' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the pixel format of the main framebuffer of the context.</p>
+</div><h4 id='method.resize' class="method"><span id='resize.v' class='invisible'><code>fn <a href='../../glium/glutin/trait.GlContext.html#tymethod.resize' class='fnname'>resize</a>(&amp;self, width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/lib.rs.html#366-368' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Resize the GL context. <a href="../../glium/glutin/trait.GlContext.html#tymethod.resize">Read more</a></p>
+</div></div><h3 id='impl-GlContextExt' class='impl'><span class='in-band'><code>impl <a class="trait" href="../../glium/glutin/os/trait.GlContextExt.html" title="trait glium::glutin::os::GlContextExt">GlContextExt</a> for <a class="struct" href="../../glium/glutin/struct.Context.html" title="struct glium::glutin::Context">Context</a></code><a href='#impl-GlContextExt' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/os/unix.rs.html#18-25' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Handle' class="type"><span id='Handle.t' class='invisible'><code>type <a href='../../glium/glutin/os/trait.GlContextExt.html#associatedtype.Handle' class="type">Handle</a> = <a class="enum" href="../../glium/glutin/os/unix/enum.RawHandle.html" title="enum glium::glutin::os::unix::RawHandle">RawHandle</a></code></span></h4>
+<div class='docblock'><p>Raw context handle.</p>
+</div><h4 id='method.raw_handle' class="method"><span id='raw_handle.v' class='invisible'><code>unsafe fn <a href='../../glium/glutin/os/trait.GlContextExt.html#tymethod.raw_handle' class='fnname'>raw_handle</a>(&amp;self) -&gt; &lt;<a class="struct" href="../../glium/glutin/struct.Context.html" title="struct glium::glutin::Context">Context</a> as <a class="trait" href="../../glium/glutin/os/trait.GlContextExt.html" title="trait glium::glutin::os::GlContextExt">GlContextExt</a>&gt;::<a class="type" href="../../glium/glutin/os/trait.GlContextExt.html#associatedtype.Handle" title="type glium::glutin::os::GlContextExt::Handle">Handle</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glutin/os/unix.rs.html#22-24' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns the raw context handle.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "glium";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

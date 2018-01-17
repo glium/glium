@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["MagnifySamplerFilter","The function that the GPU will use when loading the value of a texel."],["MinifySamplerFilter","The function that the GPU will use when loading the value of a texel."],["SamplerWrapFunction","Function to use for out-of-bounds samples."]],"struct":[["Sampler","A sampler."],["SamplerBehavior","Behavior of a sampler."]]});

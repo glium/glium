@@ -9,13 +9,15 @@
 
     <title>x11_dl::xlib::XStandardColormap - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a></p><script>window.sidebarCurrent = {name: 'XStandardColormap', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct XStandardColormap</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.colormap">colormap</a><a href="#structfield.red_max">red_max</a><a href="#structfield.red_mult">red_mult</a><a href="#structfield.green_max">green_max</a><a href="#structfield.green_mult">green_mult</a><a href="#structfield.blue_max">blue_max</a><a href="#structfield.blue_mult">blue_mult</a><a href="#structfield.base_pixel">base_pixel</a><a href="#structfield.visualid">visualid</a><a href="#structfield.killid">killid</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Debug">Debug</a><a href="#impl-Clone">Clone</a><a href="#impl-Copy">Copy</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a></p><script>window.sidebarCurrent = {name: 'XStandardColormap', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,39 +43,84 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a>::<wbr><a class='struct' href=''>XStandardColormap</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-14327' class='srclink' href='../../src/x11_dl/xlib.rs.html#2307-2318' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct XStandardColormap {
-    pub colormap: <a class='type' href='../../x11_dl/xlib/type.Colormap.html' title='x11_dl::xlib::Colormap'>Colormap</a>,
-    pub red_max: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub red_mult: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub green_max: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub green_mult: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub blue_max: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub blue_mult: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub base_pixel: <a class='type' href='../../libc/types/os/arch/c95/type.c_ulong.html' title='libc::types::os::arch::c95::c_ulong'>c_ulong</a>,
-    pub visualid: <a class='type' href='../../x11_dl/xlib/type.VisualID.html' title='x11_dl::xlib::VisualID'>VisualID</a>,
-    pub killid: <a class='type' href='../../x11_dl/xlib/type.XID.html' title='x11_dl::xlib::XID'>XID</a>,
-}</pre><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.colormap'><code>colormap</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.red_max'><code>red_max</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.red_mult'><code>red_mult</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.green_max'><code>green_max</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.green_mult'><code>green_mult</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.blue_max'><code>blue_max</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.blue_mult'><code>blue_mult</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.base_pixel'><code>base_pixel</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.visualid'><code>visualid</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.killid'><code>killid</code></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='struct' href='../../x11_dl/xlib/struct.XStandardColormap.html' title='x11_dl::xlib::XStandardColormap'>XStandardColormap</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../x11_dl/xlib/struct.XStandardColormap.html' title='x11_dl::xlib::XStandardColormap'>XStandardColormap</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='struct' href='../../x11_dl/xlib/struct.XStandardColormap.html' title='x11_dl::xlib::XStandardColormap'>XStandardColormap</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../../x11_dl/xlib/struct.XStandardColormap.html' title='x11_dl::xlib::XStandardColormap'>XStandardColormap</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../x11_dl/xlib/struct.XStandardColormap.html' title='x11_dl::xlib::XStandardColormap'>XStandardColormap</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../x11_dl/xlib/struct.XStandardColormap.html' title='x11_dl::xlib::XStandardColormap'>XStandardColormap</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>x11_dl</a>::<wbr><a href='index.html'>xlib</a>::<wbr><a class="struct" href=''>XStandardColormap</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2360-2371' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C)]
+</div>pub struct XStandardColormap {
+    pub colormap: <a class="type" href="../../x11_dl/xlib/type.Colormap.html" title="type x11_dl::xlib::Colormap">Colormap</a>,
+    pub red_max: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub red_mult: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub green_max: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub green_mult: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub blue_max: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub blue_mult: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub base_pixel: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a>,
+    pub visualid: <a class="type" href="../../x11_dl/xlib/type.VisualID.html" title="type x11_dl::xlib::VisualID">VisualID</a>,
+    pub killid: <a class="type" href="../../x11_dl/xlib/type.XID.html" title="type x11_dl::xlib::XID">XID</a>,
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.colormap" class="structfield small-section-header">
+                           <a href="#structfield.colormap" class="anchor field"></a>
+                           <span id="colormap.v" class='invisible'>
+                           <code>colormap: <a class="type" href="../../x11_dl/xlib/type.Colormap.html" title="type x11_dl::xlib::Colormap">Colormap</a></code>
+                           </span></span><span id="structfield.red_max" class="structfield small-section-header">
+                           <a href="#structfield.red_max" class="anchor field"></a>
+                           <span id="red_max.v" class='invisible'>
+                           <code>red_max: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.red_mult" class="structfield small-section-header">
+                           <a href="#structfield.red_mult" class="anchor field"></a>
+                           <span id="red_mult.v" class='invisible'>
+                           <code>red_mult: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.green_max" class="structfield small-section-header">
+                           <a href="#structfield.green_max" class="anchor field"></a>
+                           <span id="green_max.v" class='invisible'>
+                           <code>green_max: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.green_mult" class="structfield small-section-header">
+                           <a href="#structfield.green_mult" class="anchor field"></a>
+                           <span id="green_mult.v" class='invisible'>
+                           <code>green_mult: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.blue_max" class="structfield small-section-header">
+                           <a href="#structfield.blue_max" class="anchor field"></a>
+                           <span id="blue_max.v" class='invisible'>
+                           <code>blue_max: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.blue_mult" class="structfield small-section-header">
+                           <a href="#structfield.blue_mult" class="anchor field"></a>
+                           <span id="blue_mult.v" class='invisible'>
+                           <code>blue_mult: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.base_pixel" class="structfield small-section-header">
+                           <a href="#structfield.base_pixel" class="anchor field"></a>
+                           <span id="base_pixel.v" class='invisible'>
+                           <code>base_pixel: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_ulong.html" title="type std::os::raw::c_ulong">c_ulong</a></code>
+                           </span></span><span id="structfield.visualid" class="structfield small-section-header">
+                           <a href="#structfield.visualid" class="anchor field"></a>
+                           <span id="visualid.v" class='invisible'>
+                           <code>visualid: <a class="type" href="../../x11_dl/xlib/type.VisualID.html" title="type x11_dl::xlib::VisualID">VisualID</a></code>
+                           </span></span><span id="structfield.killid" class="structfield small-section-header">
+                           <a href="#structfield.killid" class="anchor field"></a>
+                           <span id="killid.v" class='invisible'>
+                           <code>killid: <a class="type" href="../../x11_dl/xlib/type.XID.html" title="type x11_dl::xlib::XID">XID</a></code>
+                           </span></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="struct" href="../../x11_dl/xlib/struct.XStandardColormap.html" title="struct x11_dl::xlib::XStandardColormap">XStandardColormap</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../x11_dl/xlib/struct.XStandardColormap.html" title="struct x11_dl::xlib::XStandardColormap">XStandardColormap</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../x11_dl/xlib/struct.XStandardColormap.html" title="struct x11_dl::xlib::XStandardColormap">XStandardColormap</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../x11_dl/xlib/struct.XStandardColormap.html" title="struct x11_dl::xlib::XStandardColormap">XStandardColormap</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../x11_dl/xlib/struct.XStandardColormap.html" title="struct x11_dl::xlib::XStandardColormap">XStandardColormap</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../x11_dl/xlib/struct.XStandardColormap.html" title="struct x11_dl::xlib::XStandardColormap">XStandardColormap</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class="struct" href="../../x11_dl/xlib/struct.XStandardColormap.html" title="struct x11_dl::xlib::XStandardColormap">XStandardColormap</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/x11_dl/xlib.rs.html#2358' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -90,12 +137,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -116,7 +167,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -127,11 +178,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "x11_dl";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `zwp_fullscreen_shell_v1` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, zwp_fullscreen_shell_v1">
+
+    <title>wayland_protocols::unstable::fullscreen_shell::v1::client::zwp_fullscreen_shell_v1 - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module zwp_fullscreen_shell_v1</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><p class='location'><a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>fullscreen_shell</a>::<wbr><a href='../../index.html'>v1</a>::<wbr><a href='../index.html'>client</a></p><script>window.sidebarCurrent = {name: 'zwp_fullscreen_shell_v1', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>fullscreen_shell</a>::<wbr><a href='../../index.html'>v1</a>::<wbr><a href='../index.html'>client</a>::<wbr><a class="mod" href=''>zwp_fullscreen_shell_v1</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/fullscreen-shell-v1_client_api.rs.html#5-381' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>displays a single surface per output</p>
+
+<p>Displays a single surface per output.</p>
+
+<p>This interface provides a mechanism for a single client to display
+simple full-screen surfaces.  While there technically may be multiple
+clients bound to this interface, only one of those clients should be
+shown at a time.</p>
+
+<p>To present a surface, the client uses either the present_surface or
+present_surface_for_mode requests.  Presenting a surface takes effect
+on the next wl_surface.commit.  See the individual requests for
+details about scaling and mode switches.</p>
+
+<p>The client can have at most one surface per output at any time.
+Requesting a surface to be presented on an output that already has a
+surface replaces the previously presented surface.  Presenting a null
+surface removes its content and effectively disables the output.
+Exactly what happens when an output is &quot;disabled&quot; is
+compositor-specific.  The same surface may be presented on multiple
+outputs simultaneously.</p>
+
+<p>Once a surface is presented on an output, it stays on that output
+until either the client removes it or the compositor destroys the
+output.  This way, the client can update the output&#39;s contents by
+simply attaching a new buffer.</p>
+
+<p>Warning! The protocol described in this file is experimental and
+backward incompatible changes may be made. Backward compatible changes
+may be added together with the corresponding interface version bump.
+Backward incompatible changes are done by bumping the version number in
+the protocol and interface names and resetting the interface version.
+Once the protocol is to be declared stable, the &#39;z&#39; prefix and the
+version number in the protocol and interface names are removed and the
+interface version number is reset.</p>
+</div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.Implementation.html"
+                                  title='struct wayland_protocols::unstable::fullscreen_shell::v1::client::zwp_fullscreen_shell_v1::Implementation'>Implementation</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ZwpFullscreenShellV1.html"
+                                  title='struct wayland_protocols::unstable::fullscreen_shell::v1::client::zwp_fullscreen_shell_v1::ZwpFullscreenShellV1'>ZwpFullscreenShellV1</a></td>
+                           <td class='docblock-short'>
+                                
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Capability.html"
+                                  title='enum wayland_protocols::unstable::fullscreen_shell::v1::client::zwp_fullscreen_shell_v1::Capability'>Capability</a></td>
+                           <td class='docblock-short'>
+                                <p>capabilities advertised by the compositor</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Error.html"
+                                  title='enum wayland_protocols::unstable::fullscreen_shell::v1::client::zwp_fullscreen_shell_v1::Error'>Error</a></td>
+                           <td class='docblock-short'>
+                                <p>wl_fullscreen_shell error values</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.PresentMethod.html"
+                                  title='enum wayland_protocols::unstable::fullscreen_shell::v1::client::zwp_fullscreen_shell_v1::PresentMethod'>PresentMethod</a></td>
+                           <td class='docblock-short'>
+                                <p>different method to set the surface fullscreen</p>
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../../../main.js"></script>
+    <script defer src="../../../../../../search-index.js"></script>
+</body>
+</html>

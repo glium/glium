@@ -9,13 +9,15 @@
 
     <title>blend.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -368,333 +370,333 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>CommandContext</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Api</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Version</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">CommandContext</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Api</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
 
-<span class='kw'>use</span> <span class='ident'>DrawError</span>;
-<span class='kw'>use</span> <span class='ident'>gl</span>;
+<span class="kw">use</span> <span class="ident">DrawError</span>;
+<span class="kw">use</span> <span class="ident">gl</span>;
 
-<span class='doccomment'>/// Blend effect that the GPU will use for blending.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// Blending happens at the end of the rendering process, when the GPU wants to write the</span>
-<span class='doccomment'>/// pixels over pixels that already exist in the framebuffer. The blending function allows</span>
-<span class='doccomment'>/// you to choose how it should merge the two.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// If you want to add transparent objects one over another, use</span>
-<span class='doccomment'>/// `Blend::alpha_blending()`.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Blend</span> {
-    <span class='doccomment'>/// The blending function for color channels.</span>
-    <span class='kw'>pub</span> <span class='ident'>color</span>: <span class='ident'>BlendingFunction</span>,
-    <span class='doccomment'>/// The blending function for alpha channels.</span>
-    <span class='kw'>pub</span> <span class='ident'>alpha</span>: <span class='ident'>BlendingFunction</span>,
-    <span class='doccomment'>/// A constant color that can be used in the blending functions.</span>
-    <span class='kw'>pub</span> <span class='ident'>constant_value</span>: (<span class='ident'>f32</span>, <span class='ident'>f32</span>, <span class='ident'>f32</span>, <span class='ident'>f32</span>),
+<span class="doccomment">/// Blend effect that the GPU will use for blending.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// Blending happens at the end of the rendering process, when the GPU wants to write the</span>
+<span class="doccomment">/// pixels over pixels that already exist in the framebuffer. The blending function allows</span>
+<span class="doccomment">/// you to choose how it should merge the two.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// If you want to add transparent objects one over another, use</span>
+<span class="doccomment">/// `Blend::alpha_blending()`.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Blend</span> {
+    <span class="doccomment">/// The blending function for color channels.</span>
+    <span class="kw">pub</span> <span class="ident">color</span>: <span class="ident">BlendingFunction</span>,
+    <span class="doccomment">/// The blending function for alpha channels.</span>
+    <span class="kw">pub</span> <span class="ident">alpha</span>: <span class="ident">BlendingFunction</span>,
+    <span class="doccomment">/// A constant color that can be used in the blending functions.</span>
+    <span class="kw">pub</span> <span class="ident">constant_value</span>: (<span class="ident">f32</span>, <span class="ident">f32</span>, <span class="ident">f32</span>, <span class="ident">f32</span>),
 }
 
-<span class='kw'>impl</span> <span class='ident'>Blend</span> {
-    <span class='doccomment'>/// Returns a blend effect to add transparent objects over others.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>alpha_blending</span>() <span class='op'>-&gt;</span> <span class='ident'>Blend</span> {
-        <span class='ident'>Blend</span> {
-            <span class='ident'>color</span>: <span class='ident'>BlendingFunction</span>::<span class='ident'>Addition</span> {
-                <span class='ident'>source</span>: <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>SourceAlpha</span>,
-                <span class='ident'>destination</span>: <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusSourceAlpha</span>,
+<span class="kw">impl</span> <span class="ident">Blend</span> {
+    <span class="doccomment">/// Returns a blend effect to add transparent objects over others.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">alpha_blending</span>() <span class="op">-&gt;</span> <span class="ident">Blend</span> {
+        <span class="ident">Blend</span> {
+            <span class="ident">color</span>: <span class="ident">BlendingFunction</span>::<span class="ident">Addition</span> {
+                <span class="ident">source</span>: <span class="ident">LinearBlendingFactor</span>::<span class="ident">SourceAlpha</span>,
+                <span class="ident">destination</span>: <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusSourceAlpha</span>,
             },
-            <span class='ident'>alpha</span>: <span class='ident'>BlendingFunction</span>::<span class='ident'>Addition</span> {
-                <span class='ident'>source</span>: <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>SourceAlpha</span>,
-                <span class='ident'>destination</span>: <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusSourceAlpha</span>
+            <span class="ident">alpha</span>: <span class="ident">BlendingFunction</span>::<span class="ident">Addition</span> {
+                <span class="ident">source</span>: <span class="ident">LinearBlendingFactor</span>::<span class="ident">SourceAlpha</span>,
+                <span class="ident">destination</span>: <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusSourceAlpha</span>
             },
-            <span class='ident'>constant_value</span>: (<span class='number'>0.0</span>, <span class='number'>0.0</span>, <span class='number'>0.0</span>, <span class='number'>0.0</span>)
+            <span class="ident">constant_value</span>: (<span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>, <span class="number">0.0</span>)
         }
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>Blend</span> {
-    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='ident'>Blend</span> {
-        <span class='ident'>Blend</span> {
-            <span class='ident'>color</span>: <span class='ident'>BlendingFunction</span>::<span class='ident'>AlwaysReplace</span>,
-            <span class='ident'>alpha</span>: <span class='ident'>BlendingFunction</span>::<span class='ident'>AlwaysReplace</span>,
-            <span class='ident'>constant_value</span>: (<span class='number'>1.0</span>, <span class='number'>1.0</span>, <span class='number'>1.0</span>, <span class='number'>1.0</span>),
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Blend</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">Blend</span> {
+        <span class="ident">Blend</span> {
+            <span class="ident">color</span>: <span class="ident">BlendingFunction</span>::<span class="ident">AlwaysReplace</span>,
+            <span class="ident">alpha</span>: <span class="ident">BlendingFunction</span>::<span class="ident">AlwaysReplace</span>,
+            <span class="ident">constant_value</span>: (<span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>, <span class="number">1.0</span>),
         }
     }
 }
 
-<span class='doccomment'>/// Function that the GPU will use for blending.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Debug</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>BlendingFunction</span> {
-    <span class='doccomment'>/// Simply overwrite the destination pixel with the source pixel.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The alpha channels are simply ignored. This is the default mode.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will</span>
-    <span class='doccomment'>/// result in `(0.5, 0.9, 0.4, 0.2)`.</span>
-    <span class='ident'>AlwaysReplace</span>,
+<span class="doccomment">/// Function that the GPU will use for blending.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">BlendingFunction</span> {
+    <span class="doccomment">/// Simply overwrite the destination pixel with the source pixel.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The alpha channels are simply ignored. This is the default mode.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will</span>
+    <span class="doccomment">/// result in `(0.5, 0.9, 0.4, 0.2)`.</span>
+    <span class="ident">AlwaysReplace</span>,
 
-    <span class='doccomment'>/// For each individual component (red, green, blue, and alpha), the minimum value is chosen</span>
-    <span class='doccomment'>/// between the source and the destination.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will</span>
-    <span class='doccomment'>/// result in `(0.5, 0.1, 0.4, 0.2)`.</span>
-    <span class='ident'>Min</span>,
+    <span class="doccomment">/// For each individual component (red, green, blue, and alpha), the minimum value is chosen</span>
+    <span class="doccomment">/// between the source and the destination.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will</span>
+    <span class="doccomment">/// result in `(0.5, 0.1, 0.4, 0.2)`.</span>
+    <span class="ident">Min</span>,
 
-    <span class='doccomment'>/// For each individual component (red, green, blue, and alpha), the maximum value is chosen</span>
-    <span class='doccomment'>/// between the source and the destination.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will</span>
-    <span class='doccomment'>/// result in `(0.9, 0.9, 0.4, 0.3)`.</span>
-    <span class='ident'>Max</span>,
+    <span class="doccomment">/// For each individual component (red, green, blue, and alpha), the maximum value is chosen</span>
+    <span class="doccomment">/// between the source and the destination.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// For example writing `(0.5, 0.9, 0.4, 0.2)` over `(0.9, 0.1, 0.4, 0.3)` will</span>
+    <span class="doccomment">/// result in `(0.9, 0.9, 0.4, 0.3)`.</span>
+    <span class="ident">Max</span>,
 
-    <span class='doccomment'>/// For each individual component (red, green, blue, and alpha), a weighted addition</span>
-    <span class='doccomment'>/// between the source and the destination.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The result is equal to `source_component * source_factor + dest_component * dest_factor`,</span>
-    <span class='doccomment'>/// where `source_factor` and `dest_factor` are the values of `source` and `destination` of</span>
-    <span class='doccomment'>/// this enum.</span>
-    <span class='ident'>Addition</span> {
-        <span class='doccomment'>/// The factor to apply to the source pixel.</span>
-        <span class='ident'>source</span>: <span class='ident'>LinearBlendingFactor</span>,
+    <span class="doccomment">/// For each individual component (red, green, blue, and alpha), a weighted addition</span>
+    <span class="doccomment">/// between the source and the destination.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The result is equal to `source_component * source_factor + dest_component * dest_factor`,</span>
+    <span class="doccomment">/// where `source_factor` and `dest_factor` are the values of `source` and `destination` of</span>
+    <span class="doccomment">/// this enum.</span>
+    <span class="ident">Addition</span> {
+        <span class="doccomment">/// The factor to apply to the source pixel.</span>
+        <span class="ident">source</span>: <span class="ident">LinearBlendingFactor</span>,
 
-        <span class='doccomment'>/// The factor to apply to the destination pixel.</span>
-        <span class='ident'>destination</span>: <span class='ident'>LinearBlendingFactor</span>,
+        <span class="doccomment">/// The factor to apply to the destination pixel.</span>
+        <span class="ident">destination</span>: <span class="ident">LinearBlendingFactor</span>,
     },
 
-    <span class='doccomment'>/// For each individual component (red, green, blue, and alpha), a weighted substraction</span>
-    <span class='doccomment'>/// of the source by the destination.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The result is equal to `source_component * source_factor - dest_component * dest_factor`,</span>
-    <span class='doccomment'>/// where `source_factor` and `dest_factor` are the values of `source` and `destination` of</span>
-    <span class='doccomment'>/// this enum.</span>
-    <span class='ident'>Subtraction</span> {
-        <span class='doccomment'>/// The factor to apply to the source pixel.</span>
-        <span class='ident'>source</span>: <span class='ident'>LinearBlendingFactor</span>,
+    <span class="doccomment">/// For each individual component (red, green, blue, and alpha), a weighted subtraction</span>
+    <span class="doccomment">/// of the source by the destination.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The result is equal to `source_component * source_factor - dest_component * dest_factor`,</span>
+    <span class="doccomment">/// where `source_factor` and `dest_factor` are the values of `source` and `destination` of</span>
+    <span class="doccomment">/// this enum.</span>
+    <span class="ident">Subtraction</span> {
+        <span class="doccomment">/// The factor to apply to the source pixel.</span>
+        <span class="ident">source</span>: <span class="ident">LinearBlendingFactor</span>,
 
-        <span class='doccomment'>/// The factor to apply to the destination pixel.</span>
-        <span class='ident'>destination</span>: <span class='ident'>LinearBlendingFactor</span>,
+        <span class="doccomment">/// The factor to apply to the destination pixel.</span>
+        <span class="ident">destination</span>: <span class="ident">LinearBlendingFactor</span>,
     },
 
-    <span class='doccomment'>/// For each individual component (red, green, blue, and alpha), a weighted substraction</span>
-    <span class='doccomment'>/// of the destination by the source.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The result is equal to `-source_component * source_factor + dest_component * dest_factor`,</span>
-    <span class='doccomment'>/// where `source_factor` and `dest_factor` are the values of `source` and `destination` of</span>
-    <span class='doccomment'>/// this enum.</span>
-    <span class='ident'>ReverseSubtraction</span> {
-        <span class='doccomment'>/// The factor to apply to the source pixel.</span>
-        <span class='ident'>source</span>: <span class='ident'>LinearBlendingFactor</span>,
+    <span class="doccomment">/// For each individual component (red, green, blue, and alpha), a weighted subtraction</span>
+    <span class="doccomment">/// of the destination by the source.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The result is equal to `-source_component * source_factor + dest_component * dest_factor`,</span>
+    <span class="doccomment">/// where `source_factor` and `dest_factor` are the values of `source` and `destination` of</span>
+    <span class="doccomment">/// this enum.</span>
+    <span class="ident">ReverseSubtraction</span> {
+        <span class="doccomment">/// The factor to apply to the source pixel.</span>
+        <span class="ident">source</span>: <span class="ident">LinearBlendingFactor</span>,
 
-        <span class='doccomment'>/// The factor to apply to the destination pixel.</span>
-        <span class='ident'>destination</span>: <span class='ident'>LinearBlendingFactor</span>,
+        <span class="doccomment">/// The factor to apply to the destination pixel.</span>
+        <span class="ident">destination</span>: <span class="ident">LinearBlendingFactor</span>,
     },
 }
 
-<span class='doccomment'>/// Indicates which value to multiply each component with.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>Debug</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>LinearBlendingFactor</span> {
-    <span class='doccomment'>/// Multiply the source or destination component by zero, which always</span>
-    <span class='doccomment'>/// gives `0.0`.</span>
-    <span class='ident'>Zero</span>,
+<span class="doccomment">/// Indicates which value to multiply each component with.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">LinearBlendingFactor</span> {
+    <span class="doccomment">/// Multiply the source or destination component by zero, which always</span>
+    <span class="doccomment">/// gives `0.0`.</span>
+    <span class="ident">Zero</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by one, which always</span>
-    <span class='doccomment'>/// gives you the original value.</span>
-    <span class='ident'>One</span>,
+    <span class="doccomment">/// Multiply the source or destination component by one, which always</span>
+    <span class="doccomment">/// gives you the original value.</span>
+    <span class="ident">One</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by its corresponding value</span>
-    <span class='doccomment'>/// in the source.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If you apply this to the source components, you get the values squared.</span>
-    <span class='ident'>SourceColor</span>,
+    <span class="doccomment">/// Multiply the source or destination component by its corresponding value</span>
+    <span class="doccomment">/// in the source.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If you apply this to the source components, you get the values squared.</span>
+    <span class="ident">SourceColor</span>,
 
-    <span class='doccomment'>/// Equivalent to `1 - SourceColor`.</span>
-    <span class='ident'>OneMinusSourceColor</span>,
+    <span class="doccomment">/// Equivalent to `1 - SourceColor`.</span>
+    <span class="ident">OneMinusSourceColor</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by its corresponding value</span>
-    <span class='doccomment'>/// in the destination.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If you apply this to the destination components, you get the values squared.</span>
-    <span class='ident'>DestinationColor</span>,
+    <span class="doccomment">/// Multiply the source or destination component by its corresponding value</span>
+    <span class="doccomment">/// in the destination.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If you apply this to the destination components, you get the values squared.</span>
+    <span class="ident">DestinationColor</span>,
 
-    <span class='doccomment'>/// Equivalent to `1 - DestinationColor`.</span>
-    <span class='ident'>OneMinusDestinationColor</span>,
+    <span class="doccomment">/// Equivalent to `1 - DestinationColor`.</span>
+    <span class="ident">OneMinusDestinationColor</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by the alpha value of the source.</span>
-    <span class='ident'>SourceAlpha</span>,
+    <span class="doccomment">/// Multiply the source or destination component by the alpha value of the source.</span>
+    <span class="ident">SourceAlpha</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by the smallest value of</span>
-    <span class='doccomment'>/// `SourceAlpha` and `1 - DestinationAlpha`.</span>
-    <span class='ident'>SourceAlphaSaturate</span>,
+    <span class="doccomment">/// Multiply the source or destination component by the smallest value of</span>
+    <span class="doccomment">/// `SourceAlpha` and `1 - DestinationAlpha`.</span>
+    <span class="ident">SourceAlphaSaturate</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by `1.0` minus the alpha value of the source.</span>
-    <span class='ident'>OneMinusSourceAlpha</span>,
+    <span class="doccomment">/// Multiply the source or destination component by `1.0` minus the alpha value of the source.</span>
+    <span class="ident">OneMinusSourceAlpha</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by the alpha value of the destination.</span>
-    <span class='ident'>DestinationAlpha</span>,
+    <span class="doccomment">/// Multiply the source or destination component by the alpha value of the destination.</span>
+    <span class="ident">DestinationAlpha</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by `1.0` minus the alpha value of the</span>
-    <span class='doccomment'>/// destination.</span>
-    <span class='ident'>OneMinusDestinationAlpha</span>,
+    <span class="doccomment">/// Multiply the source or destination component by `1.0` minus the alpha value of the</span>
+    <span class="doccomment">/// destination.</span>
+    <span class="ident">OneMinusDestinationAlpha</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by the corresponding value</span>
-    <span class='doccomment'>/// in `Blend::const_value`.</span>
-    <span class='ident'>ConstantColor</span>,
+    <span class="doccomment">/// Multiply the source or destination component by the corresponding value</span>
+    <span class="doccomment">/// in `Blend::const_value`.</span>
+    <span class="ident">ConstantColor</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination compoent by `1.0` minus the corresponding</span>
-    <span class='doccomment'>/// value in `Blend::const_value`.</span>
-    <span class='ident'>OneMinusConstantColor</span>,
+    <span class="doccomment">/// Multiply the source or destination component by `1.0` minus the corresponding</span>
+    <span class="doccomment">/// value in `Blend::const_value`.</span>
+    <span class="ident">OneMinusConstantColor</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination component by the alpha value of `Blend::const_value`.</span>
-    <span class='ident'>ConstantAlpha</span>,
+    <span class="doccomment">/// Multiply the source or destination component by the alpha value of `Blend::const_value`.</span>
+    <span class="ident">ConstantAlpha</span>,
 
-    <span class='doccomment'>/// Multiply the source or destination componet by `1.0` minus the alpha value of</span>
-    <span class='doccomment'>/// `Blend::const_value`.</span>
-    <span class='ident'>OneMinusConstantAlpha</span>,
+    <span class="doccomment">/// Multiply the source or destination component by `1.0` minus the alpha value of</span>
+    <span class="doccomment">/// `Blend::const_value`.</span>
+    <span class="ident">OneMinusConstantAlpha</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>LinearBlendingFactor</span> {
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='kw'>match</span> <span class='op'>*</span><span class='self'>self</span> {
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>Zero</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ZERO</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>One</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ONE</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>SourceColor</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>SRC_COLOR</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusSourceColor</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ONE_MINUS_SRC_COLOR</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>DestinationColor</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>DST_COLOR</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusDestinationColor</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ONE_MINUS_DST_COLOR</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>SourceAlpha</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>SRC_ALPHA</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusSourceAlpha</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ONE_MINUS_SRC_ALPHA</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>DestinationAlpha</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>DST_ALPHA</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusDestinationAlpha</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ONE_MINUS_DST_ALPHA</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>SourceAlphaSaturate</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>SRC_ALPHA_SATURATE</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantColor</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>CONSTANT_COLOR</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantColor</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ONE_MINUS_CONSTANT_COLOR</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantAlpha</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>CONSTANT_ALPHA</span>,
-            <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantAlpha</span> <span class='op'>=&gt;</span> <span class='ident'>gl</span>::<span class='ident'>ONE_MINUS_CONSTANT_ALPHA</span>,
+<span class="kw">impl</span> <span class="ident">LinearBlendingFactor</span> {
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw">match</span> <span class="kw-2">*</span><span class="self">self</span> {
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">Zero</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ZERO</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">One</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ONE</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">SourceColor</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">SRC_COLOR</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusSourceColor</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ONE_MINUS_SRC_COLOR</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">DestinationColor</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">DST_COLOR</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusDestinationColor</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ONE_MINUS_DST_COLOR</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">SourceAlpha</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">SRC_ALPHA</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusSourceAlpha</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ONE_MINUS_SRC_ALPHA</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">DestinationAlpha</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">DST_ALPHA</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusDestinationAlpha</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ONE_MINUS_DST_ALPHA</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">SourceAlphaSaturate</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">SRC_ALPHA_SATURATE</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantColor</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">CONSTANT_COLOR</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantColor</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ONE_MINUS_CONSTANT_COLOR</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantAlpha</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">CONSTANT_ALPHA</span>,
+            <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantAlpha</span> <span class="op">=&gt;</span> <span class="ident">gl</span>::<span class="ident">ONE_MINUS_CONSTANT_ALPHA</span>,
         }
     }
 }
 
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sync_blending</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>blend</span>: <span class='ident'>Blend</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>DrawError</span><span class='op'>&gt;</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>blend_eq</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>blending_function</span>: <span class='ident'>BlendingFunction</span>)
-                <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span>, <span class='ident'>DrawError</span><span class='op'>&gt;</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sync_blending</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">blend</span>: <span class="ident">Blend</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">DrawError</span><span class="op">&gt;</span> {
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">blend_eq</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">blending_function</span>: <span class="ident">BlendingFunction</span>)
+                <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span>, <span class="ident">DrawError</span><span class="op">&gt;</span>
     {
-        <span class='kw'>match</span> <span class='ident'>blending_function</span> {
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>AlwaysReplace</span> <span class='op'>|</span>
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Addition</span> { .. } <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>gl</span>::<span class='ident'>FUNC_ADD</span>),
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Subtraction</span> { .. } <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>gl</span>::<span class='ident'>FUNC_SUBTRACT</span>),
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>ReverseSubtraction</span> { .. } <span class='op'>=&gt;</span> <span class='prelude-val'>Ok</span>(<span class='ident'>gl</span>::<span class='ident'>FUNC_REVERSE_SUBTRACT</span>),
+        <span class="kw">match</span> <span class="ident">blending_function</span> {
+            <span class="ident">BlendingFunction</span>::<span class="ident">AlwaysReplace</span> <span class="op">|</span>
+            <span class="ident">BlendingFunction</span>::<span class="ident">Addition</span> { .. } <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">gl</span>::<span class="ident">FUNC_ADD</span>),
+            <span class="ident">BlendingFunction</span>::<span class="ident">Subtraction</span> { .. } <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">gl</span>::<span class="ident">FUNC_SUBTRACT</span>),
+            <span class="ident">BlendingFunction</span>::<span class="ident">ReverseSubtraction</span> { .. } <span class="op">=&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">gl</span>::<span class="ident">FUNC_REVERSE_SUBTRACT</span>),
 
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Min</span> <span class='op'>=&gt;</span> {
-                <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&lt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>2</span>, <span class='number'>0</span>) <span class='op'>&amp;&amp;</span>
-                   <span class='op'>!</span><span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_blend_minmax</span>
+            <span class="ident">BlendingFunction</span>::<span class="ident">Min</span> <span class="op">=&gt;</span> {
+                <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&lt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">2</span>, <span class="number">0</span>) <span class="op">&amp;&amp;</span>
+                   <span class="op">!</span><span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_blend_minmax</span>
                 {
-                    <span class='prelude-val'>Err</span>(<span class='ident'>DrawError</span>::<span class='ident'>BlendingParameterNotSupported</span>)
-                } <span class='kw'>else</span> {
-                    <span class='prelude-val'>Ok</span>(<span class='ident'>gl</span>::<span class='ident'>MIN</span>)
+                    <span class="prelude-val">Err</span>(<span class="ident">DrawError</span>::<span class="ident">BlendingParameterNotSupported</span>)
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">gl</span>::<span class="ident">MIN</span>)
                 }
             },
 
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Max</span> <span class='op'>=&gt;</span> {
-                <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&lt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>GlEs</span>, <span class='number'>2</span>, <span class='number'>0</span>) <span class='op'>&amp;&amp;</span>
-                   <span class='op'>!</span><span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_blend_minmax</span>
+            <span class="ident">BlendingFunction</span>::<span class="ident">Max</span> <span class="op">=&gt;</span> {
+                <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&lt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">GlEs</span>, <span class="number">2</span>, <span class="number">0</span>) <span class="op">&amp;&amp;</span>
+                   <span class="op">!</span><span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_blend_minmax</span>
                 {
-                    <span class='prelude-val'>Err</span>(<span class='ident'>DrawError</span>::<span class='ident'>BlendingParameterNotSupported</span>)
-                } <span class='kw'>else</span> {
-                    <span class='prelude-val'>Ok</span>(<span class='ident'>gl</span>::<span class='ident'>MAX</span>)
+                    <span class="prelude-val">Err</span>(<span class="ident">DrawError</span>::<span class="ident">BlendingParameterNotSupported</span>)
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">Ok</span>(<span class="ident">gl</span>::<span class="ident">MAX</span>)
                 }
             },
         }
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>(<span class='ident'>always</span>)]</span>
-    <span class='kw'>fn</span> <span class='ident'>blending_factors</span>(<span class='ident'>blending_function</span>: <span class='ident'>BlendingFunction</span>)
-                        <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span>(<span class='ident'>LinearBlendingFactor</span>, <span class='ident'>LinearBlendingFactor</span>)<span class='op'>&gt;</span>
+    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    <span class="kw">fn</span> <span class="ident">blending_factors</span>(<span class="ident">blending_function</span>: <span class="ident">BlendingFunction</span>)
+                        <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">LinearBlendingFactor</span>, <span class="ident">LinearBlendingFactor</span>)<span class="op">&gt;</span>
     {
-        <span class='kw'>match</span> <span class='ident'>blending_function</span> {
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>AlwaysReplace</span> <span class='op'>|</span>
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Min</span> <span class='op'>|</span>
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Max</span> <span class='op'>=&gt;</span> <span class='prelude-val'>None</span>,
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Addition</span> { <span class='ident'>source</span>, <span class='ident'>destination</span> } <span class='op'>=&gt;</span>
-                <span class='prelude-val'>Some</span>((<span class='ident'>source</span>, <span class='ident'>destination</span>)),
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>Subtraction</span> { <span class='ident'>source</span>, <span class='ident'>destination</span> } <span class='op'>=&gt;</span>
-                <span class='prelude-val'>Some</span>((<span class='ident'>source</span>, <span class='ident'>destination</span>)),
-            <span class='ident'>BlendingFunction</span>::<span class='ident'>ReverseSubtraction</span> { <span class='ident'>source</span>, <span class='ident'>destination</span> } <span class='op'>=&gt;</span>
-                <span class='prelude-val'>Some</span>((<span class='ident'>source</span>, <span class='ident'>destination</span>)),
+        <span class="kw">match</span> <span class="ident">blending_function</span> {
+            <span class="ident">BlendingFunction</span>::<span class="ident">AlwaysReplace</span> <span class="op">|</span>
+            <span class="ident">BlendingFunction</span>::<span class="ident">Min</span> <span class="op">|</span>
+            <span class="ident">BlendingFunction</span>::<span class="ident">Max</span> <span class="op">=&gt;</span> <span class="prelude-val">None</span>,
+            <span class="ident">BlendingFunction</span>::<span class="ident">Addition</span> { <span class="ident">source</span>, <span class="ident">destination</span> } <span class="op">=&gt;</span>
+                <span class="prelude-val">Some</span>((<span class="ident">source</span>, <span class="ident">destination</span>)),
+            <span class="ident">BlendingFunction</span>::<span class="ident">Subtraction</span> { <span class="ident">source</span>, <span class="ident">destination</span> } <span class="op">=&gt;</span>
+                <span class="prelude-val">Some</span>((<span class="ident">source</span>, <span class="ident">destination</span>)),
+            <span class="ident">BlendingFunction</span>::<span class="ident">ReverseSubtraction</span> { <span class="ident">source</span>, <span class="ident">destination</span> } <span class="op">=&gt;</span>
+                <span class="prelude-val">Some</span>((<span class="ident">source</span>, <span class="ident">destination</span>)),
         }
     }
 
-    <span class='kw'>if</span> <span class='kw'>let</span> (<span class='ident'>BlendingFunction</span>::<span class='ident'>AlwaysReplace</span>, <span class='ident'>BlendingFunction</span>::<span class='ident'>AlwaysReplace</span>) <span class='op'>=</span>
-           (<span class='ident'>blend</span>.<span class='ident'>color</span>, <span class='ident'>blend</span>.<span class='ident'>alpha</span>)
+    <span class="kw">if</span> <span class="kw">let</span> (<span class="ident">BlendingFunction</span>::<span class="ident">AlwaysReplace</span>, <span class="ident">BlendingFunction</span>::<span class="ident">AlwaysReplace</span>) <span class="op">=</span>
+           (<span class="ident">blend</span>.<span class="ident">color</span>, <span class="ident">blend</span>.<span class="ident">alpha</span>)
     {
-        <span class='comment'>// Both color and alpha always replace. This equals no blending.</span>
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_blend</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Disable</span>(<span class='ident'>gl</span>::<span class='ident'>BLEND</span>); }
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_blend</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+        <span class="comment">// Both color and alpha always replace. This equals no blending.</span>
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_blend</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Disable</span>(<span class="ident">gl</span>::<span class="ident">BLEND</span>); }
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_blend</span> <span class="op">=</span> <span class="bool-val">false</span>;
         }
 
-    } <span class='kw'>else</span> {
-        <span class='kw'>if</span> <span class='op'>!</span><span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_blend</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Enable</span>(<span class='ident'>gl</span>::<span class='ident'>BLEND</span>); }
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_blend</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_blend</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Enable</span>(<span class="ident">gl</span>::<span class="ident">BLEND</span>); }
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_blend</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
-        <span class='kw'>let</span> (<span class='ident'>color_eq</span>, <span class='ident'>alpha_eq</span>) <span class='op'>=</span> (<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>blend_eq</span>(<span class='ident'>ctxt</span>, <span class='ident'>blend</span>.<span class='ident'>color</span>)),
-                                    <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>blend_eq</span>(<span class='ident'>ctxt</span>, <span class='ident'>blend</span>.<span class='ident'>alpha</span>)));
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>blend_equation</span> <span class='op'>!=</span> (<span class='ident'>color_eq</span>, <span class='ident'>alpha_eq</span>) {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>BlendEquationSeparate</span>(<span class='ident'>color_eq</span>, <span class='ident'>alpha_eq</span>); }
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>blend_equation</span> <span class='op'>=</span> (<span class='ident'>color_eq</span>, <span class='ident'>alpha_eq</span>);
+        <span class="kw">let</span> (<span class="ident">color_eq</span>, <span class="ident">alpha_eq</span>) <span class="op">=</span> (<span class="macro">try</span><span class="macro">!</span>(<span class="ident">blend_eq</span>(<span class="ident">ctxt</span>, <span class="ident">blend</span>.<span class="ident">color</span>)),
+                                    <span class="macro">try</span><span class="macro">!</span>(<span class="ident">blend_eq</span>(<span class="ident">ctxt</span>, <span class="ident">blend</span>.<span class="ident">alpha</span>)));
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">blend_equation</span> <span class="op">!=</span> (<span class="ident">color_eq</span>, <span class="ident">alpha_eq</span>) {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">BlendEquationSeparate</span>(<span class="ident">color_eq</span>, <span class="ident">alpha_eq</span>); }
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">blend_equation</span> <span class="op">=</span> (<span class="ident">color_eq</span>, <span class="ident">alpha_eq</span>);
         }
 
-        <span class='comment'>// Map to dummy factors if the blending equation does not use the factors.</span>
-        <span class='kw'>let</span> (<span class='ident'>color_factor_src</span>, <span class='ident'>color_factor_dst</span>) <span class='op'>=</span> <span class='ident'>blending_factors</span>(<span class='ident'>blend</span>.<span class='ident'>color</span>)
-            .<span class='ident'>unwrap_or</span>((<span class='ident'>LinearBlendingFactor</span>::<span class='ident'>One</span>, <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>Zero</span>));
-        <span class='kw'>let</span> (<span class='ident'>alpha_factor_src</span>, <span class='ident'>alpha_factor_dst</span>) <span class='op'>=</span> <span class='ident'>blending_factors</span>(<span class='ident'>blend</span>.<span class='ident'>alpha</span>)
-            .<span class='ident'>unwrap_or</span>((<span class='ident'>LinearBlendingFactor</span>::<span class='ident'>One</span>, <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>Zero</span>));
+        <span class="comment">// Map to dummy factors if the blending equation does not use the factors.</span>
+        <span class="kw">let</span> (<span class="ident">color_factor_src</span>, <span class="ident">color_factor_dst</span>) <span class="op">=</span> <span class="ident">blending_factors</span>(<span class="ident">blend</span>.<span class="ident">color</span>)
+            .<span class="ident">unwrap_or</span>((<span class="ident">LinearBlendingFactor</span>::<span class="ident">One</span>, <span class="ident">LinearBlendingFactor</span>::<span class="ident">Zero</span>));
+        <span class="kw">let</span> (<span class="ident">alpha_factor_src</span>, <span class="ident">alpha_factor_dst</span>) <span class="op">=</span> <span class="ident">blending_factors</span>(<span class="ident">blend</span>.<span class="ident">alpha</span>)
+            .<span class="ident">unwrap_or</span>((<span class="ident">LinearBlendingFactor</span>::<span class="ident">One</span>, <span class="ident">LinearBlendingFactor</span>::<span class="ident">Zero</span>));
 
-        <span class='comment'>// Updating the blending color if necessary.</span>
-        <span class='kw'>if</span> <span class='ident'>color_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>color_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>color_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>color_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantColor</span> <span class='op'>||</span>
-           <span class='ident'>color_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantAlpha</span> <span class='op'>||</span>
-           <span class='ident'>color_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantAlpha</span> <span class='op'>||</span>
-           <span class='ident'>color_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantAlpha</span> <span class='op'>||</span>
-           <span class='ident'>color_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantAlpha</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantAlpha</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_src</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantAlpha</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>ConstantAlpha</span> <span class='op'>||</span>
-           <span class='ident'>alpha_factor_dst</span> <span class='op'>==</span> <span class='ident'>LinearBlendingFactor</span>::<span class='ident'>OneMinusConstantAlpha</span>
+        <span class="comment">// Updating the blending color if necessary.</span>
+        <span class="kw">if</span> <span class="ident">color_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantColor</span> <span class="op">||</span>
+           <span class="ident">color_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantColor</span> <span class="op">||</span>
+           <span class="ident">color_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantColor</span> <span class="op">||</span>
+           <span class="ident">color_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantColor</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantColor</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantColor</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantColor</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantColor</span> <span class="op">||</span>
+           <span class="ident">color_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantAlpha</span> <span class="op">||</span>
+           <span class="ident">color_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantAlpha</span> <span class="op">||</span>
+           <span class="ident">color_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantAlpha</span> <span class="op">||</span>
+           <span class="ident">color_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantAlpha</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantAlpha</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_src</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantAlpha</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">ConstantAlpha</span> <span class="op">||</span>
+           <span class="ident">alpha_factor_dst</span> <span class="op">==</span> <span class="ident">LinearBlendingFactor</span>::<span class="ident">OneMinusConstantAlpha</span>
         {
-            <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>blend_color</span> <span class='op'>!=</span> <span class='ident'>blend</span>.<span class='ident'>constant_value</span> {
-                <span class='kw'>let</span> (<span class='ident'>r</span>, <span class='ident'>g</span>, <span class='ident'>b</span>, <span class='ident'>a</span>) <span class='op'>=</span> <span class='ident'>blend</span>.<span class='ident'>constant_value</span>;
-                <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>BlendColor</span>(<span class='ident'>r</span>, <span class='ident'>g</span>, <span class='ident'>b</span>, <span class='ident'>a</span>); }
-                <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>blend_color</span> <span class='op'>=</span> <span class='ident'>blend</span>.<span class='ident'>constant_value</span>;
+            <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">blend_color</span> <span class="op">!=</span> <span class="ident">blend</span>.<span class="ident">constant_value</span> {
+                <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>) <span class="op">=</span> <span class="ident">blend</span>.<span class="ident">constant_value</span>;
+                <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">BlendColor</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">a</span>); }
+                <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">blend_color</span> <span class="op">=</span> <span class="ident">blend</span>.<span class="ident">constant_value</span>;
             }
         }
 
-        <span class='comment'>// Updating the blending function if necessary.</span>
-        <span class='kw'>let</span> <span class='ident'>color_factor_src</span> <span class='op'>=</span> <span class='ident'>color_factor_src</span>.<span class='ident'>to_glenum</span>();
-        <span class='kw'>let</span> <span class='ident'>color_factor_dst</span> <span class='op'>=</span> <span class='ident'>color_factor_dst</span>.<span class='ident'>to_glenum</span>();
-        <span class='kw'>let</span> <span class='ident'>alpha_factor_src</span> <span class='op'>=</span> <span class='ident'>alpha_factor_src</span>.<span class='ident'>to_glenum</span>();
-        <span class='kw'>let</span> <span class='ident'>alpha_factor_dst</span> <span class='op'>=</span> <span class='ident'>alpha_factor_dst</span>.<span class='ident'>to_glenum</span>();
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>blend_func</span> <span class='op'>!=</span> (<span class='ident'>color_factor_src</span>, <span class='ident'>color_factor_dst</span>,
-                                     <span class='ident'>alpha_factor_src</span>, <span class='ident'>alpha_factor_dst</span>)
+        <span class="comment">// Updating the blending function if necessary.</span>
+        <span class="kw">let</span> <span class="ident">color_factor_src</span> <span class="op">=</span> <span class="ident">color_factor_src</span>.<span class="ident">to_glenum</span>();
+        <span class="kw">let</span> <span class="ident">color_factor_dst</span> <span class="op">=</span> <span class="ident">color_factor_dst</span>.<span class="ident">to_glenum</span>();
+        <span class="kw">let</span> <span class="ident">alpha_factor_src</span> <span class="op">=</span> <span class="ident">alpha_factor_src</span>.<span class="ident">to_glenum</span>();
+        <span class="kw">let</span> <span class="ident">alpha_factor_dst</span> <span class="op">=</span> <span class="ident">alpha_factor_dst</span>.<span class="ident">to_glenum</span>();
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">blend_func</span> <span class="op">!=</span> (<span class="ident">color_factor_src</span>, <span class="ident">color_factor_dst</span>,
+                                     <span class="ident">alpha_factor_src</span>, <span class="ident">alpha_factor_dst</span>)
         {
-            <span class='kw'>unsafe</span> {
-                <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>BlendFuncSeparate</span>(<span class='ident'>color_factor_src</span>, <span class='ident'>color_factor_dst</span>,
-                                          <span class='ident'>alpha_factor_src</span>, <span class='ident'>alpha_factor_dst</span>);
+            <span class="kw">unsafe</span> {
+                <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">BlendFuncSeparate</span>(<span class="ident">color_factor_src</span>, <span class="ident">color_factor_dst</span>,
+                                          <span class="ident">alpha_factor_src</span>, <span class="ident">alpha_factor_dst</span>);
             }
 
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>blend_func</span> <span class='op'>=</span> (<span class='ident'>color_factor_src</span>, <span class='ident'>color_factor_dst</span>,
-                                     <span class='ident'>alpha_factor_src</span>, <span class='ident'>alpha_factor_dst</span>);
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">blend_func</span> <span class="op">=</span> (<span class="ident">color_factor_src</span>, <span class="ident">color_factor_dst</span>,
+                                     <span class="ident">alpha_factor_src</span>, <span class="ident">alpha_factor_dst</span>);
         }
     }
 
-    <span class='prelude-val'>Ok</span>(())
+    <span class="prelude-val">Ok</span>(())
 }
 </pre>
 </section>
@@ -714,12 +716,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -740,7 +746,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -751,11 +757,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["wl_interface","Type representing an interface in the `libwayland-client.so` ABI."],["wl_message","Type representing a message in the `libwayland-client.so` ABI."]]});

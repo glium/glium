@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["SubCompositor","A wayland subcompositor."]]});

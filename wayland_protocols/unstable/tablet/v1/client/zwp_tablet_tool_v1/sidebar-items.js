@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ButtonState","physical button state"],["Capability","capability flags for a tool"],["Error",""],["Type","a physical tool type"]],"struct":[["Implementation",""],["ZwpTabletToolV1",""]]});

@@ -9,13 +9,15 @@
 
     <title>libc::dirent64 - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     <link rel="shortcut icon" href="https://doc.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,8 +28,8 @@
     
 
     <nav class="sidebar">
-        <a href='../libc/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='' width='100'></a>
-        <p class='location'><a href='index.html'>libc</a></p><script>window.sidebarCurrent = {name: 'dirent64', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <a href='../libc/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk-v2.png' alt='logo' width='100'></a>
+        <p class='location'>Struct dirent64</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.d_ino">d_ino</a><a href="#structfield.d_off">d_off</a><a href="#structfield.d_reclen">d_reclen</a><a href="#structfield.d_type">d_type</a><a href="#structfield.d_name">d_name</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a></div></div><p class='location'><a href='index.html'>libc</a></p><script>window.sidebarCurrent = {name: 'dirent64', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,27 +43,51 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>libc</a>::<wbr><a class='struct' href=''>dirent64</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1237' class='srclink' href='../src/libc/macros.rs.html#41' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct dirent64 {
-    pub d_ino: <a class='type' href='../libc/type.ino64_t.html' title='libc::ino64_t'>ino64_t</a>,
-    pub d_off: <a class='type' href='../libc/type.off64_t.html' title='libc::off64_t'>off64_t</a>,
-    pub d_reclen: <a class='type' href='../libc/type.c_ushort.html' title='libc::c_ushort'>c_ushort</a>,
-    pub d_type: <a class='type' href='../libc/type.c_uchar.html' title='libc::c_uchar'>c_uchar</a>,
-    pub d_name: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.array.html'>[<a class='type' href='../libc/type.c_char.html' title='libc::c_char'>c_char</a>; 256]</a>,
-}</pre><h2 class='fields'>Fields</h2>
-<table><tr class='stab '>
-                                  <td id='structfield.d_ino'><code>d_ino</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.d_off'><code>d_off</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.d_reclen'><code>d_reclen</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.d_type'><code>d_type</code></td><td></td></tr><tr class='stab '>
-                                  <td id='structfield.d_name'><code>d_name</code></td><td></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='../core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='struct' href='../libc/struct.dirent64.html' title='libc::dirent64'>dirent64</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='../core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../libc/struct.dirent64.html' title='libc::dirent64'>dirent64</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='../core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../libc/struct.dirent64.html' title='libc::dirent64'>dirent64</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='../core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>libc</a>::<wbr><a class="struct" href=''>dirent64</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/libc/macros.rs.html#42' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C)]
+</div>pub struct dirent64 {
+    pub d_ino: <a class="type" href="../libc/type.ino64_t.html" title="type libc::ino64_t">ino64_t</a>,
+    pub d_off: <a class="type" href="../libc/type.off64_t.html" title="type libc::off64_t">off64_t</a>,
+    pub d_reclen: <a class="type" href="../libc/type.c_ushort.html" title="type libc::c_ushort">c_ushort</a>,
+    pub d_type: <a class="type" href="../libc/type.c_uchar.html" title="type libc::c_uchar">c_uchar</a>,
+    pub d_name: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[</a><a class="type" href="../libc/type.c_char.html" title="type libc::c_char">c_char</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">; 256]</a>,
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.d_ino" class="structfield small-section-header">
+                           <a href="#structfield.d_ino" class="anchor field"></a>
+                           <span id="d_ino.v" class='invisible'>
+                           <code>d_ino: <a class="type" href="../libc/type.ino64_t.html" title="type libc::ino64_t">ino64_t</a></code>
+                           </span></span><span id="structfield.d_off" class="structfield small-section-header">
+                           <a href="#structfield.d_off" class="anchor field"></a>
+                           <span id="d_off.v" class='invisible'>
+                           <code>d_off: <a class="type" href="../libc/type.off64_t.html" title="type libc::off64_t">off64_t</a></code>
+                           </span></span><span id="structfield.d_reclen" class="structfield small-section-header">
+                           <a href="#structfield.d_reclen" class="anchor field"></a>
+                           <span id="d_reclen.v" class='invisible'>
+                           <code>d_reclen: <a class="type" href="../libc/type.c_ushort.html" title="type libc::c_ushort">c_ushort</a></code>
+                           </span></span><span id="structfield.d_type" class="structfield small-section-header">
+                           <a href="#structfield.d_type" class="anchor field"></a>
+                           <span id="d_type.v" class='invisible'>
+                           <code>d_type: <a class="type" href="../libc/type.c_uchar.html" title="type libc::c_uchar">c_uchar</a></code>
+                           </span></span><span id="structfield.d_name" class="structfield small-section-header">
+                           <a href="#structfield.d_name" class="anchor field"></a>
+                           <span id="d_name.v" class='invisible'>
+                           <code>d_name: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">[</a><a class="type" href="../libc/type.c_char.html" title="type libc::c_char">c_char</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.array.html">; 256]</a></code>
+                           </span></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../libc/struct.dirent64.html" title="struct libc::dirent64">dirent64</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/libc/macros.rs.html#44' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../libc/struct.dirent64.html" title="struct libc::dirent64">dirent64</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/libc/macros.rs.html#45-47' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../libc/struct.dirent64.html" title="struct libc::dirent64">dirent64</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/libc/macros.rs.html#46' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -78,12 +104,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -104,7 +134,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -115,11 +145,8 @@
     <script>
         window.rootPath = "../";
         window.currentCrate = "libc";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

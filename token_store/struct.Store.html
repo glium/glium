@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Store` struct in crate `token_store`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Store">
+
+    <title>token_store::Store - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Store</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.insert">insert</a><a href="#method.get">get</a><a href="#method.get_mut">get_mut</a><a href="#method.remove">remove</a><a href="#method.with_value">with_value</a><a href="#method.as_proxy">as_proxy</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-From%3C%26%27a%20mut%20Store%3E">From&lt;&amp;&#39;a mut Store&gt;</a></div></div><p class='location'><a href='index.html'>token_store</a></p><script>window.sidebarCurrent = {name: 'Store', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>token_store</a>::<wbr><a class="struct" href=''>Store</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/token_store/lib.rs.html#92-94' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Store { /* fields omitted */ }</pre><div class='docblock'><p>A token store</p>
+
+<p>This struct allows you to store various values in a store
+and access them back using the provided tokens.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../token_store/struct.Store.html" title="struct token_store::Store">Store</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#123-233' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class="struct" href="../token_store/struct.Store.html" title="struct token_store::Store">Store</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#125-127' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create a new store</p>
+</div><h4 id='method.insert' class="method"><span id='insert.v' class='invisible'><code>pub fn <a href='#method.insert' class='fnname'>insert</a>&lt;V:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + 'static&gt;(&amp;mut self, value: V) -&gt; <a class="struct" href="../token_store/struct.Token.html" title="struct token_store::Token">Token</a>&lt;V&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#133-157' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Insert a new value in this store</p>
+
+<p>Returns a clonable token that you can later use to access this
+value.</p>
+</div><h4 id='method.get' class="method"><span id='get.v' class='invisible'><code>pub fn <a href='#method.get' class='fnname'>get</a>&lt;V:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + 'static&gt;(&amp;self, token: &amp;<a class="struct" href="../token_store/struct.Token.html" title="struct token_store::Token">Token</a>&lt;V&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>V</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#162-170' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Access value previously inserted in this store</p>
+
+<p>Panics if the provided token corresponds to a value that was removed.</p>
+</div><h4 id='method.get_mut' class="method"><span id='get_mut.v' class='invisible'><code>pub fn <a href='#method.get_mut' class='fnname'>get_mut</a>&lt;V:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + 'static&gt;(&amp;mut self, token: &amp;<a class="struct" href="../token_store/struct.Token.html" title="struct token_store::Token">Token</a>&lt;V&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>V</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#175-183' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Mutably access value previously inserted in this store</p>
+
+<p>Panics if the provided token corresponds to a value that was removed.</p>
+</div><h4 id='method.remove' class="method"><span id='remove.v' class='invisible'><code>pub fn <a href='#method.remove' class='fnname'>remove</a>&lt;V:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + 'static&gt;(&amp;mut self, token: <a class="struct" href="../token_store/struct.Token.html" title="struct token_store::Token">Token</a>&lt;V&gt;) -&gt; V</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#189-196' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Remove a value previously inserted in this store</p>
+
+<p>Panics if the provided token corresponds to a value that was already
+removed.</p>
+</div><h4 id='method.with_value' class="method"><span id='with_value.v' class='invisible'><code>pub fn <a href='#method.with_value' class='fnname'>with_value</a>&lt;V:&nbsp;<a class="trait" href="https://doc.rust-lang.org/nightly/core/any/trait.Any.html" title="trait core::any::Any">Any</a> + 'static, T, F&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;&amp;mut self, <br>&nbsp;&nbsp;&nbsp;&nbsp;token: &amp;<a class="struct" href="../token_store/struct.Token.html" title="struct token_store::Token">Token</a>&lt;V&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;f: F<br>) -&gt; T <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;F: <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/function/trait.FnOnce.html" title="trait core::ops::function::FnOnce">FnOnce</a>(&amp;mut <a class="struct" href="../token_store/struct.StoreProxy.html" title="struct token_store::StoreProxy">StoreProxy</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>V) -&gt; T,&nbsp;</span></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#212-217' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create a sub-scope with access to a value</p>
+
+<p>In the closure you provide, the value represented by <code>token</code>
+will be available as an argument, as well as a <code>StoreProxy</code>,
+which allows you to manipulate the other values of the store
+while this one is mutably borrowed.</p>
+
+<p>Attempting to access again the same value from its token from
+within this closure is forbidden, and attempting to do so will
+result in a panic.</p>
+
+<p>The <code>StoreProxy</code> provides the same access methods as the <code>Store</code>,
+including <code>with_value</code>, allowing you to create nested sub-scopes
+accessing multiple store values at the same time.</p>
+</div><h4 id='method.as_proxy' class="method"><span id='as_proxy.v' class='invisible'><code>pub fn <a href='#method.as_proxy' class='fnname'>as_proxy</a>&lt;'a&gt;(&amp;'a mut self) -&gt; <a class="struct" href="../token_store/struct.StoreProxy.html" title="struct token_store::StoreProxy">StoreProxy</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#227-232' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>See this <code>Store</code> as a <code>StoreProxy</code> with no ongoing borrow</p>
+
+<p>This can be usefull for code requiering access to a store,
+but wanting to be generic over being called from a value
+scope or not.</p>
+
+<p>You can also use the <code>From</code> and <code>Into</code> traits to perform
+this conversion.</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-From%3C%26%27a%20mut%20Store%3E' class='impl'><span class='in-band'><code>impl&lt;'a&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/convert/trait.From.html" title="trait core::convert::From">From</a>&lt;&amp;'a mut <a class="struct" href="../token_store/struct.Store.html" title="struct token_store::Store">Store</a>&gt; for <a class="struct" href="../token_store/struct.StoreProxy.html" title="struct token_store::StoreProxy">StoreProxy</a>&lt;'a&gt;</code><a href='#impl-From%3C%26%27a%20mut%20Store%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#235-239' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.from' class="method"><span id='from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/convert/trait.From.html#tymethod.from' class='fnname'>from</a>(store: &amp;'a mut <a class="struct" href="../token_store/struct.Store.html" title="struct token_store::Store">Store</a>) -&gt; <a class="struct" href="../token_store/struct.StoreProxy.html" title="struct token_store::StoreProxy">StoreProxy</a>&lt;'a&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/token_store/lib.rs.html#236-238' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs the conversion.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "token_store";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

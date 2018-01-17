@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Implementation` struct in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Implementation">
+
+    <title>wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::Implementation - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Implementation</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.enter">enter</a><a href="#structfield.leave">leave</a><a href="#structfield.modifiers_map">modifiers_map</a><a href="#structfield.input_panel_state">input_panel_state</a><a href="#structfield.preedit_string">preedit_string</a><a href="#structfield.preedit_styling">preedit_styling</a><a href="#structfield.preedit_cursor">preedit_cursor</a><a href="#structfield.commit_string">commit_string</a><a href="#structfield.cursor_position">cursor_position</a><a href="#structfield.delete_surrounding_text">delete_surrounding_text</a><a href="#structfield.keysym">keysym</a><a href="#structfield.language">language</a><a href="#structfield.text_direction">text_direction</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>text_input</a>::<wbr><a href='../../index.html'>v1</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>zwp_text_input_v1</a></p><script>window.sidebarCurrent = {name: 'Implementation', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../../../../index.html'>wayland_protocols</a>::<wbr><a href='../../../../index.html'>unstable</a>::<wbr><a href='../../../index.html'>text_input</a>::<wbr><a href='../../index.html'>v1</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>zwp_text_input_v1</a>::<wbr><a class="struct" href=''>Implementation</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/text-input-v1_client_api.rs.html#408-536' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Implementation&lt;ID&gt; {
+    pub enter: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, surface: &amp;WlSurface),
+    pub leave: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>),
+    pub modifiers_map: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, map: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;),
+    pub input_panel_state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub preedit_string: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, text: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, commit: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>),
+    pub preedit_styling: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, length: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, style: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub preedit_cursor: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>),
+    pub commit_string: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, text: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>),
+    pub cursor_position: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, anchor: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>),
+    pub delete_surrounding_text: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, length: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub keysym: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, sym: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, modifiers: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub language: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, language: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>),
+    pub text_direction: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, direction: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.enter" class="structfield small-section-header">
+                           <a href="#structfield.enter" class="anchor field"></a>
+                           <span id="enter.v" class='invisible'>
+                           <code>enter: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, surface: &amp;WlSurface)</code>
+                           </span></span><div class='docblock'><p>enter event</p>
+
+<p>Notify the text_input object when it received focus. Typically in
+response to an activate request.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, surface</p>
+</div><span id="structfield.leave" class="structfield small-section-header">
+                           <a href="#structfield.leave" class="anchor field"></a>
+                           <span id="leave.v" class='invisible'>
+                           <code>leave: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>)</code>
+                           </span></span><div class='docblock'><p>leave event</p>
+
+<p>Notify the text_input object when it lost focus. Either in response
+to a deactivate request or when the assigned surface lost focus or was
+destroyed.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1</p>
+</div><span id="structfield.modifiers_map" class="structfield small-section-header">
+                           <a href="#structfield.modifiers_map" class="anchor field"></a>
+                           <span id="modifiers_map.v" class='invisible'>
+                           <code>modifiers_map: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, map: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u8.html">u8</a>&gt;)</code>
+                           </span></span><div class='docblock'><p>modifiers map</p>
+
+<p>Transfer an array of 0-terminated modifier names. The position in
+the array is the index of the modifier as used in the modifiers
+bitmask in the keysym event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, map</p>
+</div><span id="structfield.input_panel_state" class="structfield small-section-header">
+                           <a href="#structfield.input_panel_state" class="anchor field"></a>
+                           <span id="input_panel_state.v" class='invisible'>
+                           <code>input_panel_state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>state of the input panel</p>
+
+<p>Notify when the visibility state of the input panel changed.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, state</p>
+</div><span id="structfield.preedit_string" class="structfield small-section-header">
+                           <a href="#structfield.preedit_string" class="anchor field"></a>
+                           <span id="preedit_string.v" class='invisible'>
+                           <code>preedit_string: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, text: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, commit: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>)</code>
+                           </span></span><div class='docblock'><p>pre-edit</p>
+
+<p>Notify when a new composing text (pre-edit) should be set around the
+current cursor position. Any previously set composing text should
+be removed.</p>
+
+<p>The commit text can be used to replace the preedit text on reset
+(for example on unfocus).</p>
+
+<p>The text input should also handle all preedit_style and preedit_cursor
+events occurring directly before preedit_string.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, serial, text, commit</p>
+</div><span id="structfield.preedit_styling" class="structfield small-section-header">
+                           <a href="#structfield.preedit_styling" class="anchor field"></a>
+                           <span id="preedit_styling.v" class='invisible'>
+                           <code>preedit_styling: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, length: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, style: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>pre-edit styling</p>
+
+<p>Sets styling information on composing text. The style is applied for
+length bytes from index relative to the beginning of the composing
+text (as byte offset). Multiple styles can
+be applied to a composing text by sending multiple preedit_styling
+events.</p>
+
+<p>This event is handled as part of a following preedit_string event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, index, length, style</p>
+</div><span id="structfield.preedit_cursor" class="structfield small-section-header">
+                           <a href="#structfield.preedit_cursor" class="anchor field"></a>
+                           <span id="preedit_cursor.v" class='invisible'>
+                           <code>preedit_cursor: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code>
+                           </span></span><div class='docblock'><p>pre-edit cursor</p>
+
+<p>Sets the cursor position inside the composing text (as byte
+offset) relative to the start of the composing text. When index is a
+negative number no cursor is shown.</p>
+
+<p>This event is handled as part of a following preedit_string event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, index</p>
+</div><span id="structfield.commit_string" class="structfield small-section-header">
+                           <a href="#structfield.commit_string" class="anchor field"></a>
+                           <span id="commit_string.v" class='invisible'>
+                           <code>commit_string: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, text: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>)</code>
+                           </span></span><div class='docblock'><p>commit</p>
+
+<p>Notify when text should be inserted into the editor widget. The text to
+commit could be either just a single character after a key press or the
+result of some composing (pre-edit). It could also be an empty text
+when some text should be removed (see delete_surrounding_text) or when
+the input cursor should be moved (see cursor_position).</p>
+
+<p>Any previously set composing text should be removed.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, serial, text</p>
+</div><span id="structfield.cursor_position" class="structfield small-section-header">
+                           <a href="#structfield.cursor_position" class="anchor field"></a>
+                           <span id="cursor_position.v" class='invisible'>
+                           <code>cursor_position: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, anchor: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code>
+                           </span></span><div class='docblock'><p>set cursor to new position</p>
+
+<p>Notify when the cursor or anchor position should be modified.</p>
+
+<p>This event should be handled as part of a following commit_string
+event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, index, anchor</p>
+</div><span id="structfield.delete_surrounding_text" class="structfield small-section-header">
+                           <a href="#structfield.delete_surrounding_text" class="anchor field"></a>
+                           <span id="delete_surrounding_text.v" class='invisible'>
+                           <code>delete_surrounding_text: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, length: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>delete surrounding text</p>
+
+<p>Notify when the text around the current cursor position should be
+deleted.</p>
+
+<p>Index is relative to the current cursor (in bytes).
+Length is the length of deleted text (in bytes).</p>
+
+<p>This event should be handled as part of a following commit_string
+event.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, index, length</p>
+</div><span id="structfield.keysym" class="structfield small-section-header">
+                           <a href="#structfield.keysym" class="anchor field"></a>
+                           <span id="keysym.v" class='invisible'>
+                           <code>keysym: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, time: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, sym: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, state: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, modifiers: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>keysym</p>
+
+<p>Notify when a key event was sent. Key events should not be used
+for normal text input operations, which should be done with
+commit_string, delete_surrounding_text, etc. The key event follows
+the wl_keyboard key event convention. Sym is an XKB keysym, state a
+wl_keyboard key_state. Modifiers are a mask for effective modifiers
+(where the modifier indices are set by the modifiers_map event)</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, serial, time, sym, state, modifiers</p>
+</div><span id="structfield.language" class="structfield small-section-header">
+                           <a href="#structfield.language" class="anchor field"></a>
+                           <span id="language.v" class='invisible'>
+                           <code>language: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, language: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>)</code>
+                           </span></span><div class='docblock'><p>language</p>
+
+<p>Sets the language of the input text. The &quot;language&quot; argument is an
+RFC-3066 format language tag.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, serial, language</p>
+</div><span id="structfield.text_direction" class="structfield small-section-header">
+                           <a href="#structfield.text_direction" class="anchor field"></a>
+                           <span id="text_direction.v" class='invisible'>
+                           <code>text_direction: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, zwp_text_input_v1: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.ZwpTextInputV1.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::ZwpTextInputV1">ZwpTextInputV1</a>, serial: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, direction: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>text direction</p>
+
+<p>Sets the text direction of input text.</p>
+
+<p>It is mainly needed for showing an input cursor on the correct side of
+the editor when there is no input done yet and making sure neutral
+direction text is laid out properly.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, zwp_text_input_v1, serial, direction</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/text-input-v1_client_api.rs.html#538' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/text-input-v1_client_api.rs.html#539-543' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::Implementation">Implementation</a>&lt;ID&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/text-input-v1_client_api.rs.html#540-542' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/text-input-v1_client_api.rs.html#545-563' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../../../../../../wayland_protocols/unstable/text_input/v1/client/zwp_text_input_v1/struct.Implementation.html" title="struct wayland_protocols::unstable::text_input::v1::client::zwp_text_input_v1::Implementation">Implementation</a>&lt;ID&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/text-input-v1_client_api.rs.html#546-562' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../../../main.js"></script>
+    <script defer src="../../../../../../search-index.js"></script>
+</body>
+</html>

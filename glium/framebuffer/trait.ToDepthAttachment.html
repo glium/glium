@@ -9,13 +9,15 @@
 
     <title>glium::framebuffer::ToDepthAttachment - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc trait">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a></p><script>window.sidebarCurrent = {name: 'ToDepthAttachment', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait ToDepthAttachment</p><div class="block items"><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.to_depth_attachment">to_depth_attachment</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a></p><script>window.sidebarCurrent = {name: 'ToDepthAttachment', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,39 +43,43 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a>::<wbr><a class='trait' href=''>ToDepthAttachment</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-3877' class='srclink' href='../../src/glium/framebuffer/mod.rs.html#783-786' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>framebuffer</a>::<wbr><a class="trait" href=''>ToDepthAttachment</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/framebuffer/mod.rs.html#828-831' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait ToDepthAttachment&lt;'a&gt; {
-    fn <a href='#tymethod.to_depth_attachment' class='fnname'>to_depth_attachment</a>(self) -&gt; <a class='enum' href='../../glium/framebuffer/enum.DepthAttachment.html' title='glium::framebuffer::DepthAttachment'>DepthAttachment</a>&lt;'a&gt;;
+    fn <a href='#tymethod.to_depth_attachment' class='fnname'>to_depth_attachment</a>(self) -&gt; <a class="enum" href="../../glium/framebuffer/enum.DepthAttachment.html" title="enum glium::framebuffer::DepthAttachment">DepthAttachment</a>&lt;'a&gt;;
 }</pre><div class='docblock'><p>Trait for objects that can be used as depth attachments.</p>
 </div>
-            <h2 id='required-methods'>Required Methods</h2>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='tymethod.to_depth_attachment' class='method stab '><code>fn <a href='#tymethod.to_depth_attachment' class='fnname'>to_depth_attachment</a>(self) -&gt; <a class='enum' href='../../glium/framebuffer/enum.DepthAttachment.html' title='glium::framebuffer::DepthAttachment'>DepthAttachment</a>&lt;'a&gt;</code></h3><div class='docblock'><p>Builds the <code>DepthAttachment</code>.</p>
+        <h3 id='tymethod.to_depth_attachment' class='method'><span id='to_depth_attachment.v' class='invisible'><code>fn <a href='#tymethod.to_depth_attachment' class='fnname'>to_depth_attachment</a>(self) -&gt; <a class="enum" href="../../glium/framebuffer/enum.DepthAttachment.html" title="enum glium::framebuffer::DepthAttachment">DepthAttachment</a>&lt;'a&gt;</code></span></h3><div class='docblock'><p>Builds the <code>DepthAttachment</code>.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;'a&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'a&gt; for &amp;'a <a class='struct' href='../../glium/framebuffer/struct.DepthRenderBuffer.html' title='glium::framebuffer::DepthRenderBuffer'>DepthRenderBuffer</a></code></li>
-<li><code>impl&lt;'a&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'a&gt; for <a class='enum' href='../../glium/framebuffer/enum.DepthAttachment.html' title='glium::framebuffer::DepthAttachment'>DepthAttachment</a>&lt;'a&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/depth_texture1d/struct.DepthTexture1d.html' title='glium::texture::depth_texture1d::DepthTexture1d'>DepthTexture1d</a></code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_texture1d/struct.DepthTexture1dMipmap.html' title='glium::texture::depth_texture1d::DepthTexture1dMipmap'>DepthTexture1dMipmap</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/depth_texture2d/struct.DepthTexture2d.html' title='glium::texture::depth_texture2d::DepthTexture2d'>DepthTexture2d</a></code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_texture2d/struct.DepthTexture2dMipmap.html' title='glium::texture::depth_texture2d::DepthTexture2dMipmap'>DepthTexture2dMipmap</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for &amp;'t <a class='struct' href='../../glium/texture/depth_texture2d_multisample/struct.DepthTexture2dMultisample.html' title='glium::texture::depth_texture2d_multisample::DepthTexture2dMultisample'>DepthTexture2dMultisample</a></code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_texture2d_multisample/struct.DepthTexture2dMultisampleMipmap.html' title='glium::texture::depth_texture2d_multisample::DepthTexture2dMultisampleMipmap'>DepthTexture2dMultisampleMipmap</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_texture3d/struct.DepthTexture3dMipmap.html' title='glium::texture::depth_texture3d::DepthTexture3dMipmap'>DepthTexture3dMipmap</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_texture1d_array/struct.DepthTexture1dArrayLayerMipmap.html' title='glium::texture::depth_texture1d_array::DepthTexture1dArrayLayerMipmap'>DepthTexture1dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_texture2d_array/struct.DepthTexture2dArrayLayerMipmap.html' title='glium::texture::depth_texture2d_array::DepthTexture2dArrayLayerMipmap'>DepthTexture2dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_texture2d_multisample_array/struct.DepthTexture2dMultisampleArrayLayerMipmap.html' title='glium::texture::depth_texture2d_multisample_array::DepthTexture2dMultisampleArrayLayerMipmap'>DepthTexture2dMultisampleArrayLayerMipmap</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_cubemap/struct.DepthCubemapImage.html' title='glium::texture::depth_cubemap::DepthCubemapImage'>DepthCubemapImage</a>&lt;'t&gt;</code></li>
-<li><code>impl&lt;'t&gt; <a class='trait' href='../../glium/framebuffer/trait.ToDepthAttachment.html' title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a>&lt;'t&gt; for <a class='struct' href='../../glium/texture/depth_cubemap_array/struct.DepthCubemapArrayImage.html' title='glium::texture::depth_cubemap_array::DepthCubemapArrayImage'>DepthCubemapArrayImage</a>&lt;'t&gt;</code></li>
+    <li><div class='out-of-band'><a class='srclink' href='../../src/glium/framebuffer/render_buffer.rs.html#134-138' title='goto source code'>[src]</a></div><code>impl&lt;'a&gt; ToDepthAttachment&lt;'a&gt; for &amp;'a <a class="struct" href="../../glium/framebuffer/struct.DepthRenderBuffer.html" title="struct glium::framebuffer::DepthRenderBuffer">DepthRenderBuffer</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/framebuffer/mod.rs.html#833-838' title='goto source code'>[src]</a></div><code>impl&lt;'a&gt; ToDepthAttachment&lt;'a&gt; for <a class="enum" href="../../glium/framebuffer/enum.DepthAttachment.html" title="enum glium::framebuffer::DepthAttachment">DepthAttachment</a>&lt;'a&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#1976-1981' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for &amp;'t <a class="struct" href="../../glium/texture/depth_texture1d/struct.DepthTexture1d.html" title="struct glium::texture::depth_texture1d::DepthTexture1d">DepthTexture1d</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#2176-2181' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_texture1d/struct.DepthTexture1dMipmap.html" title="struct glium::texture::depth_texture1d::DepthTexture1dMipmap">DepthTexture1dMipmap</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#5437-5442' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for &amp;'t <a class="struct" href="../../glium/texture/depth_texture2d/struct.DepthTexture2d.html" title="struct glium::texture::depth_texture2d::DepthTexture2d">DepthTexture2d</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#5666-5671' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_texture2d/struct.DepthTexture2dMipmap.html" title="struct glium::texture::depth_texture2d::DepthTexture2dMipmap">DepthTexture2dMipmap</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#7655-7660' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for &amp;'t <a class="struct" href="../../glium/texture/depth_texture2d_multisample/struct.DepthTexture2dMultisample.html" title="struct glium::texture::depth_texture2d_multisample::DepthTexture2dMultisample">DepthTexture2dMultisample</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#7850-7855' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_texture2d_multisample/struct.DepthTexture2dMultisampleMipmap.html" title="struct glium::texture::depth_texture2d_multisample::DepthTexture2dMultisampleMipmap">DepthTexture2dMultisampleMipmap</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#10832-10837' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_texture3d/struct.DepthTexture3dMipmap.html" title="struct glium::texture::depth_texture3d::DepthTexture3dMipmap">DepthTexture3dMipmap</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#13823-13828' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_texture1d_array/struct.DepthTexture1dArrayLayerMipmap.html" title="struct glium::texture::depth_texture1d_array::DepthTexture1dArrayLayerMipmap">DepthTexture1dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#17697-17702' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_texture2d_array/struct.DepthTexture2dArrayLayerMipmap.html" title="struct glium::texture::depth_texture2d_array::DepthTexture2dArrayLayerMipmap">DepthTexture2dArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#20729-20734' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_texture2d_multisample_array/struct.DepthTexture2dMultisampleArrayLayerMipmap.html" title="struct glium::texture::depth_texture2d_multisample_array::DepthTexture2dMultisampleArrayLayerMipmap">DepthTexture2dMultisampleArrayLayerMipmap</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#23728-23733' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_cubemap/struct.DepthCubemapImage.html" title="struct glium::texture::depth_cubemap::DepthCubemapImage">DepthCubemapImage</a>&lt;'t&gt;</code></li>
+<li><div class='out-of-band'><a class='srclink' href='../../src/glium/home/daboross/Projects/CheckedOut/glium/target/debug/build/glium-a345d732c5ddedce/out/textures.rs.html#27307-27312' title='goto source code'>[src]</a></div><code>impl&lt;'t&gt; ToDepthAttachment&lt;'t&gt; for <a class="struct" href="../../glium/texture/depth_cubemap_array/struct.DepthCubemapArrayImage.html" title="struct glium::texture::depth_cubemap_array::DepthCubemapArrayImage">DepthCubemapArrayImage</a>&lt;'t&gt;</code></li>
 </ul><script type="text/javascript" async
-                              src="../../implementors/glium/framebuffer/trait.ToDepthAttachment.js">
-                      </script></section>
+                         src="../../implementors/glium/framebuffer/trait.ToDepthAttachment.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -90,12 +96,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -116,7 +126,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -127,11 +137,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["TempDir","A wrapper for a path to temporary directory implementing automatic scope-based deletion."]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"trait":[["PixelValue","A trait that must be implemented for any type that can represent the value of a pixel."]]});

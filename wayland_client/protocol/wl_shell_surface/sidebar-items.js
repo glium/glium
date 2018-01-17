@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FullscreenMethod","different method to set the surface fullscreen"]],"struct":[["Implementation",""],["Resize","edge values for resizing"],["Transient","details of transient behaviour"],["WlShellSurface",""]]});

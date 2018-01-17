@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/rand-0.3.12/src/reseeding.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/rand-0.3.20/src/reseeding.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>reseeding.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     <link rel="shortcut icon" href="https://www.rust-lang.org/favicon.ico">
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -26,7 +28,7 @@
     
 
     <nav class="sidebar">
-        <a href='../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='' width='100'></a>
+        <a href='../../rand/index.html'><img src='https://www.rust-lang.org/logos/rust-logo-128x128-blk.png' alt='logo' width='100'></a>
         
     </nav>
 
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -269,233 +271,235 @@
 <span id="226">226</span>
 <span id="227">227</span>
 <span id="228">228</span>
-</pre><pre class='rust '>
-<span class='comment'>// Copyright 2013 The Rust Project Developers. See the COPYRIGHT</span>
-<span class='comment'>// file at the top-level directory of this distribution and at</span>
-<span class='comment'>// http://rust-lang.org/COPYRIGHT.</span>
-<span class='comment'>//</span>
-<span class='comment'>// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
-<span class='comment'>// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
-<span class='comment'>// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
-<span class='comment'>// option. This file may not be copied, modified, or distributed</span>
-<span class='comment'>// except according to those terms.</span>
+<span id="229">229</span>
+</pre><pre class="rust ">
+<span class="comment">// Copyright 2013 The Rust Project Developers. See the COPYRIGHT</span>
+<span class="comment">// file at the top-level directory of this distribution and at</span>
+<span class="comment">// http://rust-lang.org/COPYRIGHT.</span>
+<span class="comment">//</span>
+<span class="comment">// Licensed under the Apache License, Version 2.0 &lt;LICENSE-APACHE or</span>
+<span class="comment">// http://www.apache.org/licenses/LICENSE-2.0&gt; or the MIT license</span>
+<span class="comment">// &lt;LICENSE-MIT or http://opensource.org/licenses/MIT&gt;, at your</span>
+<span class="comment">// option. This file may not be copied, modified, or distributed</span>
+<span class="comment">// except according to those terms.</span>
 
-<span class='doccomment'>//! A wrapper around another RNG that reseeds it after it</span>
-<span class='doccomment'>//! generates a certain number of random bytes.</span>
+<span class="doccomment">//! A wrapper around another RNG that reseeds it after it</span>
+<span class="doccomment">//! generates a certain number of random bytes.</span>
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>default</span>::<span class='ident'>Default</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">default</span>::<span class="ident">Default</span>;
 
-<span class='kw'>use</span> {<span class='ident'>Rng</span>, <span class='ident'>SeedableRng</span>};
+<span class="kw">use</span> {<span class="ident">Rng</span>, <span class="ident">SeedableRng</span>};
 
-<span class='doccomment'>/// How many bytes of entropy the underling RNG is allowed to generate</span>
-<span class='doccomment'>/// before it is reseeded</span>
-<span class='kw'>const</span> <span class='ident'>DEFAULT_GENERATION_THRESHOLD</span>: <span class='ident'>u64</span> <span class='op'>=</span> <span class='number'>32</span> <span class='op'>*</span> <span class='number'>1024</span>;
+<span class="doccomment">/// How many bytes of entropy the underling RNG is allowed to generate</span>
+<span class="doccomment">/// before it is reseeded</span>
+<span class="kw">const</span> <span class="ident">DEFAULT_GENERATION_THRESHOLD</span>: <span class="ident">u64</span> <span class="op">=</span> <span class="number">32</span> <span class="op">*</span> <span class="number">1024</span>;
 
-<span class='doccomment'>/// A wrapper around any RNG which reseeds the underlying RNG after it</span>
-<span class='doccomment'>/// has generated a certain number of random bytes.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ReseedingRng</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Rsdr</span><span class='op'>&gt;</span> {
-    <span class='ident'>rng</span>: <span class='ident'>R</span>,
-    <span class='ident'>generation_threshold</span>: <span class='ident'>u64</span>,
-    <span class='ident'>bytes_generated</span>: <span class='ident'>u64</span>,
-    <span class='doccomment'>/// Controls the behaviour when reseeding the RNG.</span>
-    <span class='kw'>pub</span> <span class='ident'>reseeder</span>: <span class='ident'>Rsdr</span>,
+<span class="doccomment">/// A wrapper around any RNG which reseeds the underlying RNG after it</span>
+<span class="doccomment">/// has generated a certain number of random bytes.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReseedingRng</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Rsdr</span><span class="op">&gt;</span> {
+    <span class="ident">rng</span>: <span class="ident">R</span>,
+    <span class="ident">generation_threshold</span>: <span class="ident">u64</span>,
+    <span class="ident">bytes_generated</span>: <span class="ident">u64</span>,
+    <span class="doccomment">/// Controls the behaviour when reseeding the RNG.</span>
+    <span class="kw">pub</span> <span class="ident">reseeder</span>: <span class="ident">Rsdr</span>,
 }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span>, <span class='ident'>Rsdr</span>: <span class='ident'>Reseeder</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;&gt;</span> <span class='ident'>ReseedingRng</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Rsdr</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Create a new `ReseedingRng` with the given parameters.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Arguments</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// * `rng`: the random number generator to use.</span>
-    <span class='doccomment'>/// * `generation_threshold`: the number of bytes of entropy at which to reseed the RNG.</span>
-    <span class='doccomment'>/// * `reseeder`: the reseeding object to use.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>rng</span>: <span class='ident'>R</span>, <span class='ident'>generation_threshold</span>: <span class='ident'>u64</span>, <span class='ident'>reseeder</span>: <span class='ident'>Rsdr</span>) <span class='op'>-&gt;</span> <span class='ident'>ReseedingRng</span><span class='op'>&lt;</span><span class='ident'>R</span>,<span class='ident'>Rsdr</span><span class='op'>&gt;</span> {
-        <span class='ident'>ReseedingRng</span> {
-            <span class='ident'>rng</span>: <span class='ident'>rng</span>,
-            <span class='ident'>generation_threshold</span>: <span class='ident'>generation_threshold</span>,
-            <span class='ident'>bytes_generated</span>: <span class='number'>0</span>,
-            <span class='ident'>reseeder</span>: <span class='ident'>reseeder</span>
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span>, <span class="ident">Rsdr</span>: <span class="ident">Reseeder</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;&gt;</span> <span class="ident">ReseedingRng</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Rsdr</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Create a new `ReseedingRng` with the given parameters.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Arguments</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// * `rng`: the random number generator to use.</span>
+    <span class="doccomment">/// * `generation_threshold`: the number of bytes of entropy at which to reseed the RNG.</span>
+    <span class="doccomment">/// * `reseeder`: the reseeding object to use.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">rng</span>: <span class="ident">R</span>, <span class="ident">generation_threshold</span>: <span class="ident">u64</span>, <span class="ident">reseeder</span>: <span class="ident">Rsdr</span>) <span class="op">-&gt;</span> <span class="ident">ReseedingRng</span><span class="op">&lt;</span><span class="ident">R</span>,<span class="ident">Rsdr</span><span class="op">&gt;</span> {
+        <span class="ident">ReseedingRng</span> {
+            <span class="ident">rng</span>: <span class="ident">rng</span>,
+            <span class="ident">generation_threshold</span>: <span class="ident">generation_threshold</span>,
+            <span class="ident">bytes_generated</span>: <span class="number">0</span>,
+            <span class="ident">reseeder</span>: <span class="ident">reseeder</span>
         }
     }
 
-    <span class='doccomment'>/// Reseed the internal RNG if the number of bytes that have been</span>
-    <span class='doccomment'>/// generated exceed the threshold.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>reseed_if_necessary</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) {
-        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>bytes_generated</span> <span class='op'>&gt;=</span> <span class='self'>self</span>.<span class='ident'>generation_threshold</span> {
-            <span class='self'>self</span>.<span class='ident'>reseeder</span>.<span class='ident'>reseed</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>rng</span>);
-            <span class='self'>self</span>.<span class='ident'>bytes_generated</span> <span class='op'>=</span> <span class='number'>0</span>;
-        }
-    }
-}
-
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span>, <span class='ident'>Rsdr</span>: <span class='ident'>Reseeder</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;&gt;</span> <span class='ident'>Rng</span> <span class='kw'>for</span> <span class='ident'>ReseedingRng</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Rsdr</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>next_u32</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u32</span> {
-        <span class='self'>self</span>.<span class='ident'>reseed_if_necessary</span>();
-        <span class='self'>self</span>.<span class='ident'>bytes_generated</span> <span class='op'>+=</span> <span class='number'>4</span>;
-        <span class='self'>self</span>.<span class='ident'>rng</span>.<span class='ident'>next_u32</span>()
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>next_u64</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u64</span> {
-        <span class='self'>self</span>.<span class='ident'>reseed_if_necessary</span>();
-        <span class='self'>self</span>.<span class='ident'>bytes_generated</span> <span class='op'>+=</span> <span class='number'>8</span>;
-        <span class='self'>self</span>.<span class='ident'>rng</span>.<span class='ident'>next_u64</span>()
-    }
-
-    <span class='kw'>fn</span> <span class='ident'>fill_bytes</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>dest</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> [<span class='ident'>u8</span>]) {
-        <span class='self'>self</span>.<span class='ident'>reseed_if_necessary</span>();
-        <span class='self'>self</span>.<span class='ident'>bytes_generated</span> <span class='op'>+=</span> <span class='ident'>dest</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>u64</span>;
-        <span class='self'>self</span>.<span class='ident'>rng</span>.<span class='ident'>fill_bytes</span>(<span class='ident'>dest</span>)
-    }
-}
-
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>S</span>, <span class='ident'>R</span>: <span class='ident'>SeedableRng</span><span class='op'>&lt;</span><span class='ident'>S</span><span class='op'>&gt;</span>, <span class='ident'>Rsdr</span>: <span class='ident'>Reseeder</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> <span class='op'>+</span> <span class='ident'>Default</span><span class='op'>&gt;</span>
-     <span class='ident'>SeedableRng</span><span class='op'>&lt;</span>(<span class='ident'>Rsdr</span>, <span class='ident'>S</span>)<span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ReseedingRng</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Rsdr</span><span class='op'>&gt;</span> {
-    <span class='kw'>fn</span> <span class='ident'>reseed</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, (<span class='ident'>rsdr</span>, <span class='ident'>seed</span>): (<span class='ident'>Rsdr</span>, <span class='ident'>S</span>)) {
-        <span class='self'>self</span>.<span class='ident'>rng</span>.<span class='ident'>reseed</span>(<span class='ident'>seed</span>);
-        <span class='self'>self</span>.<span class='ident'>reseeder</span> <span class='op'>=</span> <span class='ident'>rsdr</span>;
-        <span class='self'>self</span>.<span class='ident'>bytes_generated</span> <span class='op'>=</span> <span class='number'>0</span>;
-    }
-
-    <span class='doccomment'>/// Create a new `ReseedingRng` from the given reseeder and</span>
-    <span class='doccomment'>/// seed. This uses a default value for `generation_threshold`.</span>
-    <span class='kw'>fn</span> <span class='ident'>from_seed</span>((<span class='ident'>rsdr</span>, <span class='ident'>seed</span>): (<span class='ident'>Rsdr</span>, <span class='ident'>S</span>)) <span class='op'>-&gt;</span> <span class='ident'>ReseedingRng</span><span class='op'>&lt;</span><span class='ident'>R</span>, <span class='ident'>Rsdr</span><span class='op'>&gt;</span> {
-        <span class='ident'>ReseedingRng</span> {
-            <span class='ident'>rng</span>: <span class='ident'>SeedableRng</span>::<span class='ident'>from_seed</span>(<span class='ident'>seed</span>),
-            <span class='ident'>generation_threshold</span>: <span class='ident'>DEFAULT_GENERATION_THRESHOLD</span>,
-            <span class='ident'>bytes_generated</span>: <span class='number'>0</span>,
-            <span class='ident'>reseeder</span>: <span class='ident'>rsdr</span>
+    <span class="doccomment">/// Reseed the internal RNG if the number of bytes that have been</span>
+    <span class="doccomment">/// generated exceed the threshold.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">reseed_if_necessary</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">bytes_generated</span> <span class="op">&gt;=</span> <span class="self">self</span>.<span class="ident">generation_threshold</span> {
+            <span class="self">self</span>.<span class="ident">reseeder</span>.<span class="ident">reseed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">rng</span>);
+            <span class="self">self</span>.<span class="ident">bytes_generated</span> <span class="op">=</span> <span class="number">0</span>;
         }
     }
 }
 
-<span class='doccomment'>/// Something that can be used to reseed an RNG via `ReseedingRng`.</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// # Example</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```rust</span>
-<span class='doccomment'>/// use rand::{Rng, SeedableRng, StdRng};</span>
-<span class='doccomment'>/// use rand::reseeding::{Reseeder, ReseedingRng};</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// struct TickTockReseeder { tick: bool }</span>
-<span class='doccomment'>/// impl Reseeder&lt;StdRng&gt; for TickTockReseeder {</span>
-<span class='doccomment'>///     fn reseed(&amp;mut self, rng: &amp;mut StdRng) {</span>
-<span class='doccomment'>///         let val = if self.tick {0} else {1};</span>
-<span class='doccomment'>///         rng.reseed(&amp;[val]);</span>
-<span class='doccomment'>///         self.tick = !self.tick;</span>
-<span class='doccomment'>///     }</span>
-<span class='doccomment'>/// }</span>
-<span class='doccomment'>/// fn main() {</span>
-<span class='doccomment'>///     let rsdr = TickTockReseeder { tick: true };</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>///     let inner = StdRng::new().unwrap();</span>
-<span class='doccomment'>///     let mut rng = ReseedingRng::new(inner, 10, rsdr);</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>///     // this will repeat, because it gets reseeded very regularly.</span>
-<span class='doccomment'>///     let s: String = rng.gen_ascii_chars().take(100).collect();</span>
-<span class='doccomment'>///     println!(&quot;{}&quot;, s);</span>
-<span class='doccomment'>/// }</span>
-<span class='doccomment'>///</span>
-<span class='doccomment'>/// ```</span>
-<span class='kw'>pub</span> <span class='kw'>trait</span> <span class='ident'>Reseeder</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> {
-    <span class='doccomment'>/// Reseed the given RNG.</span>
-    <span class='kw'>fn</span> <span class='ident'>reseed</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>);
-}
 
-<span class='doccomment'>/// Reseed an RNG using a `Default` instance. This reseeds by</span>
-<span class='doccomment'>/// replacing the RNG with the result of a `Default::default` call.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>ReseedWithDefault</span>;
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span>, <span class="ident">Rsdr</span>: <span class="ident">Reseeder</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;&gt;</span> <span class="ident">Rng</span> <span class="kw">for</span> <span class="ident">ReseedingRng</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Rsdr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">next_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
+        <span class="self">self</span>.<span class="ident">reseed_if_necessary</span>();
+        <span class="self">self</span>.<span class="ident">bytes_generated</span> <span class="op">+=</span> <span class="number">4</span>;
+        <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">next_u32</span>()
+    }
 
-<span class='kw'>impl</span><span class='op'>&lt;</span><span class='ident'>R</span>: <span class='ident'>Rng</span> <span class='op'>+</span> <span class='ident'>Default</span><span class='op'>&gt;</span> <span class='ident'>Reseeder</span><span class='op'>&lt;</span><span class='ident'>R</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>ReseedWithDefault</span> {
-    <span class='kw'>fn</span> <span class='ident'>reseed</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>rng</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>R</span>) {
-        <span class='op'>*</span><span class='ident'>rng</span> <span class='op'>=</span> <span class='ident'>Default</span>::<span class='ident'>default</span>();
+    <span class="kw">fn</span> <span class="ident">next_u64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u64</span> {
+        <span class="self">self</span>.<span class="ident">reseed_if_necessary</span>();
+        <span class="self">self</span>.<span class="ident">bytes_generated</span> <span class="op">+=</span> <span class="number">8</span>;
+        <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">next_u64</span>()
+    }
+
+    <span class="kw">fn</span> <span class="ident">fill_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">dest</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> [<span class="ident">u8</span>]) {
+        <span class="self">self</span>.<span class="ident">reseed_if_necessary</span>();
+        <span class="self">self</span>.<span class="ident">bytes_generated</span> <span class="op">+=</span> <span class="ident">dest</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">u64</span>;
+        <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">fill_bytes</span>(<span class="ident">dest</span>)
     }
 }
-<span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>ReseedWithDefault</span> {
-    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='ident'>ReseedWithDefault</span> { <span class='ident'>ReseedWithDefault</span> }
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">S</span>, <span class="ident">R</span>: <span class="ident">SeedableRng</span><span class="op">&lt;</span><span class="ident">S</span><span class="op">&gt;</span>, <span class="ident">Rsdr</span>: <span class="ident">Reseeder</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="op">+</span> <span class="ident">Default</span><span class="op">&gt;</span>
+     <span class="ident">SeedableRng</span><span class="op">&lt;</span>(<span class="ident">Rsdr</span>, <span class="ident">S</span>)<span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ReseedingRng</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Rsdr</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">reseed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, (<span class="ident">rsdr</span>, <span class="ident">seed</span>): (<span class="ident">Rsdr</span>, <span class="ident">S</span>)) {
+        <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">reseed</span>(<span class="ident">seed</span>);
+        <span class="self">self</span>.<span class="ident">reseeder</span> <span class="op">=</span> <span class="ident">rsdr</span>;
+        <span class="self">self</span>.<span class="ident">bytes_generated</span> <span class="op">=</span> <span class="number">0</span>;
+    }
+
+    <span class="doccomment">/// Create a new `ReseedingRng` from the given reseeder and</span>
+    <span class="doccomment">/// seed. This uses a default value for `generation_threshold`.</span>
+    <span class="kw">fn</span> <span class="ident">from_seed</span>((<span class="ident">rsdr</span>, <span class="ident">seed</span>): (<span class="ident">Rsdr</span>, <span class="ident">S</span>)) <span class="op">-&gt;</span> <span class="ident">ReseedingRng</span><span class="op">&lt;</span><span class="ident">R</span>, <span class="ident">Rsdr</span><span class="op">&gt;</span> {
+        <span class="ident">ReseedingRng</span> {
+            <span class="ident">rng</span>: <span class="ident">SeedableRng</span>::<span class="ident">from_seed</span>(<span class="ident">seed</span>),
+            <span class="ident">generation_threshold</span>: <span class="ident">DEFAULT_GENERATION_THRESHOLD</span>,
+            <span class="ident">bytes_generated</span>: <span class="number">0</span>,
+            <span class="ident">reseeder</span>: <span class="ident">rsdr</span>
+        }
+    }
 }
 
-<span class='attribute'>#[<span class='ident'>cfg</span>(<span class='ident'>test</span>)]</span>
-<span class='kw'>mod</span> <span class='ident'>test</span> {
-    <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>default</span>::<span class='ident'>Default</span>;
-    <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>iter</span>::<span class='ident'>repeat</span>;
-    <span class='kw'>use</span> <span class='ident'>super</span>::{<span class='ident'>ReseedingRng</span>, <span class='ident'>ReseedWithDefault</span>};
-    <span class='kw'>use</span> {<span class='ident'>SeedableRng</span>, <span class='ident'>Rng</span>};
+<span class="doccomment">/// Something that can be used to reseed an RNG via `ReseedingRng`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// # Example</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```rust</span>
+<span class="doccomment">/// use rand::{Rng, SeedableRng, StdRng};</span>
+<span class="doccomment">/// use rand::reseeding::{Reseeder, ReseedingRng};</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// struct TickTockReseeder { tick: bool }</span>
+<span class="doccomment">/// impl Reseeder&lt;StdRng&gt; for TickTockReseeder {</span>
+<span class="doccomment">///     fn reseed(&amp;mut self, rng: &amp;mut StdRng) {</span>
+<span class="doccomment">///         let val = if self.tick {0} else {1};</span>
+<span class="doccomment">///         rng.reseed(&amp;[val]);</span>
+<span class="doccomment">///         self.tick = !self.tick;</span>
+<span class="doccomment">///     }</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">/// fn main() {</span>
+<span class="doccomment">///     let rsdr = TickTockReseeder { tick: true };</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     let inner = StdRng::new().unwrap();</span>
+<span class="doccomment">///     let mut rng = ReseedingRng::new(inner, 10, rsdr);</span>
+<span class="doccomment">///</span>
+<span class="doccomment">///     // this will repeat, because it gets reseeded very regularly.</span>
+<span class="doccomment">///     let s: String = rng.gen_ascii_chars().take(100).collect();</span>
+<span class="doccomment">///     println!(&quot;{}&quot;, s);</span>
+<span class="doccomment">/// }</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ```</span>
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Reseeder</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> {
+    <span class="doccomment">/// Reseed the given RNG.</span>
+    <span class="kw">fn</span> <span class="ident">reseed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>);
+}
 
-    <span class='kw'>struct</span> <span class='ident'>Counter</span> {
-        <span class='ident'>i</span>: <span class='ident'>u32</span>
+<span class="doccomment">/// Reseed an RNG using a `Default` instance. This reseeds by</span>
+<span class="doccomment">/// replacing the RNG with the result of a `Default::default` call.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ReseedWithDefault</span>;
+
+<span class="kw">impl</span><span class="op">&lt;</span><span class="ident">R</span>: <span class="ident">Rng</span> <span class="op">+</span> <span class="ident">Default</span><span class="op">&gt;</span> <span class="ident">Reseeder</span><span class="op">&lt;</span><span class="ident">R</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ReseedWithDefault</span> {
+    <span class="kw">fn</span> <span class="ident">reseed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">R</span>) {
+        <span class="kw-2">*</span><span class="ident">rng</span> <span class="op">=</span> <span class="ident">Default</span>::<span class="ident">default</span>();
+    }
+}
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">ReseedWithDefault</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">ReseedWithDefault</span> { <span class="ident">ReseedWithDefault</span> }
+}
+
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
+<span class="kw">mod</span> <span class="ident">test</span> {
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">default</span>::<span class="ident">Default</span>;
+    <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">iter</span>::<span class="ident">repeat</span>;
+    <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">ReseedingRng</span>, <span class="ident">ReseedWithDefault</span>};
+    <span class="kw">use</span> {<span class="ident">SeedableRng</span>, <span class="ident">Rng</span>};
+
+    <span class="kw">struct</span> <span class="ident">Counter</span> {
+        <span class="ident">i</span>: <span class="ident">u32</span>
     }
 
-    <span class='kw'>impl</span> <span class='ident'>Rng</span> <span class='kw'>for</span> <span class='ident'>Counter</span> {
-        <span class='kw'>fn</span> <span class='ident'>next_u32</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>u32</span> {
-            <span class='self'>self</span>.<span class='ident'>i</span> <span class='op'>+=</span> <span class='number'>1</span>;
-            <span class='comment'>// very random</span>
-            <span class='self'>self</span>.<span class='ident'>i</span> <span class='op'>-</span> <span class='number'>1</span>
+    <span class="kw">impl</span> <span class="ident">Rng</span> <span class="kw">for</span> <span class="ident">Counter</span> {
+        <span class="kw">fn</span> <span class="ident">next_u32</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">u32</span> {
+            <span class="self">self</span>.<span class="ident">i</span> <span class="op">+=</span> <span class="number">1</span>;
+            <span class="comment">// very random</span>
+            <span class="self">self</span>.<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>
         }
     }
-    <span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>Counter</span> {
-        <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='ident'>Counter</span> {
-            <span class='ident'>Counter</span> { <span class='ident'>i</span>: <span class='number'>0</span> }
+    <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Counter</span> {
+        <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">Counter</span> {
+            <span class="ident">Counter</span> { <span class="ident">i</span>: <span class="number">0</span> }
         }
     }
-    <span class='kw'>impl</span> <span class='ident'>SeedableRng</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Counter</span> {
-        <span class='kw'>fn</span> <span class='ident'>reseed</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>seed</span>: <span class='ident'>u32</span>) {
-            <span class='self'>self</span>.<span class='ident'>i</span> <span class='op'>=</span> <span class='ident'>seed</span>;
+    <span class="kw">impl</span> <span class="ident">SeedableRng</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Counter</span> {
+        <span class="kw">fn</span> <span class="ident">reseed</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">seed</span>: <span class="ident">u32</span>) {
+            <span class="self">self</span>.<span class="ident">i</span> <span class="op">=</span> <span class="ident">seed</span>;
         }
-        <span class='kw'>fn</span> <span class='ident'>from_seed</span>(<span class='ident'>seed</span>: <span class='ident'>u32</span>) <span class='op'>-&gt;</span> <span class='ident'>Counter</span> {
-            <span class='ident'>Counter</span> { <span class='ident'>i</span>: <span class='ident'>seed</span> }
-        }
-    }
-    <span class='kw'>type</span> <span class='ident'>MyRng</span> <span class='op'>=</span> <span class='ident'>ReseedingRng</span><span class='op'>&lt;</span><span class='ident'>Counter</span>, <span class='ident'>ReseedWithDefault</span><span class='op'>&gt;</span>;
-
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_reseeding</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rs</span> <span class='op'>=</span> <span class='ident'>ReseedingRng</span>::<span class='ident'>new</span>(<span class='ident'>Counter</span> {<span class='ident'>i</span>:<span class='number'>0</span>}, <span class='number'>400</span>, <span class='ident'>ReseedWithDefault</span>);
-
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>i</span> <span class='op'>=</span> <span class='number'>0</span>;
-        <span class='kw'>for</span> _ <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>1000</span> {
-            <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>rs</span>.<span class='ident'>next_u32</span>(), <span class='ident'>i</span> <span class='op'>%</span> <span class='number'>100</span>);
-            <span class='ident'>i</span> <span class='op'>+=</span> <span class='number'>1</span>;
+        <span class="kw">fn</span> <span class="ident">from_seed</span>(<span class="ident">seed</span>: <span class="ident">u32</span>) <span class="op">-&gt;</span> <span class="ident">Counter</span> {
+            <span class="ident">Counter</span> { <span class="ident">i</span>: <span class="ident">seed</span> }
         }
     }
+    <span class="kw">type</span> <span class="ident">MyRng</span> <span class="op">=</span> <span class="ident">ReseedingRng</span><span class="op">&lt;</span><span class="ident">Counter</span>, <span class="ident">ReseedWithDefault</span><span class="op">&gt;</span>;
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_rng_seeded</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>ra</span>: <span class='ident'>MyRng</span> <span class='op'>=</span> <span class='ident'>SeedableRng</span>::<span class='ident'>from_seed</span>((<span class='ident'>ReseedWithDefault</span>, <span class='number'>2</span>));
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>rb</span>: <span class='ident'>MyRng</span> <span class='op'>=</span> <span class='ident'>SeedableRng</span>::<span class='ident'>from_seed</span>((<span class='ident'>ReseedWithDefault</span>, <span class='number'>2</span>));
-        <span class='macro'>assert</span><span class='macro'>!</span>(::<span class='ident'>test</span>::<span class='ident'>iter_eq</span>(<span class='ident'>ra</span>.<span class='ident'>gen_ascii_chars</span>().<span class='ident'>take</span>(<span class='number'>100</span>),
-                                <span class='ident'>rb</span>.<span class='ident'>gen_ascii_chars</span>().<span class='ident'>take</span>(<span class='number'>100</span>)));
-    }
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_reseeding</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rs</span> <span class="op">=</span> <span class="ident">ReseedingRng</span>::<span class="ident">new</span>(<span class="ident">Counter</span> {<span class="ident">i</span>:<span class="number">0</span>}, <span class="number">400</span>, <span class="ident">ReseedWithDefault</span>);
 
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_rng_reseed</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>r</span>: <span class='ident'>MyRng</span> <span class='op'>=</span> <span class='ident'>SeedableRng</span>::<span class='ident'>from_seed</span>((<span class='ident'>ReseedWithDefault</span>, <span class='number'>3</span>));
-        <span class='kw'>let</span> <span class='ident'>string1</span>: <span class='ident'>String</span> <span class='op'>=</span> <span class='ident'>r</span>.<span class='ident'>gen_ascii_chars</span>().<span class='ident'>take</span>(<span class='number'>100</span>).<span class='ident'>collect</span>();
-
-        <span class='ident'>r</span>.<span class='ident'>reseed</span>((<span class='ident'>ReseedWithDefault</span>, <span class='number'>3</span>));
-
-        <span class='kw'>let</span> <span class='ident'>string2</span>: <span class='ident'>String</span> <span class='op'>=</span> <span class='ident'>r</span>.<span class='ident'>gen_ascii_chars</span>().<span class='ident'>take</span>(<span class='number'>100</span>).<span class='ident'>collect</span>();
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>string1</span>, <span class='ident'>string2</span>);
-    }
-
-    <span class='kw'>const</span> <span class='ident'>FILL_BYTES_V_LEN</span>: <span class='ident'>usize</span> <span class='op'>=</span> <span class='number'>13579</span>;
-    <span class='attribute'>#[<span class='ident'>test</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>test_rng_fill_bytes</span>() {
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>v</span> <span class='op'>=</span> <span class='ident'>repeat</span>(<span class='number'>0u8</span>).<span class='ident'>take</span>(<span class='ident'>FILL_BYTES_V_LEN</span>).<span class='ident'>collect</span>::<span class='op'>&lt;</span><span class='ident'>Vec</span><span class='op'>&lt;</span>_<span class='op'>&gt;&gt;</span>();
-        ::<span class='ident'>test</span>::<span class='ident'>rng</span>().<span class='ident'>fill_bytes</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>v</span>);
-
-        <span class='comment'>// Sanity test: if we&#39;ve gotten here, `fill_bytes` has not infinitely</span>
-        <span class='comment'>// recursed.</span>
-        <span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>v</span>.<span class='ident'>len</span>(), <span class='ident'>FILL_BYTES_V_LEN</span>);
-
-        <span class='comment'>// To test that `fill_bytes` actually did something, check that the</span>
-        <span class='comment'>// average of `v` is not 0.</span>
-        <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>sum</span> <span class='op'>=</span> <span class='number'>0.0</span>;
-        <span class='kw'>for</span> <span class='kw-2'>&amp;</span><span class='ident'>x</span> <span class='kw'>in</span> <span class='ident'>v</span>.<span class='ident'>iter</span>() {
-            <span class='ident'>sum</span> <span class='op'>+=</span> <span class='ident'>x</span> <span class='kw'>as</span> <span class='ident'>f64</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">for</span> _ <span class="kw">in</span> <span class="number">0</span>..<span class="number">1000</span> {
+            <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">rs</span>.<span class="ident">next_u32</span>(), <span class="ident">i</span> <span class="op">%</span> <span class="number">100</span>);
+            <span class="ident">i</span> <span class="op">+=</span> <span class="number">1</span>;
         }
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>sum</span> <span class='op'>/</span> <span class='ident'>v</span>.<span class='ident'>len</span>() <span class='kw'>as</span> <span class='ident'>f64</span> <span class='op'>!=</span> <span class='number'>0.0</span>);
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_rng_seeded</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ra</span>: <span class="ident">MyRng</span> <span class="op">=</span> <span class="ident">SeedableRng</span>::<span class="ident">from_seed</span>((<span class="ident">ReseedWithDefault</span>, <span class="number">2</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rb</span>: <span class="ident">MyRng</span> <span class="op">=</span> <span class="ident">SeedableRng</span>::<span class="ident">from_seed</span>((<span class="ident">ReseedWithDefault</span>, <span class="number">2</span>));
+        <span class="macro">assert</span><span class="macro">!</span>(::<span class="ident">test</span>::<span class="ident">iter_eq</span>(<span class="ident">ra</span>.<span class="ident">gen_ascii_chars</span>().<span class="ident">take</span>(<span class="number">100</span>),
+                                <span class="ident">rb</span>.<span class="ident">gen_ascii_chars</span>().<span class="ident">take</span>(<span class="number">100</span>)));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_rng_reseed</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">MyRng</span> <span class="op">=</span> <span class="ident">SeedableRng</span>::<span class="ident">from_seed</span>((<span class="ident">ReseedWithDefault</span>, <span class="number">3</span>));
+        <span class="kw">let</span> <span class="ident">string1</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">gen_ascii_chars</span>().<span class="ident">take</span>(<span class="number">100</span>).<span class="ident">collect</span>();
+
+        <span class="ident">r</span>.<span class="ident">reseed</span>((<span class="ident">ReseedWithDefault</span>, <span class="number">3</span>));
+
+        <span class="kw">let</span> <span class="ident">string2</span>: <span class="ident">String</span> <span class="op">=</span> <span class="ident">r</span>.<span class="ident">gen_ascii_chars</span>().<span class="ident">take</span>(<span class="number">100</span>).<span class="ident">collect</span>();
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">string1</span>, <span class="ident">string2</span>);
+    }
+
+    <span class="kw">const</span> <span class="ident">FILL_BYTES_V_LEN</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">13579</span>;
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_rng_fill_bytes</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">repeat</span>(<span class="number">0u8</span>).<span class="ident">take</span>(<span class="ident">FILL_BYTES_V_LEN</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>_<span class="op">&gt;&gt;</span>();
+        ::<span class="ident">test</span>::<span class="ident">rng</span>().<span class="ident">fill_bytes</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">v</span>);
+
+        <span class="comment">// Sanity test: if we&#39;ve gotten here, `fill_bytes` has not infinitely</span>
+        <span class="comment">// recursed.</span>
+        <span class="macro">assert_eq</span><span class="macro">!</span>(<span class="ident">v</span>.<span class="ident">len</span>(), <span class="ident">FILL_BYTES_V_LEN</span>);
+
+        <span class="comment">// To test that `fill_bytes` actually did something, check that the</span>
+        <span class="comment">// average of `v` is not 0.</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sum</span> <span class="op">=</span> <span class="number">0.0</span>;
+        <span class="kw">for</span> <span class="kw-2">&amp;</span><span class="ident">x</span> <span class="kw">in</span> <span class="ident">v</span>.<span class="ident">iter</span>() {
+            <span class="ident">sum</span> <span class="op">+=</span> <span class="ident">x</span> <span class="kw">as</span> <span class="ident">f64</span>;
+        }
+        <span class="macro">assert</span><span class="macro">!</span>(<span class="ident">sum</span> <span class="op">/</span> <span class="ident">v</span>.<span class="ident">len</span>() <span class="kw">as</span> <span class="ident">f64</span> <span class="op">!=</span> <span class="number">0.0</span>);
     }
 }
 </pre>
@@ -516,12 +520,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -542,7 +550,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -553,11 +561,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "rand";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

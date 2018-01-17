@@ -9,13 +9,15 @@
 
     <title>tempfile - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'tempfile', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate tempfile</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'tempfile', ty: 'mod', relpath: '../'};</script>
     </nav>
 
     <nav class="sub">
@@ -41,51 +43,76 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>tempfile</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='../src/tempfile/lib.rs.html#1-42' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>tempfile</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/tempfile/lib.rs.html#1-57' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Securely create and manage temporary files. Temporary files created by this create are
 automatically deleted.</p>
 
-<p>This crate provides two temporary file variants: <code>TempFile</code> and <code>NamedTempFile</code>. When choosing
-between the variants, prefer <code>TempFile</code> unless you either need to know the file&#39;s path or to be
-able to persist it.</p>
+<p>This crate provides two temporary file variants: a <code>tempfile()</code> function that returns standard
+<code>File</code> objects and <code>NamedTempFile</code>. When choosing between the variants, prefer <code>tempfile()</code>
+unless you either need to know the file&#39;s path or to be able to persist it.</p>
+
+<h1 id='example' class='section-header'><a href='#example'>Example</a></h1>
+<pre class="rust rust-example-rendered">
+<span class="kw">use</span> <span class="ident">tempfile</span>::<span class="ident">tempfile</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fs</span>::<span class="ident">File</span>;
+
+<span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">file</span>: <span class="ident">File</span> <span class="op">=</span> <span class="ident">tempfile</span>().<span class="ident">expect</span>(<span class="string">&quot;failed to create temporary file&quot;</span>);</pre>
 
 <h1 id='differences' class='section-header'><a href='#differences'>Differences</a></h1>
 <h2 id='resource-leaking' class='section-header'><a href='#resource-leaking'>Resource Leaking</a></h2>
-<p><code>TempFile</code> will (almost) never fail to cleanup temporary files but <code>NamedTempFile</code> will if its
-destructor doesn&#39;t run. This is because <code>TempFile</code> relies on the OS to cleanup the underlying
-file so the file while <code>NamedTempFile</code> relies on its destructor to do so.</p>
+<p><code>tempfile()</code> will (almost) never fail to cleanup temporary files but <code>NamedTempFile</code> will if
+its destructor doesn&#39;t run. This is because <code>tempfile()</code> relies on the OS to cleanup the
+underlying file so the file while <code>NamedTempFile</code> relies on its destructor to do so.</p>
 
 <h2 id='security' class='section-header'><a href='#security'>Security</a></h2>
 <p>In the presence of pathological temporary file cleaner, relying on file paths is unsafe because
 a temporary file cleaner could delete the temporary file which an attacker could then replace.</p>
 
-<p><code>TempFile</code> doesn&#39;t rely on file paths so this isn&#39;t an issue. However, <code>NamedTempFile</code> does
+<p><code>tempfile()</code> doesn&#39;t rely on file paths so this isn&#39;t an issue. However, <code>NamedTempFile</code> does
 rely on file paths.</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.NamedTempFile.html'
-                               title='tempfile::NamedTempFile'>NamedTempFile</a></td>
-                        <td class='docblock short'>
-                             <p>A named temporary file.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.TempFile.html'
-                               title='tempfile::TempFile'>TempFile</a></td>
-                        <td class='docblock short'>
-                             <p>An unnamed temporary file.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.NamedTempFile.html"
+                                  title='struct tempfile::NamedTempFile'>NamedTempFile</a></td>
+                           <td class='docblock-short'>
+                                <p>A named temporary file.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.NamedTempFileOptions.html"
+                                  title='struct tempfile::NamedTempFileOptions'>NamedTempFileOptions</a></td>
+                           <td class='docblock-short'>
+                                <p>Create a new temporary file with custom parameters.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.PersistError.html"
+                                  title='struct tempfile::PersistError'>PersistError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error returned when persisting a temporary file fails</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.tempfile.html"
+                                  title='fn tempfile::tempfile'>tempfile</a></td>
+                           <td class='docblock-short'>
+                                <p>Create an unnamed temporary file.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.tempfile_in.html"
+                                  title='fn tempfile::tempfile_in'>tempfile_in</a></td>
+                           <td class='docblock-short'>
+                                <p>Create an unnamed temporary file in the specified directory.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -102,12 +129,16 @@ rely on file paths.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -128,7 +159,7 @@ rely on file paths.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -139,11 +170,8 @@ rely on file paths.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "tempfile";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

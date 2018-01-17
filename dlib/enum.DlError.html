@@ -9,13 +9,15 @@
 
     <title>dlib::DlError - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>dlib</a></p><script>window.sidebarCurrent = {name: 'DlError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum DlError</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.NotFound">NotFound</a><a href="#variant.MissingSymbol">MissingSymbol</a></div></div><p class='location'><a href='index.html'>dlib</a></p><script>window.sidebarCurrent = {name: 'DlError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,17 +43,18 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>dlib</a>::<wbr><a class='enum' href=''>DlError</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-5' class='srclink' href='../src/dlib/lib.rs.html#57-60' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>dlib</a>::<wbr><a class="enum" href=''>DlError</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/dlib/lib.rs.html#59-62' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum DlError {
     NotFound,
-    MissingSymbol(&amp;'static <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>),
-}</pre><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.NotFound'><code>NotFound</code></td><td></td></tr><tr><td id='variant.MissingSymbol'><code>MissingSymbol</code></td><td></td></tr></table></section>
+    MissingSymbol(&amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>),
+}</pre><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.NotFound" class="variant small-section-header"><a href="#variant.NotFound" class="anchor field"></a><span id='NotFound.v' class='invisible'><code>NotFound</code></span></span><span id="variant.MissingSymbol" class="variant small-section-header"><a href="#variant.MissingSymbol" class="anchor field"></a><span id='MissingSymbol.v' class='invisible'><code>MissingSymbol(&amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>)</code></span></span></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -68,12 +71,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -94,7 +101,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -105,11 +112,8 @@
     <script>
         window.rootPath = "../";
         window.currentCrate = "dlib";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

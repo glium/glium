@@ -9,13 +9,15 @@
 
     <title>glium::framebuffer - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'framebuffer', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+        <p class='location'>Module framebuffer</p><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'><a href='../index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'framebuffer', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,36 +43,38 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>glium</a>::<wbr><a class='mod' href=''>framebuffer</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-3132' class='srclink' href='../../src/glium/framebuffer/mod.rs.html#1-837' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>glium</a>::<wbr><a class="mod" href=''>framebuffer</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/framebuffer/mod.rs.html#1-882' title='goto source code'>[src]</a></span></h1>
 <div class='docblock'><p>Framebuffers allow you to customize the color, depth and stencil buffers you will draw on.</p>
 
 <p>In order to draw on a texture, use a <code>SimpleFrameBuffer</code>. This framebuffer is compatible with
 shaders that write to <code>gl_FragColor</code>.</p>
-<pre class='rust rust-example-rendered'>
-<span class='kw'>let</span> <span class='ident'>framebuffer</span> <span class='op'>=</span> <span class='ident'>glium</span>::<span class='ident'>framebuffer</span>::<span class='ident'>SimpleFrameBuffer</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>display</span>, <span class='kw-2'>&amp;</span><span class='ident'>texture</span>);
-<span class='comment'>// framebuffer.draw(...);    // draws over `texture`</span></pre>
+
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">framebuffer</span> <span class="op">=</span> <span class="ident">glium</span>::<span class="ident">framebuffer</span>::<span class="ident">SimpleFrameBuffer</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">display</span>, <span class="kw-2">&amp;</span><span class="ident">texture</span>);
+<span class="comment">// framebuffer.draw(...);    // draws over `texture`</span></pre>
 
 <p>If, however, your shader wants to write to multiple color buffers at once, you must use
 a <code>MultiOutputFrameBuffer</code>.</p>
-<pre class='rust rust-example-rendered'>
-<span class='kw'>let</span> <span class='ident'>output</span> <span class='op'>=</span> [ (<span class='string'>&quot;output1&quot;</span>, <span class='kw-2'>&amp;</span><span class='ident'>texture1</span>), (<span class='string'>&quot;output2&quot;</span>, <span class='kw-2'>&amp;</span><span class='ident'>texture2</span>) ];
-<span class='kw'>let</span> <span class='ident'>framebuffer</span> <span class='op'>=</span> <span class='ident'>glium</span>::<span class='ident'>framebuffer</span>::<span class='ident'>MultiOutputFrameBuffer</span>::<span class='ident'>new</span>(<span class='kw-2'>&amp;</span><span class='ident'>display</span>, <span class='ident'>output</span>.<span class='ident'>iter</span>().<span class='ident'>cloned</span>());
-<span class='comment'>// framebuffer.draw(...);</span>
 
-<span class='comment'>// example shader:</span>
-<span class='comment'>//</span>
-<span class='comment'>//     out vec4 output1;</span>
-<span class='comment'>//     out vec4 output2;</span>
-<span class='comment'>//</span>
-<span class='comment'>//     void main() {</span>
-<span class='comment'>//         output1 = vec4(0.0, 0.0, 0.5, 1.0);</span>
-<span class='comment'>//         output2 = vec4(1.0, 0.7, 1.0, 1.0);</span>
-<span class='comment'>//     }</span></pre>
+<pre class="rust rust-example-rendered">
+<span class="kw">let</span> <span class="ident">output</span> <span class="op">=</span> [ (<span class="string">&quot;output1&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">texture1</span>), (<span class="string">&quot;output2&quot;</span>, <span class="kw-2">&amp;</span><span class="ident">texture2</span>) ];
+<span class="kw">let</span> <span class="ident">framebuffer</span> <span class="op">=</span> <span class="ident">glium</span>::<span class="ident">framebuffer</span>::<span class="ident">MultiOutputFrameBuffer</span>::<span class="ident">new</span>(<span class="kw-2">&amp;</span><span class="ident">display</span>, <span class="ident">output</span>.<span class="ident">iter</span>().<span class="ident">cloned</span>());
+<span class="comment">// framebuffer.draw(...);</span>
+
+<span class="comment">// example shader:</span>
+<span class="comment">//</span>
+<span class="comment">//     out vec4 output1;</span>
+<span class="comment">//     out vec4 output2;</span>
+<span class="comment">//</span>
+<span class="comment">//     void main() {</span>
+<span class="comment">//         output1 = vec4(0.0, 0.0, 0.5, 1.0);</span>
+<span class="comment">//         output2 = vec4(1.0, 0.7, 1.0, 1.0);</span>
+<span class="comment">//     }</span></pre>
 
 <p><strong>Note</strong>: depth-stencil attachments are not yet implemented.</p>
 
@@ -101,198 +105,156 @@ source code.</p></li>
 <p>Not yet supported</p>
 </div><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.DefaultFramebuffer.html'
-                               title='glium::framebuffer::DefaultFramebuffer'>DefaultFramebuffer</a></td>
-                        <td class='docblock short'>
-                             <p>A framebuffer which has only one color attachment.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.DepthRenderBuffer.html'
-                               title='glium::framebuffer::DepthRenderBuffer'>DepthRenderBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.DepthStencilRenderBuffer.html'
-                               title='glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.EmptyFrameBuffer.html'
-                               title='glium::framebuffer::EmptyFrameBuffer'>EmptyFrameBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>A framebuffer with no attachment at all.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.MultiOutputFrameBuffer.html'
-                               title='glium::framebuffer::MultiOutputFrameBuffer'>MultiOutputFrameBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>This struct is useless for the moment.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.RenderBuffer.html'
-                               title='glium::framebuffer::RenderBuffer'>RenderBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.RenderBufferAny.html'
-                               title='glium::framebuffer::RenderBufferAny'>RenderBufferAny</a></td>
-                        <td class='docblock short'>
-                             <p>A RenderBuffer of indeterminate type.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.SimpleFrameBuffer.html'
-                               title='glium::framebuffer::SimpleFrameBuffer'>SimpleFrameBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>A framebuffer which has only one color attachment.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='struct' href='struct.StencilRenderBuffer.html'
-                               title='glium::framebuffer::StencilRenderBuffer'>StencilRenderBuffer</a></td>
-                        <td class='docblock short'>
-                             <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.DefaultFramebuffer.html"
+                                  title='struct glium::framebuffer::DefaultFramebuffer'>DefaultFramebuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>A framebuffer which has only one color attachment.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.DepthRenderBuffer.html"
+                                  title='struct glium::framebuffer::DepthRenderBuffer'>DepthRenderBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.DepthStencilRenderBuffer.html"
+                                  title='struct glium::framebuffer::DepthStencilRenderBuffer'>DepthStencilRenderBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EmptyFrameBuffer.html"
+                                  title='struct glium::framebuffer::EmptyFrameBuffer'>EmptyFrameBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>A framebuffer with no attachment at all.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.MultiOutputFrameBuffer.html"
+                                  title='struct glium::framebuffer::MultiOutputFrameBuffer'>MultiOutputFrameBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>This struct is useless for the moment.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.RenderBuffer.html"
+                                  title='struct glium::framebuffer::RenderBuffer'>RenderBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.RenderBufferAny.html"
+                                  title='struct glium::framebuffer::RenderBufferAny'>RenderBufferAny</a></td>
+                           <td class='docblock-short'>
+                                <p>A RenderBuffer of indeterminate type.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.SimpleFrameBuffer.html"
+                                  title='struct glium::framebuffer::SimpleFrameBuffer'>SimpleFrameBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>A framebuffer which has only one color attachment.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.StencilRenderBuffer.html"
+                                  title='struct glium::framebuffer::StencilRenderBuffer'>StencilRenderBuffer</a></td>
+                           <td class='docblock-short'>
+                                <p>A render buffer is similar to a texture, but is optimized for usage as a draw target.</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.ColorAttachment.html'
-                               title='glium::framebuffer::ColorAttachment'>ColorAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Describes an attachment for a color buffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.DefaultFramebufferAttachment.html'
-                               title='glium::framebuffer::DefaultFramebufferAttachment'>DefaultFramebufferAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>One of the color attachments on the default framebuffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.DepthAttachment.html'
-                               title='glium::framebuffer::DepthAttachment'>DepthAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Describes an attachment for a depth buffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.DepthStencilAttachment.html'
-                               title='glium::framebuffer::DepthStencilAttachment'>DepthStencilAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Describes an attachment for a depth and stencil buffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.RenderBufferCreationError.html'
-                               title='glium::framebuffer::RenderBufferCreationError'>RenderBufferCreationError</a></td>
-                        <td class='docblock short'>
-                             <p>Error while creating a render buffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.StencilAttachment.html'
-                               title='glium::framebuffer::StencilAttachment'>StencilAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Describes an attachment for a stencil buffer.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='enum' href='enum.ValidationError.html'
-                               title='glium::framebuffer::ValidationError'>ValidationError</a></td>
-                        <td class='docblock short'>
-                             <p>An error that can happen while validating attachments.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ColorAttachment.html"
+                                  title='enum glium::framebuffer::ColorAttachment'>ColorAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes an attachment for a color buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.DefaultFramebufferAttachment.html"
+                                  title='enum glium::framebuffer::DefaultFramebufferAttachment'>DefaultFramebufferAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>One of the color attachments on the default framebuffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.DepthAttachment.html"
+                                  title='enum glium::framebuffer::DepthAttachment'>DepthAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes an attachment for a depth buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.DepthStencilAttachment.html"
+                                  title='enum glium::framebuffer::DepthStencilAttachment'>DepthStencilAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes an attachment for a depth and stencil buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.RenderBufferCreationError.html"
+                                  title='enum glium::framebuffer::RenderBufferCreationError'>RenderBufferCreationError</a></td>
+                           <td class='docblock-short'>
+                                <p>Error while creating a render buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.StencilAttachment.html"
+                                  title='enum glium::framebuffer::StencilAttachment'>StencilAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Describes an attachment for a stencil buffer.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ValidationError.html"
+                                  title='enum glium::framebuffer::ValidationError'>ValidationError</a></td>
+                           <td class='docblock-short'>
+                                <p>An error that can happen while validating attachments.</p>
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.ToColorAttachment.html'
-                               title='glium::framebuffer::ToColorAttachment'>ToColorAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Trait for objects that can be used as color attachments.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.ToDepthAttachment.html'
-                               title='glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Trait for objects that can be used as depth attachments.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.ToDepthStencilAttachment.html'
-                               title='glium::framebuffer::ToDepthStencilAttachment'>ToDepthStencilAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Trait for objects that can be used as depth and stencil attachments.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='trait' href='trait.ToStencilAttachment.html'
-                               title='glium::framebuffer::ToStencilAttachment'>ToStencilAttachment</a></td>
-                        <td class='docblock short'>
-                             <p>Trait for objects that can be used as stencil attachments.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.ToColorAttachment.html"
+                                  title='trait glium::framebuffer::ToColorAttachment'>ToColorAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Trait for objects that can be used as color attachments.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.ToDepthAttachment.html"
+                                  title='trait glium::framebuffer::ToDepthAttachment'>ToDepthAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Trait for objects that can be used as depth attachments.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.ToDepthStencilAttachment.html"
+                                  title='trait glium::framebuffer::ToDepthStencilAttachment'>ToDepthStencilAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Trait for objects that can be used as depth and stencil attachments.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.ToStencilAttachment.html"
+                                  title='trait glium::framebuffer::ToStencilAttachment'>ToStencilAttachment</a></td>
+                           <td class='docblock-short'>
+                                <p>Trait for objects that can be used as stencil attachments.</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.is_dimensions_mismatch_supported.html'
-                               title='glium::framebuffer::is_dimensions_mismatch_supported'>is_dimensions_mismatch_supported</a></td>
-                        <td class='docblock short'>
-                             <p>Returns true if the backend supports attachments with varying dimensions.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.is_dimensions_mismatch_supported.html"
+                                  title='fn glium::framebuffer::is_dimensions_mismatch_supported'>is_dimensions_mismatch_supported</a></td>
+                           <td class='docblock-short'>
+                                <p>Returns true if the backend supports attachments with varying dimensions.</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -309,12 +271,16 @@ source code.</p></li>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -335,7 +301,7 @@ source code.</p></li>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -346,11 +312,8 @@ source code.</p></li>
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

@@ -8,7 +8,7 @@
         <title>Uniforms | Introduction</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.5">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -53,7 +53,7 @@
         data-chapter-title="Uniforms"
         data-filepath="tuto-03-animated-triangle.md"
         data-basepath="."
-        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-revision="Tue Jan 16 2018 16:47:08 GMT-0800 (PST)"
         data-innerlanguage="">
     
 
@@ -414,8 +414,8 @@
 <h1 id="the-naive-approach">The naive approach</h1>
 <p>Our first approach will be to create a variable named <code>t</code> which represents the step in the animation. We update the value of <code>t</code> at each loop, and add it to the coordinates of our triangle at each frame:</p>
 <pre><code class="lang-rust"><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> t: <span class="hljs-keyword">f32</span> = -<span class="hljs-number">0.5</span>;
-
-<span class="hljs-keyword">loop</span> {
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> closed = <span class="hljs-keyword">false</span>;
+<span class="hljs-keyword">while</span> !closed {
     <span class="hljs-comment">// we update `t`</span>
     t += <span class="hljs-number">0.0002</span>;
     <span class="hljs-keyword">if</span> t &gt; <span class="hljs-number">0.5</span> {
@@ -436,12 +436,15 @@
                 &amp;Default::default()).unwrap();
     target.finish().unwrap();
 
-    <span class="hljs-keyword">for</span> ev <span class="hljs-keyword">in</span> display.poll_events() {
-        <span class="hljs-keyword">match</span> ev {
-            glium::glutin::Event::Closed =&gt; <span class="hljs-keyword">return</span>,
-            _ =&gt; ()
+    events_loop.poll_events(|event| {
+        <span class="hljs-keyword">match</span> event {
+            glutin::Event::WindowEvent { event, .. } =&gt; <span class="hljs-keyword">match</span> event {
+                glutin::WindowEvent::Closed =&gt; closed = <span class="hljs-keyword">true</span>,
+                _ =&gt; ()
+            },
+            _ =&gt; (),
         }
-    }
+    });
 }
 </code></pre>
 <p>If you run this code, you should see your triangle going from the left to the right of the screen, then jumping back to the left!</p>
@@ -463,26 +466,30 @@
 <span class="hljs-keyword">let</span> vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
 
 <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> t: <span class="hljs-keyword">f32</span> = -<span class="hljs-number">0.5</span>;
-
-<span class="hljs-keyword">loop</span> {
+<span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> closed = <span class="hljs-keyword">false</span>;
+<span class="hljs-keyword">while</span> !closed {
     <span class="hljs-comment">// we update `t`</span>
     t += <span class="hljs-number">0.0002</span>;
     <span class="hljs-keyword">if</span> t &gt; <span class="hljs-number">0.5</span> {
         t = -<span class="hljs-number">0.5</span>;
     }
 
+    <span class="hljs-comment">// drawing</span>
     <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> target = display.draw();
     target.clear_color(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>);
     target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
                 &amp;Default::default()).unwrap();
     target.finish().unwrap();
 
-    <span class="hljs-keyword">for</span> ev <span class="hljs-keyword">in</span> display.poll_events() {
-        <span class="hljs-keyword">match</span> ev {
-            glium::glutin::Event::Closed =&gt; <span class="hljs-keyword">return</span>,
-            _ =&gt; ()
+    events_loop.poll_events(|event| {
+        <span class="hljs-keyword">match</span> event {
+            glutin::Event::WindowEvent { event, .. } =&gt; <span class="hljs-keyword">match</span> event {
+                glutin::WindowEvent::Closed =&gt; closed = <span class="hljs-keyword">true</span>,
+                _ =&gt; ()
+            },
+            _ =&gt; (),
         }
-    }
+    });
 }
 </code></pre>
 <p>And instead we are going to do a small change in our vertex shader:</p>
@@ -542,9 +549,13 @@
     <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>

@@ -9,13 +9,15 @@
 
     <title>wayland_client - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc mod">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'wayland_client', ty: 'mod', relpath: '../'};</script>
+        <p class='location'>Crate wayland_client</p><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li><li><a href="#traits">Traits</a></li><li><a href="#functions">Functions</a></li></ul></div><p class='location'></p><script>window.sidebarCurrent = {name: 'wayland_client', ty: 'mod', relpath: '../'};</script>
     </nav>
 
     <nav class="sub">
@@ -41,72 +43,248 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>wayland_client</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-0' class='srclink' href='../src/wayland_client/lib.rs.html#1-51' title='goto source code'>[src]</a></span></h1>
-<div class='docblock'><p>This library provides a Rust interface on the Wayland client library.</p>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Crate <a class="mod" href=''>wayland_client</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/wayland_client/lib.rs.html#1-264' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Client-side Wayland connector</p>
 
-<p>The module <code>core</code> provides support for the core features of the wayland protocol.
-Some protocol extentions are available, each as their own module. Some of them require
-a system library which they will try to load at first use.</p>
+<h1 id='overview' class='section-header'><a href='#overview'>Overview</a></h1>
+<p>Connection to the Wayland compositor is achieved by
+the <code>default_connect()</code> function, which provides you
+with a <code>WlDisplay</code> and an <code>EventQueue</code>.</p>
 
-<ul>
-<li>module <code>egl</code>: it provides a mean to build EGL surfaces in a wayland context. It requires
-the presence of <code>libwayland-egl.so</code>. This module is activated by the <code>egl</code> feature.</li>
-</ul>
+<p>From the display, you&#39;ll retrieve the registry, from
+which you can instantiate the globals you need. This
+step being really similar in most cases, this crate
+contains an utility struct <code>EnvHandler</code> which can do
+this job for you. See its documentation for details.</p>
 
-<p>Additionnaly, the feature <code>dlopen</code> prevents the crate to be linked to the various
-wayland libraries. In this case, it will instead try to load them dynamically at runtime.
-In this case, each module will provide a function allowing you to gracefully check if
-the load was successful. There is also the function <code>is_wayland_lib_available()</code> at the
-root of this crate, providing the same function for the core <code>libwayland-client.so</code>.</p>
+<p>You then register your handlers for events to the
+event queue, and integrate it in your main event loop.</p>
 
-<p>The entry point of your wayland application will be <code>core::default_display()</code>, which will
-provide you with a <code>Display</code> object representing the connexion to the wayland server.
-This display will give you access to the <code>Registry</code>, which will then give you access to the
-various Wayland global objects.</p>
+<h1 id='implementations-and-event-queues' class='section-header'><a href='#implementations-and-event-queues'>Implementations and event queues</a></h1>
+<p>This crate mirrors the callback-oriented design of the
+Wayland C library by using implementation structs: each wayland
+type defines an <code>Implementation</code> struct in its module, with
+one function field for each possible event this object can receive.</p>
+
+<p>When registering an object on an event queue, you need to provide an
+implementation for this object. You can also provide some
+&quot;implementation data&quot;: a value that will be provided as second
+argument to all the callback methods of your implementation.</p>
+
+<p>A typical use of implementation data is to store here one or more
+state tokens to access some part of the shared state from your
+callback.</p>
+
+<h2 id='example-of-implementation' class='section-header'><a href='#example-of-implementation'>Example of implementation</a></h2>
+<p>You can register your wayland objects to an event queue:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><pre class="rust rust-example-rendered ignore">
+<span class="ident">event_queue</span>.<span class="ident">register</span>(<span class="kw-2">&amp;</span><span class="ident">my_object</span>, <span class="ident">implementation</span>, <span class="ident">impl_data</span>);</pre>
+
+<p>A given wayland object can only be registered to a event
+queue at a given time, re-registering it will overwrite
+the previous configuration.</p>
+
+<p>Objects can be registered to event queues using the <code>&amp;EventQueueHandle</code>
+argument, available from withing an event callback.</p>
+
+<h2 id='event-loop-integration' class='section-header'><a href='#event-loop-integration'>Event loop integration</a></h2>
+<p>Once this setup is done, you can integrate the event queue
+to the main event loop of your program:</p>
+
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><pre class="rust rust-example-rendered ignore">
+<span class="kw">loop</span> {
+    <span class="comment">// flush events to the server</span>
+    <span class="ident">display</span>.<span class="ident">flush</span>().<span class="ident">unwrap</span>();
+    <span class="comment">// receive events from the server and dispatch them</span>
+    <span class="comment">// to handlers (might block)</span>
+    <span class="ident">event_queue</span>.<span class="ident">dispatch</span>().<span class="ident">unwrap</span>();
+}</pre>
+
+<p>For more precise control of the flow of the event queue
+(and importantly non-blocking options), see <code>EventQueue</code>
+documentation.</p>
+
+<h1 id='protocols-integration' class='section-header'><a href='#protocols-integration'>Protocols integration</a></h1>
+<p>This crate provides the basic primitives as well as the
+core wayland protocol (in the <code>protocol</code> module), but
+other protocols can be integrated from XML descriptions.</p>
+
+<p>The the crate <code>wayland_scanner</code> and its documentation for
+details about how to do so.</p>
 </div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='core/index.html'
-                               title='wayland_client::core'>core</a></td>
-                        <td class='docblock short'>
-                             <p>The core wayland protocol.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='egl/index.html'
-                               title='wayland_client::egl'>egl</a></td>
-                        <td class='docblock short'>
-                             <p>The EGL wayland protocol.</p>
-
-                        </td>
-                    </tr>
-                
-                    <tr class=' module-item'>
-                        <td><a class='mod' href='internals/index.html'
-                               title='wayland_client::internals'>internals</a></td>
-                        <td class='docblock short'>
-                             <p>Internal types and traits provided for custom protocol extensions.</p>
-
-                        </td>
-                    </tr>
-                </table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="cursor/index.html"
+                                  title='mod wayland_client::cursor'>cursor</a></td>
+                           <td class='docblock-short'>
+                                <p>Cursor utilities</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="egl/index.html"
+                                  title='mod wayland_client::egl'>egl</a></td>
+                           <td class='docblock-short'>
+                                <p>EGL utilities</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="protocol/index.html"
+                                  title='mod wayland_client::protocol'>protocol</a></td>
+                           <td class='docblock-short'>
+                                <p>The wayland core protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="protocol_interfaces/index.html"
+                                  title='mod wayland_client::protocol_interfaces'>protocol_interfaces</a></td>
+                           <td class='docblock-short'>
+                                <p>Interfaces for the core protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="sys/index.html"
+                                  title='mod wayland_client::sys'>sys</a></td>
+                           <td class='docblock-short'>
+                                <p>Reexports of types and objects from wayland-sys</p>
+                           </td>
+                       </tr></table><h2 id='macros' class='section-header'><a href="#macros">Macros</a></h2>
 <table>
-                    <tr class=' module-item'>
-                        <td><a class='fn' href='fn.is_wayland_lib_available.html'
-                               title='wayland_client::is_wayland_lib_available'>is_wayland_lib_available</a></td>
-                        <td class='docblock short'>
-                             <p>Returns whether the library <code>libwayland-client.so</code> has been found and could be loaded.</p>
-
-                        </td>
-                    </tr>
-                </table></section>
+                       <tr class=' module-item'>
+                           <td><a class="macro" href="macro.wayland_env.html"
+                                  title='macro wayland_client::wayland_env'>wayland_env</a></td>
+                           <td class='docblock-short'>
+                                <p>Create an environment handling struct</p>
+                           </td>
+                       </tr></table><h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EnvHandler.html"
+                                  title='struct wayland_client::EnvHandler'>EnvHandler</a></td>
+                           <td class='docblock-short'>
+                                <p>Utility type to handle the registry and global objects</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EnvNotify.html"
+                                  title='struct wayland_client::EnvNotify'>EnvNotify</a></td>
+                           <td class='docblock-short'>
+                                <p>An implementation to receive globals notifications for the EnvHandler</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EventQueue.html"
+                                  title='struct wayland_client::EventQueue'>EventQueue</a></td>
+                           <td class='docblock-short'>
+                                <p>An event queue managing wayland events</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.EventQueueHandle.html"
+                                  title='struct wayland_client::EventQueueHandle'>EventQueueHandle</a></td>
+                           <td class='docblock-short'>
+                                <p>Handle to an event queue</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.ReadEventsGuard.html"
+                                  title='struct wayland_client::ReadEventsGuard'>ReadEventsGuard</a></td>
+                           <td class='docblock-short'>
+                                <p>A guard over a read intention.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.State.html"
+                                  title='struct wayland_client::State'>State</a></td>
+                           <td class='docblock-short'>
+                                <p>A token store</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.StateProxy.html"
+                                  title='struct wayland_client::StateProxy'>StateProxy</a></td>
+                           <td class='docblock-short'>
+                                <p>A Proxy representing a <code>Store</code> with ongoing borrows</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="struct" href="struct.StateToken.html"
+                                  title='struct wayland_client::StateToken'>StateToken</a></td>
+                           <td class='docblock-short'>
+                                <p>A token for accessing the store contents</p>
+                           </td>
+                       </tr></table><h2 id='enums' class='section-header'><a href="#enums">Enums</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.ConnectError.html"
+                                  title='enum wayland_client::ConnectError'>ConnectError</a></td>
+                           <td class='docblock-short'>
+                                <p>Enum representing the possible reasons why connecting to the wayland server failed</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.FatalError.html"
+                                  title='enum wayland_client::FatalError'>FatalError</a></td>
+                           <td class='docblock-short'>
+                                <p>Enum representing possible errors fatal to a wayland session</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.Liveness.html"
+                                  title='enum wayland_client::Liveness'>Liveness</a></td>
+                           <td class='docblock-short'>
+                                <p>Represents the state of liveness of a wayland object</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.RegisterStatus.html"
+                                  title='enum wayland_client::RegisterStatus'>RegisterStatus</a></td>
+                           <td class='docblock-short'>
+                                <p>Status of a registration attempt of a proxy.</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="enum" href="enum.RequestResult.html"
+                                  title='enum wayland_client::RequestResult'>RequestResult</a></td>
+                           <td class='docblock-short'>
+                                <p>Possible outcome of the call of a request on a proxy</p>
+                           </td>
+                       </tr></table><h2 id='traits' class='section-header'><a href="#traits">Traits</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.Implementable.html"
+                                  title='trait wayland_client::Implementable'>Implementable</a></td>
+                           <td class='docblock-short'>
+                                <p>Common trait for wayland objects that can be registered to an EventQueue</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="trait" href="trait.Proxy.html"
+                                  title='trait wayland_client::Proxy'>Proxy</a></td>
+                           <td class='docblock-short'>
+                                <p>Common routines for wayland proxy objects.</p>
+                           </td>
+                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.connect_to.html"
+                                  title='fn wayland_client::connect_to'>connect_to</a></td>
+                           <td class='docblock-short'>
+                                <p>Connect to the compositor socket</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="fn" href="fn.default_connect.html"
+                                  title='fn wayland_client::default_connect'>default_connect</a></td>
+                           <td class='docblock-short'>
+                                <p>Connect to the compositor socket</p>
+                           </td>
+                       </tr></table></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -123,12 +301,16 @@ various Wayland global objects.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -149,7 +331,7 @@ various Wayland global objects.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -160,11 +342,8 @@ various Wayland global objects.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "wayland_client";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

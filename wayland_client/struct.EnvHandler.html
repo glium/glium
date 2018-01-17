@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `EnvHandler` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, EnvHandler">
+
+    <title>wayland_client::EnvHandler - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct EnvHandler</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.init">init</a><a href="#method.init_with_notify">init_with_notify</a><a href="#method.ready">ready</a><a href="#method.globals">globals</a><a href="#method.clone_inner">clone_inner</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Deref">Deref</a></div></div><p class='location'><a href='index.html'>wayland_client</a></p><script>window.sidebarCurrent = {name: 'EnvHandler', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>wayland_client</a>::<wbr><a class="struct" href=''>EnvHandler</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/wayland_client/env.rs.html#55-58' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct EnvHandler&lt;H:&nbsp;EnvHandlerInner&gt; { /* fields omitted */ }</pre><div class='docblock'><p>Utility type to handle the registry and global objects</p>
+
+<p>This struct provides you with a generic handler for the <code>wl_registry</code>
+and the instanciation of global objects.</p>
+
+<p>To use it, you need to declare your globals of interest using the
+<code>wayland_env!(..)</code> macro. Then, insert this handler in your event loop and
+register your registry to it.</p>
+
+<p>Once this handler is fully initialized (and all globals have been
+instantiated), it makes them usable via deref-ing towards the struct
+previously declared by the <code>wayland_env!(...)</code> macro.</p>
+
+<p>The <code>globals()</code> method also give you a list of all globals declared by
+the server, had them been instantiated or not. It is perfectly safe
+to instantiate again a global that have already been instantiated.</p>
+
+<p>This list is updated whenever the server declares or removes a global object,
+(as long as you don&#39;t change the handler associated to your registry).</p>
+
+<p>If you want to manage all you globals manually, but still want to use
+this utility to maintain the list of evailable globals, you can simply
+create an empty env type using the macro, like this : <code>wayland_env!(WaylandEnv)</code>.
+No global will be automatically instantiated for you, but you still can use
+this <code>globals()</code> method.</p>
+
+<h2 id='example-of-use' class='section-header'><a href='#example-of-use'>example of use</a></h2>
+<div class='information'><div class='tooltip ignore'>ⓘ<span class='tooltiptext'>This example is not tested</span></div></div><pre class="rust rust-example-rendered ignore">
+<span class="comment">// Declare your globals of interest using the macro.</span>
+<span class="comment">// This creates a struct named WaylandEnv (but you can change it).</span>
+<span class="macro">wayland_env</span><span class="macro">!</span>(<span class="ident">WaylandEnv</span>, <span class="ident">compositor</span>: <span class="ident">wl_compositor</span>::<span class="ident">WlCompositor</span>);
+
+<span class="kw">let</span> <span class="ident">registry</span> <span class="op">=</span> <span class="ident">display</span>.<span class="ident">get_registry</span>();
+<span class="kw">let</span> <span class="ident">env_token</span> <span class="op">=</span> <span class="ident">EnvHandler</span>::<span class="op">&lt;</span><span class="ident">WaylandEnv</span><span class="op">&gt;</span>::<span class="ident">init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">event_queue</span>, <span class="kw-2">&amp;</span><span class="ident">registry</span>);
+<span class="comment">// a roundtrip sync will dispatch all event declaring globals to the handler</span>
+<span class="ident">eventqueue</span>.<span class="ident">sync_roundtrip</span>().<span class="ident">unwrap</span>();
+<span class="comment">// then, we can access them via the state of the event queue:</span>
+<span class="kw">let</span> <span class="ident">state</span> <span class="op">=</span> <span class="ident">eventqueue</span>.<span class="ident">state</span>();
+<span class="kw">let</span> <span class="ident">env</span> <span class="op">=</span> <span class="ident">state</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">env_token</span>);
+<span class="comment">// We can now access the globals as fields of env.</span>
+<span class="comment">// Note that is some globals were missing, this acces (via Deref)</span>
+<span class="comment">// will panic!</span>
+<span class="kw">let</span> <span class="ident">compositor</span> <span class="op">=</span> <span class="ident">env</span>.<span class="ident">compositor</span>;</pre>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;H:&nbsp;EnvHandlerInner + 'static&gt; <a class="struct" href="../wayland_client/struct.EnvHandler.html" title="struct wayland_client::EnvHandler">EnvHandler</a>&lt;H&gt;</code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#60-134' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.init' class="method"><span id='init.v' class='invisible'><code>pub fn <a href='#method.init' class='fnname'>init</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a><br>) -&gt; <a class="struct" href="../wayland_client/struct.StateToken.html" title="struct wayland_client::StateToken">StateToken</a>&lt;<a class="struct" href="../wayland_client/struct.EnvHandler.html" title="struct wayland_client::EnvHandler">EnvHandler</a>&lt;H&gt;&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#62-72' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Insert a new EnvHandler in this event queue and register the registry to it</p>
+</div><h4 id='method.init_with_notify' class="method"><span id='init_with_notify.v' class='invisible'><code>pub fn <a href='#method.init_with_notify' class='fnname'>init_with_notify</a>&lt;ID:&nbsp;'static&gt;(<br>&nbsp;&nbsp;&nbsp;&nbsp;evqh: &amp;mut <a class="struct" href="../wayland_client/struct.EventQueueHandle.html" title="struct wayland_client::EventQueueHandle">EventQueueHandle</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;registry: &amp;<a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;notify: <a class="struct" href="../wayland_client/struct.EnvNotify.html" title="struct wayland_client::EnvNotify">EnvNotify</a>&lt;ID&gt;, <br>&nbsp;&nbsp;&nbsp;&nbsp;idata: ID<br>) -&gt; <a class="struct" href="../wayland_client/struct.StateToken.html" title="struct wayland_client::StateToken">StateToken</a>&lt;<a class="struct" href="../wayland_client/struct.EnvHandler.html" title="struct wayland_client::EnvHandler">EnvHandler</a>&lt;H&gt;&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#81-97' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Insert a new EnvHandler in this event queue with a notify implementation</p>
+
+<p>Does the same as <code>EnvHandler::init(..)</code>, but you additionnaly supply an implementation
+struct that the EnvHandler will use to notify you of events:</p>
+
+<ul>
+<li>events of creation/deletion of a global are forwarded</li>
+<li>event of readiness of this EnvHandler (when all the necessary globals could be bound)</li>
+</ul>
+</div><h4 id='method.ready' class="method"><span id='ready.v' class='invisible'><code>pub fn <a href='#method.ready' class='fnname'>ready</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#105-107' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Is the handler ready</p>
+
+<p>Returns true if all required globals have been created.</p>
+
+<p>If this method returns false, trying to access a global
+field will panic.</p>
+</div><h4 id='method.globals' class="method"><span id='globals.v' class='invisible'><code>pub fn <a href='#method.globals' class='fnname'>globals</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">&amp;[</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#114-116' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>List of advertised globals</p>
+
+<p>Returns a list of all globals that have been advertised by the server.</p>
+
+<p>The type format of each tuple is: <code>(global_id, interface_name, global_version)</code>.</p>
+</div><h4 id='method.clone_inner' class="method"><span id='clone_inner.v' class='invisible'><code>pub fn <a href='#method.clone_inner' class='fnname'>clone_inner</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;H&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#122-124' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Retrieve an owned copy of the environment</p>
+
+<p>This clones the inner env so that you can have access to the
+clobals without borrowing the event queue</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Deref' class='impl'><span class='in-band'><code>impl&lt;H:&nbsp;EnvHandlerInner&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html" title="trait core::ops::deref::Deref">Deref</a> for <a class="struct" href="../wayland_client/struct.EnvHandler.html" title="struct wayland_client::EnvHandler">EnvHandler</a>&lt;H&gt;</code><a href='#impl-Deref' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#136-143' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='associatedtype.Target' class="type"><span id='Target.t' class='invisible'><code>type <a href='https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html#associatedtype.Target' class="type">Target</a> = H</code></span></h4>
+<div class='docblock'><p>The resulting type after dereferencing.</p>
+</div><h4 id='method.deref' class="method"><span id='deref.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/deref/trait.Deref.html#tymethod.deref' class='fnname'>deref</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>H</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/wayland_client/env.rs.html#138-142' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Dereferences the value.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

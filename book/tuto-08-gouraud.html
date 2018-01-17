@@ -8,7 +8,7 @@
         <title>Gouraud shading | Introduction</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.5">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -53,7 +53,7 @@
         data-chapter-title="Gouraud shading"
         data-filepath="tuto-08-gouraud.md"
         data-basepath="."
-        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-revision="Tue Jan 16 2018 16:47:08 GMT-0800 (PST)"
         data-innerlanguage="">
     
 
@@ -425,7 +425,7 @@ to the surface, then the surface should be dark.</p>
 <p>We are going to do this calculation one per fragment, in our fragment shader. The brightness of
 each pixel will need to be equal to <code>sin(angle(surface, light))</code>. If the light is perpendicular,
 the angle is <code>pi/2</code> radians and the brightness is <code>1</code>. If the light is parallel, the angle is <code>0</code>
-and the brightness is <code>0</code>. </p>
+and the brightness is <code>0</code>.</p>
 <p>The question is: how do we know the angle between the surface and the light? This is where
 normals come into play.</p>
 <p>As we saw in the previous section, the normal vector is the vector perpendicular to a surface
@@ -439,8 +439,10 @@ If the light is <em>parallel</em> to the normal, then the surface should be brig
 <code>brightness = cos(angle(normal, light));</code></p>
 <h2 id="in-practice">In practice</h2>
 <p>The main part of the calculation will be done in the fragment shader. However we need to modify
-the vertex shader first, in order to pass the normal&apos;s data to the fragment shader.</p>
-<pre><code class="lang-glsl"><span class="hljs-preprocessor">#version 140</span>
+the vertex shader first, in order to pass the normal&apos;s data to the fragment shader. In addition to
+this, we need to specify a newer version of GLSL, since v140 doesn&apos;t support the functions we&apos;re
+going to use. To make the vertex shader work, we need at least GLSL v150.</p>
+<pre><code class="lang-glsl"><span class="hljs-preprocessor">#version 150      // updated</span>
 
 <span class="hljs-keyword">in</span> <span class="hljs-keyword">vec3</span> position;
 <span class="hljs-keyword">in</span> <span class="hljs-keyword">vec3</span> normal;
@@ -497,7 +499,7 @@ target.draw((&amp;positions, &amp;normals), &amp;indices, &amp;program,
 <p><img src="tuto-08-result.png" alt="The result"></p>
 <p>Now that we have brightness we can see that there are more things that are wrong with
 our rendering, this will be covered in the next sections!</p>
-<p><strong><a href="https://github.com/tomaka/glium/blob/master/examples/tutorial-08.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-08.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
 
                     
                     </section>
@@ -535,9 +537,13 @@ our rendering, this will be covered in the next sections!</p>
     <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>

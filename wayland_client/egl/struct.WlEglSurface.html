@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `WlEglSurface` struct in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, WlEglSurface">
+
+    <title>wayland_client::egl::WlEglSurface - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct WlEglSurface</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.new">new</a><a href="#method.new_from_raw">new_from_raw</a><a href="#method.get_size">get_size</a><a href="#method.resize">resize</a><a href="#method.ptr">ptr</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Send">Send</a><a href="#impl-Sync">Sync</a><a href="#impl-Drop">Drop</a></div></div><p class='location'><a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>egl</a></p><script>window.sidebarCurrent = {name: 'WlEglSurface', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>wayland_client</a>::<wbr><a href='index.html'>egl</a>::<wbr><a class="struct" href=''>WlEglSurface</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/wayland_client/egl.rs.html#34-36' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WlEglSurface { /* fields omitted */ }</pre><div class='docblock'><p>EGL surface</p>
+
+<p>This object is a simple wrapper around a <code>WlSurface</code> to add the EGL
+capabilities. Just use the <code>ptr</code> method once this object is created
+to get the window pointer your OpenGL library is needing to initialize the
+EGL context (you&#39;ll most likely need the display ptr as well, that you can
+get via the <code>ptr</code> method of the <code>Proxy</code> trait on the <code>WlDisplay</code> object).</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl <a class="struct" href="../../wayland_client/egl/struct.WlEglSurface.html" title="struct wayland_client::egl::WlEglSurface">WlEglSurface</a></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#38-101' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.new' class="method"><span id='new.v' class='invisible'><code>pub fn <a href='#method.new' class='fnname'>new</a>(surface: &amp;<a class="struct" href="../../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a>, width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>) -&gt; <a class="struct" href="../../wayland_client/egl/struct.WlEglSurface.html" title="struct wayland_client::egl::WlEglSurface">WlEglSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#40-42' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an EGL surface from a wayland surface</p>
+</div><h4 id='method.new_from_raw' class="method"><span id='new_from_raw.v' class='invisible'><code>pub unsafe fn <a href='#method.new_from_raw' class='fnname'>new_from_raw</a>(<br>&nbsp;&nbsp;&nbsp;&nbsp;surface: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <br>&nbsp;&nbsp;&nbsp;&nbsp;height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><br>) -&gt; <a class="struct" href="../../wayland_client/egl/struct.WlEglSurface.html" title="struct wayland_client::egl::WlEglSurface">WlEglSurface</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#47-56' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Create an EGL surface from a raw pointer to a wayland surface</p>
+
+<p>This function is unsafe because <code>surface</code> must be a valid wl_surface pointer</p>
+</div><h4 id='method.get_size' class="method"><span id='get_size.v' class='invisible'><code>pub fn <a href='#method.get_size' class='fnname'>get_size</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">(</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.tuple.html">)</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#59-72' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Fetch current size of the EGL surface</p>
+</div><h4 id='method.resize' class="method"><span id='resize.v' class='invisible'><code>pub fn <a href='#method.resize' class='fnname'>resize</a>(&amp;self, width: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, height: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, dx: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>, dy: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.i32.html">i32</a>)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#80-92' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Resize the EGL surface</p>
+
+<p>The two first arguments <code>(width, height)</code> are the new size of
+the surface, the two others <code>(dx, dy)</code> represent the displacement
+of the top-left corner of the surface. It allows you to control the
+direction of the resizing if necessary.</p>
+</div><h4 id='method.ptr' class="method"><span id='ptr.v' class='invisible'><code>pub fn <a href='#method.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="enum" href="https://doc.rust-lang.org/nightly/std/os/raw/enum.c_void.html" title="enum std::os::raw::c_void">c_void</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#98-100' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Raw pointer to the EGL surface</p>
+
+<p>You&#39;ll need this pointer to initialize the EGL context in your
+favourite OpenGL lib.</p>
+</div></div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Send' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> for <a class="struct" href="../../wayland_client/egl/struct.WlEglSurface.html" title="struct wayland_client::egl::WlEglSurface">WlEglSurface</a></code><a href='#impl-Send' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#24' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Sync' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sync.html" title="trait core::marker::Sync">Sync</a> for <a class="struct" href="../../wayland_client/egl/struct.WlEglSurface.html" title="struct wayland_client::egl::WlEglSurface">WlEglSurface</a></code><a href='#impl-Sync' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#25' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Drop' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html" title="trait core::ops::drop::Drop">Drop</a> for <a class="struct" href="../../wayland_client/egl/struct.WlEglSurface.html" title="struct wayland_client::egl::WlEglSurface">WlEglSurface</a></code><a href='#impl-Drop' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#103-109' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.drop' class="method"><span id='drop.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/wayland_client/egl.rs.html#104-108' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Executes the destructor for this type. <a href="https://doc.rust-lang.org/nightly/core/ops/drop/trait.Drop.html#tymethod.drop">Read more</a></p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

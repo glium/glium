@@ -1,5 +1,5 @@
 (function() {var implementors = {};
-implementors['libc'] = [];implementors['tempfile'] = [];implementors['shared_library'] = [];implementors['wayland_client'] = [];implementors['wayland_kbd'] = [];implementors['wayland_window'] = [];implementors['glutin'] = [];implementors['glium'] = [];
+implementors["fnv"] = ["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/hash/trait.Hasher.html\" title=\"trait core::hash::Hasher\">Hasher</a> for <a class=\"struct\" href=\"fnv/struct.FnvHasher.html\" title=\"struct fnv::FnvHasher\">FnvHasher</a>",];
 
             if (window.register_implementors) {
                 window.register_implementors(implementors);

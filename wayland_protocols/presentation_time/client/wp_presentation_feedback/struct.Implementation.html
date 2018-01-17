@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Implementation` struct in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Implementation">
+
+    <title>wayland_protocols::presentation_time::client::wp_presentation_feedback::Implementation - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct Implementation</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.sync_output">sync_output</a><a href="#structfield.presented">presented</a><a href="#structfield.discarded">discarded</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Copy">Copy</a><a href="#impl-Clone">Clone</a><a href="#impl-PartialEq">PartialEq</a></div></div><p class='location'><a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>presentation_time</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>wp_presentation_feedback</a></p><script>window.sidebarCurrent = {name: 'Implementation', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../../../index.html'>wayland_protocols</a>::<wbr><a href='../../index.html'>presentation_time</a>::<wbr><a href='../index.html'>client</a>::<wbr><a href='index.html'>wp_presentation_feedback</a>::<wbr><a class="struct" href=''>Implementation</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#486-552' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Implementation&lt;ID&gt; {
+    pub sync_output: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wp_presentation_feedback: &amp;<a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.WpPresentationFeedback.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::WpPresentationFeedback">WpPresentationFeedback</a>, output: &amp;WlOutput),
+    pub presented: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wp_presentation_feedback: &amp;<a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.WpPresentationFeedback.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::WpPresentationFeedback">WpPresentationFeedback</a>, tv_sec_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, tv_sec_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, tv_nsec: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, refresh: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, seq_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, seq_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, flags: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>),
+    pub discarded: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wp_presentation_feedback: &amp;<a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.WpPresentationFeedback.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::WpPresentationFeedback">WpPresentationFeedback</a>),
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.sync_output" class="structfield small-section-header">
+                           <a href="#structfield.sync_output" class="anchor field"></a>
+                           <span id="sync_output.v" class='invisible'>
+                           <code>sync_output: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wp_presentation_feedback: &amp;<a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.WpPresentationFeedback.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::WpPresentationFeedback">WpPresentationFeedback</a>, output: &amp;WlOutput)</code>
+                           </span></span><div class='docblock'><p>presentation synchronized to this output</p>
+
+<p>As presentation can be synchronized to only one output at a
+time, this event tells which output it was. This event is only
+sent prior to the presented event.</p>
+
+<p>As clients may bind to the same global wl_output multiple
+times, this event is sent for each bound instance that matches
+the synchronized output. If a client has not bound to the
+right wl_output global at all, this event is not sent.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wp_presentation_feedback, output</p>
+</div><span id="structfield.presented" class="structfield small-section-header">
+                           <a href="#structfield.presented" class="anchor field"></a>
+                           <span id="presented.v" class='invisible'>
+                           <code>presented: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wp_presentation_feedback: &amp;<a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.WpPresentationFeedback.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::WpPresentationFeedback">WpPresentationFeedback</a>, tv_sec_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, tv_sec_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, tv_nsec: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, refresh: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, seq_hi: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, seq_lo: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>, flags: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>)</code>
+                           </span></span><div class='docblock'><p>the content update was displayed</p>
+
+<p>The associated content update was displayed to the user at the
+indicated time (tv_sec_hi/lo, tv_nsec). For the interpretation of
+the timestamp, see presentation.clock_id event.</p>
+
+<p>The timestamp corresponds to the time when the content update
+turned into light the first time on the surface&#39;s main output.
+Compositors may approximate this from the framebuffer flip
+completion events from the system, and the latency of the
+physical display path if known.</p>
+
+<p>This event is preceded by all related sync_output events
+telling which output&#39;s refresh cycle the feedback corresponds
+to, i.e. the main output for the surface. Compositors are
+recommended to choose the output containing the largest part
+of the wl_surface, or keeping the output they previously
+chose. Having a stable presentation output association helps
+clients predict future output refreshes (vblank).</p>
+
+<p>The &#39;refresh&#39; argument gives the compositor&#39;s prediction of how
+many nanoseconds after tv_sec, tv_nsec the very next output
+refresh may occur. This is to further aid clients in
+predicting future refreshes, i.e., estimating the timestamps
+targeting the next few vblanks. If such prediction cannot
+usefully be done, the argument is zero.</p>
+
+<p>If the output does not have a constant refresh rate, explicit
+video mode switches excluded, then the refresh argument must
+be zero.</p>
+
+<p>The 64-bit value combined from seq_hi and seq_lo is the value
+of the output&#39;s vertical retrace counter when the content
+update was first scanned out to the display. This value must
+be compatible with the definition of MSC in
+GLX_OML_sync_control specification. Note, that if the display
+path has a non-zero latency, the time instant specified by
+this counter may differ from the timestamp&#39;s.</p>
+
+<p>If the output does not have a concept of vertical retrace or a
+refresh cycle, or the output device is self-refreshing without
+a way to query the refresh count, then the arguments seq_hi
+and seq_lo must be zero.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wp_presentation_feedback, tv_sec_hi, tv_sec_lo, tv_nsec, refresh, seq_hi, seq_lo, flags</p>
+</div><span id="structfield.discarded" class="structfield small-section-header">
+                           <a href="#structfield.discarded" class="anchor field"></a>
+                           <span id="discarded.v" class='invisible'>
+                           <code>discarded: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.fn.html">fn</a>(evqh: &amp;mut <a class="struct" href="../../../../wayland_client/event_queue/struct.EventQueueHandle.html" title="struct wayland_client::event_queue::EventQueueHandle">EventQueueHandle</a>, data: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;mut </a>ID, wp_presentation_feedback: &amp;<a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.WpPresentationFeedback.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::WpPresentationFeedback">WpPresentationFeedback</a>)</code>
+                           </span></span><div class='docblock'><p>the content update was not displayed</p>
+
+<p>The content update was never displayed to the user.</p>
+
+<p><strong>Arguments:</strong> event_queue_handle, interface_data, wp_presentation_feedback</p>
+</div>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.Implementation.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#554' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.Implementation.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#555-559' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.Implementation.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::Implementation">Implementation</a>&lt;ID&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#556-558' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl&lt;ID&gt; <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.Implementation.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::Implementation">Implementation</a>&lt;ID&gt;</code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#561-569' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, other: &amp;<a class="struct" href="../../../../wayland_protocols/presentation_time/client/wp_presentation_feedback/struct.Implementation.html" title="struct wayland_protocols::presentation_time::client::wp_presentation_feedback::Implementation">Implementation</a>&lt;ID&gt;) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../../../src/wayland_protocols/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-protocols-3a519757c9d6d391/out/presentation-time_client_api.rs.html#562-568' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, other: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Rhs) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/cmp.rs.html#121' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../../../main.js"></script>
+    <script defer src="../../../../search-index.js"></script>
+</body>
+</html>

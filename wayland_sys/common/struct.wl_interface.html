@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `wl_interface` struct in crate `wayland_sys`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, wl_interface">
+
+    <title>wayland_sys::common::wl_interface - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc struct">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Struct wl_interface</p><div class="block items"><a class="sidebar-title" href="#fields">Fields</a><div class="sidebar-links"><a href="#structfield.name">name</a><a href="#structfield.version">version</a><a href="#structfield.request_count">request_count</a><a href="#structfield.requests">requests</a><a href="#structfield.event_count">event_count</a><a href="#structfield.events">events</a></div></div><p class='location'><a href='../index.html'>wayland_sys</a>::<wbr><a href='index.html'>common</a></p><script>window.sidebarCurrent = {name: 'wl_interface', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>wayland_sys</a>::<wbr><a href='index.html'>common</a>::<wbr><a class="struct" href=''>wl_interface</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/wayland_sys/common.rs.html#14-21' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'><div class="docblock attributes">#[repr(C)]
+</div>pub struct wl_interface {
+    pub name: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_char.html" title="type std::os::raw::c_char">c_char</a>,
+    pub version: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub request_count: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub requests: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../wayland_sys/common/struct.wl_message.html" title="struct wayland_sys::common::wl_message">wl_message</a>,
+    pub event_count: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a>,
+    pub events: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../wayland_sys/common/struct.wl_message.html" title="struct wayland_sys::common::wl_message">wl_message</a>,
+}</pre><h2 id='fields' class='fields small-section-header'>
+                       Fields<a href='#fields' class='anchor'></a></h2><span id="structfield.name" class="structfield small-section-header">
+                           <a href="#structfield.name" class="anchor field"></a>
+                           <span id="name.v" class='invisible'>
+                           <code>name: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_char.html" title="type std::os::raw::c_char">c_char</a></code>
+                           </span></span><span id="structfield.version" class="structfield small-section-header">
+                           <a href="#structfield.version" class="anchor field"></a>
+                           <span id="version.v" class='invisible'>
+                           <code>version: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.request_count" class="structfield small-section-header">
+                           <a href="#structfield.request_count" class="anchor field"></a>
+                           <span id="request_count.v" class='invisible'>
+                           <code>request_count: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.requests" class="structfield small-section-header">
+                           <a href="#structfield.requests" class="anchor field"></a>
+                           <span id="requests.v" class='invisible'>
+                           <code>requests: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../wayland_sys/common/struct.wl_message.html" title="struct wayland_sys::common::wl_message">wl_message</a></code>
+                           </span></span><span id="structfield.event_count" class="structfield small-section-header">
+                           <a href="#structfield.event_count" class="anchor field"></a>
+                           <span id="event_count.v" class='invisible'>
+                           <code>event_count: <a class="type" href="https://doc.rust-lang.org/nightly/std/os/raw/type.c_int.html" title="type std::os::raw::c_int">c_int</a></code>
+                           </span></span><span id="structfield.events" class="structfield small-section-header">
+                           <a href="#structfield.events" class="anchor field"></a>
+                           <span id="events.v" class='invisible'>
+                           <code>events: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../../wayland_sys/common/struct.wl_message.html" title="struct wayland_sys::common::wl_message">wl_message</a></code>
+                           </span></span></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "wayland_sys";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

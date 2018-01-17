@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/x11-dl-2.2.1/src/xrecord.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/x11-dl-2.17.2/src/xrecord.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>xrecord.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -178,143 +180,143 @@
 <span id="135">135</span>
 <span id="136">136</span>
 <span id="137">137</span>
-</pre><pre class='rust '>
-<span class='comment'>// x11-rs: Rust bindings for X11 libraries</span>
-<span class='comment'>// The X11 libraries are available under the MIT license.</span>
-<span class='comment'>// These bindings are public domain.</span>
+</pre><pre class="rust ">
+<span class="comment">// x11-rs: Rust bindings for X11 libraries</span>
+<span class="comment">// The X11 libraries are available under the MIT license.</span>
+<span class="comment">// These bindings are public domain.</span>
 
-<span class='kw'>use</span> <span class='ident'>libc</span>::{
-  <span class='ident'>c_char</span>,
-  <span class='ident'>c_int</span>,
-  <span class='ident'>c_uchar</span>,
-  <span class='ident'>c_ulong</span>,
-  <span class='ident'>c_ushort</span>,
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::{
+  <span class="ident">c_char</span>,
+  <span class="ident">c_int</span>,
+  <span class="ident">c_uchar</span>,
+  <span class="ident">c_ulong</span>,
+  <span class="ident">c_ushort</span>,
 };
 
-<span class='kw'>use</span> ::<span class='ident'>xlib</span>::{
-  <span class='ident'>Bool</span>,
-  <span class='ident'>Display</span>,
-  <span class='ident'>Time</span>,
-  <span class='ident'>XID</span>,
+<span class="kw">use</span> ::<span class="ident">xlib</span>::{
+  <span class="ident">Bool</span>,
+  <span class="ident">Display</span>,
+  <span class="ident">Time</span>,
+  <span class="ident">XID</span>,
 };
 
 
-<span class='comment'>//</span>
-<span class='comment'>// functions</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// functions</span>
+<span class="comment">//</span>
 
 
-<span class='macro'>x11_link</span><span class='macro'>!</span> { <span class='ident'>Xf86vmode</span>, [<span class='string'>&quot;libXtst.so&quot;</span>, <span class='string'>&quot;libXtst.so.6&quot;</span>],
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordAllocRange</span> () <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordRange</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordCreateContext</span> (<span class='ident'>_6</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_5</span>: <span class='ident'>c_int</span>, <span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_ulong</span>, <span class='ident'>_3</span>: <span class='ident'>c_int</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordRange</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordDisableContext</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordEnableContext</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_2</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>unsafe</span> <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> (<span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_char</span>, <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordInterceptData</span>)<span class='op'>&gt;</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_char</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordEnableContextAsync</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_2</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>unsafe</span> <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> (<span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_char</span>, <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordInterceptData</span>)<span class='op'>&gt;</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_char</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordFreeContext</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordFreeData</span> (<span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordInterceptData</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordFreeState</span> (<span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordState</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordGetContext</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordState</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordIdBaseMask</span> (<span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordProcessReplies</span> (<span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordQueryVersion</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordRegisterClients</span> (<span class='ident'>_7</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_6</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_5</span>: <span class='ident'>c_int</span>, <span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_ulong</span>, <span class='ident'>_3</span>: <span class='ident'>c_int</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordRange</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>XRecordUnregisterClients</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-<span class='ident'>variadic</span>:
-<span class='ident'>globals</span>:
+<span class="macro">x11_link</span><span class="macro">!</span> { <span class="ident">Xf86vmode</span>, <span class="ident">xtst</span>, [<span class="string">&quot;libXtst.so.6&quot;</span>, <span class="string">&quot;libXtst.so&quot;</span>], <span class="number">14</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordAllocRange</span> () <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordRange</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordCreateContext</span> (<span class="ident">_6</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_5</span>: <span class="ident">c_int</span>, <span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_ulong</span>, <span class="ident">_3</span>: <span class="ident">c_int</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordRange</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordDisableContext</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordEnableContext</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">c_ulong</span>, <span class="ident">_2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> (<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>, <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordInterceptData</span>)<span class="op">&gt;</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordEnableContextAsync</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">c_ulong</span>, <span class="ident">_2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> (<span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>, <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordInterceptData</span>)<span class="op">&gt;</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_char</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordFreeContext</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordFreeData</span> (<span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordInterceptData</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordFreeState</span> (<span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordState</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordGetContext</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordState</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordIdBaseMask</span> (<span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>) <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordProcessReplies</span> (<span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordQueryVersion</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordRegisterClients</span> (<span class="ident">_7</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_6</span>: <span class="ident">c_ulong</span>, <span class="ident">_5</span>: <span class="ident">c_int</span>, <span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_ulong</span>, <span class="ident">_3</span>: <span class="ident">c_int</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordRange</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">XRecordUnregisterClients</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">c_ulong</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+<span class="ident">variadic</span>:
+<span class="ident">globals</span>:
 }
 
 
-<span class='comment'>//</span>
-<span class='comment'>// constants</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// constants</span>
+<span class="comment">//</span>
 
 
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordFromServerTime</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x01</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordFromClientTime</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x02</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordFromClientSequence</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x04</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordFromServerTime</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x01</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordFromClientTime</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x02</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordFromClientSequence</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x04</span>;
 
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordCurrentClients</span>: <span class='ident'>c_ulong</span> <span class='op'>=</span> <span class='number'>1</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordFutureClients</span>: <span class='ident'>c_ulong</span> <span class='op'>=</span> <span class='number'>2</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordAllClients</span>: <span class='ident'>c_ulong</span> <span class='op'>=</span> <span class='number'>3</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordCurrentClients</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">1</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordFutureClients</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordAllClients</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">3</span>;
 
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordFromServer</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordFromClient</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>1</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordClientStarted</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>2</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordClientDied</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>3</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordStartOfData</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>4</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>XRecordEndOfData</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>5</span>;
-
-
-<span class='comment'>//</span>
-<span class='comment'>// types</span>
-<span class='comment'>//</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordFromServer</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordFromClient</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordClientStarted</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordClientDied</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordStartOfData</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">XRecordEndOfData</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">5</span>;
 
 
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>XRecordClientSpec</span> <span class='op'>=</span> <span class='ident'>c_ulong</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>XRecordContext</span> <span class='op'>=</span> <span class='ident'>c_ulong</span>;
+<span class="comment">//</span>
+<span class="comment">// types</span>
+<span class="comment">//</span>
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XRecordClientInfo</span> {
-  <span class='kw'>pub</span> <span class='ident'>client</span>: <span class='ident'>XRecordClientSpec</span>,
-  <span class='kw'>pub</span> <span class='ident'>nranges</span>: <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='ident'>ranges</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordRange</span>,
+
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">XRecordClientSpec</span> <span class="op">=</span> <span class="ident">c_ulong</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">XRecordContext</span> <span class="op">=</span> <span class="ident">c_ulong</span>;
+
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XRecordClientInfo</span> {
+  <span class="kw">pub</span> <span class="ident">client</span>: <span class="ident">XRecordClientSpec</span>,
+  <span class="kw">pub</span> <span class="ident">nranges</span>: <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="ident">ranges</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordRange</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XRecordExtRange</span> {
-  <span class='kw'>pub</span> <span class='ident'>ext_major</span>: <span class='ident'>XRecordRange8</span>,
-  <span class='kw'>pub</span> <span class='ident'>ext_minor</span>: <span class='ident'>XRecordRange16</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XRecordExtRange</span> {
+  <span class="kw">pub</span> <span class="ident">ext_major</span>: <span class="ident">XRecordRange8</span>,
+  <span class="kw">pub</span> <span class="ident">ext_minor</span>: <span class="ident">XRecordRange16</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XRecordInterceptData</span> {
-  <span class='kw'>pub</span> <span class='ident'>id_base</span>: <span class='ident'>XID</span>,
-  <span class='kw'>pub</span> <span class='ident'>server_time</span>: <span class='ident'>Time</span>,
-  <span class='kw'>pub</span> <span class='ident'>client_seq</span>: <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='ident'>category</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>client_swapped</span>: <span class='ident'>Bool</span>,
-  <span class='kw'>pub</span> <span class='ident'>data</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_uchar</span>,
-  <span class='kw'>pub</span> <span class='ident'>data_len</span>: <span class='ident'>c_ulong</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XRecordInterceptData</span> {
+  <span class="kw">pub</span> <span class="ident">id_base</span>: <span class="ident">XID</span>,
+  <span class="kw">pub</span> <span class="ident">server_time</span>: <span class="ident">Time</span>,
+  <span class="kw">pub</span> <span class="ident">client_seq</span>: <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="ident">category</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">client_swapped</span>: <span class="ident">Bool</span>,
+  <span class="kw">pub</span> <span class="ident">data</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_uchar</span>,
+  <span class="kw">pub</span> <span class="ident">data_len</span>: <span class="ident">c_ulong</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XRecordRange</span> {
-  <span class='kw'>pub</span> <span class='ident'>core_requests</span>: <span class='ident'>XRecordRange8</span>,
-  <span class='kw'>pub</span> <span class='ident'>core_replies</span>: <span class='ident'>XRecordRange8</span>,
-  <span class='kw'>pub</span> <span class='ident'>ext_requests</span>: <span class='ident'>XRecordExtRange</span>,
-  <span class='kw'>pub</span> <span class='ident'>ext_replies</span>: <span class='ident'>XRecordExtRange</span>,
-  <span class='kw'>pub</span> <span class='ident'>delivered_events</span>: <span class='ident'>XRecordRange8</span>,
-  <span class='kw'>pub</span> <span class='ident'>device_events</span>: <span class='ident'>XRecordRange8</span>,
-  <span class='kw'>pub</span> <span class='ident'>errors</span>: <span class='ident'>XRecordRange8</span>,
-  <span class='kw'>pub</span> <span class='ident'>client_started</span>: <span class='ident'>Bool</span>,
-  <span class='kw'>pub</span> <span class='ident'>client_died</span>: <span class='ident'>Bool</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XRecordRange</span> {
+  <span class="kw">pub</span> <span class="ident">core_requests</span>: <span class="ident">XRecordRange8</span>,
+  <span class="kw">pub</span> <span class="ident">core_replies</span>: <span class="ident">XRecordRange8</span>,
+  <span class="kw">pub</span> <span class="ident">ext_requests</span>: <span class="ident">XRecordExtRange</span>,
+  <span class="kw">pub</span> <span class="ident">ext_replies</span>: <span class="ident">XRecordExtRange</span>,
+  <span class="kw">pub</span> <span class="ident">delivered_events</span>: <span class="ident">XRecordRange8</span>,
+  <span class="kw">pub</span> <span class="ident">device_events</span>: <span class="ident">XRecordRange8</span>,
+  <span class="kw">pub</span> <span class="ident">errors</span>: <span class="ident">XRecordRange8</span>,
+  <span class="kw">pub</span> <span class="ident">client_started</span>: <span class="ident">Bool</span>,
+  <span class="kw">pub</span> <span class="ident">client_died</span>: <span class="ident">Bool</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XRecordRange8</span> {
-  <span class='kw'>pub</span> <span class='ident'>first</span>: <span class='ident'>c_uchar</span>,
-  <span class='kw'>pub</span> <span class='ident'>last</span>: <span class='ident'>c_uchar</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XRecordRange8</span> {
+  <span class="kw">pub</span> <span class="ident">first</span>: <span class="ident">c_uchar</span>,
+  <span class="kw">pub</span> <span class="ident">last</span>: <span class="ident">c_uchar</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XRecordRange16</span> {
-  <span class='kw'>pub</span> <span class='ident'>first</span>: <span class='ident'>c_ushort</span>,
-  <span class='kw'>pub</span> <span class='ident'>last</span>: <span class='ident'>c_ushort</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XRecordRange16</span> {
+  <span class="kw">pub</span> <span class="ident">first</span>: <span class="ident">c_ushort</span>,
+  <span class="kw">pub</span> <span class="ident">last</span>: <span class="ident">c_ushort</span>,
 }
 
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Clone</span>, <span class='ident'>Copy</span>, <span class='ident'>PartialEq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>XRecordState</span> {
-  <span class='kw'>pub</span> <span class='ident'>enabled</span>: <span class='ident'>Bool</span>,
-  <span class='kw'>pub</span> <span class='ident'>datum_flags</span>: <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='ident'>nclients</span>: <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='ident'>client_info</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XRecordClientInfo</span>,
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">XRecordState</span> {
+  <span class="kw">pub</span> <span class="ident">enabled</span>: <span class="ident">Bool</span>,
+  <span class="kw">pub</span> <span class="ident">datum_flags</span>: <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="ident">nclients</span>: <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="ident">client_info</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XRecordClientInfo</span>,
 }
 </pre>
 </section>
@@ -334,12 +336,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -360,7 +366,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -371,11 +377,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "x11_dl";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

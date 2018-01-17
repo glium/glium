@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Proxy` trait in crate `wayland_client`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Proxy">
+
+    <title>wayland_client::Proxy - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc trait">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Trait Proxy</p><div class="block items"><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.ptr">ptr</a><a href="#tymethod.from_ptr_new">from_ptr_new</a><a href="#tymethod.from_ptr_initialized">from_ptr_initialized</a><a href="#tymethod.interface_ptr">interface_ptr</a><a href="#tymethod.interface_name">interface_name</a><a href="#tymethod.supported_version">supported_version</a><a href="#tymethod.version">version</a><a href="#tymethod.status">status</a><a href="#tymethod.equals">equals</a><a href="#tymethod.set_user_data">set_user_data</a><a href="#tymethod.get_user_data">get_user_data</a><a href="#tymethod.clone_unchecked">clone_unchecked</a></div><a class="sidebar-title" href="#provided-methods">Provided Methods</a><div class="sidebar-links"><a href="#method.clone">clone</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='index.html'>wayland_client</a></p><script>window.sidebarCurrent = {name: 'Proxy', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='index.html'>wayland_client</a>::<wbr><a class="trait" href=''>Proxy</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/wayland_client/lib.rs.html#114-188' title='goto source code'>[src]</a></span></h1>
+<pre class='rust trait'>pub unsafe trait Proxy {
+    fn <a href='#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>;
+<div class='item-spacer'></div>    unsafe fn <a href='#tymethod.from_ptr_new' class='fnname'>from_ptr_new</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; Self;
+<div class='item-spacer'></div>    unsafe fn <a href='#tymethod.from_ptr_initialized' class='fnname'>from_ptr_initialized</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; Self;
+<div class='item-spacer'></div>    fn <a href='#tymethod.interface_ptr' class='fnname'>interface_ptr</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../wayland_sys/common/struct.wl_interface.html" title="struct wayland_sys::common::wl_interface">wl_interface</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.interface_name' class='fnname'>interface_name</a>() -&gt; &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.supported_version' class='fnname'>supported_version</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.version' class='fnname'>version</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.status' class='fnname'>status</a>(&amp;self) -&gt; <a class="enum" href="../wayland_client/enum.Liveness.html" title="enum wayland_client::Liveness">Liveness</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.equals' class='fnname'>equals</a>(&amp;self, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a>;
+<div class='item-spacer'></div>    fn <a href='#tymethod.set_user_data' class='fnname'>set_user_data</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>);
+<div class='item-spacer'></div>    fn <a href='#tymethod.get_user_data' class='fnname'>get_user_data</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>;
+<div class='item-spacer'></div>    unsafe fn <a href='#tymethod.clone_unchecked' class='fnname'>clone_unchecked</a>(&amp;self) -&gt; Self<br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a></span>;
+
+    fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Self&gt;<br>&nbsp;&nbsp;&nbsp; <span class="where">where<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a></span>,
+    { ... }
+}</pre><div class='docblock'><p>Common routines for wayland proxy objects.</p>
+
+<p>All wayland objects automatically implement this trait
+as generated by the scanner.</p>
+
+<p>It is mostly used for internal use by the library, and you
+should only need these methods for interfacing with C library
+working on wayland objects.</p>
+</div>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
+            <div class='methods'>
+        <h3 id='tymethod.ptr' class='method'><span id='ptr.v' class='invisible'><code>fn <a href='#tymethod.ptr' class='fnname'>ptr</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a></code></span></h3><div class='docblock'><p>Pointer to the underlying wayland proxy object</p>
+</div><h3 id='tymethod.from_ptr_new' class='method'><span id='from_ptr_new.v' class='invisible'><code>unsafe fn <a href='#tymethod.from_ptr_new' class='fnname'>from_ptr_new</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; Self</code></span></h3><div class='docblock'><p>Create an instance from a wayland pointer</p>
+
+<p>The pointer must refer to a valid wayland proxy
+of the appropriate interface, but that have not
+yet been seen by the library.</p>
+
+<p>The library will take control of the object (notably
+overwrite its user_data).</p>
+</div><h3 id='tymethod.from_ptr_initialized' class='method'><span id='from_ptr_initialized.v' class='invisible'><code>unsafe fn <a href='#tymethod.from_ptr_initialized' class='fnname'>from_ptr_initialized</a>(_: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="enum" href="../wayland_sys/client/enum.wl_proxy.html" title="enum wayland_sys::client::wl_proxy">wl_proxy</a>) -&gt; Self</code></span></h3><div class='docblock'><p>Create an instance from a wayland pointer</p>
+
+<p>The pointer must refer to a valid wayland proxy
+of the appropriate interface. The library will detect if the
+proxy is already managed by it or not. If it is not, this
+proxy will be considered as &quot;unmanaged&quot;, and should then
+be handled with care.</p>
+</div><h3 id='tymethod.interface_ptr' class='method'><span id='interface_ptr.v' class='invisible'><code>fn <a href='#tymethod.interface_ptr' class='fnname'>interface_ptr</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*const </a><a class="struct" href="../wayland_sys/common/struct.wl_interface.html" title="struct wayland_sys::common::wl_interface">wl_interface</a></code></span></h3><div class='docblock'><p>Pointer to the interface representation</p>
+</div><h3 id='tymethod.interface_name' class='method'><span id='interface_name.v' class='invisible'><code>fn <a href='#tymethod.interface_name' class='fnname'>interface_name</a>() -&gt; &amp;'static <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span></h3><div class='docblock'><p>Internal wayland name of this interface</p>
+</div><h3 id='tymethod.supported_version' class='method'><span id='supported_version.v' class='invisible'><code>fn <a href='#tymethod.supported_version' class='fnname'>supported_version</a>() -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span></h3><div class='docblock'><p>Max version of this interface supported</p>
+</div><h3 id='tymethod.version' class='method'><span id='version.v' class='invisible'><code>fn <a href='#tymethod.version' class='fnname'>version</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.u32.html">u32</a></code></span></h3><div class='docblock'><p>Current version of the interface this proxy is instantiated with</p>
+</div><h3 id='tymethod.status' class='method'><span id='status.v' class='invisible'><code>fn <a href='#tymethod.status' class='fnname'>status</a>(&amp;self) -&gt; <a class="enum" href="../wayland_client/enum.Liveness.html" title="enum wayland_client::Liveness">Liveness</a></code></span></h3><div class='docblock'><p>Check if the proxy behind this handle is actually still alive</p>
+</div><h3 id='tymethod.equals' class='method'><span id='equals.v' class='invisible'><code>fn <a href='#tymethod.equals' class='fnname'>equals</a>(&amp;self, _: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span></h3><div class='docblock'><p>Check of two handles are actually the same wayland object</p>
+
+<p>Returns <code>false</code> if any of the objects has already been destroyed</p>
+</div><h3 id='tymethod.set_user_data' class='method'><span id='set_user_data.v' class='invisible'><code>fn <a href='#tymethod.set_user_data' class='fnname'>set_user_data</a>(&amp;self, ptr: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>)</code></span></h3><div class='docblock'><p>Set a pointer associated as user data on this proxy</p>
+
+<p>All proxies to the same wayland object share the same user data pointer.</p>
+
+<p>The get/set operations are atomic, no more guarantee is given. If you need
+to synchronise access to this data, it is your responsibility to add a Mutex
+or any other similar mechanism.</p>
+
+<p>If this proxy is not managed by wayland-client, this does nothing.</p>
+</div><h3 id='tymethod.get_user_data' class='method'><span id='get_user_data.v' class='invisible'><code>fn <a href='#tymethod.get_user_data' class='fnname'>get_user_data</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.pointer.html">*mut </a><a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a></code></span></h3><div class='docblock'><p>Get the pointer associated as user data on this proxy</p>
+
+<p>All proxies to the same wayland object share the same user data pointer.</p>
+
+<p>See <code>set_user_data</code> for synchronisation guarantee.</p>
+
+<p>If this proxy is not managed by wayland-client, this returns a null pointer.</p>
+</div><h3 id='tymethod.clone_unchecked' class='method'><span id='clone_unchecked.v' class='invisible'><code>unsafe fn <a href='#tymethod.clone_unchecked' class='fnname'>clone_unchecked</a>(&amp;self) -&gt; Self <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></span></h3><div class='docblock'><p>Unsafely clone this proxy handle</p>
+
+<p>This function is unsafe because if the proxy is unmanaged, the lib
+has no knowledge of its lifetime, and cannot ensure that the new handle
+will not outlive the object.</p>
+</div></div>
+            <h2 id='provided-methods' class='small-section-header'>
+              Provided Methods<a href='#provided-methods' class='anchor'></a>
+            </h2>
+            <div class='methods'>
+        <h3 id='method.clone' class='method'><span id='clone.v' class='invisible'><code>fn <a href='#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;Self&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;Self: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>,&nbsp;</span></code></span></h3><div class='docblock'><p>Clone this proxy handle</p>
+
+<p>Will only succeed if the proxy is managed by this library and
+is still alive.</p>
+</div></div>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
+        <ul class='item-list' id='implementors-list'>
+    <li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#61-126' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_display/struct.WlDisplay.html" title="struct wayland_client::protocol::wl_display::WlDisplay">WlDisplay</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#234-299' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_registry/struct.WlRegistry.html" title="struct wayland_client::protocol::wl_registry::WlRegistry">WlRegistry</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#421-486' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_callback/struct.WlCallback.html" title="struct wayland_client::protocol::wl_callback::WlCallback">WlCallback</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#576-641' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_compositor/struct.WlCompositor.html" title="struct wayland_client::protocol::wl_compositor::WlCompositor">WlCompositor</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#697-762' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_shm_pool/struct.WlShmPool.html" title="struct wayland_client::protocol::wl_shm_pool::WlShmPool">WlShmPool</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#857-922' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_shm/struct.WlShm.html" title="struct wayland_client::protocol::wl_shm::WlShm">WlShm</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1248-1313' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_buffer/struct.WlBuffer.html" title="struct wayland_client::protocol::wl_buffer::WlBuffer">WlBuffer</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1432-1497' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_data_offer/struct.WlDataOffer.html" title="struct wayland_client::protocol::wl_data_offer::WlDataOffer">WlDataOffer</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#1799-1864' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_data_source/struct.WlDataSource.html" title="struct wayland_client::protocol::wl_data_source::WlDataSource">WlDataSource</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2144-2209' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_data_device/struct.WlDataDevice.html" title="struct wayland_client::protocol::wl_data_device::WlDataDevice">WlDataDevice</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2480-2545' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_data_device_manager/struct.WlDataDeviceManager.html" title="struct wayland_client::protocol::wl_data_device_manager::WlDataDeviceManager">WlDataDeviceManager</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2644-2709' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_shell/struct.WlShell.html" title="struct wayland_client::protocol::wl_shell::WlShell">WlShell</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#2781-2846' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_shell_surface/struct.WlShellSurface.html" title="struct wayland_client::protocol::wl_shell_surface::WlShellSurface">WlShellSurface</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3260-3325' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_surface/struct.WlSurface.html" title="struct wayland_client::protocol::wl_surface::WlSurface">WlSurface</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#3787-3852' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_seat/struct.WlSeat.html" title="struct wayland_client::protocol::wl_seat::WlSeat">WlSeat</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#4071-4136' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_pointer/struct.WlPointer.html" title="struct wayland_client::protocol::wl_pointer::WlPointer">WlPointer</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#4617-4682' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_keyboard/struct.WlKeyboard.html" title="struct wayland_client::protocol::wl_keyboard::WlKeyboard">WlKeyboard</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#4928-4993' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_touch/struct.WlTouch.html" title="struct wayland_client::protocol::wl_touch::WlTouch">WlTouch</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#5162-5227' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_output/struct.WlOutput.html" title="struct wayland_client::protocol::wl_output::WlOutput">WlOutput</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#5522-5587' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_region/struct.WlRegion.html" title="struct wayland_client::protocol::wl_region::WlRegion">WlRegion</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#5674-5739' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_subcompositor/struct.WlSubcompositor.html" title="struct wayland_client::protocol::wl_subcompositor::WlSubcompositor">WlSubcompositor</a></code></li>
+<li><div class='out-of-band'><a class='srclink' href='../src/wayland_client/home/daboross/Projects/CheckedOut/glium/target/debug/build/wayland-client-d3dc919fa9fca936/out/wayland_api.rs.html#5873-5938' title='goto source code'>[src]</a></div><code>impl Proxy for <a class="struct" href="../wayland_client/protocol/wl_subsurface/struct.WlSubsurface.html" title="struct wayland_client::protocol::wl_subsurface::WlSubsurface">WlSubsurface</a></code></li>
+</ul><script type="text/javascript" async
+                         src="../implementors/wayland_client/trait.Proxy.js">
+                 </script></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "wayland_client";
+    </script>
+    <script src="../main.js"></script>
+    <script defer src="../search-index.js"></script>
+</body>
+</html>

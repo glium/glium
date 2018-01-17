@@ -9,13 +9,15 @@
 
     <title>glium::buffer::WriteMapping - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc struct">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a></p><script>window.sidebarCurrent = {name: 'WriteMapping', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Struct WriteMapping</p><div class="block items"><a class="sidebar-title" href="#methods">Methods</a><div class="sidebar-links"><a href="#method.write">write</a><a href="#method.len">len</a><a href="#method.set">set</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a></p><script>window.sidebarCurrent = {name: 'WriteMapping', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,20 +43,24 @@
         </form>
     </nav>
 
-    <section id='main' class="content struct">
-<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a>::<wbr><a class='struct' href=''>WriteMapping</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-624' class='srclink' href='../../src/glium/buffer/alloc.rs.html#999-1001' title='goto source code'>[src]</a></span></h1>
-<pre class='rust struct'>pub struct WriteMapping&lt;'b, D: ?<a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html' title='core::marker::Sized'>Sized</a>&gt; <span class='where'>where D: <a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Content</a></span> {
-    // some fields omitted
-}</pre><div class='docblock'><p>A mapping of a buffer for write only.</p>
-</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl&lt;'b, D&gt; <a class='struct' href='../../glium/buffer/struct.WriteMapping.html' title='glium::buffer::WriteMapping'>WriteMapping</a>&lt;'b, D&gt; <span class='where'>where D: <a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Content</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></code></h3><div class='impl-items'><h4 id='method.write' class='method'><code>fn <a href='#method.write' class='fnname'>write</a>(&amp;mut self, value: D)</code></h4>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>glium</a>::<wbr><a href='index.html'>buffer</a>::<wbr><a class="struct" href=''>WriteMapping</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/buffer/alloc.rs.html#1031-1033' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct WriteMapping&lt;'b, D:&nbsp;?<a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Sized.html" title="trait core::marker::Sized">Sized</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../../glium/buffer/trait.Content.html" title="trait glium::buffer::Content">Content</a>,&nbsp;</span> { /* fields omitted */ }</pre><div class='docblock'><p>A mapping of a buffer for write only.</p>
+</div>
+                    <h2 id='methods' class='small-section-header'>
+                      Methods<a href='#methods' class='anchor'></a>
+                    </h2>
+                <h3 id='impl' class='impl'><span class='in-band'><code>impl&lt;'b, D&gt; <a class="struct" href="../../glium/buffer/struct.WriteMapping.html" title="struct glium::buffer::WriteMapping">WriteMapping</a>&lt;'b, D&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="../../glium/buffer/trait.Content.html" title="trait glium::buffer::Content">Content</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a>,&nbsp;</span></code><a href='#impl' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/alloc.rs.html#1054-1061' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.write' class="method"><span id='write.v' class='invisible'><code>pub fn <a href='#method.write' class='fnname'>write</a>(&amp;mut self, value: D)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/alloc.rs.html#1057-1060' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Writes the whole content.</p>
-</div></div><h3 class='impl'><code>impl&lt;'b, D&gt; <a class='struct' href='../../glium/buffer/struct.WriteMapping.html' title='glium::buffer::WriteMapping'>WriteMapping</a>&lt;'b, <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[D]</a>&gt; <span class='where'>where <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>[D]</a>: <a class='trait' href='../../glium/buffer/trait.Content.html' title='glium::buffer::Content'>Content</a>, D: <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a></span></code></h3><div class='impl-items'><h4 id='method.len' class='method'><code>fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a></code></h4>
+</div></div><h3 id='impl-1' class='impl'><span class='in-band'><code>impl&lt;'b, D&gt; <a class="struct" href="../../glium/buffer/struct.WriteMapping.html" title="struct glium::buffer::WriteMapping">WriteMapping</a>&lt;'b, <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">[</a>D<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a>&gt; <span class="where fmt-newline">where<br>&nbsp;&nbsp;&nbsp;&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">[</a>D<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.slice.html">]</a>: <a class="trait" href="../../glium/buffer/trait.Content.html" title="trait glium::buffer::Content">Content</a>,<br>&nbsp;&nbsp;&nbsp;&nbsp;D: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a>,&nbsp;</span></code><a href='#impl-1' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/alloc.rs.html#1063-1085' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.len' class="method"><span id='len.v' class='invisible'><code>pub fn <a href='#method.len' class='fnname'>len</a>(&amp;self) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/alloc.rs.html#1066-1072' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Returns the length of the mapping.</p>
-</div><h4 id='method.set' class='method'><code>fn <a href='#method.set' class='fnname'>set</a>(&amp;mut self, index: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>, value: D)</code></h4>
+</div><h4 id='method.set' class="method"><span id='set.v' class='invisible'><code>pub fn <a href='#method.set' class='fnname'>set</a>(&amp;mut self, index: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>, value: D)</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/buffer/alloc.rs.html#1081-1084' title='goto source code'>[src]</a></span></h4>
 <div class='docblock'><p>Changes an element of the mapping.</p>
 
 <h1 id='panic' class='section-header'><a href='#panic'>Panic</a></h1>
@@ -76,12 +82,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -102,7 +112,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -113,11 +123,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

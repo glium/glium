@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["Error",""],["Version","latest protocol version"]],"struct":[["Implementation",""],["XdgShell",""]]});

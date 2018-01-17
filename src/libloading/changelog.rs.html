@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/libloading-0.4.3/src/changelog.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>changelog.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc source">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content"><pre class="line-numbers"><span id="1"> 1</span>
+<span id="2"> 2</span>
+<span id="3"> 3</span>
+<span id="4"> 4</span>
+<span id="5"> 5</span>
+<span id="6"> 6</span>
+<span id="7"> 7</span>
+<span id="8"> 8</span>
+<span id="9"> 9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+</pre><pre class="rust ">
+<span class="doccomment">//! Project changelog</span>
+
+<span class="doccomment">/// Release 0.4.3 (2017-12-07)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Bump lazy-static dependency to `^1.0`</span>
+<span class="doccomment">/// * `cargo test --release` now works when testing libloading.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_4_3</span> {}
+
+
+<span class="doccomment">/// Release 0.4.2 (2017-09-24)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Improved error and race-condition handling on Windows;</span>
+<span class="doccomment">/// * Improved documentation about thread-safety of Library;</span>
+<span class="doccomment">/// * Added `Symbol::&lt;Option&lt;T&gt;::lift_option() -&gt; Option&lt;Symbol&lt;T&gt;&gt;` convenience method.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_4_2</span> {}
+
+
+<span class="doccomment">/// Release 0.4.1 (2017-08-29)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Solaris support</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_4_1</span> {}
+
+<span class="doccomment">/// Release 0.4.0 (2017-05-01)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Remove build-time dependency on target_build_utils (and by extension serde/phf);</span>
+<span class="doccomment">/// * Require at least version 1.14.0 of rustc to build;</span>
+<span class="doccomment">///   * Actually, it is cargo which has to be more recent here. The one shipped with rustc 1.14.0</span>
+<span class="doccomment">///     is what’s being required from now on.</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_4_0</span> {}
+
+<span class="doccomment">/// Release 0.3.4 (2017-03-25)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Remove rogue println!</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_3_4</span> {}
+
+<span class="doccomment">/// Release 0.3.3 (2017-03-25)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Panics when `Library::get` is called for incompatibly sized type such as named function</span>
+<span class="doccomment">///   types (which are zero-sized).</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_3_3</span> {}
+
+<span class="doccomment">/// Release 0.3.2 (2017-02-10)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Minimum version required is now rustc 1.12.0;</span>
+<span class="doccomment">/// * Updated dependency versions (most notably target_build_utils to 0.3.0)</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_3_2</span> {}
+
+<span class="doccomment">/// Release 0.3.1 (2016-10-01)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * `Symbol&lt;T&gt;` and `os::*::Symbol&lt;T&gt;` now implement `Send` where `T: Send`;</span>
+<span class="doccomment">/// * `Symbol&lt;T&gt;` and `os::*::Symbol&lt;T&gt;` now implement `Sync` where `T: Sync`;</span>
+<span class="doccomment">/// * `Library` and `os::*::Library` now implement `Sync` (they were `Send` in 0.3.0 already).</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_3_1</span> {}
+
+<span class="doccomment">/// Release 0.3.0 (2016-07-27)</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// * Greatly improved documentation, especially around platform-specific behaviours;</span>
+<span class="doccomment">/// * Improved test suite by building our own library to test against;</span>
+<span class="doccomment">/// * All `Library`-ies now implement `Send`.</span>
+<span class="doccomment">/// * Added `impl From&lt;os::platform::Library&gt; for Library` and `impl From&lt;Library&gt; for</span>
+<span class="doccomment">/// os::platform::Library` allowing wrapping and extracting the platform-specific library handle;</span>
+<span class="doccomment">/// * Added methods to wrap (`Symbol::from_raw`) and unwrap (`Symbol::into_raw`) the safe `Symbol`</span>
+<span class="doccomment">/// wrapper into unsafe `os::platform::Symbol`.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// The last two additions focus on not restricting potential usecases of this library, allowing</span>
+<span class="doccomment">/// users of the library to circumvent safety checks if need be.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## Beaking Changes</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `Library::new` defaults to `RTLD_NOW` instead of `RTLD_LAZY` on UNIX for more consistent</span>
+<span class="doccomment">/// cross-platform behaviour. If a library loaded with `Library::new` had any linking errors, but</span>
+<span class="doccomment">/// unresolved references weren’t forced to be resolved, the library would’ve “just worked”,</span>
+<span class="doccomment">/// whereas now the call to `Library::new` will return an error signifying presence of such error.</span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// ## os::platform</span>
+<span class="doccomment">/// * Added `os::unix::Library::open` which allows specifying arbitrary flags (e.g. `RTLD_LAZY`);</span>
+<span class="doccomment">/// * Added `os::windows::Library::get_ordinal` which allows finding a function or variable by its</span>
+<span class="doccomment">/// ordinal number;</span>
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">r0_3_0</span> {}
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "libloading";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

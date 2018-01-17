@@ -9,13 +9,15 @@
 
     <title>glium::BlendingFunction - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../normalize.css">
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'BlendingFunction', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum BlendingFunction</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.AlwaysReplace">AlwaysReplace</a><a href="#variant.Min">Min</a><a href="#variant.Max">Max</a><a href="#variant.Addition">Addition</a><a href="#variant.Subtraction">Subtraction</a><a href="#variant.ReverseSubtraction">ReverseSubtraction</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Copy">Copy</a><a href="#impl-Debug">Debug</a><a href="#impl-PartialEq">PartialEq</a><a href="#impl-Eq">Eq</a></div></div><p class='location'><a href='index.html'>glium</a></p><script>window.sidebarCurrent = {name: 'BlendingFunction', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,82 +43,97 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>glium</a>::<wbr><a class='enum' href=''>BlendingFunction</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-1882' class='srclink' href='../src/glium/draw_parameters/blend.rs.html#55-119' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='index.html'>glium</a>::<wbr><a class="enum" href=''>BlendingFunction</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#55-119' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum BlendingFunction {
     AlwaysReplace,
     Min,
     Max,
     Addition {
-        source: <a class='enum' href='../glium/enum.LinearBlendingFactor.html' title='glium::LinearBlendingFactor'>LinearBlendingFactor</a>,
-        destination: <a class='enum' href='../glium/enum.LinearBlendingFactor.html' title='glium::LinearBlendingFactor'>LinearBlendingFactor</a>,
+        source: <a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a>,
+        destination: <a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a>,
     },
     Subtraction {
-        source: <a class='enum' href='../glium/enum.LinearBlendingFactor.html' title='glium::LinearBlendingFactor'>LinearBlendingFactor</a>,
-        destination: <a class='enum' href='../glium/enum.LinearBlendingFactor.html' title='glium::LinearBlendingFactor'>LinearBlendingFactor</a>,
+        source: <a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a>,
+        destination: <a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a>,
     },
     ReverseSubtraction {
-        source: <a class='enum' href='../glium/enum.LinearBlendingFactor.html' title='glium::LinearBlendingFactor'>LinearBlendingFactor</a>,
-        destination: <a class='enum' href='../glium/enum.LinearBlendingFactor.html' title='glium::LinearBlendingFactor'>LinearBlendingFactor</a>,
+        source: <a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a>,
+        destination: <a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a>,
     },
 }</pre><div class='docblock'><p>Function that the GPU will use for blending.</p>
-</div><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.AlwaysReplace'><code>AlwaysReplace</code></td><td><div class='docblock'><p>Simply overwrite the destination pixel with the source pixel.</p>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.AlwaysReplace" class="variant small-section-header"><a href="#variant.AlwaysReplace" class="anchor field"></a><span id='AlwaysReplace.v' class='invisible'><code>AlwaysReplace</code></span></span><div class='docblock'><p>Simply overwrite the destination pixel with the source pixel.</p>
 
 <p>The alpha channels are simply ignored. This is the default mode.</p>
 
 <p>For example writing <code>(0.5, 0.9, 0.4, 0.2)</code> over <code>(0.9, 0.1, 0.4, 0.3)</code> will
 result in <code>(0.5, 0.9, 0.4, 0.2)</code>.</p>
-</div></td></tr><tr><td id='variant.Min'><code>Min</code></td><td><div class='docblock'><p>For each individual component (red, green, blue, and alpha), the minimum value is chosen
+</div><span id="variant.Min" class="variant small-section-header"><a href="#variant.Min" class="anchor field"></a><span id='Min.v' class='invisible'><code>Min</code></span></span><div class='docblock'><p>For each individual component (red, green, blue, and alpha), the minimum value is chosen
 between the source and the destination.</p>
 
 <p>For example writing <code>(0.5, 0.9, 0.4, 0.2)</code> over <code>(0.9, 0.1, 0.4, 0.3)</code> will
 result in <code>(0.5, 0.1, 0.4, 0.2)</code>.</p>
-</div></td></tr><tr><td id='variant.Max'><code>Max</code></td><td><div class='docblock'><p>For each individual component (red, green, blue, and alpha), the maximum value is chosen
+</div><span id="variant.Max" class="variant small-section-header"><a href="#variant.Max" class="anchor field"></a><span id='Max.v' class='invisible'><code>Max</code></span></span><div class='docblock'><p>For each individual component (red, green, blue, and alpha), the maximum value is chosen
 between the source and the destination.</p>
 
 <p>For example writing <code>(0.5, 0.9, 0.4, 0.2)</code> over <code>(0.9, 0.1, 0.4, 0.3)</code> will
 result in <code>(0.9, 0.9, 0.4, 0.3)</code>.</p>
-</div></td></tr><tr><td id='variant.Addition'><code>Addition</code></td><td><div class='docblock'><p>For each individual component (red, green, blue, and alpha), a weighted addition
+</div><span id="variant.Addition" class="variant small-section-header"><a href="#variant.Addition" class="anchor field"></a><span id='Addition.v' class='invisible'><code>Addition</code></span></span><div class='docblock'><p>For each individual component (red, green, blue, and alpha), a weighted addition
 between the source and the destination.</p>
 
 <p>The result is equal to <code>source_component * source_factor + dest_component * dest_factor</code>,
 where <code>source_factor</code> and <code>dest_factor</code> are the values of <code>source</code> and <code>destination</code> of
 this enum.</p>
-</div><h3 class='fields'>Fields</h3>
+</div><span class='docblock autohide sub-variant' id='variant.Addition.fields'><h3 class='fields'>Fields of <code>Addition</code></h3>
 
-                                              <table><tr><td id='variant.Addition.field.source'><code>source</code></td><td><div class='docblock'><p>The factor to apply to the source pixel.</p>
-</div></td></tr><tr><td id='variant.Addition.field.destination'><code>destination</code></td><td><div class='docblock'><p>The factor to apply to the destination pixel.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.Subtraction'><code>Subtraction</code></td><td><div class='docblock'><p>For each individual component (red, green, blue, and alpha), a weighted substraction
+                           <table><tr><td id='variant.Addition.field.source'><span id='Addition.v.source.v' class='invisible'><code>source:&nbsp;<a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a></code></span></td><td><div class='docblock'><p>The factor to apply to the source pixel.</p>
+</div></td></tr><tr><td id='variant.Addition.field.destination'><span id='Addition.v.destination.v' class='invisible'><code>destination:&nbsp;<a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a></code></span></td><td><div class='docblock'><p>The factor to apply to the destination pixel.</p>
+</div></td></tr></table></span><span id="variant.Subtraction" class="variant small-section-header"><a href="#variant.Subtraction" class="anchor field"></a><span id='Subtraction.v' class='invisible'><code>Subtraction</code></span></span><div class='docblock'><p>For each individual component (red, green, blue, and alpha), a weighted subtraction
 of the source by the destination.</p>
 
 <p>The result is equal to <code>source_component * source_factor - dest_component * dest_factor</code>,
 where <code>source_factor</code> and <code>dest_factor</code> are the values of <code>source</code> and <code>destination</code> of
 this enum.</p>
-</div><h3 class='fields'>Fields</h3>
+</div><span class='docblock autohide sub-variant' id='variant.Subtraction.fields'><h3 class='fields'>Fields of <code>Subtraction</code></h3>
 
-                                              <table><tr><td id='variant.Subtraction.field.source'><code>source</code></td><td><div class='docblock'><p>The factor to apply to the source pixel.</p>
-</div></td></tr><tr><td id='variant.Subtraction.field.destination'><code>destination</code></td><td><div class='docblock'><p>The factor to apply to the destination pixel.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.ReverseSubtraction'><code>ReverseSubtraction</code></td><td><div class='docblock'><p>For each individual component (red, green, blue, and alpha), a weighted substraction
+                           <table><tr><td id='variant.Subtraction.field.source'><span id='Subtraction.v.source.v' class='invisible'><code>source:&nbsp;<a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a></code></span></td><td><div class='docblock'><p>The factor to apply to the source pixel.</p>
+</div></td></tr><tr><td id='variant.Subtraction.field.destination'><span id='Subtraction.v.destination.v' class='invisible'><code>destination:&nbsp;<a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a></code></span></td><td><div class='docblock'><p>The factor to apply to the destination pixel.</p>
+</div></td></tr></table></span><span id="variant.ReverseSubtraction" class="variant small-section-header"><a href="#variant.ReverseSubtraction" class="anchor field"></a><span id='ReverseSubtraction.v' class='invisible'><code>ReverseSubtraction</code></span></span><div class='docblock'><p>For each individual component (red, green, blue, and alpha), a weighted subtraction
 of the destination by the source.</p>
 
 <p>The result is equal to <code>-source_component * source_factor + dest_component * dest_factor</code>,
 where <code>source_factor</code> and <code>dest_factor</code> are the values of <code>source</code> and <code>destination</code> of
 this enum.</p>
-</div><h3 class='fields'>Fields</h3>
+</div><span class='docblock autohide sub-variant' id='variant.ReverseSubtraction.fields'><h3 class='fields'>Fields of <code>ReverseSubtraction</code></h3>
 
-                                              <table><tr><td id='variant.ReverseSubtraction.field.source'><code>source</code></td><td><div class='docblock'><p>The factor to apply to the source pixel.</p>
-</div></td></tr><tr><td id='variant.ReverseSubtraction.field.destination'><code>destination</code></td><td><div class='docblock'><p>The factor to apply to the destination pixel.</p>
-</div></td></tr></table></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html' title='core::cmp::Eq'>Eq</a> for <a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html' title='core::cmp::PartialEq'>PartialEq</a> for <a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a></code></h3><div class='impl-items'><h4 id='method.eq' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-<h4 id='method.ne' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a>) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> for <a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a></code></h3><div class='impl-items'></div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../glium/enum.BlendingFunction.html' title='glium::BlendingFunction'>BlendingFunction</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+                           <table><tr><td id='variant.ReverseSubtraction.field.source'><span id='ReverseSubtraction.v.source.v' class='invisible'><code>source:&nbsp;<a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a></code></span></td><td><div class='docblock'><p>The factor to apply to the source pixel.</p>
+</div></td></tr><tr><td id='variant.ReverseSubtraction.field.destination'><span id='ReverseSubtraction.v.destination.v' class='invisible'><code>destination:&nbsp;<a class="enum" href="../glium/enum.LinearBlendingFactor.html" title="enum glium::LinearBlendingFactor">LinearBlendingFactor</a></code></span></td><td><div class='docblock'><p>The factor to apply to the destination pixel.</p>
+</div></td></tr></table></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Copy' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> for <a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a></code><a href='#impl-Copy' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-PartialEq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html" title="trait core::cmp::PartialEq">PartialEq</a> for <a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a></code><a href='#impl-PartialEq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.eq' class="method"><span id='eq.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq' class='fnname'>eq</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>self</code> and <code>other</code> values to be equal, and is used by <code>==</code>. <a href="https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#tymethod.eq">Read more</a></p>
+</div><h4 id='method.ne' class="method"><span id='ne.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/cmp/trait.PartialEq.html#method.ne' class='fnname'>ne</a>(&amp;self, __arg_0: &amp;<a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a>) -&gt; <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.bool.html">bool</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>This method tests for <code>!=</code>.</p>
+</div></div><h3 id='impl-Eq' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/cmp/trait.Eq.html" title="trait core::cmp::Eq">Eq</a> for <a class="enum" href="../glium/enum.BlendingFunction.html" title="enum glium::BlendingFunction">BlendingFunction</a></code><a href='#impl-Eq' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../src/glium/draw_parameters/blend.rs.html#54' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -133,12 +150,16 @@ this enum.</p>
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -159,7 +180,7 @@ this enum.</p>
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -170,11 +191,8 @@ this enum.</p>
     <script>
         window.rootPath = "../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../jquery.js"></script>
     <script src="../main.js"></script>
-    
     <script defer src="../search-index.js"></script>
 </body>
 </html>

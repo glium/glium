@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["LinearSyncFence","Prototype for a `SyncFence`."],["SyncFence","Provides a way to wait for a server-side operation to be finished."]]});

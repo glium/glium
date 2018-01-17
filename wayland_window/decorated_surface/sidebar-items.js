@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["substract_borders","Substracts the border dimensions from the given dimensions."]],"struct":[["DecoratedSurface","A wrapper for a decorated surface."],["SurfaceGuard","A wrapper around a reference to the surface you stored in a `DecoratedSurface`."]]});

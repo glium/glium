@@ -9,13 +9,15 @@
 
     <title>program.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -415,379 +417,491 @@
 <span id="372">372</span>
 <span id="373">373</span>
 <span id="374">374</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>gl</span>;
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
+<span id="390">390</span>
+<span id="391">391</span>
+<span id="392">392</span>
+<span id="393">393</span>
+<span id="394">394</span>
+<span id="395">395</span>
+<span id="396">396</span>
+<span id="397">397</span>
+<span id="398">398</span>
+<span id="399">399</span>
+<span id="400">400</span>
+<span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
+<span id="410">410</span>
+<span id="411">411</span>
+<span id="412">412</span>
+<span id="413">413</span>
+<span id="414">414</span>
+<span id="415">415</span>
+<span id="416">416</span>
+<span id="417">417</span>
+<span id="418">418</span>
+<span id="419">419</span>
+<span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">gl</span>;
 
-<span class='kw'>use</span> <span class='ident'>context</span>::<span class='ident'>CommandContext</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Version</span>;
-<span class='kw'>use</span> <span class='ident'>version</span>::<span class='ident'>Api</span>;
+<span class="kw">use</span> <span class="ident">context</span>::<span class="ident">CommandContext</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Version</span>;
+<span class="kw">use</span> <span class="ident">version</span>::<span class="ident">Api</span>;
 
-<span class='kw'>use</span> <span class='ident'>backend</span>::<span class='ident'>Facade</span>;
-<span class='kw'>use</span> <span class='ident'>CapabilitiesSource</span>;
+<span class="kw">use</span> <span class="ident">backend</span>::<span class="ident">Facade</span>;
+<span class="kw">use</span> <span class="ident">CapabilitiesSource</span>;
 
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>fmt</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>error</span>::<span class='ident'>Error</span>;
-<span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>collections</span>::<span class='ident'>hash_map</span>::{<span class='self'>self</span>, <span class='ident'>HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">fmt</span>;
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">collections</span>::<span class="ident">hash_map</span>::{<span class="self">self</span>, <span class="ident">HashMap</span>};
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">hash</span>::<span class="ident">BuildHasherDefault</span>;
 
-<span class='kw'>use</span> <span class='ident'>GlObject</span>;
-<span class='kw'>use</span> <span class='ident'>ProgramExt</span>;
-<span class='kw'>use</span> <span class='ident'>Handle</span>;
-<span class='kw'>use</span> <span class='ident'>RawUniformValue</span>;
+<span class="kw">use</span> <span class="ident">fnv</span>::<span class="ident">FnvHasher</span>;
 
-<span class='kw'>use</span> <span class='ident'>program</span>::{<span class='ident'>COMPILER_GLOBAL_LOCK</span>, <span class='ident'>ProgramCreationInput</span>, <span class='ident'>ProgramCreationError</span>, <span class='ident'>Binary</span>};
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>GetBinaryError</span>;
+<span class="kw">use</span> <span class="ident">GlObject</span>;
+<span class="kw">use</span> <span class="ident">ProgramExt</span>;
+<span class="kw">use</span> <span class="ident">Handle</span>;
+<span class="kw">use</span> <span class="ident">RawUniformValue</span>;
 
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>reflection</span>::{<span class='ident'>Uniform</span>, <span class='ident'>UniformBlock</span>, <span class='ident'>OutputPrimitives</span>};
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>reflection</span>::{<span class='ident'>Attribute</span>, <span class='ident'>TransformFeedbackBuffer</span>};
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>shader</span>::<span class='ident'>build_shader</span>;
+<span class="kw">use</span> <span class="ident">program</span>::{<span class="ident">COMPILER_GLOBAL_LOCK</span>, <span class="ident">ProgramCreationInput</span>, <span class="ident">ProgramCreationError</span>, <span class="ident">Binary</span>};
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">GetBinaryError</span>;
 
-<span class='kw'>use</span> <span class='ident'>program</span>::<span class='ident'>raw</span>::<span class='ident'>RawProgram</span>;
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">reflection</span>::{<span class="ident">Uniform</span>, <span class="ident">UniformBlock</span>, <span class="ident">OutputPrimitives</span>};
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">reflection</span>::{<span class="ident">Attribute</span>, <span class="ident">TransformFeedbackBuffer</span>};
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">reflection</span>::{<span class="ident">SubroutineData</span>, <span class="ident">ShaderStage</span>, <span class="ident">SubroutineUniform</span>};
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">shader</span>::<span class="ident">build_shader</span>;
 
-<span class='kw'>use</span> <span class='ident'>vertex</span>::<span class='ident'>VertexFormat</span>;
+<span class="kw">use</span> <span class="ident">program</span>::<span class="ident">raw</span>::<span class="ident">RawProgram</span>;
 
-<span class='doccomment'>/// A combination of shaders linked together.</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Program</span> {
-    <span class='ident'>raw</span>: <span class='ident'>RawProgram</span>,
-    <span class='ident'>outputs_srgb</span>: <span class='ident'>bool</span>,
-    <span class='ident'>uses_point_size</span>: <span class='ident'>bool</span>,
+<span class="kw">use</span> <span class="ident">vertex</span>::<span class="ident">VertexFormat</span>;
+
+<span class="doccomment">/// A combination of shaders linked together.</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Program</span> {
+    <span class="ident">raw</span>: <span class="ident">RawProgram</span>,
+    <span class="ident">outputs_srgb</span>: <span class="ident">bool</span>,
+    <span class="ident">uses_point_size</span>: <span class="ident">bool</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>Program</span> {
-    <span class='doccomment'>/// Builds a new program.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>F</span>, <span class='ident'>I</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>input</span>: <span class='ident'>I</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Program</span>, <span class='ident'>ProgramCreationError</span><span class='op'>&gt;</span>
-                         <span class='kw'>where</span> <span class='ident'>I</span>: <span class='ident'>Into</span><span class='op'>&lt;</span><span class='ident'>ProgramCreationInput</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;&gt;</span>, <span class='ident'>F</span>: <span class='ident'>Facade</span>
+<span class="kw">impl</span> <span class="ident">Program</span> {
+    <span class="doccomment">/// Builds a new program.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span>, <span class="ident">I</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">input</span>: <span class="ident">I</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span>, <span class="ident">ProgramCreationError</span><span class="op">&gt;</span>
+                         <span class="kw">where</span> <span class="ident">I</span>: <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">ProgramCreationInput</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;&gt;</span>, <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='kw'>let</span> <span class='ident'>input</span> <span class='op'>=</span> <span class='ident'>input</span>.<span class='ident'>into</span>();
+        <span class="kw">let</span> <span class="ident">input</span> <span class="op">=</span> <span class="ident">input</span>.<span class="ident">into</span>();
 
-        <span class='kw'>let</span> (<span class='ident'>raw</span>, <span class='ident'>outputs_srgb</span>, <span class='ident'>uses_point_size</span>) <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>input</span> {
-            <span class='ident'>ProgramCreationInput</span>::<span class='ident'>SourceCode</span> { <span class='ident'>vertex_shader</span>, <span class='ident'>tessellation_control_shader</span>,
-                                               <span class='ident'>tessellation_evaluation_shader</span>, <span class='ident'>geometry_shader</span>,
-                                               <span class='ident'>fragment_shader</span>, <span class='ident'>transform_feedback_varyings</span>,
-                                               <span class='ident'>outputs_srgb</span>, <span class='ident'>uses_point_size</span> } <span class='op'>=&gt;</span>
+        <span class="kw">let</span> (<span class="ident">raw</span>, <span class="ident">outputs_srgb</span>, <span class="ident">uses_point_size</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">input</span> {
+            <span class="ident">ProgramCreationInput</span>::<span class="ident">SourceCode</span> { <span class="ident">vertex_shader</span>, <span class="ident">tessellation_control_shader</span>,
+                                               <span class="ident">tessellation_evaluation_shader</span>, <span class="ident">geometry_shader</span>,
+                                               <span class="ident">fragment_shader</span>, <span class="ident">transform_feedback_varyings</span>,
+                                               <span class="ident">outputs_srgb</span>, <span class="ident">uses_point_size</span> } <span class="op">=&gt;</span>
             {
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>has_geometry_shader</span> <span class='op'>=</span> <span class='boolval'>false</span>;
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>has_tessellation_shaders</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_geometry_shader</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_tessellation_control_shader</span> <span class="op">=</span> <span class="bool-val">false</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">has_tessellation_evaluation_shader</span> <span class="op">=</span> <span class="bool-val">false</span>;
 
-                <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>shaders</span> <span class='op'>=</span> <span class='macro'>vec</span><span class='macro'>!</span>[
-                    (<span class='ident'>vertex_shader</span>, <span class='ident'>gl</span>::<span class='ident'>VERTEX_SHADER</span>),
-                    (<span class='ident'>fragment_shader</span>, <span class='ident'>gl</span>::<span class='ident'>FRAGMENT_SHADER</span>)
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shaders</span> <span class="op">=</span> <span class="macro">vec</span><span class="macro">!</span>[
+                    (<span class="ident">vertex_shader</span>, <span class="ident">gl</span>::<span class="ident">VERTEX_SHADER</span>),
+                    (<span class="ident">fragment_shader</span>, <span class="ident">gl</span>::<span class="ident">FRAGMENT_SHADER</span>)
                 ];
 
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>gs</span>) <span class='op'>=</span> <span class='ident'>geometry_shader</span> {
-                    <span class='ident'>shaders</span>.<span class='ident'>push</span>((<span class='ident'>gs</span>, <span class='ident'>gl</span>::<span class='ident'>GEOMETRY_SHADER</span>));
-                    <span class='ident'>has_geometry_shader</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">gs</span>) <span class="op">=</span> <span class="ident">geometry_shader</span> {
+                    <span class="ident">shaders</span>.<span class="ident">push</span>((<span class="ident">gs</span>, <span class="ident">gl</span>::<span class="ident">GEOMETRY_SHADER</span>));
+                    <span class="ident">has_geometry_shader</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 }
 
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>ts</span>) <span class='op'>=</span> <span class='ident'>tessellation_control_shader</span> {
-                    <span class='ident'>shaders</span>.<span class='ident'>push</span>((<span class='ident'>ts</span>, <span class='ident'>gl</span>::<span class='ident'>TESS_CONTROL_SHADER</span>));
-                    <span class='ident'>has_tessellation_shaders</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">tessellation_control_shader</span> {
+                    <span class="ident">shaders</span>.<span class="ident">push</span>((<span class="ident">ts</span>, <span class="ident">gl</span>::<span class="ident">TESS_CONTROL_SHADER</span>));
+                    <span class="ident">has_tessellation_control_shader</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 }
 
-                <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>ts</span>) <span class='op'>=</span> <span class='ident'>tessellation_evaluation_shader</span> {
-                    <span class='ident'>shaders</span>.<span class='ident'>push</span>((<span class='ident'>ts</span>, <span class='ident'>gl</span>::<span class='ident'>TESS_EVALUATION_SHADER</span>));
-                    <span class='ident'>has_tessellation_shaders</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ts</span>) <span class="op">=</span> <span class="ident">tessellation_evaluation_shader</span> {
+                    <span class="ident">shaders</span>.<span class="ident">push</span>((<span class="ident">ts</span>, <span class="ident">gl</span>::<span class="ident">TESS_EVALUATION_SHADER</span>));
+                    <span class="ident">has_tessellation_evaluation_shader</span> <span class="op">=</span> <span class="bool-val">true</span>;
                 }
 
-                <span class='comment'>// TODO: move somewhere else</span>
-                <span class='kw'>if</span> <span class='ident'>transform_feedback_varyings</span>.<span class='ident'>is_some</span>() <span class='op'>&amp;&amp;</span>
-                    (<span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span>
-                        <span class='op'>!</span><span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>get_extensions</span>().<span class='ident'>gl_ext_transform_feedback</span>)
+                <span class="comment">// TODO: move somewhere else</span>
+                <span class="kw">if</span> <span class="ident">transform_feedback_varyings</span>.<span class="ident">is_some</span>() <span class="op">&amp;&amp;</span>
+                    <span class="op">!</span>(<span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>)) <span class="op">&amp;&amp;</span>
+                    <span class="op">!</span><span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">get_extensions</span>().<span class="ident">gl_ext_transform_feedback</span>
                 {
-                    <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ProgramCreationError</span>::<span class='ident'>TransformFeedbackNotSupported</span>);
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProgramCreationError</span>::<span class="ident">TransformFeedbackNotSupported</span>);
                 }
 
-                <span class='kw'>if</span> <span class='ident'>uses_point_size</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span>(<span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>)) {
-                    <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ProgramCreationError</span>::<span class='ident'>PointSizeNotSupported</span>);
+                <span class="kw">if</span> <span class="ident">uses_point_size</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>)) {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProgramCreationError</span>::<span class="ident">PointSizeNotSupported</span>);
                 }
 
-                <span class='kw'>let</span> <span class='ident'>_lock</span> <span class='op'>=</span> <span class='ident'>COMPILER_GLOBAL_LOCK</span>.<span class='ident'>lock</span>();
+                <span class="kw">let</span> <span class="ident">_lock</span> <span class="op">=</span> <span class="ident">COMPILER_GLOBAL_LOCK</span>.<span class="ident">lock</span>();
 
-                <span class='kw'>let</span> <span class='ident'>shaders_store</span> <span class='op'>=</span> {
-                    <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>shaders_store</span> <span class='op'>=</span> <span class='ident'>Vec</span>::<span class='ident'>new</span>();
-                    <span class='kw'>for</span> (<span class='ident'>src</span>, <span class='ident'>ty</span>) <span class='kw'>in</span> <span class='ident'>shaders</span>.<span class='ident'>into_iter</span>() {
-                        <span class='ident'>shaders_store</span>.<span class='ident'>push</span>(<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>build_shader</span>(<span class='ident'>facade</span>, <span class='ident'>ty</span>, <span class='ident'>src</span>)));
+                <span class="kw">let</span> <span class="ident">shaders_store</span> <span class="op">=</span> {
+                    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shaders_store</span> <span class="op">=</span> <span class="ident">Vec</span>::<span class="ident">new</span>();
+                    <span class="kw">for</span> (<span class="ident">src</span>, <span class="ident">ty</span>) <span class="kw">in</span> <span class="ident">shaders</span>.<span class="ident">into_iter</span>() {
+                        <span class="ident">shaders_store</span>.<span class="ident">push</span>(<span class="macro">try</span><span class="macro">!</span>(<span class="ident">build_shader</span>(<span class="ident">facade</span>, <span class="ident">ty</span>, <span class="ident">src</span>)));
                     }
-                    <span class='ident'>shaders_store</span>
+                    <span class="ident">shaders_store</span>
                 };
 
-                (<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>RawProgram</span>::<span class='ident'>from_shaders</span>(<span class='ident'>facade</span>, <span class='kw-2'>&amp;</span><span class='ident'>shaders_store</span>, <span class='ident'>has_geometry_shader</span>,
-                                               <span class='ident'>has_tessellation_shaders</span>, <span class='ident'>transform_feedback_varyings</span>)),
-                 <span class='ident'>outputs_srgb</span>, <span class='ident'>uses_point_size</span>)
+                (<span class="macro">try</span><span class="macro">!</span>(<span class="ident">RawProgram</span>::<span class="ident">from_shaders</span>(<span class="ident">facade</span>, <span class="kw-2">&amp;</span><span class="ident">shaders_store</span>, <span class="ident">has_geometry_shader</span>,
+                                               <span class="ident">has_tessellation_control_shader</span>, <span class="ident">has_tessellation_evaluation_shader</span>,
+                                               <span class="ident">transform_feedback_varyings</span>)),
+                 <span class="ident">outputs_srgb</span>, <span class="ident">uses_point_size</span>)
             },
 
-            <span class='ident'>ProgramCreationInput</span>::<span class='ident'>Binary</span> { <span class='ident'>data</span>, <span class='ident'>outputs_srgb</span>, <span class='ident'>uses_point_size</span> } <span class='op'>=&gt;</span> {
-                <span class='kw'>if</span> <span class='ident'>uses_point_size</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span>(<span class='ident'>facade</span>.<span class='ident'>get_context</span>().<span class='ident'>get_version</span>() <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>)) {
-                    <span class='kw'>return</span> <span class='prelude-val'>Err</span>(<span class='ident'>ProgramCreationError</span>::<span class='ident'>PointSizeNotSupported</span>);
+            <span class="ident">ProgramCreationInput</span>::<span class="ident">Binary</span> { <span class="ident">data</span>, <span class="ident">outputs_srgb</span>, <span class="ident">uses_point_size</span> } <span class="op">=&gt;</span> {
+                <span class="kw">if</span> <span class="ident">uses_point_size</span> <span class="op">&amp;&amp;</span> <span class="op">!</span>(<span class="ident">facade</span>.<span class="ident">get_context</span>().<span class="ident">get_version</span>() <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>)) {
+                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="ident">ProgramCreationError</span>::<span class="ident">PointSizeNotSupported</span>);
                 }
 
-                (<span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>RawProgram</span>::<span class='ident'>from_binary</span>(<span class='ident'>facade</span>, <span class='ident'>data</span>)), <span class='ident'>outputs_srgb</span>, <span class='ident'>uses_point_size</span>)
+                (<span class="macro">try</span><span class="macro">!</span>(<span class="ident">RawProgram</span>::<span class="ident">from_binary</span>(<span class="ident">facade</span>, <span class="ident">data</span>)), <span class="ident">outputs_srgb</span>, <span class="ident">uses_point_size</span>)
             },
         };
-
-        <span class='prelude-val'>Ok</span>(<span class='ident'>Program</span> {
-            <span class='ident'>raw</span>: <span class='ident'>raw</span>,
-            <span class='ident'>outputs_srgb</span>: <span class='ident'>outputs_srgb</span>,
-            <span class='ident'>uses_point_size</span>: <span class='ident'>uses_point_size</span>,
+        <span class="prelude-val">Ok</span>(<span class="ident">Program</span> {
+            <span class="ident">raw</span>: <span class="ident">raw</span>,
+            <span class="ident">outputs_srgb</span>: <span class="ident">outputs_srgb</span>,
+            <span class="ident">uses_point_size</span>: <span class="ident">uses_point_size</span>,
         })
     }
 
-    <span class='doccomment'>/// Builds a new program from GLSL source code.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// A program is a group of shaders linked together.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Parameters</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// - `vertex_shader`: Source code of the vertex shader.</span>
-    <span class='doccomment'>/// - `fragment_shader`: Source code of the fragment shader.</span>
-    <span class='doccomment'>/// - `geometry_shader`: Source code of the geometry shader.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// # Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let display: glium::Display = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// # let vertex_source = &quot;&quot;; let fragment_source = &quot;&quot;; let geometry_source = &quot;&quot;;</span>
-    <span class='doccomment'>/// let program = glium::Program::from_source(&amp;display, vertex_source, fragment_source,</span>
-    <span class='doccomment'>///     Some(geometry_source));</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='doccomment'>///</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>from_source</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span>, <span class='ident'>F</span><span class='op'>&gt;</span>(<span class='ident'>facade</span>: <span class='kw-2'>&amp;</span><span class='ident'>F</span>, <span class='ident'>vertex_shader</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>, <span class='ident'>fragment_shader</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span>,
-                              <span class='ident'>geometry_shader</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span>)
-                              <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Program</span>, <span class='ident'>ProgramCreationError</span><span class='op'>&gt;</span> <span class='kw'>where</span> <span class='ident'>F</span>: <span class='ident'>Facade</span>
+    <span class="doccomment">/// Builds a new program from GLSL source code.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// A program is a group of shaders linked together.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Parameters</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// - `vertex_shader`: Source code of the vertex shader.</span>
+    <span class="doccomment">/// - `fragment_shader`: Source code of the fragment shader.</span>
+    <span class="doccomment">/// - `geometry_shader`: Source code of the geometry shader.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// # Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let display: glium::Display = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// # let vertex_source = &quot;&quot;; let fragment_source = &quot;&quot;; let geometry_source = &quot;&quot;;</span>
+    <span class="doccomment">/// let program = glium::Program::from_source(&amp;display, vertex_source, fragment_source,</span>
+    <span class="doccomment">///     Some(geometry_source));</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_source</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">F</span>: <span class="question-mark">?</span><span class="ident">Sized</span><span class="op">&gt;</span>(<span class="ident">facade</span>: <span class="kw-2">&amp;</span><span class="ident">F</span>, <span class="ident">vertex_shader</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>, <span class="ident">fragment_shader</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+                              <span class="ident">geometry_shader</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span><span class="op">&gt;</span>)
+                              <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Program</span>, <span class="ident">ProgramCreationError</span><span class="op">&gt;</span> <span class="kw">where</span> <span class="ident">F</span>: <span class="ident">Facade</span>
     {
-        <span class='ident'>Program</span>::<span class='ident'>new</span>(<span class='ident'>facade</span>, <span class='ident'>ProgramCreationInput</span>::<span class='ident'>SourceCode</span> {
-            <span class='ident'>vertex_shader</span>: <span class='ident'>vertex_shader</span>,
-            <span class='ident'>fragment_shader</span>: <span class='ident'>fragment_shader</span>,
-            <span class='ident'>geometry_shader</span>: <span class='ident'>geometry_shader</span>,
-            <span class='ident'>tessellation_control_shader</span>: <span class='prelude-val'>None</span>,
-            <span class='ident'>tessellation_evaluation_shader</span>: <span class='prelude-val'>None</span>,
-            <span class='ident'>transform_feedback_varyings</span>: <span class='prelude-val'>None</span>,
-            <span class='ident'>outputs_srgb</span>: <span class='boolval'>false</span>,
-            <span class='ident'>uses_point_size</span>: <span class='boolval'>false</span>,
+        <span class="ident">Program</span>::<span class="ident">new</span>(<span class="ident">facade</span>, <span class="ident">ProgramCreationInput</span>::<span class="ident">SourceCode</span> {
+            <span class="ident">vertex_shader</span>: <span class="ident">vertex_shader</span>,
+            <span class="ident">fragment_shader</span>: <span class="ident">fragment_shader</span>,
+            <span class="ident">geometry_shader</span>: <span class="ident">geometry_shader</span>,
+            <span class="ident">tessellation_control_shader</span>: <span class="prelude-val">None</span>,
+            <span class="ident">tessellation_evaluation_shader</span>: <span class="prelude-val">None</span>,
+            <span class="ident">transform_feedback_varyings</span>: <span class="prelude-val">None</span>,
+            <span class="ident">outputs_srgb</span>: <span class="bool-val">false</span>,
+            <span class="ident">uses_point_size</span>: <span class="bool-val">false</span>,
         })
     }
 
-    <span class='doccomment'>/// Returns the program&#39;s compiled binary.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// You can store the result in a file, then reload it later. This avoids having to compile</span>
-    <span class='doccomment'>/// the source code every time.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_binary</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>Binary</span>, <span class='ident'>GetBinaryError</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_binary</span>()
+    <span class="doccomment">/// Returns the program&#39;s compiled binary.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// You can store the result in a file, then reload it later. This avoids having to compile</span>
+    <span class="doccomment">/// the source code every time.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_binary</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Binary</span>, <span class="ident">GetBinaryError</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_binary</span>()
     }
 
-    <span class='doccomment'>/// Returns the *location* of an output fragment, if it exists.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The *location* is low-level information that is used internally by glium.</span>
-    <span class='doccomment'>/// You probably don&#39;t need to call this function.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// You can declare output fragments in your shaders by writing:</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```notrust</span>
-    <span class='doccomment'>/// out vec4 foo;</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='doccomment'>///</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_frag_data_location</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>u32</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_frag_data_location</span>(<span class='ident'>name</span>)
+    <span class="doccomment">/// Returns the *location* of an output fragment, if it exists.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The *location* is low-level information that is used internally by glium.</span>
+    <span class="doccomment">/// You probably don&#39;t need to call this function.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// You can declare output fragments in your shaders by writing:</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```notrust</span>
+    <span class="doccomment">/// out vec4 foo;</span>
+    <span class="doccomment">/// ```</span>
+    <span class="doccomment">///</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_frag_data_location</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">u32</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_frag_data_location</span>(<span class="ident">name</span>)
     }
 
-    <span class='doccomment'>/// Returns informations about a uniform variable, if it exists.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_uniform</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Uniform</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform</span>(<span class='ident'>name</span>)
-    }
-    
-    <span class='doccomment'>/// Returns an iterator to the list of uniforms.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// for (name, uniform) in program.uniforms() {</span>
-    <span class='doccomment'>///     println!(&quot;Name: {} - Type: {:?}&quot;, name, uniform.ty);</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>uniforms</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>hash_map</span>::<span class='ident'>Iter</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>Uniform</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>uniforms</span>()
-    }
-    
-    <span class='doccomment'>/// Returns a list of uniform blocks.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// for (name, uniform) in program.get_uniform_blocks() {</span>
-    <span class='doccomment'>///     println!(&quot;Name: {}&quot;, name);</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_uniform_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform_blocks</span>()
+    <span class="doccomment">/// Returns informations about a uniform variable, if it exists.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_uniform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Uniform</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform</span>(<span class="ident">name</span>)
     }
 
-    <span class='doccomment'>/// Returns the list of transform feedback varyings.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_transform_feedback_buffers</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span>[<span class='ident'>TransformFeedbackBuffer</span>] {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_transform_feedback_buffers</span>()
+    <span class="doccomment">/// Returns an iterator to the list of uniforms.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (name, uniform) in program.uniforms() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {} - Type: {:?}&quot;, name, uniform.ty);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniforms</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">hash_map</span>::<span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Uniform</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">uniforms</span>()
     }
 
-    <span class='doccomment'>/// True if the transform feedback output of this program matches the specified `VertexFormat`</span>
-    <span class='doccomment'>/// and `stride`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The `stride` is the number of bytes between two vertices.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>transform_feedback_matches</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>format</span>: <span class='kw-2'>&amp;</span><span class='ident'>VertexFormat</span>, <span class='ident'>stride</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>transform_feedback_matches</span>(<span class='ident'>format</span>, <span class='ident'>stride</span>)
+    <span class="doccomment">/// Returns a list of uniform blocks.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (name, uniform) in program.get_uniform_blocks() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {}&quot;, name);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_uniform_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+                              <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform_blocks</span>()
     }
 
-    <span class='doccomment'>/// Returns the type of geometry that transform feedback would generate, or `None` if it</span>
-    <span class='doccomment'>/// depends on the vertex/index data passed when drawing.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// This corresponds to `GL_GEOMETRY_OUTPUT_TYPE` or `GL_TESS_GEN_MODE`. If the program doesn&#39;t</span>
-    <span class='doccomment'>/// contain either a geometry shader or a tessellation evaluation shader, returns `None`.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_output_primitives</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>OutputPrimitives</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_output_primitives</span>()
+    <span class="doccomment">/// Returns the list of transform feedback varyings.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_transform_feedback_buffers</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span>[<span class="ident">TransformFeedbackBuffer</span>] {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_transform_feedback_buffers</span>()
     }
 
-    <span class='doccomment'>/// Returns true if the program contains a tessellation stage.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>has_tessellation_shaders</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>has_tessellation_shaders</span>()
+    <span class="doccomment">/// True if the transform feedback output of this program matches the specified `VertexFormat`</span>
+    <span class="doccomment">/// and `stride`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The `stride` is the number of bytes between two vertices.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transform_feedback_matches</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">format</span>: <span class="kw-2">&amp;</span><span class="ident">VertexFormat</span>, <span class="ident">stride</span>: <span class="ident">usize</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">transform_feedback_matches</span>(<span class="ident">format</span>, <span class="ident">stride</span>)
     }
 
-    <span class='doccomment'>/// Returns informations about an attribute, if it exists.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_attribute</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Attribute</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_attribute</span>(<span class='ident'>name</span>)
+    <span class="doccomment">/// Returns the type of geometry that transform feedback would generate, or `None` if it</span>
+    <span class="doccomment">/// depends on the vertex/index data passed when drawing.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// This corresponds to `GL_GEOMETRY_OUTPUT_TYPE` or `GL_TESS_GEN_MODE`. If the program doesn&#39;t</span>
+    <span class="doccomment">/// contain either a geometry shader or a tessellation evaluation shader, returns `None`.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_output_primitives</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">OutputPrimitives</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_output_primitives</span>()
     }
 
-    <span class='doccomment'>/// Returns an iterator to the list of attributes.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// for (name, attribute) in program.attributes() {</span>
-    <span class='doccomment'>///     println!(&quot;Name: {} - Type: {:?}&quot;, name, attribute.ty);</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>attributes</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>hash_map</span>::<span class='ident'>Iter</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>Attribute</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>attributes</span>()
+    <span class="doccomment">/// Returns true if the program contains a tessellation stage.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_tessellation_shaders</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">has_tessellation_shaders</span>()
     }
 
-    <span class='doccomment'>/// Returns true if the program has been configured to output sRGB instead of RGB.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>has_srgb_output</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-        <span class='self'>self</span>.<span class='ident'>outputs_srgb</span>
-    }
-    
-    <span class='doccomment'>/// Returns the list of shader storage blocks.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ## Example</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// ```no_run</span>
-    <span class='doccomment'>/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
-    <span class='doccomment'>/// for (name, uniform) in program.get_shader_storage_blocks() {</span>
-    <span class='doccomment'>///     println!(&quot;Name: {}&quot;, name);</span>
-    <span class='doccomment'>/// }</span>
-    <span class='doccomment'>/// ```</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_shader_storage_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_shader_storage_blocks</span>()
+    <span class="doccomment">/// Returns true if the program contains a tessellation control stage.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_tessellation_control_shader</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">has_tessellation_control_shader</span>()
     }
 
-    <span class='doccomment'>/// Returns true if the program has been configured to use the `gl_PointSize` variable.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// If the program uses `gl_PointSize` without having been configured appropriately, then</span>
-    <span class='doccomment'>/// setting the value of `gl_PointSize` will have no effect.</span>
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>uses_point_size</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>bool</span> {
-      <span class='self'>self</span>.<span class='ident'>uses_point_size</span>
+    <span class="doccomment">/// Returns true if the program contains a tessellation evaluation stage.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_tessellation_evaluation_shader</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">has_tessellation_evaluation_shader</span>()
+    }
+
+    <span class="doccomment">/// Returns true if the program contains a geometry shader.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_geometry_shader</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">has_geometry_shader</span>()
+    }
+
+    <span class="doccomment">/// Returns informations about an attribute, if it exists.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_attribute</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Attribute</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_attribute</span>(<span class="ident">name</span>)
+    }
+
+    <span class="doccomment">/// Returns an iterator to the list of attributes.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (name, attribute) in program.attributes() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {} - Type: {:?}&quot;, name, attribute.ty);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">attributes</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">hash_map</span>::<span class="ident">Iter</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Attribute</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">attributes</span>()
+    }
+
+    <span class="doccomment">/// Returns true if the program has been configured to output sRGB instead of RGB.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">has_srgb_output</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+        <span class="self">self</span>.<span class="ident">outputs_srgb</span>
+    }
+
+    <span class="doccomment">/// Returns the list of shader storage blocks.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (name, uniform) in program.get_shader_storage_blocks() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {}&quot;, name);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_shader_storage_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+            <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_shader_storage_blocks</span>()
+    }
+
+    <span class="doccomment">/// Returns the subroutine uniforms of this program.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Since subroutine uniforms are unique per shader and *not* per program,</span>
+    <span class="doccomment">/// the keys of the `HashMap` are in the format `(&quot;subroutine_name&quot;, ShaderStage)`.</span>
+    <span class="doccomment">/// ## Example</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// ```no_run</span>
+    <span class="doccomment">/// # let program: glium::Program = unsafe { std::mem::uninitialized() };</span>
+    <span class="doccomment">/// for (&amp;(ref name, shader), uniform) in program.get_subroutine_uniforms() {</span>
+    <span class="doccomment">///     println!(&quot;Name: {}&quot;, name);</span>
+    <span class="doccomment">/// }</span>
+    <span class="doccomment">/// ```</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_subroutine_uniforms</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+            <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span>(<span class="ident">String</span>, <span class="ident">ShaderStage</span>), <span class="ident">SubroutineUniform</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_subroutine_data</span>().<span class="ident">subroutine_uniforms</span>
+    }
+
+    <span class="doccomment">/// Returns true if the program has been configured to use the `gl_PointSize` variable.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// If the program uses `gl_PointSize` without having been configured appropriately, then</span>
+    <span class="doccomment">/// setting the value of `gl_PointSize` will have no effect.</span>
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uses_point_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
+      <span class="self">self</span>.<span class="ident">uses_point_size</span>
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>fmt</span>::<span class='ident'>Debug</span> <span class='kw'>for</span> <span class='ident'>Program</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>formatter</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Result</span><span class='op'>&lt;</span>(), <span class='ident'>fmt</span>::<span class='ident'>Error</span><span class='op'>&gt;</span> {
-        <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>formatter</span>, <span class='string'>&quot;{:?}&quot;</span>, <span class='self'>self</span>.<span class='ident'>raw</span>)
+<span class="kw">impl</span> <span class="ident">fmt</span>::<span class="ident">Debug</span> <span class="kw">for</span> <span class="ident">Program</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">formatter</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">fmt</span>::<span class="ident">Formatter</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">fmt</span>::<span class="ident">Error</span><span class="op">&gt;</span> {
+        <span class="macro">write</span><span class="macro">!</span>(<span class="ident">formatter</span>, <span class="string">&quot;{:?}&quot;</span>, <span class="self">self</span>.<span class="ident">raw</span>)
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>GlObject</span> <span class='kw'>for</span> <span class='ident'>Program</span> {
-    <span class='kw'>type</span> <span class='ident'>Id</span> <span class='op'>=</span> <span class='ident'>Handle</span>;
+<span class="kw">impl</span> <span class="ident">GlObject</span> <span class="kw">for</span> <span class="ident">Program</span> {
+    <span class="kw">type</span> <span class="ident">Id</span> <span class="op">=</span> <span class="ident">Handle</span>;
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_id</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>Handle</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_id</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">Handle</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_id</span>()
     }
 }
 
-<span class='kw'>impl</span> <span class='ident'>ProgramExt</span> <span class='kw'>for</span> <span class='ident'>Program</span> {
-    <span class='kw'>fn</span> <span class='ident'>use_program</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>) {
-        <span class='comment'>// compatibility was checked at program creation</span>
-        <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>uses_point_size</span> <span class='op'>&amp;&amp;</span> <span class='op'>!</span><span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_program_point_size</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Enable</span>(<span class='ident'>gl</span>::<span class='ident'>PROGRAM_POINT_SIZE</span>); }
-        } <span class='kw'>else</span> <span class='kw'>if</span> <span class='op'>!</span><span class='self'>self</span>.<span class='ident'>uses_point_size</span> <span class='op'>&amp;&amp;</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_program_point_size</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Disable</span>(<span class='ident'>gl</span>::<span class='ident'>PROGRAM_POINT_SIZE</span>); }
+<span class="kw">impl</span> <span class="ident">ProgramExt</span> <span class="kw">for</span> <span class="ident">Program</span> {
+    <span class="kw">fn</span> <span class="ident">use_program</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>) {
+        <span class="comment">// compatibility was checked at program creation</span>
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">uses_point_size</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_program_point_size</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Enable</span>(<span class="ident">gl</span>::<span class="ident">PROGRAM_POINT_SIZE</span>); }
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">uses_point_size</span> <span class="op">&amp;&amp;</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_program_point_size</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Disable</span>(<span class="ident">gl</span>::<span class="ident">PROGRAM_POINT_SIZE</span>); }
         }
 
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>version</span> <span class='op'>&gt;=</span> <span class='kw-2'>&amp;</span><span class='ident'>Version</span>(<span class='ident'>Api</span>::<span class='ident'>Gl</span>, <span class='number'>3</span>, <span class='number'>0</span>) <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_arb_framebuffer_srgb</span> <span class='op'>||</span>
-           <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_framebuffer_srgb</span> <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>extensions</span>.<span class='ident'>gl_ext_srgb_write_control</span>
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">version</span> <span class="op">&gt;=</span> <span class="kw-2">&amp;</span><span class="ident">Version</span>(<span class="ident">Api</span>::<span class="ident">Gl</span>, <span class="number">3</span>, <span class="number">0</span>) <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_arb_framebuffer_srgb</span> <span class="op">||</span>
+           <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_framebuffer_srgb</span> <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">extensions</span>.<span class="ident">gl_ext_srgb_write_control</span>
         {
-            <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_framebuffer_srgb</span> <span class='op'>==</span> <span class='self'>self</span>.<span class='ident'>outputs_srgb</span> {
-                <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_framebuffer_srgb</span> <span class='op'>=</span> <span class='op'>!</span><span class='self'>self</span>.<span class='ident'>outputs_srgb</span>;
+            <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_framebuffer_srgb</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">outputs_srgb</span> {
+                <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_framebuffer_srgb</span> <span class="op">=</span> <span class="op">!</span><span class="self">self</span>.<span class="ident">outputs_srgb</span>;
 
-                <span class='kw'>if</span> <span class='self'>self</span>.<span class='ident'>outputs_srgb</span> {
-                    <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Disable</span>(<span class='ident'>gl</span>::<span class='ident'>FRAMEBUFFER_SRGB</span>) };
-                } <span class='kw'>else</span> {
-                    <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Enable</span>(<span class='ident'>gl</span>::<span class='ident'>FRAMEBUFFER_SRGB</span>) };
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">outputs_srgb</span> {
+                    <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Disable</span>(<span class="ident">gl</span>::<span class="ident">FRAMEBUFFER_SRGB</span>) };
+                } <span class="kw">else</span> {
+                    <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Enable</span>(<span class="ident">gl</span>::<span class="ident">FRAMEBUFFER_SRGB</span>) };
                 }
             }
         }
 
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>use_program</span>(<span class='ident'>ctxt</span>)
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">use_program</span>(<span class="ident">ctxt</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>set_uniform</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>uniform_location</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLint</span>,
-                   <span class='ident'>value</span>: <span class='kw-2'>&amp;</span><span class='ident'>RawUniformValue</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_uniform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">uniform_location</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLint</span>,
+                   <span class="ident">value</span>: <span class="kw-2">&amp;</span><span class="ident">RawUniformValue</span>)
     {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>set_uniform</span>(<span class='ident'>ctxt</span>, <span class='ident'>uniform_location</span>, <span class='ident'>value</span>)
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_uniform</span>(<span class="ident">ctxt</span>, <span class="ident">uniform_location</span>, <span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>set_uniform_block_binding</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>, <span class='ident'>block_location</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>,
-                                 <span class='ident'>value</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_uniform_block_binding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>, <span class="ident">block_location</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>,
+                                 <span class="ident">value</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>)
     {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>set_uniform_block_binding</span>(<span class='ident'>ctxt</span>, <span class='ident'>block_location</span>, <span class='ident'>value</span>)
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_uniform_block_binding</span>(<span class="ident">ctxt</span>, <span class="ident">block_location</span>, <span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>set_shader_storage_block_binding</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>CommandContext</span>,
-                                        <span class='ident'>block_location</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>,
-                                        <span class='ident'>value</span>: <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLuint</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_shader_storage_block_binding</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>,
+                                        <span class="ident">block_location</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>,
+                                        <span class="ident">value</span>: <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>)
     {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>set_shader_storage_block_binding</span>(<span class='ident'>ctxt</span>, <span class='ident'>block_location</span>, <span class='ident'>value</span>)
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_shader_storage_block_binding</span>(<span class="ident">ctxt</span>, <span class="ident">block_location</span>, <span class="ident">value</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_uniform</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>name</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='ident'>Uniform</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform</span>(<span class='ident'>name</span>)
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">set_subroutine_uniforms_for_stage</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">CommandContext</span>,
+                                         <span class="ident">stage</span>: <span class="ident">ShaderStage</span>,
+                                         <span class="ident">indices</span>: <span class="kw-2">&amp;</span>[<span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLuint</span>])
+    {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">set_subroutine_uniforms_for_stage</span>(<span class="ident">ctxt</span>, <span class="ident">stage</span>, <span class="ident">indices</span>);
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_uniform_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_uniform_blocks</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_uniform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">Uniform</span><span class="op">&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform</span>(<span class="ident">name</span>)
     }
 
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>get_shader_storage_blocks</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>HashMap</span><span class='op'>&lt;</span><span class='ident'>String</span>, <span class='ident'>UniformBlock</span><span class='op'>&gt;</span> {
-        <span class='self'>self</span>.<span class='ident'>raw</span>.<span class='ident'>get_shader_storage_blocks</span>()
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_uniform_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_uniform_blocks</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_shader_storage_blocks</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)
+                                 <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">UniformBlock</span>, <span class="ident">BuildHasherDefault</span><span class="op">&lt;</span><span class="ident">FnvHasher</span><span class="op">&gt;&gt;</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_shader_storage_blocks</span>()
+    }
+
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">get_subroutine_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="kw-2">&amp;</span><span class="ident">SubroutineData</span> {
+        <span class="self">self</span>.<span class="ident">raw</span>.<span class="ident">get_subroutine_data</span>()
     }
 }
 </pre>
@@ -808,12 +922,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -834,7 +952,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -845,11 +963,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

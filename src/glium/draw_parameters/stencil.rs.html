@@ -9,13 +9,15 @@
 
     <title>stencil.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -387,350 +389,350 @@
 <span id="344">344</span>
 <span id="345">345</span>
 <span id="346">346</span>
-</pre><pre class='rust '>
-<span class='kw'>use</span> <span class='ident'>gl</span>;
-<span class='kw'>use</span> <span class='ident'>context</span>;
-<span class='kw'>use</span> <span class='ident'>ToGlEnum</span>;
+</pre><pre class="rust ">
+<span class="kw">use</span> <span class="ident">gl</span>;
+<span class="kw">use</span> <span class="ident">context</span>;
+<span class="kw">use</span> <span class="ident">ToGlEnum</span>;
 
-<span class='doccomment'>/// Describes the parameters that must be used for the stencil operations when drawing.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Stencil</span> {
-    <span class='doccomment'>/// A comparison against the existing value in the stencil buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
-    <span class='doccomment'>/// lines use `stencil_test_counter_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `AlwaysPass`.</span>
-    <span class='kw'>pub</span> <span class='ident'>test_clockwise</span>: <span class='ident'>StencilTest</span>,
+<span class="doccomment">/// Describes the parameters that must be used for the stencil operations when drawing.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Stencil</span> {
+    <span class="doccomment">/// A comparison against the existing value in the stencil buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
+    <span class="doccomment">/// lines use `stencil_test_counter_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `AlwaysPass`.</span>
+    <span class="kw">pub</span> <span class="ident">test_clockwise</span>: <span class="ident">StencilTest</span>,
 
-    <span class='doccomment'>/// Reference value that is used by `stencil_test_clockwise`, `stencil_fail_operation_clockwise`,</span>
-    <span class='doccomment'>/// `stencil_pass_depth_fail_operation_clockwise` and `stencil_depth_pass_operation_clockwise`.</span>
-    <span class='kw'>pub</span> <span class='ident'>reference_value_clockwise</span>: <span class='ident'>i32</span>,
+    <span class="doccomment">/// Reference value that is used by `stencil_test_clockwise`, `stencil_fail_operation_clockwise`,</span>
+    <span class="doccomment">/// `stencil_pass_depth_fail_operation_clockwise` and `stencil_depth_pass_operation_clockwise`.</span>
+    <span class="kw">pub</span> <span class="ident">reference_value_clockwise</span>: <span class="ident">i32</span>,
 
-    <span class='doccomment'>/// Allows specifying a mask when writing data on the stencil buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
-    <span class='doccomment'>/// lines use `stencil_write_mask_counter_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `0xffffffff`.</span>
-    <span class='kw'>pub</span> <span class='ident'>write_mask_clockwise</span>: <span class='ident'>u32</span>,
+    <span class="doccomment">/// Allows specifying a mask when writing data on the stencil buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
+    <span class="doccomment">/// lines use `stencil_write_mask_counter_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `0xffffffff`.</span>
+    <span class="kw">pub</span> <span class="ident">write_mask_clockwise</span>: <span class="ident">u32</span>,
 
-    <span class='doccomment'>/// Specifies the operation to do when a fragment fails the stencil test.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The stencil test is the test specified by `stencil_test_clockwise`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
-    <span class='doccomment'>/// lines use `stencil_fail_operation_counter_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `Keep`.</span>
-    <span class='kw'>pub</span> <span class='ident'>fail_operation_clockwise</span>: <span class='ident'>StencilOperation</span>,
+    <span class="doccomment">/// Specifies the operation to do when a fragment fails the stencil test.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The stencil test is the test specified by `stencil_test_clockwise`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
+    <span class="doccomment">/// lines use `stencil_fail_operation_counter_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `Keep`.</span>
+    <span class="kw">pub</span> <span class="ident">fail_operation_clockwise</span>: <span class="ident">StencilOperation</span>,
 
-    <span class='doccomment'>/// Specifies the operation to do when a fragment passes the stencil test but fails</span>
-    <span class='doccomment'>/// the depth test.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The stencil test is the test specified by `stencil_test_clockwise`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
-    <span class='doccomment'>/// lines use `stencil_pass_depth_fail_operation_counter_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `Keep`.</span>
-    <span class='kw'>pub</span> <span class='ident'>pass_depth_fail_operation_clockwise</span>: <span class='ident'>StencilOperation</span>,
+    <span class="doccomment">/// Specifies the operation to do when a fragment passes the stencil test but fails</span>
+    <span class="doccomment">/// the depth test.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The stencil test is the test specified by `stencil_test_clockwise`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
+    <span class="doccomment">/// lines use `stencil_pass_depth_fail_operation_counter_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `Keep`.</span>
+    <span class="kw">pub</span> <span class="ident">pass_depth_fail_operation_clockwise</span>: <span class="ident">StencilOperation</span>,
 
-    <span class='doccomment'>/// Specifies the operation to do when a fragment passes both the stencil and depth tests.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The stencil test is the test specified by `stencil_test_clockwise`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
-    <span class='doccomment'>/// lines use `stencil_depth_pass_operation_counter_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `Keep`.</span>
-    <span class='kw'>pub</span> <span class='ident'>depth_pass_operation_clockwise</span>: <span class='ident'>StencilOperation</span>,
+    <span class="doccomment">/// Specifies the operation to do when a fragment passes both the stencil and depth tests.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The stencil test is the test specified by `stencil_test_clockwise`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are clockwise on the target surface. Other faces, points and</span>
+    <span class="doccomment">/// lines use `stencil_depth_pass_operation_counter_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `Keep`.</span>
+    <span class="kw">pub</span> <span class="ident">depth_pass_operation_clockwise</span>: <span class="ident">StencilOperation</span>,
 
-    <span class='doccomment'>/// A comparaison against the existing value in the stencil buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for points, lines and faces that are counter-clockwise on the target surface.</span>
-    <span class='doccomment'>/// Other faces use `stencil_test_counter_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `AlwaysPass`.</span>
-    <span class='kw'>pub</span> <span class='ident'>test_counter_clockwise</span>: <span class='ident'>StencilTest</span>,
+    <span class="doccomment">/// A comparaison against the existing value in the stencil buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for points, lines and faces that are counter-clockwise on the target surface.</span>
+    <span class="doccomment">/// Other faces use `stencil_test_counter_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `AlwaysPass`.</span>
+    <span class="kw">pub</span> <span class="ident">test_counter_clockwise</span>: <span class="ident">StencilTest</span>,
 
-    <span class='doccomment'>/// Reference value that is used by `stencil_test_counter_clockwise`,</span>
-    <span class='doccomment'>/// `stencil_fail_operation_counter_clockwise`,</span>
-    <span class='doccomment'>/// `stencil_pass_depth_fail_operation_counter_clockwise` and</span>
-    <span class='doccomment'>/// `stencil_depth_pass_operation_counter_clockwise`.</span>
-    <span class='kw'>pub</span> <span class='ident'>reference_value_counter_clockwise</span>: <span class='ident'>i32</span>,
+    <span class="doccomment">/// Reference value that is used by `stencil_test_counter_clockwise`,</span>
+    <span class="doccomment">/// `stencil_fail_operation_counter_clockwise`,</span>
+    <span class="doccomment">/// `stencil_pass_depth_fail_operation_counter_clockwise` and</span>
+    <span class="doccomment">/// `stencil_depth_pass_operation_counter_clockwise`.</span>
+    <span class="kw">pub</span> <span class="ident">reference_value_counter_clockwise</span>: <span class="ident">i32</span>,
 
-    <span class='doccomment'>/// Allows specifying a mask when writing data on the stencil buffer.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for points, lines and faces that are counter-clockwise on the target surface.</span>
-    <span class='doccomment'>/// Other faces use `stencil_write_mask_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `0xffffffff`.</span>
-    <span class='kw'>pub</span> <span class='ident'>write_mask_counter_clockwise</span>: <span class='ident'>u32</span>,
+    <span class="doccomment">/// Allows specifying a mask when writing data on the stencil buffer.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for points, lines and faces that are counter-clockwise on the target surface.</span>
+    <span class="doccomment">/// Other faces use `stencil_write_mask_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `0xffffffff`.</span>
+    <span class="kw">pub</span> <span class="ident">write_mask_counter_clockwise</span>: <span class="ident">u32</span>,
 
-    <span class='doccomment'>/// Specifies the operation to do when a fragment fails the stencil test.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The stencil test is the test specified by `stencil_test_counter_clockwise`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are counter-clockwise on the target surface. Other faces</span>
-    <span class='doccomment'>/// use `stencil_fail_operation_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `Keep`.</span>
-    <span class='kw'>pub</span> <span class='ident'>fail_operation_counter_clockwise</span>: <span class='ident'>StencilOperation</span>,
+    <span class="doccomment">/// Specifies the operation to do when a fragment fails the stencil test.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The stencil test is the test specified by `stencil_test_counter_clockwise`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are counter-clockwise on the target surface. Other faces</span>
+    <span class="doccomment">/// use `stencil_fail_operation_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `Keep`.</span>
+    <span class="kw">pub</span> <span class="ident">fail_operation_counter_clockwise</span>: <span class="ident">StencilOperation</span>,
 
-    <span class='doccomment'>/// Specifies the operation to do when a fragment passes the stencil test but fails</span>
-    <span class='doccomment'>/// the depth test.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The stencil test is the test specified by `stencil_test_counter_clockwise`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are counter-clockwise on the target surface. Other faces</span>
-    <span class='doccomment'>/// use `stencil_pass_depth_fail_operation_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `Keep`.</span>
-    <span class='kw'>pub</span> <span class='ident'>pass_depth_fail_operation_counter_clockwise</span>: <span class='ident'>StencilOperation</span>,
+    <span class="doccomment">/// Specifies the operation to do when a fragment passes the stencil test but fails</span>
+    <span class="doccomment">/// the depth test.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The stencil test is the test specified by `stencil_test_counter_clockwise`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are counter-clockwise on the target surface. Other faces</span>
+    <span class="doccomment">/// use `stencil_pass_depth_fail_operation_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `Keep`.</span>
+    <span class="kw">pub</span> <span class="ident">pass_depth_fail_operation_counter_clockwise</span>: <span class="ident">StencilOperation</span>,
 
-    <span class='doccomment'>/// Specifies the operation to do when a fragment passes both the stencil and depth tests.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The stencil test is the test specified by `stencil_test_counter_clockwise`.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// Only relevant for faces that are counter-clockwise on the target surface. Other faces</span>
-    <span class='doccomment'>/// use `stencil_depth_pass_operation_clockwise` instead.</span>
-    <span class='doccomment'>///</span>
-    <span class='doccomment'>/// The default value is `Keep`.</span>
-    <span class='kw'>pub</span> <span class='ident'>depth_pass_operation_counter_clockwise</span>: <span class='ident'>StencilOperation</span>,
+    <span class="doccomment">/// Specifies the operation to do when a fragment passes both the stencil and depth tests.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The stencil test is the test specified by `stencil_test_counter_clockwise`.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// Only relevant for faces that are counter-clockwise on the target surface. Other faces</span>
+    <span class="doccomment">/// use `stencil_depth_pass_operation_clockwise` instead.</span>
+    <span class="doccomment">///</span>
+    <span class="doccomment">/// The default value is `Keep`.</span>
+    <span class="kw">pub</span> <span class="ident">depth_pass_operation_counter_clockwise</span>: <span class="ident">StencilOperation</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>Stencil</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='ident'>Stencil</span> {
-        <span class='ident'>Stencil</span> {
-            <span class='ident'>test_clockwise</span>: <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysPass</span>,
-            <span class='ident'>reference_value_clockwise</span>: <span class='number'>0</span>,
-            <span class='ident'>write_mask_clockwise</span>: <span class='number'>0xffffffff</span>,
-            <span class='ident'>fail_operation_clockwise</span>: <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span>,
-            <span class='ident'>pass_depth_fail_operation_clockwise</span>: <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span>,
-            <span class='ident'>depth_pass_operation_clockwise</span>: <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span>,
-            <span class='ident'>test_counter_clockwise</span>: <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysPass</span>,
-            <span class='ident'>reference_value_counter_clockwise</span>: <span class='number'>0</span>,
-            <span class='ident'>write_mask_counter_clockwise</span>: <span class='number'>0xffffffff</span>,
-            <span class='ident'>fail_operation_counter_clockwise</span>: <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span>,
-            <span class='ident'>pass_depth_fail_operation_counter_clockwise</span>: <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span>,
-            <span class='ident'>depth_pass_operation_counter_clockwise</span>: <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span>,
+<span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Stencil</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">Stencil</span> {
+        <span class="ident">Stencil</span> {
+            <span class="ident">test_clockwise</span>: <span class="ident">StencilTest</span>::<span class="ident">AlwaysPass</span>,
+            <span class="ident">reference_value_clockwise</span>: <span class="number">0</span>,
+            <span class="ident">write_mask_clockwise</span>: <span class="number">0xffffffff</span>,
+            <span class="ident">fail_operation_clockwise</span>: <span class="ident">StencilOperation</span>::<span class="ident">Keep</span>,
+            <span class="ident">pass_depth_fail_operation_clockwise</span>: <span class="ident">StencilOperation</span>::<span class="ident">Keep</span>,
+            <span class="ident">depth_pass_operation_clockwise</span>: <span class="ident">StencilOperation</span>::<span class="ident">Keep</span>,
+            <span class="ident">test_counter_clockwise</span>: <span class="ident">StencilTest</span>::<span class="ident">AlwaysPass</span>,
+            <span class="ident">reference_value_counter_clockwise</span>: <span class="number">0</span>,
+            <span class="ident">write_mask_counter_clockwise</span>: <span class="number">0xffffffff</span>,
+            <span class="ident">fail_operation_counter_clockwise</span>: <span class="ident">StencilOperation</span>::<span class="ident">Keep</span>,
+            <span class="ident">pass_depth_fail_operation_counter_clockwise</span>: <span class="ident">StencilOperation</span>::<span class="ident">Keep</span>,
+            <span class="ident">depth_pass_operation_counter_clockwise</span>: <span class="ident">StencilOperation</span>::<span class="ident">Keep</span>,
         }
     }
 }
 
-<span class='doccomment'>/// Specifies which comparison the GPU will do to determine whether a sample passes the stencil</span>
-<span class='doccomment'>/// test. The general equation is `(ref &amp; mask) CMP (stencil &amp; mask)`, where `ref` is the reference</span>
-<span class='doccomment'>/// value (`stencil_reference_value_clockwise` or `stencil_reference_value_counter_clockwise`),</span>
-<span class='doccomment'>/// `CMP` is the comparison chosen, and `stencil` is the current value in the stencil buffer.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>StencilTest</span> {
-    <span class='doccomment'>/// The stencil test always passes.</span>
-    <span class='ident'>AlwaysPass</span>,
+<span class="doccomment">/// Specifies which comparison the GPU will do to determine whether a sample passes the stencil</span>
+<span class="doccomment">/// test. The general equation is `(ref &amp; mask) CMP (stencil &amp; mask)`, where `ref` is the reference</span>
+<span class="doccomment">/// value (`stencil_reference_value_clockwise` or `stencil_reference_value_counter_clockwise`),</span>
+<span class="doccomment">/// `CMP` is the comparison chosen, and `stencil` is the current value in the stencil buffer.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StencilTest</span> {
+    <span class="doccomment">/// The stencil test always passes.</span>
+    <span class="ident">AlwaysPass</span>,
 
-    <span class='doccomment'>/// The stencil test always fails.</span>
-    <span class='ident'>AlwaysFail</span>,
+    <span class="doccomment">/// The stencil test always fails.</span>
+    <span class="ident">AlwaysFail</span>,
 
-    <span class='doccomment'>/// `(ref &amp; mask) &lt; (stencil &amp; mask)`</span>
-    <span class='ident'>IfLess</span> {
-        <span class='doccomment'>/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
-        <span class='ident'>mask</span>: <span class='ident'>u32</span>
+    <span class="doccomment">/// `(ref &amp; mask) &lt; (stencil &amp; mask)`</span>
+    <span class="ident">IfLess</span> {
+        <span class="doccomment">/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
+        <span class="ident">mask</span>: <span class="ident">u32</span>
     },
 
-    <span class='doccomment'>/// `(ref &amp; mask) &lt;= (stencil &amp; mask)`</span>
-    <span class='ident'>IfLessOrEqual</span> {
-        <span class='doccomment'>/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
-        <span class='ident'>mask</span>: <span class='ident'>u32</span>,
+    <span class="doccomment">/// `(ref &amp; mask) &lt;= (stencil &amp; mask)`</span>
+    <span class="ident">IfLessOrEqual</span> {
+        <span class="doccomment">/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
+        <span class="ident">mask</span>: <span class="ident">u32</span>,
     },
 
-    <span class='doccomment'>/// `(ref &amp; mask) &gt; (stencil &amp; mask)`</span>
-    <span class='ident'>IfMore</span> {
-        <span class='doccomment'>/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
-        <span class='ident'>mask</span>: <span class='ident'>u32</span>,
+    <span class="doccomment">/// `(ref &amp; mask) &gt; (stencil &amp; mask)`</span>
+    <span class="ident">IfMore</span> {
+        <span class="doccomment">/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
+        <span class="ident">mask</span>: <span class="ident">u32</span>,
     },
 
-    <span class='doccomment'>/// `(ref &amp; mask) &gt;= (stencil &amp; mask)`</span>
-    <span class='ident'>IfMoreOrEqual</span> {
-        <span class='doccomment'>/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
-        <span class='ident'>mask</span>: <span class='ident'>u32</span>,
+    <span class="doccomment">/// `(ref &amp; mask) &gt;= (stencil &amp; mask)`</span>
+    <span class="ident">IfMoreOrEqual</span> {
+        <span class="doccomment">/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
+        <span class="ident">mask</span>: <span class="ident">u32</span>,
     },
 
-    <span class='doccomment'>/// `(ref &amp; mask) == (stencil &amp; mask)`</span>
-    <span class='ident'>IfEqual</span> {
-        <span class='doccomment'>/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
-        <span class='ident'>mask</span>: <span class='ident'>u32</span>,
+    <span class="doccomment">/// `(ref &amp; mask) == (stencil &amp; mask)`</span>
+    <span class="ident">IfEqual</span> {
+        <span class="doccomment">/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
+        <span class="ident">mask</span>: <span class="ident">u32</span>,
     },
 
-    <span class='doccomment'>/// `(ref &amp; mask) != (stencil &amp; mask)`</span>
-    <span class='ident'>IfNotEqual</span> {
-        <span class='doccomment'>/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
-        <span class='ident'>mask</span>: <span class='ident'>u32</span>,
+    <span class="doccomment">/// `(ref &amp; mask) != (stencil &amp; mask)`</span>
+    <span class="ident">IfNotEqual</span> {
+        <span class="doccomment">/// The mask that is and&#39;ed with the reference value and stencil buffer.</span>
+        <span class="ident">mask</span>: <span class="ident">u32</span>,
     },
 }
 
-<span class='doccomment'>/// Specificies which operation the GPU will do depending on the result of the stencil test.</span>
-<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Copy</span>, <span class='ident'>Clone</span>, <span class='ident'>Debug</span>, <span class='ident'>PartialEq</span>, <span class='ident'>Eq</span>)]</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>u32</span>)]</span>    <span class='comment'>// GLenum</span>
-<span class='kw'>pub</span> <span class='kw'>enum</span> <span class='ident'>StencilOperation</span> {
-    <span class='doccomment'>/// Keeps the value currently in the stencil buffer.</span>
-    <span class='ident'>Keep</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>KEEP</span>,
+<span class="doccomment">/// Specificies which operation the GPU will do depending on the result of the stencil test.</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">u32</span>)]</span>    <span class="comment">// GLenum</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">StencilOperation</span> {
+    <span class="doccomment">/// Keeps the value currently in the stencil buffer.</span>
+    <span class="ident">Keep</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">KEEP</span>,
 
-    <span class='doccomment'>/// Writes zero in the stencil buffer.</span>
-    <span class='ident'>Zero</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>ZERO</span>,
+    <span class="doccomment">/// Writes zero in the stencil buffer.</span>
+    <span class="ident">Zero</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">ZERO</span>,
 
-    <span class='doccomment'>/// Writes the reference value (`stencil_reference_value_clockwise` or</span>
-    <span class='doccomment'>/// `stencil_reference_value_counter_clockwise`) in the stencil buffer.</span>
-    <span class='ident'>Replace</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>REPLACE</span>,
+    <span class="doccomment">/// Writes the reference value (`stencil_reference_value_clockwise` or</span>
+    <span class="doccomment">/// `stencil_reference_value_counter_clockwise`) in the stencil buffer.</span>
+    <span class="ident">Replace</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">REPLACE</span>,
 
-    <span class='doccomment'>/// Increments the value currently in the stencil buffer. If the value is the</span>
-    <span class='doccomment'>/// maximum, don&#39;t do anything.</span>
-    <span class='ident'>Increment</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>INCR</span>,
+    <span class="doccomment">/// Increments the value currently in the stencil buffer. If the value is the</span>
+    <span class="doccomment">/// maximum, don&#39;t do anything.</span>
+    <span class="ident">Increment</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">INCR</span>,
 
-    <span class='doccomment'>/// Increments the value currently in the stencil buffer. If the value is the</span>
-    <span class='doccomment'>/// maximum, wrap to `0`.</span>
-    <span class='ident'>IncrementWrap</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>INCR_WRAP</span>,
+    <span class="doccomment">/// Increments the value currently in the stencil buffer. If the value is the</span>
+    <span class="doccomment">/// maximum, wrap to `0`.</span>
+    <span class="ident">IncrementWrap</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">INCR_WRAP</span>,
 
-    <span class='doccomment'>/// Decrements the value currently in the stencil buffer. If the value is `0`,</span>
-    <span class='doccomment'>/// don&#39;t do anything.</span>
-    <span class='ident'>Decrement</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>DECR</span>,
+    <span class="doccomment">/// Decrements the value currently in the stencil buffer. If the value is `0`,</span>
+    <span class="doccomment">/// don&#39;t do anything.</span>
+    <span class="ident">Decrement</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">DECR</span>,
 
-    <span class='doccomment'>/// Decrements the value currently in the stencil buffer. If the value is `0`,</span>
-    <span class='doccomment'>/// wrap to `-1`.</span>
-    <span class='ident'>DecrementWrap</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>DECR_WRAP</span>,
+    <span class="doccomment">/// Decrements the value currently in the stencil buffer. If the value is `0`,</span>
+    <span class="doccomment">/// wrap to `-1`.</span>
+    <span class="ident">DecrementWrap</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">DECR_WRAP</span>,
 
-    <span class='doccomment'>/// Inverts each bit of the value.</span>
-    <span class='ident'>Invert</span> <span class='op'>=</span> <span class='ident'>gl</span>::<span class='ident'>INVERT</span>,
+    <span class="doccomment">/// Inverts each bit of the value.</span>
+    <span class="ident">Invert</span> <span class="op">=</span> <span class="ident">gl</span>::<span class="ident">INVERT</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>ToGlEnum</span> <span class='kw'>for</span> <span class='ident'>StencilOperation</span> {
-    <span class='attribute'>#[<span class='ident'>inline</span>]</span>
-    <span class='kw'>fn</span> <span class='ident'>to_glenum</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span> {
-        <span class='op'>*</span><span class='self'>self</span> <span class='kw'>as</span> <span class='ident'>gl</span>::<span class='ident'>types</span>::<span class='ident'>GLenum</span>
+<span class="kw">impl</span> <span class="ident">ToGlEnum</span> <span class="kw">for</span> <span class="ident">StencilOperation</span> {
+    <span class="attribute">#[<span class="ident">inline</span>]</span>
+    <span class="kw">fn</span> <span class="ident">to_glenum</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span> {
+        <span class="kw-2">*</span><span class="self">self</span> <span class="kw">as</span> <span class="ident">gl</span>::<span class="ident">types</span>::<span class="ident">GLenum</span>
     }
 }
 
-<span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>sync_stencil</span>(<span class='ident'>ctxt</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>context</span>::<span class='ident'>CommandContext</span>, <span class='ident'>params</span>: <span class='kw-2'>&amp;</span><span class='ident'>Stencil</span>) {
-    <span class='comment'>// checks if stencil operations can be disabled</span>
-    <span class='kw'>if</span> <span class='ident'>params</span>.<span class='ident'>test_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysPass</span> <span class='op'>&amp;&amp;</span>
-       <span class='ident'>params</span>.<span class='ident'>test_counter_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysPass</span> <span class='op'>&amp;&amp;</span>
-       <span class='ident'>params</span>.<span class='ident'>fail_operation_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span> <span class='op'>&amp;&amp;</span>
-       <span class='ident'>params</span>.<span class='ident'>pass_depth_fail_operation_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span> <span class='op'>&amp;&amp;</span>
-       <span class='ident'>params</span>.<span class='ident'>depth_pass_operation_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span> <span class='op'>&amp;&amp;</span>
-       <span class='ident'>params</span>.<span class='ident'>fail_operation_counter_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span> <span class='op'>&amp;&amp;</span>
-       <span class='ident'>params</span>.<span class='ident'>pass_depth_fail_operation_counter_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span> <span class='op'>&amp;&amp;</span>
-       <span class='ident'>params</span>.<span class='ident'>depth_pass_operation_counter_clockwise</span> <span class='op'>==</span> <span class='ident'>StencilOperation</span>::<span class='ident'>Keep</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sync_stencil</span>(<span class="ident">ctxt</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">context</span>::<span class="ident">CommandContext</span>, <span class="ident">params</span>: <span class="kw-2">&amp;</span><span class="ident">Stencil</span>) {
+    <span class="comment">// checks if stencil operations can be disabled</span>
+    <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">test_clockwise</span> <span class="op">==</span> <span class="ident">StencilTest</span>::<span class="ident">AlwaysPass</span> <span class="op">&amp;&amp;</span>
+       <span class="ident">params</span>.<span class="ident">test_counter_clockwise</span> <span class="op">==</span> <span class="ident">StencilTest</span>::<span class="ident">AlwaysPass</span> <span class="op">&amp;&amp;</span>
+       <span class="ident">params</span>.<span class="ident">fail_operation_clockwise</span> <span class="op">==</span> <span class="ident">StencilOperation</span>::<span class="ident">Keep</span> <span class="op">&amp;&amp;</span>
+       <span class="ident">params</span>.<span class="ident">pass_depth_fail_operation_clockwise</span> <span class="op">==</span> <span class="ident">StencilOperation</span>::<span class="ident">Keep</span> <span class="op">&amp;&amp;</span>
+       <span class="ident">params</span>.<span class="ident">depth_pass_operation_clockwise</span> <span class="op">==</span> <span class="ident">StencilOperation</span>::<span class="ident">Keep</span> <span class="op">&amp;&amp;</span>
+       <span class="ident">params</span>.<span class="ident">fail_operation_counter_clockwise</span> <span class="op">==</span> <span class="ident">StencilOperation</span>::<span class="ident">Keep</span> <span class="op">&amp;&amp;</span>
+       <span class="ident">params</span>.<span class="ident">pass_depth_fail_operation_counter_clockwise</span> <span class="op">==</span> <span class="ident">StencilOperation</span>::<span class="ident">Keep</span> <span class="op">&amp;&amp;</span>
+       <span class="ident">params</span>.<span class="ident">depth_pass_operation_counter_clockwise</span> <span class="op">==</span> <span class="ident">StencilOperation</span>::<span class="ident">Keep</span>
     {
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_stencil_test</span> <span class='op'>!=</span> <span class='boolval'>false</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Disable</span>(<span class='ident'>gl</span>::<span class='ident'>STENCIL_TEST</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_stencil_test</span> <span class='op'>=</span> <span class='boolval'>false</span>;
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_stencil_test</span> <span class="op">!=</span> <span class="bool-val">false</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Disable</span>(<span class="ident">gl</span>::<span class="ident">STENCIL_TEST</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_stencil_test</span> <span class="op">=</span> <span class="bool-val">false</span>;
         }
 
-        <span class='kw'>return</span>;
+        <span class="kw">return</span>;
     }
 
-    <span class='comment'>// we are now in &quot;stencil enabled land&quot;</span>
+    <span class="comment">// we are now in &quot;stencil enabled land&quot;</span>
 
-    <span class='comment'>// enabling if necessary</span>
-    <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_stencil_test</span> <span class='op'>!=</span> <span class='boolval'>true</span> {
-        <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>Enable</span>(<span class='ident'>gl</span>::<span class='ident'>STENCIL_TEST</span>) };
-        <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>enabled_stencil_test</span> <span class='op'>=</span> <span class='boolval'>true</span>;
+    <span class="comment">// enabling if necessary</span>
+    <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_stencil_test</span> <span class="op">!=</span> <span class="bool-val">true</span> {
+        <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">Enable</span>(<span class="ident">gl</span>::<span class="ident">STENCIL_TEST</span>) };
+        <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">enabled_stencil_test</span> <span class="op">=</span> <span class="bool-val">true</span>;
     }
 
-    <span class='comment'>// synchronizing the test and read masks</span>
-    <span class='kw'>let</span> (<span class='ident'>test_cw</span>, <span class='ident'>read_mask_cw</span>) <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>params</span>.<span class='ident'>test_clockwise</span> {
-        <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysPass</span> <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>ALWAYS</span>, <span class='number'>0</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysFail</span> <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>NEVER</span>, <span class='number'>0</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfLess</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>LESS</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfLessOrEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>LEQUAL</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfMore</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>GREATER</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfMoreOrEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>GEQUAL</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>EQUAL</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfNotEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>NOTEQUAL</span>, <span class='ident'>mask</span>),
+    <span class="comment">// synchronizing the test and read masks</span>
+    <span class="kw">let</span> (<span class="ident">test_cw</span>, <span class="ident">read_mask_cw</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">params</span>.<span class="ident">test_clockwise</span> {
+        <span class="ident">StencilTest</span>::<span class="ident">AlwaysPass</span> <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">ALWAYS</span>, <span class="number">0</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">AlwaysFail</span> <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">NEVER</span>, <span class="number">0</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfLess</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">LESS</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfLessOrEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">LEQUAL</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfMore</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">GREATER</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfMoreOrEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">GEQUAL</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">EQUAL</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfNotEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">NOTEQUAL</span>, <span class="ident">mask</span>),
     };
 
-    <span class='kw'>let</span> (<span class='ident'>test_ccw</span>, <span class='ident'>read_mask_ccw</span>) <span class='op'>=</span> <span class='kw'>match</span> <span class='ident'>params</span>.<span class='ident'>test_counter_clockwise</span> {
-        <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysPass</span> <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>ALWAYS</span>, <span class='number'>0</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>AlwaysFail</span> <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>NEVER</span>, <span class='number'>0</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfLess</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>LESS</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfLessOrEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>LEQUAL</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfMore</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>GREATER</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfMoreOrEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>GEQUAL</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>EQUAL</span>, <span class='ident'>mask</span>),
-        <span class='ident'>StencilTest</span>::<span class='ident'>IfNotEqual</span> { <span class='ident'>mask</span> } <span class='op'>=&gt;</span> (<span class='ident'>gl</span>::<span class='ident'>NOTEQUAL</span>, <span class='ident'>mask</span>),
+    <span class="kw">let</span> (<span class="ident">test_ccw</span>, <span class="ident">read_mask_ccw</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">params</span>.<span class="ident">test_counter_clockwise</span> {
+        <span class="ident">StencilTest</span>::<span class="ident">AlwaysPass</span> <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">ALWAYS</span>, <span class="number">0</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">AlwaysFail</span> <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">NEVER</span>, <span class="number">0</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfLess</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">LESS</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfLessOrEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">LEQUAL</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfMore</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">GREATER</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfMoreOrEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">GEQUAL</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">EQUAL</span>, <span class="ident">mask</span>),
+        <span class="ident">StencilTest</span>::<span class="ident">IfNotEqual</span> { <span class="ident">mask</span> } <span class="op">=&gt;</span> (<span class="ident">gl</span>::<span class="ident">NOTEQUAL</span>, <span class="ident">mask</span>),
     };
 
-    <span class='kw'>let</span> <span class='ident'>ref_cw</span> <span class='op'>=</span> <span class='ident'>params</span>.<span class='ident'>reference_value_clockwise</span>;
-    <span class='kw'>let</span> <span class='ident'>ref_ccw</span> <span class='op'>=</span> <span class='ident'>params</span>.<span class='ident'>reference_value_counter_clockwise</span>;
+    <span class="kw">let</span> <span class="ident">ref_cw</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">reference_value_clockwise</span>;
+    <span class="kw">let</span> <span class="ident">ref_ccw</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">reference_value_counter_clockwise</span>;
 
-    <span class='kw'>if</span> (<span class='ident'>test_cw</span>, <span class='ident'>ref_cw</span>, <span class='ident'>read_mask_cw</span>) <span class='op'>==</span> (<span class='ident'>test_ccw</span>, <span class='ident'>ref_ccw</span>, <span class='ident'>read_mask_ccw</span>) {
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_back</span> <span class='op'>!=</span> (<span class='ident'>test_cw</span>, <span class='ident'>ref_cw</span>, <span class='ident'>read_mask_cw</span>) <span class='op'>||</span>
-           <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_front</span> <span class='op'>!=</span> (<span class='ident'>test_ccw</span>, <span class='ident'>ref_ccw</span>, <span class='ident'>read_mask_ccw</span>)
+    <span class="kw">if</span> (<span class="ident">test_cw</span>, <span class="ident">ref_cw</span>, <span class="ident">read_mask_cw</span>) <span class="op">==</span> (<span class="ident">test_ccw</span>, <span class="ident">ref_ccw</span>, <span class="ident">read_mask_ccw</span>) {
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_back</span> <span class="op">!=</span> (<span class="ident">test_cw</span>, <span class="ident">ref_cw</span>, <span class="ident">read_mask_cw</span>) <span class="op">||</span>
+           <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_front</span> <span class="op">!=</span> (<span class="ident">test_ccw</span>, <span class="ident">ref_ccw</span>, <span class="ident">read_mask_ccw</span>)
         {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilFunc</span>(<span class='ident'>test_cw</span>, <span class='ident'>ref_cw</span>, <span class='ident'>read_mask_cw</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_back</span> <span class='op'>=</span> (<span class='ident'>test_cw</span>, <span class='ident'>ref_cw</span>, <span class='ident'>read_mask_cw</span>);
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_front</span> <span class='op'>=</span> (<span class='ident'>test_ccw</span>, <span class='ident'>ref_ccw</span>, <span class='ident'>read_mask_ccw</span>);
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilFunc</span>(<span class="ident">test_cw</span>, <span class="ident">ref_cw</span>, <span class="ident">read_mask_cw</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_back</span> <span class="op">=</span> (<span class="ident">test_cw</span>, <span class="ident">ref_cw</span>, <span class="ident">read_mask_cw</span>);
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_front</span> <span class="op">=</span> (<span class="ident">test_ccw</span>, <span class="ident">ref_ccw</span>, <span class="ident">read_mask_ccw</span>);
         }
 
-    } <span class='kw'>else</span> {
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_back</span> <span class='op'>!=</span> (<span class='ident'>test_cw</span>, <span class='ident'>ref_cw</span>, <span class='ident'>read_mask_cw</span>) {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilFuncSeparate</span>(<span class='ident'>gl</span>::<span class='ident'>BACK</span>, <span class='ident'>test_cw</span>, <span class='ident'>ref_cw</span>, <span class='ident'>read_mask_cw</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_back</span> <span class='op'>=</span> (<span class='ident'>test_cw</span>, <span class='ident'>ref_cw</span>, <span class='ident'>read_mask_cw</span>);
+    } <span class="kw">else</span> {
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_back</span> <span class="op">!=</span> (<span class="ident">test_cw</span>, <span class="ident">ref_cw</span>, <span class="ident">read_mask_cw</span>) {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilFuncSeparate</span>(<span class="ident">gl</span>::<span class="ident">BACK</span>, <span class="ident">test_cw</span>, <span class="ident">ref_cw</span>, <span class="ident">read_mask_cw</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_back</span> <span class="op">=</span> (<span class="ident">test_cw</span>, <span class="ident">ref_cw</span>, <span class="ident">read_mask_cw</span>);
         }
 
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_front</span> <span class='op'>!=</span> (<span class='ident'>test_ccw</span>, <span class='ident'>ref_ccw</span>, <span class='ident'>read_mask_ccw</span>) {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilFuncSeparate</span>(<span class='ident'>gl</span>::<span class='ident'>FRONT</span>, <span class='ident'>test_ccw</span>, <span class='ident'>ref_ccw</span>, <span class='ident'>read_mask_ccw</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_func_front</span> <span class='op'>=</span> (<span class='ident'>test_ccw</span>, <span class='ident'>ref_ccw</span>, <span class='ident'>read_mask_ccw</span>);
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_front</span> <span class="op">!=</span> (<span class="ident">test_ccw</span>, <span class="ident">ref_ccw</span>, <span class="ident">read_mask_ccw</span>) {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilFuncSeparate</span>(<span class="ident">gl</span>::<span class="ident">FRONT</span>, <span class="ident">test_ccw</span>, <span class="ident">ref_ccw</span>, <span class="ident">read_mask_ccw</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_func_front</span> <span class="op">=</span> (<span class="ident">test_ccw</span>, <span class="ident">ref_ccw</span>, <span class="ident">read_mask_ccw</span>);
         }
     }
 
-    <span class='comment'>// synchronizing the write mask</span>
-    <span class='kw'>if</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span> <span class='op'>==</span> <span class='ident'>params</span>.<span class='ident'>write_mask_counter_clockwise</span> {
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_back</span> <span class='op'>!=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span> <span class='op'>||</span>
-           <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_front</span> <span class='op'>!=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>
+    <span class="comment">// synchronizing the write mask</span>
+    <span class="kw">if</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span> <span class="op">==</span> <span class="ident">params</span>.<span class="ident">write_mask_counter_clockwise</span> {
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_back</span> <span class="op">!=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span> <span class="op">||</span>
+           <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_front</span> <span class="op">!=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>
         {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilMask</span>(<span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_back</span> <span class='op'>=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>;
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_front</span> <span class='op'>=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>;
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilMask</span>(<span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_back</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>;
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_front</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>;
         }
 
-    } <span class='kw'>else</span> {
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_back</span> <span class='op'>!=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilMaskSeparate</span>(<span class='ident'>gl</span>::<span class='ident'>BACK</span>, <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_back</span> <span class='op'>=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_back</span> <span class="op">!=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilMaskSeparate</span>(<span class="ident">gl</span>::<span class="ident">BACK</span>, <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_back</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>;
         }
 
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_front</span> <span class='op'>!=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilMaskSeparate</span>(<span class='ident'>gl</span>::<span class='ident'>FRONT</span>, <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_mask_front</span> <span class='op'>=</span> <span class='ident'>params</span>.<span class='ident'>write_mask_clockwise</span>;
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_front</span> <span class="op">!=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilMaskSeparate</span>(<span class="ident">gl</span>::<span class="ident">FRONT</span>, <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_mask_front</span> <span class="op">=</span> <span class="ident">params</span>.<span class="ident">write_mask_clockwise</span>;
         }
     }
 
-    <span class='comment'>// synchronizing the operation</span>
-    <span class='kw'>let</span> <span class='ident'>op_back</span> <span class='op'>=</span> (<span class='ident'>params</span>.<span class='ident'>fail_operation_clockwise</span>.<span class='ident'>to_glenum</span>(),
-                   <span class='ident'>params</span>.<span class='ident'>pass_depth_fail_operation_clockwise</span>.<span class='ident'>to_glenum</span>(),
-                   <span class='ident'>params</span>.<span class='ident'>depth_pass_operation_clockwise</span>.<span class='ident'>to_glenum</span>());
+    <span class="comment">// synchronizing the operation</span>
+    <span class="kw">let</span> <span class="ident">op_back</span> <span class="op">=</span> (<span class="ident">params</span>.<span class="ident">fail_operation_clockwise</span>.<span class="ident">to_glenum</span>(),
+                   <span class="ident">params</span>.<span class="ident">pass_depth_fail_operation_clockwise</span>.<span class="ident">to_glenum</span>(),
+                   <span class="ident">params</span>.<span class="ident">depth_pass_operation_clockwise</span>.<span class="ident">to_glenum</span>());
 
-    <span class='kw'>let</span> <span class='ident'>op_front</span> <span class='op'>=</span> (<span class='ident'>params</span>.<span class='ident'>fail_operation_counter_clockwise</span>.<span class='ident'>to_glenum</span>(),
-                    <span class='ident'>params</span>.<span class='ident'>pass_depth_fail_operation_counter_clockwise</span>.<span class='ident'>to_glenum</span>(),
-                    <span class='ident'>params</span>.<span class='ident'>depth_pass_operation_counter_clockwise</span>.<span class='ident'>to_glenum</span>());
+    <span class="kw">let</span> <span class="ident">op_front</span> <span class="op">=</span> (<span class="ident">params</span>.<span class="ident">fail_operation_counter_clockwise</span>.<span class="ident">to_glenum</span>(),
+                    <span class="ident">params</span>.<span class="ident">pass_depth_fail_operation_counter_clockwise</span>.<span class="ident">to_glenum</span>(),
+                    <span class="ident">params</span>.<span class="ident">depth_pass_operation_counter_clockwise</span>.<span class="ident">to_glenum</span>());
 
-    <span class='kw'>if</span> <span class='ident'>op_back</span> <span class='op'>==</span> <span class='ident'>op_front</span> {
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_back</span> <span class='op'>!=</span> <span class='ident'>op_back</span> <span class='op'>||</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_front</span> <span class='op'>!=</span> <span class='ident'>op_front</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilOp</span>(<span class='ident'>op_back</span>.<span class='number'>0</span>, <span class='ident'>op_back</span>.<span class='number'>1</span>, <span class='ident'>op_back</span>.<span class='number'>2</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_back</span> <span class='op'>=</span> <span class='ident'>op_back</span>;
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_front</span> <span class='op'>=</span> <span class='ident'>op_front</span>;
+    <span class="kw">if</span> <span class="ident">op_back</span> <span class="op">==</span> <span class="ident">op_front</span> {
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_back</span> <span class="op">!=</span> <span class="ident">op_back</span> <span class="op">||</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_front</span> <span class="op">!=</span> <span class="ident">op_front</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilOp</span>(<span class="ident">op_back</span>.<span class="number">0</span>, <span class="ident">op_back</span>.<span class="number">1</span>, <span class="ident">op_back</span>.<span class="number">2</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_back</span> <span class="op">=</span> <span class="ident">op_back</span>;
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_front</span> <span class="op">=</span> <span class="ident">op_front</span>;
         }
 
-    } <span class='kw'>else</span> {
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_back</span> <span class='op'>!=</span> <span class='ident'>op_back</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilOpSeparate</span>(<span class='ident'>gl</span>::<span class='ident'>BACK</span>, <span class='ident'>op_back</span>.<span class='number'>0</span>, <span class='ident'>op_back</span>.<span class='number'>1</span>, <span class='ident'>op_back</span>.<span class='number'>2</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_back</span> <span class='op'>=</span> <span class='ident'>op_back</span>;
+    } <span class="kw">else</span> {
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_back</span> <span class="op">!=</span> <span class="ident">op_back</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilOpSeparate</span>(<span class="ident">gl</span>::<span class="ident">BACK</span>, <span class="ident">op_back</span>.<span class="number">0</span>, <span class="ident">op_back</span>.<span class="number">1</span>, <span class="ident">op_back</span>.<span class="number">2</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_back</span> <span class="op">=</span> <span class="ident">op_back</span>;
         }
 
-        <span class='kw'>if</span> <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_front</span> <span class='op'>!=</span> <span class='ident'>op_front</span> {
-            <span class='kw'>unsafe</span> { <span class='ident'>ctxt</span>.<span class='ident'>gl</span>.<span class='ident'>StencilOpSeparate</span>(<span class='ident'>gl</span>::<span class='ident'>FRONT</span>, <span class='ident'>op_front</span>.<span class='number'>0</span>, <span class='ident'>op_front</span>.<span class='number'>1</span>, <span class='ident'>op_front</span>.<span class='number'>2</span>) };
-            <span class='ident'>ctxt</span>.<span class='ident'>state</span>.<span class='ident'>stencil_op_front</span> <span class='op'>=</span> <span class='ident'>op_front</span>;
+        <span class="kw">if</span> <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_front</span> <span class="op">!=</span> <span class="ident">op_front</span> {
+            <span class="kw">unsafe</span> { <span class="ident">ctxt</span>.<span class="ident">gl</span>.<span class="ident">StencilOpSeparate</span>(<span class="ident">gl</span>::<span class="ident">FRONT</span>, <span class="ident">op_front</span>.<span class="number">0</span>, <span class="ident">op_front</span>.<span class="number">1</span>, <span class="ident">op_front</span>.<span class="number">2</span>) };
+            <span class="ident">ctxt</span>.<span class="ident">state</span>.<span class="ident">stencil_op_front</span> <span class="op">=</span> <span class="ident">op_front</span>;
         }
     }
 }
@@ -752,12 +754,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -778,7 +784,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -789,11 +795,8 @@
     <script>
         window.rootPath = "../../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../../jquery.js"></script>
     <script src="../../../main.js"></script>
-    
     <script defer src="../../../search-index.js"></script>
 </body>
 </html>

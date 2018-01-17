@@ -9,13 +9,15 @@
 
     <title>glium::texture::Texture3dDataSource - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc trait">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'Texture3dDataSource', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Trait Texture3dDataSource</p><div class="block items"><a class="sidebar-title" href="#associated-types">Associated Types</a><div class="sidebar-links"><a href="#associatedtype.Data">Data</a></div><a class="sidebar-title" href="#required-methods">Required Methods</a><div class="sidebar-links"><a href="#tymethod.into_raw">into_raw</a></div><a class="sidebar-title" href="#foreign-impls">Implementations on Foreign Types</a><div class="sidebar-links"><a href="#impl-Texture3dDataSource%3C%27a%3E">Vec&lt;Vec&lt;Vec&lt;P&gt;&gt;&gt;</a></div><a class="sidebar-title" href="#implementors">Implementors</a></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a></p><script>window.sidebarCurrent = {name: 'Texture3dDataSource', ty: 'trait', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,32 +43,44 @@
         </form>
     </nav>
 
-    <section id='main' class="content trait">
-<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a>::<wbr><a class='trait' href=''>Texture3dDataSource</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-26352' class='srclink' href='../../src/glium/texture/mod.rs.html#492-498' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Trait <a href='../index.html'>glium</a>::<wbr><a href='index.html'>texture</a>::<wbr><a class="trait" href=''>Texture3dDataSource</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/texture/mod.rs.html#664-670' title='goto source code'>[src]</a></span></h1>
 <pre class='rust trait'>pub trait Texture3dDataSource&lt;'a&gt; {
-    type Data: <a class='trait' href='../../core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + 'a;
-    fn <a href='#tymethod.into_raw' class='fnname'>into_raw</a>(self) -&gt; <a class='struct' href='../../glium/texture/struct.RawImage3d.html' title='glium::texture::RawImage3d'>RawImage3d</a>&lt;'a, Self::<a class='trait' href='../../glium/texture/trait.Texture3dDataSource.html' title='glium::texture::Texture3dDataSource'>Data</a>&gt;;
+    type <a href='#associatedtype.Data' class="type">Data</a>: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + 'a;
+    fn <a href='#tymethod.into_raw' class='fnname'>into_raw</a>(self) -&gt; <a class="struct" href="../../glium/texture/struct.RawImage3d.html" title="struct glium::texture::RawImage3d">RawImage3d</a>&lt;'a, Self::<a class="type" href="../../glium/texture/trait.Texture3dDataSource.html#associatedtype.Data" title="type glium::texture::Texture3dDataSource::Data">Data</a>&gt;;
 }</pre><div class='docblock'><p>Trait that describes data for a two-dimensional texture.</p>
 </div>
-            <h2 id='associated-types'>Associated Types</h2>
+            <h2 id='associated-types' class='small-section-header'>
+              Associated Types<a href='#associated-types' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='associatedtype.Data' class='method stab '><code>type Data: <a class='trait' href='../../core/marker/trait.Send.html' title='core::marker::Send'>Send</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html' title='core::marker::Copy'>Copy</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> + 'a</code></h3><div class='docblock'><p>The type of each pixel.</p>
+        <h3 id='associatedtype.Data' class='method'><span id='Data.t' class='invisible'><code>type <a href='#associatedtype.Data' class="type">Data</a>: <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Send.html" title="trait core::marker::Send">Send</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/marker/trait.Copy.html" title="trait core::marker::Copy">Copy</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> + 'a</code></span></h3><div class='docblock'><p>The type of each pixel.</p>
 </div></div>
-            <h2 id='required-methods'>Required Methods</h2>
+            <h2 id='required-methods' class='small-section-header'>
+              Required Methods<a href='#required-methods' class='anchor'></a>
+            </h2>
             <div class='methods'>
-        <h3 id='tymethod.into_raw' class='method stab '><code>fn <a href='#tymethod.into_raw' class='fnname'>into_raw</a>(self) -&gt; <a class='struct' href='../../glium/texture/struct.RawImage3d.html' title='glium::texture::RawImage3d'>RawImage3d</a>&lt;'a, Self::<a class='trait' href='../../glium/texture/trait.Texture3dDataSource.html' title='glium::texture::Texture3dDataSource'>Data</a>&gt;</code></h3><div class='docblock'><p>Returns the raw representation of the data.</p>
+        <h3 id='tymethod.into_raw' class='method'><span id='into_raw.v' class='invisible'><code>fn <a href='#tymethod.into_raw' class='fnname'>into_raw</a>(self) -&gt; <a class="struct" href="../../glium/texture/struct.RawImage3d.html" title="struct glium::texture::RawImage3d">RawImage3d</a>&lt;'a, Self::<a class="type" href="../../glium/texture/trait.Texture3dDataSource.html#associatedtype.Data" title="type glium::texture::Texture3dDataSource::Data">Data</a>&gt;</code></span></h3><div class='docblock'><p>Returns the raw representation of the data.</p>
 </div></div>
-        <h2 id='implementors'>Implementors</h2>
+                <h2 id='foreign-impls' class='small-section-header'>
+                  Implementations on Foreign Types<a href='#foreign-impls' class='anchor'></a>
+                </h2>
+            <h3 id='impl-Texture3dDataSource%3C%27a%3E' class='impl'><span class='in-band'><code>impl&lt;'a, P:&nbsp;<a class="trait" href="../../glium/texture/trait.PixelValue.html" title="trait glium::texture::PixelValue">PixelValue</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a>&gt; <a class="trait" href="../../glium/texture/trait.Texture3dDataSource.html" title="trait glium::texture::Texture3dDataSource">Texture3dDataSource</a>&lt;'a&gt; for <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/vec/struct.Vec.html" title="struct alloc::vec::Vec">Vec</a>&lt;P&gt;&gt;&gt;</code><a href='#impl-Texture3dDataSource%3C%27a%3E' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#734-752' title='goto source code'>[src]</a></span></h3>
+<span class='docblock autohide'><div class='impl-items'><h4 id='associatedtype.Data-1' class="type"><span id='Data.t-1' class='invisible'><code>type <a href='#associatedtype.Data' class="type">Data</a> = P</code></span></h4>
+<h4 id='method.into_raw' class="method"><span id='into_raw.v-1' class='invisible'><code>fn <a href='#method.into_raw' class='fnname'>into_raw</a>(self) -&gt; <a class="struct" href="../../glium/texture/struct.RawImage3d.html" title="struct glium::texture::RawImage3d">RawImage3d</a>&lt;'a, P&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/texture/mod.rs.html#737-751' title='goto source code'>[src]</a></span></h4>
+</div></span>
+        <h2 id='implementors' class='small-section-header'>
+          Implementors<a href='#implementors' class='anchor'></a>
+        </h2>
         <ul class='item-list' id='implementors-list'>
-    <li><code>impl&lt;'a, P: <a class='trait' href='../../glium/texture/trait.PixelValue.html' title='glium::texture::PixelValue'>PixelValue</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='../../glium/texture/trait.Texture3dDataSource.html' title='glium::texture::Texture3dDataSource'>Texture3dDataSource</a>&lt;'a&gt; for <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;P&gt;&gt;&gt;</code></li>
-<li><code>impl&lt;'a, P: <a class='trait' href='../../glium/texture/trait.PixelValue.html' title='glium::texture::PixelValue'>PixelValue</a> + <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a>&gt; <a class='trait' href='../../glium/texture/trait.Texture3dDataSource.html' title='glium::texture::Texture3dDataSource'>Texture3dDataSource</a>&lt;'a&gt; for <a class='struct' href='../../glium/texture/struct.RawImage3d.html' title='glium::texture::RawImage3d'>RawImage3d</a>&lt;'a, P&gt;</code></li>
+    <li><div class='out-of-band'><a class='srclink' href='../../src/glium/texture/mod.rs.html#754-761' title='goto source code'>[src]</a></div><code>impl&lt;'a, P:&nbsp;<a class="trait" href="../../glium/texture/trait.PixelValue.html" title="trait glium::texture::PixelValue">PixelValue</a> + <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a>&gt; Texture3dDataSource&lt;'a&gt; for <a class="struct" href="../../glium/texture/struct.RawImage3d.html" title="struct glium::texture::RawImage3d">RawImage3d</a>&lt;'a, P&gt;<span class="where fmt-newline">  type <a href='#associatedtype.Data' class="type">Data</a> = P;</span></code></li>
 </ul><script type="text/javascript" async
-                              src="../../implementors/glium/texture/trait.Texture3dDataSource.js">
-                      </script></section>
+                         src="../../implementors/glium/texture/trait.Texture3dDataSource.js">
+                 </script></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -83,12 +97,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -109,7 +127,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -120,11 +138,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

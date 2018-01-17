@@ -4,18 +4,20 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="Source to the Rust file `/home/travis/.cargo/registry/src/github.com-88ac128001ac3a9a/x11-dl-2.2.1/src/glx.rs`.">
+    <meta name="description" content="Source to the Rust file `/home/daboross/.cargo/registry/src/github.com-1ecc6299db9ec823/x11-dl-2.17.2/src/glx.rs`.">
     <meta name="keywords" content="rust, rustlang, rust-lang">
 
     <title>glx.rs.html -- source</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc source">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -41,7 +43,7 @@
         </form>
     </nav>
 
-    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+    <section id='main' class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -232,197 +234,313 @@
 <span id="189">189</span>
 <span id="190">190</span>
 <span id="191">191</span>
-</pre><pre class='rust '>
-<span class='comment'>// x11-rs: Rust bindings for X11 libraries</span>
-<span class='comment'>// The X11 libraries are available under the MIT license.</span>
-<span class='comment'>// These bindings are public domain.</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+</pre><pre class="rust ">
+<span class="comment">// x11-rs: Rust bindings for X11 libraries</span>
+<span class="comment">// The X11 libraries are available under the MIT license.</span>
+<span class="comment">// These bindings are public domain.</span>
 
-<span class='kw'>use</span> <span class='ident'>libc</span>::{
-  <span class='ident'>c_char</span>,
-  <span class='ident'>c_int</span>,
-  <span class='ident'>c_uchar</span>,
-  <span class='ident'>c_uint</span>,
-  <span class='ident'>c_ulong</span>,
+<span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::{
+  <span class="ident">c_char</span>,
+  <span class="ident">c_int</span>,
+  <span class="ident">c_uchar</span>,
+  <span class="ident">c_uint</span>,
+  <span class="ident">c_ulong</span>,
 };
 
-<span class='kw'>use</span> ::<span class='ident'>xlib</span>::{
-  <span class='ident'>Display</span>,
-  <span class='ident'>XID</span>,
-  <span class='ident'>XVisualInfo</span>,
+<span class="kw">use</span> ::<span class="ident">xlib</span>::{
+  <span class="ident">Display</span>,
+  <span class="ident">XID</span>,
+  <span class="ident">XVisualInfo</span>,
 };
 
 
-<span class='comment'>//</span>
-<span class='comment'>// functions</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// functions</span>
+<span class="comment">//</span>
 
 
-<span class='macro'>x11_link</span><span class='macro'>!</span> { <span class='ident'>Glx</span>, [<span class='string'>&quot;libGL.so&quot;</span>, <span class='string'>&quot;libGL.so.1&quot;</span>],
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXChooseFBConfig</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>c_int</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GLXFBConfig</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXChooseVisual</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XVisualInfo</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXCopyContext</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>GLXContext</span>, <span class='ident'>_2</span>: <span class='ident'>GLXContext</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXCreateContext</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XVisualInfo</span>, <span class='ident'>_2</span>: <span class='ident'>GLXContext</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>GLXContext</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXCreateGLXPixmap</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XVisualInfo</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXCreateNewContext</span> (<span class='ident'>_5</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_4</span>: <span class='ident'>GLXFBConfig</span>, <span class='ident'>_3</span>: <span class='ident'>c_int</span>, <span class='ident'>_2</span>: <span class='ident'>GLXContext</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>GLXContext</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXCreatePbuffer</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>GLXFBConfig</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXCreatePixmap</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>GLXFBConfig</span>, <span class='ident'>_2</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXCreateWindow</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>GLXFBConfig</span>, <span class='ident'>_2</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXDestroyContext</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>GLXContext</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXDestroyGLXPixmap</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXDestroyPbuffer</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXDestroyPixmap</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXDestroyWindow</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetClientString</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetConfig</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XVisualInfo</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetCurrentContext</span> () <span class='op'>-&gt;</span> <span class='ident'>GLXContext</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetCurrentDisplay</span> () <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetCurrentDrawable</span> () <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetCurrentReadDrawable</span> () <span class='op'>-&gt;</span> <span class='ident'>c_ulong</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetFBConfigAttrib</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>GLXFBConfig</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetFBConfigs</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>GLXFBConfig</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetProcAddress</span> (<span class='ident'>_1</span>: <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_uchar</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='kw'>unsafe</span> <span class='kw'>extern</span> <span class='string'>&quot;C&quot;</span> <span class='kw'>fn</span> ()<span class='op'>&gt;</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetSelectedEvent</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXGetVisualFromFBConfig</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>GLXFBConfig</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>XVisualInfo</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXIsDirect</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>GLXContext</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXMakeContextCurrent</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_2</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='ident'>GLXContext</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXMakeCurrent</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='ident'>GLXContext</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXQueryContext</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>GLXContext</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXQueryDrawable</span> (<span class='ident'>_4</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_3</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_uint</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXQueryExtension</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXQueryExtensionsString</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXQueryServerString</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='op'>*</span><span class='kw'>const</span> <span class='ident'>c_char</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXQueryVersion</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> <span class='ident'>c_int</span>,
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXSelectEvent</span> (<span class='ident'>_3</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_2</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXSwapBuffers</span> (<span class='ident'>_2</span>: <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Display</span>, <span class='ident'>_1</span>: <span class='ident'>c_ulong</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXUseXFont</span> (<span class='ident'>_4</span>: <span class='ident'>c_ulong</span>, <span class='ident'>_3</span>: <span class='ident'>c_int</span>, <span class='ident'>_2</span>: <span class='ident'>c_int</span>, <span class='ident'>_1</span>: <span class='ident'>c_int</span>) <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXWaitGL</span> () <span class='op'>-&gt;</span> (),
-  <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>glXWaitX</span> () <span class='op'>-&gt;</span> (),
-<span class='ident'>variadic</span>:
-<span class='ident'>globals</span>:
+<span class="macro">x11_link</span><span class="macro">!</span> { <span class="ident">Glx</span>, <span class="ident">gl</span>, [<span class="string">&quot;libGL.so.1&quot;</span>, <span class="string">&quot;libGL.so&quot;</span>], <span class="number">40</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXChooseFBConfig</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">c_int</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">GLXFBConfig</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXChooseVisual</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XVisualInfo</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXCopyContext</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">GLXContext</span>, <span class="ident">_2</span>: <span class="ident">GLXContext</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXCreateContext</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XVisualInfo</span>, <span class="ident">_2</span>: <span class="ident">GLXContext</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">GLXContext</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXCreateGLXPixmap</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XVisualInfo</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXCreateNewContext</span> (<span class="ident">_5</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_4</span>: <span class="ident">GLXFBConfig</span>, <span class="ident">_3</span>: <span class="ident">c_int</span>, <span class="ident">_2</span>: <span class="ident">GLXContext</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">GLXContext</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXCreatePbuffer</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">GLXFBConfig</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXCreatePixmap</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">GLXFBConfig</span>, <span class="ident">_2</span>: <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXCreateWindow</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">GLXFBConfig</span>, <span class="ident">_2</span>: <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXDestroyContext</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">GLXContext</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXDestroyGLXPixmap</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXDestroyPbuffer</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXDestroyPixmap</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXDestroyWindow</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetClientString</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetConfig</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XVisualInfo</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetCurrentContext</span> () <span class="op">-&gt;</span> <span class="ident">GLXContext</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetCurrentDisplay</span> () <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetCurrentDrawable</span> () <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetCurrentReadDrawable</span> () <span class="op">-&gt;</span> <span class="ident">c_ulong</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetFBConfigAttrib</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">GLXFBConfig</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetFBConfigs</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">GLXFBConfig</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetProcAddress</span> (<span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_uchar</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ()<span class="op">&gt;</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetProcAddressARB</span> (<span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_uchar</span>) <span class="op">-&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="kw">unsafe</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> ()<span class="op">&gt;</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetSelectedEvent</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXGetVisualFromFBConfig</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">GLXFBConfig</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">XVisualInfo</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXIsDirect</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">GLXContext</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXMakeContextCurrent</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">c_ulong</span>, <span class="ident">_2</span>: <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="ident">GLXContext</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXMakeCurrent</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="ident">GLXContext</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXQueryContext</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">GLXContext</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXQueryDrawable</span> (<span class="ident">_4</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_3</span>: <span class="ident">c_ulong</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_uint</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXQueryExtension</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXQueryExtensionsString</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXQueryServerString</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">c_char</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXQueryVersion</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_int</span>) <span class="op">-&gt;</span> <span class="ident">c_int</span>,
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXSelectEvent</span> (<span class="ident">_3</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_2</span>: <span class="ident">c_ulong</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXSwapBuffers</span> (<span class="ident">_2</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">Display</span>, <span class="ident">_1</span>: <span class="ident">c_ulong</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXUseXFont</span> (<span class="ident">_4</span>: <span class="ident">c_ulong</span>, <span class="ident">_3</span>: <span class="ident">c_int</span>, <span class="ident">_2</span>: <span class="ident">c_int</span>, <span class="ident">_1</span>: <span class="ident">c_int</span>) <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXWaitGL</span> () <span class="op">-&gt;</span> (),
+  <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">glXWaitX</span> () <span class="op">-&gt;</span> (),
+<span class="ident">variadic</span>:
+<span class="ident">globals</span>:
 }
 
 
-<span class='comment'>//</span>
-<span class='comment'>// types</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// types</span>
+<span class="comment">//</span>
 
 
-<span class='comment'>// opaque structures</span>
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span> <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>__GLXcontextRec</span>;
-<span class='attribute'>#[<span class='ident'>repr</span>(<span class='ident'>C</span>)]</span> <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>__GLXFBConfigRec</span>;
+<span class="comment">// opaque structures</span>
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span> <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">__GLXcontextRec</span>;
+<span class="attribute">#[<span class="ident">repr</span>(<span class="ident">C</span>)]</span> <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">__GLXFBConfigRec</span>;
 
-<span class='comment'>// types</span>
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXContext</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>__GLXcontextRec</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXContextID</span> <span class='op'>=</span> <span class='ident'>XID</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXDrawable</span> <span class='op'>=</span> <span class='ident'>XID</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXFBConfig</span> <span class='op'>=</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>__GLXFBConfigRec</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXFBConfigID</span> <span class='op'>=</span> <span class='ident'>XID</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXPbuffer</span> <span class='op'>=</span> <span class='ident'>XID</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXPixmap</span> <span class='op'>=</span> <span class='ident'>XID</span>;
-<span class='kw'>pub</span> <span class='kw'>type</span> <span class='ident'>GLXWindow</span> <span class='op'>=</span> <span class='ident'>XID</span>;
-
-
-<span class='comment'>//</span>
-<span class='comment'>// constants</span>
-<span class='comment'>//</span>
+<span class="comment">// types</span>
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXContext</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">__GLXcontextRec</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXContextID</span> <span class="op">=</span> <span class="ident">XID</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXDrawable</span> <span class="op">=</span> <span class="ident">XID</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXFBConfig</span> <span class="op">=</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">__GLXFBConfigRec</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXFBConfigID</span> <span class="op">=</span> <span class="ident">XID</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXPbuffer</span> <span class="op">=</span> <span class="ident">XID</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXPixmap</span> <span class="op">=</span> <span class="ident">XID</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">GLXWindow</span> <span class="op">=</span> <span class="ident">XID</span>;
 
 
-<span class='comment'>// config caveats</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_SLOW_CONFIG</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8001</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_NON_CONFORMANT_CONFIG</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x800d</span>;
-
-<span class='comment'>// drawable type mask</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_WINDOW_BIT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0001</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_PIXMAP_BIT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0002</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_PBUFFER_BIT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0004</span>;
-
-<span class='comment'>// framebuffer attributes</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_USE_GL</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0001</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_BUFFER_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0002</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_LEVEL</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0003</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_RGBA</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0004</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_DOUBLEBUFFER</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0005</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_STEREO</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0006</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_AUX_BUFFERS</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0007</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_RED_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0008</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_GREEN_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0009</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_BLUE_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x000a</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_ALPHA_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x000b</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_DEPTH_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x000c</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_STENCIL_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x000d</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_ACCUM_RED_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x000e</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_ACCUM_GREEN_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x000f</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_ACCUM_BLUE_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0010</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_ACCUM_ALPHA_SIZE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0011</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONFIG_CAVEAT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0020</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_X_VISUAL_TYPE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0022</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_TYPE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0023</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_INDEX_VALUE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0024</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_RED_VALUE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0025</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_GREEN_VALUE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0026</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_BLUE_VALUE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0027</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_ALPHA_VALUE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0028</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_DRAWABLE_TYPE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8010</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_RENDER_TYPE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8011</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_X_RENDERABLE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8012</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_FBCONFIG_ID</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8013</span>;
-
-<span class='comment'>// misc</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_DONT_CARE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='op'>-</span><span class='number'>1</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_NONE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8000</span>;
-
-<span class='comment'>// render type mask</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_RGBA_BIT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0001</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_COLOR_INDEX_BIT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0002</span>;
-
-<span class='comment'>// transparent types</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_RGB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8008</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRANSPARENT_INDEX</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8009</span>;
-
-<span class='comment'>// visual types</span>
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_TRUE_COLOR</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8002</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_DIRECT_COLOR</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8003</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_PSEUDO_COLOR</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8004</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_STATIC_COLOR</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8005</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_GRAY_SCALE</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8006</span>;
-<span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_STATIC_GRAY</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x8007</span>;
+<span class="comment">//</span>
+<span class="comment">// constants</span>
+<span class="comment">//</span>
 
 
-<span class='comment'>//</span>
-<span class='comment'>// ARB extensions</span>
-<span class='comment'>//</span>
+<span class="comment">// config caveats</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_SLOW_CONFIG</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8001</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_NON_CONFORMANT_CONFIG</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x800d</span>;
+
+<span class="comment">// drawable type mask</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_WINDOW_BIT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0001</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PIXMAP_BIT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0002</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PBUFFER_BIT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0004</span>;
+
+<span class="comment">// framebuffer attributes</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_USE_GL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0001</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BUFFER_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0002</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_LEVEL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0003</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_RGBA</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0004</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_DOUBLEBUFFER</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0005</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_STEREO</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0006</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_AUX_BUFFERS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0007</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_RED_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0008</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_GREEN_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0009</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BLUE_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x000a</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_ALPHA_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x000b</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_DEPTH_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x000c</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_STENCIL_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x000d</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_ACCUM_RED_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x000e</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_ACCUM_GREEN_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x000f</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_ACCUM_BLUE_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0010</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_ACCUM_ALPHA_SIZE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0011</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONFIG_CAVEAT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0020</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_X_VISUAL_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0022</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0023</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_INDEX_VALUE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0024</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_RED_VALUE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0025</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_GREEN_VALUE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0026</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_BLUE_VALUE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0027</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_ALPHA_VALUE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0028</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_VISUAL_ID</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x800B</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_SCREEN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x800C</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_DRAWABLE_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8010</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_RENDER_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8011</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_X_RENDERABLE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8012</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_FBCONFIG_ID</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8013</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_MAX_PBUFFER_WIDTH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8016</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_MAX_PBUFFER_HEIGHT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8017</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_MAX_PBUFFER_PIXELS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8018</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_SAMPLE_BUFFERS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x1_86a0</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_SAMPLES</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x1_86a1</span>;
+
+<span class="comment">// misc</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_DONT_CARE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="op">-</span><span class="number">1</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_NONE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8000</span>;
+
+<span class="comment">// render type mask</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_RGBA_BIT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0001</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_COLOR_INDEX_BIT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0002</span>;
+
+<span class="comment">// transparent types</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_RGB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8008</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRANSPARENT_INDEX</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8009</span>;
+
+<span class="comment">// visual types</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_TRUE_COLOR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8002</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_DIRECT_COLOR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8003</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PSEUDO_COLOR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8004</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_STATIC_COLOR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8005</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_GRAY_SCALE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8006</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_STATIC_GRAY</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8007</span>;
+
+<span class="comment">// glXGetConfig errors</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BAD_SCREEN</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BAD_ATTRIBUTE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_NO_EXTENSION</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BAD_VISUAL</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">4</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BAD_CONTEXT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">5</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BAD_VALUE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">6</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BAD_ENUM</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">7</span>;
+
+<span class="comment">// glXGetClientString names</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_VENDOR</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">1</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_VERSION</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">2</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_EXTENSIONS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">3</span>;
+
+<span class="comment">// drawable type mask?</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_FRONT_LEFT_BUFFER_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0001</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_FRONT_RIGHT_BUFFER_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0002</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BACK_LEFT_BUFFER_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0004</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_BACK_RIGHT_BUFFER_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0008</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_AUX_BUFFERS_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0010</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_DEPTH_BUFFER_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0020</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_STENCIL_BUFFER_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0x0040</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_ACCUM_BUFFER_BIT</span>: <span class="ident">c_uint</span> <span class="op">=</span> <span class="number">0080</span>;
+
+<span class="comment">// render type for glXCreateNewContext</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_RGBA_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8014</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_COLOR_INDEX_TYPE</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8015</span>;
+
+<span class="comment">// drawable attributes</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PRESERVED_CONTENTS</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x801B</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_LARGEST_PBUFFER</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x801C</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_WIDTH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x801D</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_HEIGHT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x801E</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PBUFFER_HEIGHT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8040</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PBUFFER_WIDTH</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8041</span>;
+
+<span class="comment">// other?</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_EVENT_MASK</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x801F</span>;
+
+<span class="comment">// event mask</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PBUFFER_CLOBBER_MASK</span>: <span class="ident">c_ulong</span> <span class="op">=</span> <span class="number">0x0800_0000</span>;
+
+<span class="comment">// event types</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_DAMAGED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8020</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_SAVED</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8021</span>;
+
+<span class="comment">// drawable types</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_WINDOW</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8022</span>;
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_PBUFFER</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x8023</span>;
 
 
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>arb</span> {
-  <span class='kw'>use</span> <span class='ident'>libc</span>::<span class='ident'>c_int</span>;
+<span class="comment">//</span>
+<span class="comment">// ARB extensions</span>
+<span class="comment">//</span>
 
-  <span class='comment'>// context attributes</span>
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_MAJOR_VERSION_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x2091</span>;
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_MINOR_VERSION_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x2092</span>;
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_FLAGS_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x2094</span>;
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_PROFILE_MASK_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x9126</span>;
 
-  <span class='comment'>// context flags</span>
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_DEBUG_BIT_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0001</span>;
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0002</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">arb</span> {
+  <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
 
-  <span class='comment'>// context profile mask</span>
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_CORE_PROFILE_BIT_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0001</span>;
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x0002</span>;
+  <span class="comment">// context attributes</span>
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_MAJOR_VERSION_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x2091</span>;
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_MINOR_VERSION_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x2092</span>;
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_FLAGS_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x2094</span>;
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_PROFILE_MASK_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x9126</span>;
+
+  <span class="comment">// context flags</span>
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_DEBUG_BIT_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0001</span>;
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0002</span>;
+
+  <span class="comment">// context profile mask</span>
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_CORE_PROFILE_BIT_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0001</span>;
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x0002</span>;
 }
 
 
-<span class='comment'>//</span>
-<span class='comment'>// EXT extensions</span>
-<span class='comment'>//</span>
+<span class="comment">//</span>
+<span class="comment">// EXT extensions</span>
+<span class="comment">//</span>
 
 
-<span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>ext</span> {
-  <span class='kw'>use</span> <span class='ident'>libc</span>::<span class='ident'>c_int</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ext</span> {
+  <span class="kw">use</span> <span class="ident">std</span>::<span class="ident">os</span>::<span class="ident">raw</span>::<span class="ident">c_int</span>;
 
-  <span class='comment'>// drawable attributes</span>
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_SWAP_INTERVAL_EXT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x20f1</span>;
-  <span class='kw'>pub</span> <span class='kw'>const</span> <span class='ident'>GLX_MAX_SWAP_INTERVAL_EXT</span>: <span class='ident'>c_int</span> <span class='op'>=</span> <span class='number'>0x20f2</span>;
+  <span class="comment">// drawable attributes</span>
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_SWAP_INTERVAL_EXT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x20f1</span>;
+  <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">GLX_MAX_SWAP_INTERVAL_EXT</span>: <span class="ident">c_int</span> <span class="op">=</span> <span class="number">0x20f2</span>;
 }
 </pre>
 </section>
@@ -442,12 +560,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -468,7 +590,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -479,11 +601,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "x11_dl";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>

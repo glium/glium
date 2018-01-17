@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `unstable` mod in crate `wayland_protocols`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, unstable">
+
+    <title>wayland_protocols::unstable - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc mod">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'>Module unstable</p><div class="block items"><ul><li><a href="#modules">Modules</a></li></ul></div><p class='location'><a href='../index.html'>wayland_protocols</a></p><script>window.sidebarCurrent = {name: 'unstable', ty: 'mod', relpath: '../'};</script><script defer src="../sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Module <a href='../index.html'>wayland_protocols</a>::<wbr><a class="mod" href=''>unstable</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/wayland_protocols/unstable.rs.html#1-361' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p>Unstable protocols from wayland-protocols</p>
+
+<p>The protocols described in this module are experimental and
+backward incompatible changes may be made. Backward compatible
+changes may be added together with the corresponding interface
+version bump.</p>
+
+<p>Backward incompatible changes are done by bumping the version
+number in the protocol and interface names and resetting the
+interface version. Once the protocol is to be declared stable,
+the &#39;z&#39; prefix and the version number in the protocol and
+interface names are removed and the interface version number is
+reset.</p>
+</div><h2 id='modules' class='section-header'><a href="#modules">Modules</a></h2>
+<table>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="fullscreen_shell/index.html"
+                                  title='mod wayland_protocols::unstable::fullscreen_shell'>fullscreen_shell</a></td>
+                           <td class='docblock-short'>
+                                <p>Fullscreen shell protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="idle_inhibit/index.html"
+                                  title='mod wayland_protocols::unstable::idle_inhibit'>idle_inhibit</a></td>
+                           <td class='docblock-short'>
+                                <p>Screensaver inhibition protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="input_method/index.html"
+                                  title='mod wayland_protocols::unstable::input_method'>input_method</a></td>
+                           <td class='docblock-short'>
+                                <p>Input method protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="keyboard_shortcuts_inhibit/index.html"
+                                  title='mod wayland_protocols::unstable::keyboard_shortcuts_inhibit'>keyboard_shortcuts_inhibit</a></td>
+                           <td class='docblock-short'>
+                                <p>Protocol for inhibiting the compositor keyboard shortcuts</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="linux_dmabuf/index.html"
+                                  title='mod wayland_protocols::unstable::linux_dmabuf'>linux_dmabuf</a></td>
+                           <td class='docblock-short'>
+                                <p>Linux DMA-BUF protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="pointer_constraints/index.html"
+                                  title='mod wayland_protocols::unstable::pointer_constraints'>pointer_constraints</a></td>
+                           <td class='docblock-short'>
+                                <p>protocol for constraining pointer motions</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="pointer_gestures/index.html"
+                                  title='mod wayland_protocols::unstable::pointer_gestures'>pointer_gestures</a></td>
+                           <td class='docblock-short'>
+                                <p>Pointer gestures protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="relative_pointer/index.html"
+                                  title='mod wayland_protocols::unstable::relative_pointer'>relative_pointer</a></td>
+                           <td class='docblock-short'>
+                                <p>protocol for relative pointer motion events</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="tablet/index.html"
+                                  title='mod wayland_protocols::unstable::tablet'>tablet</a></td>
+                           <td class='docblock-short'>
+                                <p>Wayland protocol for graphics tablets</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="text_input/index.html"
+                                  title='mod wayland_protocols::unstable::text_input'>text_input</a></td>
+                           <td class='docblock-short'>
+                                <p>Text input protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="xdg_foreign/index.html"
+                                  title='mod wayland_protocols::unstable::xdg_foreign'>xdg_foreign</a></td>
+                           <td class='docblock-short'>
+                                <p>Protocol for exporting xdg surface handles</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="xdg_output/index.html"
+                                  title='mod wayland_protocols::unstable::xdg_output'>xdg_output</a></td>
+                           <td class='docblock-short'>
+                                <p>Protocol to describe output regions</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="xdg_shell/index.html"
+                                  title='mod wayland_protocols::unstable::xdg_shell'>xdg_shell</a></td>
+                           <td class='docblock-short'>
+                                <p>XDG Shell protocol</p>
+                           </td>
+                       </tr>
+                       <tr class=' module-item'>
+                           <td><a class="mod" href="xwayland_keyboard_grab/index.html"
+                                  title='mod wayland_protocols::unstable::xwayland_keyboard_grab'>xwayland_keyboard_grab</a></td>
+                           <td class='docblock-short'>
+                                <p>Protocol for grabbing the keyboard from Xwayland</p>
+                           </td>
+                       </tr></table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>↑</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>↓</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "wayland_protocols";
+    </script>
+    <script src="../../main.js"></script>
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

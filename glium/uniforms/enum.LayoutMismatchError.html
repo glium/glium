@@ -9,13 +9,15 @@
 
     <title>glium::uniforms::LayoutMismatchError - Rust</title>
 
+    <link rel="stylesheet" type="text/css" href="../../normalize.css">
     <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../main.css">
+    
 
     
     
 </head>
-<body class="rustdoc">
+<body class="rustdoc enum">
     <!--[if lte IE 8]>
     <div class="warning">
         This old browser is unsupported and will most likely display funky
@@ -27,7 +29,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'LayoutMismatchError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+        <p class='location'>Enum LayoutMismatchError</p><div class="block items"><a class="sidebar-title" href="#variants">Variants</a><div class="sidebar-links"><a href="#variant.TypeMismatch">TypeMismatch</a><a href="#variant.LayoutMismatch">LayoutMismatch</a><a href="#variant.OffsetMismatch">OffsetMismatch</a><a href="#variant.MemberMismatch">MemberMismatch</a><a href="#variant.MissingField">MissingField</a></div><a class="sidebar-title" href="#implementations">Trait Implementations</a><div class="sidebar-links"><a href="#impl-Clone">Clone</a><a href="#impl-Debug">Debug</a><a href="#impl-Error">Error</a><a href="#impl-Display">Display</a></div></div><p class='location'><a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a></p><script>window.sidebarCurrent = {name: 'LayoutMismatchError', ty: 'enum', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -41,64 +43,82 @@
         </form>
     </nav>
 
-    <section id='main' class="content enum">
-<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class='enum' href=''>LayoutMismatchError</a></span><span class='out-of-band'><span id='render-detail'>
-            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
-                [<span class='inner'>&#x2212;</span>]
-            </a>
-        </span><a id='src-8431' class='srclink' href='../../src/glium/uniforms/mod.rs.html#119-159' title='goto source code'>[src]</a></span></h1>
+    <section id='main' class="content">
+<h1 class='fqn'><span class='in-band'>Enum <a href='../index.html'>glium</a>::<wbr><a href='index.html'>uniforms</a>::<wbr><a class="enum" href=''>LayoutMismatchError</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#173-213' title='goto source code'>[src]</a></span></h1>
 <pre class='rust enum'>pub enum LayoutMismatchError {
     TypeMismatch {
-        expected: <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a>,
-        obtained: <a class='enum' href='../../glium/uniforms/enum.UniformType.html' title='glium::uniforms::UniformType'>UniformType</a>,
+        expected: <a class="enum" href="../../glium/uniforms/enum.UniformType.html" title="enum glium::uniforms::UniformType">UniformType</a>,
+        obtained: <a class="enum" href="../../glium/uniforms/enum.UniformType.html" title="enum glium::uniforms::UniformType">UniformType</a>,
     },
     LayoutMismatch {
-        expected: <a class='enum' href='../../glium/program/enum.BlockLayout.html' title='glium::program::BlockLayout'>BlockLayout</a>,
-        obtained: <a class='enum' href='../../glium/program/enum.BlockLayout.html' title='glium::program::BlockLayout'>BlockLayout</a>,
+        expected: <a class="enum" href="../../glium/program/enum.BlockLayout.html" title="enum glium::program::BlockLayout">BlockLayout</a>,
+        obtained: <a class="enum" href="../../glium/program/enum.BlockLayout.html" title="enum glium::program::BlockLayout">BlockLayout</a>,
     },
     OffsetMismatch {
-        expected: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
-        obtained: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.usize.html'>usize</a>,
+        expected: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
+        obtained: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a>,
     },
     MemberMismatch {
-        member: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
-        err: <a class='struct' href='https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html' title='alloc::boxed::Box'>Box</a>&lt;<a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a>&gt;,
+        member: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
+        err: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="enum" href="../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a>&gt;,
     },
     MissingField {
-        name: <a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>,
+        name: <a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>,
     },
 }</pre><div class='docblock'><p>Error about a block layout mismatch.</p>
-</div><h2 class='variants'>Variants</h2>
-<table><tr><td id='variant.TypeMismatch'><code>TypeMismatch</code></td><td><div class='docblock'><p>There is a mismatch in the type of one element.</p>
-</div><h3 class='fields'>Fields</h3>
+</div><h2 id='variants' class='variants small-section-header'>
+                   Variants<a href='#variants' class='anchor'></a></h2>
+<span id="variant.TypeMismatch" class="variant small-section-header"><a href="#variant.TypeMismatch" class="anchor field"></a><span id='TypeMismatch.v' class='invisible'><code>TypeMismatch</code></span></span><div class='docblock'><p>There is a mismatch in the type of one element.</p>
+</div><span class='docblock autohide sub-variant' id='variant.TypeMismatch.fields'><h3 class='fields'>Fields of <code>TypeMismatch</code></h3>
 
-                                              <table><tr><td id='variant.TypeMismatch.field.expected'><code>expected</code></td><td><div class='docblock'><p>Type expected by the shader.</p>
-</div></td></tr><tr><td id='variant.TypeMismatch.field.obtained'><code>obtained</code></td><td><div class='docblock'><p>Type that you gave.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.LayoutMismatch'><code>LayoutMismatch</code></td><td><div class='docblock'><p>The expected layout is totally different from what we have.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.TypeMismatch.field.expected'><span id='TypeMismatch.v.expected.v' class='invisible'><code>expected:&nbsp;<a class="enum" href="../../glium/uniforms/enum.UniformType.html" title="enum glium::uniforms::UniformType">UniformType</a></code></span></td><td><div class='docblock'><p>Type expected by the shader.</p>
+</div></td></tr><tr><td id='variant.TypeMismatch.field.obtained'><span id='TypeMismatch.v.obtained.v' class='invisible'><code>obtained:&nbsp;<a class="enum" href="../../glium/uniforms/enum.UniformType.html" title="enum glium::uniforms::UniformType">UniformType</a></code></span></td><td><div class='docblock'><p>Type that you gave.</p>
+</div></td></tr></table></span><span id="variant.LayoutMismatch" class="variant small-section-header"><a href="#variant.LayoutMismatch" class="anchor field"></a><span id='LayoutMismatch.v' class='invisible'><code>LayoutMismatch</code></span></span><div class='docblock'><p>The expected layout is totally different from what we have.</p>
+</div><span class='docblock autohide sub-variant' id='variant.LayoutMismatch.fields'><h3 class='fields'>Fields of <code>LayoutMismatch</code></h3>
 
-                                              <table><tr><td id='variant.LayoutMismatch.field.expected'><code>expected</code></td><td><div class='docblock'><p>Layout expected by the shader.</p>
-</div></td></tr><tr><td id='variant.LayoutMismatch.field.obtained'><code>obtained</code></td><td><div class='docblock'><p>Layout of the input.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.OffsetMismatch'><code>OffsetMismatch</code></td><td><div class='docblock'><p>The type of data is good, but there is a misalignment.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.LayoutMismatch.field.expected'><span id='LayoutMismatch.v.expected.v' class='invisible'><code>expected:&nbsp;<a class="enum" href="../../glium/program/enum.BlockLayout.html" title="enum glium::program::BlockLayout">BlockLayout</a></code></span></td><td><div class='docblock'><p>Layout expected by the shader.</p>
+</div></td></tr><tr><td id='variant.LayoutMismatch.field.obtained'><span id='LayoutMismatch.v.obtained.v' class='invisible'><code>obtained:&nbsp;<a class="enum" href="../../glium/program/enum.BlockLayout.html" title="enum glium::program::BlockLayout">BlockLayout</a></code></span></td><td><div class='docblock'><p>Layout of the input.</p>
+</div></td></tr></table></span><span id="variant.OffsetMismatch" class="variant small-section-header"><a href="#variant.OffsetMismatch" class="anchor field"></a><span id='OffsetMismatch.v' class='invisible'><code>OffsetMismatch</code></span></span><div class='docblock'><p>The type of data is good, but there is a misalignment.</p>
+</div><span class='docblock autohide sub-variant' id='variant.OffsetMismatch.fields'><h3 class='fields'>Fields of <code>OffsetMismatch</code></h3>
 
-                                              <table><tr><td id='variant.OffsetMismatch.field.expected'><code>expected</code></td><td><div class='docblock'><p>Expected offset of a member.</p>
-</div></td></tr><tr><td id='variant.OffsetMismatch.field.obtained'><code>obtained</code></td><td><div class='docblock'><p>Offset of the same member in the input.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.MemberMismatch'><code>MemberMismatch</code></td><td><div class='docblock'><p>There is a mismatch in a submember of this layout.</p>
+                           <table><tr><td id='variant.OffsetMismatch.field.expected'><span id='OffsetMismatch.v.expected.v' class='invisible'><code>expected:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Expected offset of a member.</p>
+</div></td></tr><tr><td id='variant.OffsetMismatch.field.obtained'><span id='OffsetMismatch.v.obtained.v' class='invisible'><code>obtained:&nbsp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.usize.html">usize</a></code></span></td><td><div class='docblock'><p>Offset of the same member in the input.</p>
+</div></td></tr></table></span><span id="variant.MemberMismatch" class="variant small-section-header"><a href="#variant.MemberMismatch" class="anchor field"></a><span id='MemberMismatch.v' class='invisible'><code>MemberMismatch</code></span></span><div class='docblock'><p>There is a mismatch in a submember of this layout.</p>
 
 <p>This is kind of a hierarchy inside the <code>LayoutMismatchError</code>s.</p>
-</div><h3 class='fields'>Fields</h3>
+</div><span class='docblock autohide sub-variant' id='variant.MemberMismatch.fields'><h3 class='fields'>Fields of <code>MemberMismatch</code></h3>
 
-                                              <table><tr><td id='variant.MemberMismatch.field.member'><code>member</code></td><td><div class='docblock'><p>Name of the field.</p>
-</div></td></tr><tr><td id='variant.MemberMismatch.field.err'><code>err</code></td><td><div class='docblock'><p>The sub-error.</p>
-</div></td></tr></table></td></tr><tr><td id='variant.MissingField'><code>MissingField</code></td><td><div class='docblock'><p>A field is missing in either the expected of the input data layout.</p>
-</div><h3 class='fields'>Fields</h3>
+                           <table><tr><td id='variant.MemberMismatch.field.member'><span id='MemberMismatch.v.member.v' class='invisible'><code>member:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>Name of the field.</p>
+</div></td></tr><tr><td id='variant.MemberMismatch.field.err'><span id='MemberMismatch.v.err.v' class='invisible'><code>err:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/boxed/struct.Box.html" title="struct alloc::boxed::Box">Box</a>&lt;<a class="enum" href="../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a>&gt;</code></span></td><td><div class='docblock'><p>The sub-error.</p>
+</div></td></tr></table></span><span id="variant.MissingField" class="variant small-section-header"><a href="#variant.MissingField" class="anchor field"></a><span id='MissingField.v' class='invisible'><code>MissingField</code></span></span><div class='docblock'><p>A field is missing in either the expected of the input data layout.</p>
+</div><span class='docblock autohide sub-variant' id='variant.MissingField.fields'><h3 class='fields'>Fields of <code>MissingField</code></h3>
 
-                                              <table><tr><td id='variant.MissingField.field.name'><code>name</code></td><td><div class='docblock'><p>Name of the field.</p>
-</div></td></tr></table></td></tr></table><h2 id='implementations'>Trait Implementations</h2><h3 id='derived_implementations'>Derived Implementations </h3><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html' title='core::fmt::Debug'>Debug</a> for <a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a></code></h3><div class='impl-items'><h4 id='method.fmt' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#method.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class='struct' href='https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html' title='core::fmt::Formatter'>Formatter</a>) -&gt; <a class='type' href='https://doc.rust-lang.org/nightly/core/fmt/type.Result.html' title='core::fmt::Result'>Result</a></code></h4>
-</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='enum' href='../../glium/uniforms/enum.LayoutMismatchError.html' title='glium::uniforms::LayoutMismatchError'>LayoutMismatchError</a></code></h4>
-<h4 id='method.clone_from' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
-</div></section>
+                           <table><tr><td id='variant.MissingField.field.name'><span id='MissingField.v.name.v' class='invisible'><code>name:&nbsp;<a class="struct" href="https://doc.rust-lang.org/nightly/alloc/string/struct.String.html" title="struct alloc::string::String">String</a></code></span></td><td><div class='docblock'><p>Name of the field.</p>
+</div></td></tr></table></span>
+            <h2 id='implementations' class='small-section-header'>
+              Trait Implementations<a href='#implementations' class='anchor'></a>
+            </h2>
+        <h3 id='impl-Clone' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html" title="trait core::clone::Clone">Clone</a> for <a class="enum" href="../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a></code><a href='#impl-Clone' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#172' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.clone' class="method"><span id='clone.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class="enum" href="../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#172' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Returns a copy of the value. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone">Read more</a></p>
+</div><h4 id='method.clone_from' class="method"><span id='clone_from.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: <a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.reference.html">&amp;</a>Self)</code></span><span class='out-of-band'><div class='ghost'></div><div class='since' title='Stable since Rust version 1.0.0'>1.0.0</div><a class='srclink' href='https://doc.rust-lang.org/nightly/src/core/clone.rs.html#112-114' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Performs copy-assignment from <code>source</code>. <a href="https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from">Read more</a></p>
+</div></div><h3 id='impl-Debug' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html" title="trait core::fmt::Debug">Debug</a> for <a class="enum" href="../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a></code><a href='#impl-Debug' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#172' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt' class="method"><span id='fmt.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, __arg_0: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="type" href="https://doc.rust-lang.org/nightly/core/fmt/type.Result.html" title="type core::fmt::Result">Result</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#172' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Debug.html#tymethod.fmt">Read more</a></p>
+</div></div><h3 id='impl-Error' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a> for <a class="enum" href="../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a></code><a href='#impl-Error' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#215-239' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.description' class="method"><span id='description.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description' class='fnname'>description</a>(&amp;self) -&gt; &amp;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.str.html">str</a></code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#216-230' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>A short description of the error. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#tymethod.description">Read more</a></p>
+</div><h4 id='method.cause' class="method"><span id='cause.v' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause' class='fnname'>cause</a>(&amp;self) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/option/enum.Option.html" title="enum core::option::Option">Option</a>&lt;&amp;<a class="trait" href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html" title="trait std::error::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#232-238' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>The lower-level cause of this error, if any. <a href="https://doc.rust-lang.org/nightly/std/error/trait.Error.html#method.cause">Read more</a></p>
+</div></div><h3 id='impl-Display' class='impl'><span class='in-band'><code>impl <a class="trait" href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html" title="trait core::fmt::Display">Display</a> for <a class="enum" href="../../glium/uniforms/enum.LayoutMismatchError.html" title="enum glium::uniforms::LayoutMismatchError">LayoutMismatchError</a></code><a href='#impl-Display' class='anchor'></a></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#241-287' title='goto source code'>[src]</a></span></h3>
+<div class='impl-items'><h4 id='method.fmt-1' class="method"><span id='fmt.v-1' class='invisible'><code>fn <a href='https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt' class='fnname'>fmt</a>(&amp;self, fmt: &amp;mut <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Formatter.html" title="struct core::fmt::Formatter">Formatter</a>) -&gt; <a class="enum" href="https://doc.rust-lang.org/nightly/core/result/enum.Result.html" title="enum core::result::Result">Result</a>&lt;<a class="primitive" href="https://doc.rust-lang.org/nightly/std/primitive.unit.html">()</a>, <a class="struct" href="https://doc.rust-lang.org/nightly/core/fmt/struct.Error.html" title="struct core::fmt::Error">Error</a>&gt;</code></span><span class='out-of-band'><div class='ghost'></div><a class='srclink' href='../../src/glium/uniforms/mod.rs.html#242-286' title='goto source code'>[src]</a></span></h4>
+<div class='docblock'><p>Formats the value using the given formatter. <a href="https://doc.rust-lang.org/nightly/core/fmt/trait.Display.html#tymethod.fmt">Read more</a></p>
+</div></div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
@@ -115,12 +135,16 @@
                     <dd>Show this help dialog</dd>
                     <dt>S</dt>
                     <dd>Focus the search field</dd>
-                    <dt>&larrb;</dt>
+                    <dt>↑</dt>
                     <dd>Move up in search results</dd>
-                    <dt>&rarrb;</dt>
+                    <dt>↓</dt>
                     <dd>Move down in search results</dd>
+                    <dt>↹</dt>
+                    <dd>Switch tab</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt style="width:31px;">+ / -</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
@@ -141,7 +165,7 @@
 
                 <p>
                     Search functions by type signature (e.g.
-                    <code>vec -> usize</code>)
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
                 </p>
             </div>
         </div>
@@ -152,11 +176,8 @@
     <script>
         window.rootPath = "../../";
         window.currentCrate = "glium";
-        window.playgroundUrl = "";
     </script>
-    <script src="../../jquery.js"></script>
     <script src="../../main.js"></script>
-    
     <script defer src="../../search-index.js"></script>
 </body>
 </html>
