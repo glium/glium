@@ -260,9 +260,11 @@ unsafe impl Backend for GlutinBackend {
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         // TODO: 800x600 ?
         let gl_window = self.borrow();
+        // get_inner_size() returns size in pixels (changed in winit 0.9 - this
+        // used to return a hidpi scaled size)
         let (width, height) = gl_window.get_inner_size().unwrap_or((800, 600));
-        let scale = gl_window.hidpi_factor();
-        ((width as f32 * scale) as u32, (height as f32 * scale) as u32)
+
+        (width, height)
     }
 
     #[inline]

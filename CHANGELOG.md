@@ -6,6 +6,7 @@
  - Updated smallvec from version 0.4 to 0.6.
  - Updated misc internal dependencies and dev-dependencies (lazy_static, cgmath, rand, image, gl_generator).
  - Replaced the `IntoVerticesSource` trait with `Into<VerticesSource>`.
+ - Fixed [rendering bug](https://github.com/glium/glium/issues/1657) on high-DPI screens.
 
 ## Version 0.19.0 (2017-12-11)
 
