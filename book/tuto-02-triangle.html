@@ -8,7 +8,7 @@
         <title>Drawing a triangle | Introduction</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.5">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -53,7 +53,7 @@
         data-chapter-title="Drawing a triangle"
         data-filepath="tuto-02-triangle.md"
         data-basepath="."
-        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-revision="Tue Jan 16 2018 16:47:08 GMT-0800 (PST)"
         data-innerlanguage="">
     
 
@@ -446,7 +446,7 @@ implement_vertex!(Vertex, position);
 <pre><code class="lang-rust"><span class="hljs-keyword">let</span> indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 </code></pre>
 <h2 id="program">Program</h2>
-<p>When OpenGL was first created in the 1990s, drawing an object simply consisted in sending a shape alongside with various parameters like the color, lightning direction, fog distance, etc. But these parameters quickly became too limiting for game creators, and when OpenGL 2 was released a more flexible system was added with what are called <em>shaders</em>. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.</p>
+<p>When OpenGL was first created in the 1990s, drawing an object simply consisted in sending a shape alongside with various parameters like the color, lighting direction, fog distance, etc. But these parameters quickly became too limiting for game creators, and when OpenGL 2 was released a more flexible system was added with what are called <em>shaders</em>. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.</p>
 <p>In order to draw a triangle, you will need some basic understanding about how the drawing process (also called the <em>pipeline</em>) works.</p>
 <p><img src="tuto-02-pipeline.svg" alt="The graphics pipeline"></p>
 <p>The list of coordinates at the left of the schema represents the vertices of the shape that we have created earlier. When we will ask the GPU to draw this shape, it will first execute what is called a <em>vertex shader</em>, once for each vertex (that means three times here). A vertex shader is a small program whose purpose is to tell the GPU what the screen coordinates of each vertex is. Then the GPU builds our triangle and determines which pixels of the screen are inside of it. It will then execute a <em>fragment shader</em> once for each of these pixels. A fragment shader is a small program whose purpose is to tell the GPU what the color of each pixel needs to be.</p>
@@ -461,8 +461,8 @@ implement_vertex!(Vertex, position);
     }
 &quot;</span>#;
 </code></pre>
-<p>First of all, the <code>#version 140</code> line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware don&apos;t support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.</p>
-<p>When we defined the <code>Vertex</code> struct in our shape, we created a field named <code>position</code> which contains the position of our vertex. But contrary to what I let you think, this struct doesn&apos;t contain the actual position of the vertex but only a attribute whose value is passed to the vertex shader. OpenGL doesn&apos;t care about the name of the attribute, all it does is passing its value to the vertex shader. The <code>in vec2 position;</code> line of our shader is here to declare that we are expected to be passed an attribute named <code>position</code> whose type is <code>vec2</code> (which corresponds to <code>[f32; 2]</code> in Rust).</p>
+<p>First of all, the <code>#version 140</code> line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware doesn&apos;t support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.</p>
+<p>When we defined the <code>Vertex</code> struct in our shape, we created a field named <code>position</code> which contains the position of our vertex. But contrary to what I let you think, this struct doesn&apos;t contain the actual position of the vertex but only an attribute whose value is passed to the vertex shader. OpenGL doesn&apos;t care about the name of the attribute, all it does is passing its value to the vertex shader. The <code>in vec2 position;</code> line of our shader is here to declare that we are expected to be passed an attribute named <code>position</code> whose type is <code>vec2</code> (which corresponds to <code>[f32; 2]</code> in Rust).</p>
 <p>The <code>main</code> function of our shader is called once per vertex, which means three times for our triangle. The first time, the value of <code>position</code> will be <code>[-0.5, -0.5]</code>, the second time it will be <code>[0, 0.5]</code>, and the third time <code>[0.5, -0.25]</code>. It is in this function that we actually tell OpenGL what the position of our vertex is, thanks to the <code>gl_Position = vec4(position, 0.0, 1.0);</code> line. We need to do a small conversion because OpenGL doesn&apos;t expect two-dimensional coordinates, but <em>four</em>-dimensional coordinates (the reason for this will be covered in a later tutorial).</p>
 <p>The second shader is called the fragment shader (sometimes also named <em>pixel shader</em>).</p>
 <pre><code class="lang-rust"><span class="hljs-keyword">let</span> fragment_shader_src = r#<span class="hljs-string">&quot;
@@ -487,13 +487,13 @@ target.clear_color(<span class="hljs-number">0.0</span>, <span class="hljs-numbe
 <span class="hljs-comment">// draw the triangle here</span>
 target.finish().unwrap();
 </code></pre>
-<p>Starting a draw operation needs several things: a source of vertices (here we use our <code>vertex_buffer</code>), a source of indices (we use our <code>indices</code> variable), a program, the program&apos;s uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing a <code>EmptyUniforms</code> marker and by building the default draw parameters.</p>
+<p>Starting a draw operation needs several things: a source of vertices (here we use our <code>vertex_buffer</code>), a source of indices (we use our <code>indices</code> variable), a program, the program&apos;s uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing an <code>EmptyUniforms</code> marker and by building the default draw parameters.</p>
 <pre><code class="lang-rust">target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
             &amp;Default::default()).unwrap();
 </code></pre>
 <p>The &quot;draw command&quot; designation could make you think that drawing is a heavy operation that takes a lot of time. In reality drawing a triangle takes less than a few microseconds, and if everything goes well you should see a nice little triangle:</p>
 <p><img src="tuto-02-triangle.png" alt="Our final result"></p>
-<p><strong><a href="https://github.com/tomaka/glium/blob/master/examples/tutorial-02.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-02.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
 
                     
                     </section>
@@ -531,9 +531,13 @@ target.finish().unwrap();
     <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>

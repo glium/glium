@@ -8,7 +8,7 @@
         <title>Depth testing | Introduction</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.5">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -53,7 +53,7 @@
         data-chapter-title="Depth testing"
         data-filepath="tuto-09-depth.md"
         data-basepath="."
-        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-revision="Tue Jan 16 2018 16:47:08 GMT-0800 (PST)"
         data-innerlanguage="">
     
 
@@ -413,7 +413,7 @@
 <p>What&apos;s wrong with the teapot of the previous section?</p>
 <p><img src="tuto-08-result.png" alt="The teapot"></p>
 <p>The problem is that faces that are in the back of the model are displayed <em>above</em> faces that are
-in the back of the model.</p>
+in the front of the model.</p>
 <p><img src="tuto-09-problem.png" alt="The problem"></p>
 <p>This may seem like a stupid problem, but GPUs are nothing more than computers and computers only
 do what you tell them to do.</p>
@@ -442,10 +442,8 @@ the depth value of each pixel.</li>
 the maximal value). This is similar to when we reset the color to blue.</li>
 <li>We have to pass additional parameters when drawing to ask the GPU to do this depth test.</li>
 </ul>
-<p>The first step consists in changing the window building code:</p>
-<pre><code class="lang-rust"><span class="hljs-keyword">let</span> display = glium::glutin::WindowBuilder::new()
-                    .with_depth_buffer(<span class="hljs-number">24</span>)
-                    .build_glium().unwrap();
+<p>The first step consists in changing the context building code:</p>
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> context = glutin::ContextBuilder::new().with_depth_buffer(<span class="hljs-number">24</span>);
 </code></pre>
 <p>We ask for the system to allocate a 24 bits depth buffer. 24 bits is a very common value that
 is used very frequently. Depth testing is a critical feature of any rendering system, so depth
@@ -456,9 +454,9 @@ buffers should be supported everywhere.</p>
 <p>Into this one:</p>
 <pre><code class="lang-rust">target.clear_color_and_depth((<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>), <span class="hljs-number">1.0</span>);
 </code></pre>
-<p>This asks the backend to fill the depth buffer will the value <code>1.0</code>. Note that this is a <em>logical</em>
-value, and only the range from <code>0.0</code> to <code>1.0</code> is valid. The actual content of the buffer is the
-maximal representable number. For a 24 bits depth buffer, this is <code>16777215</code>.</p>
+<p>This asks the backend to fill the depth buffer with the value of <code>1.0</code>. Note that this is a
+<em>logical</em> value, and only the range from <code>0.0</code> to <code>1.0</code> is valid. The actual content of the buffer
+is the maximal representable number. For a 24 bits depth buffer, this is <code>16777215</code>.</p>
 <p>The third step consists in passing an additional parameter when drawing. The depth test and depth
 buffer handling is done directly by the hardware and not by our shader. Therefore we need to
 tell the backend what it should do amongst a list of possible operations.</p>
@@ -486,7 +484,7 @@ process. This structure will be used a lot in the future.</p>
 <p>If you use an OpenGL debugger, you can see the content of the depth buffer where values are
 represented as shades of gray. Here is our depth buffer after drawing the teapot:</p>
 <p><img src="tuto-09-depth.png" alt="Depth buffer"></p>
-<p><strong><a href="https://github.com/tomaka/glium/blob/master/examples/tutorial-09.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-09.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
 
                     
                     </section>
@@ -524,9 +522,13 @@ represented as shades of gray. Here is our depth buffer after drawing the teapot
     <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>

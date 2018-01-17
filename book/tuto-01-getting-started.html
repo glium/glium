@@ -8,7 +8,7 @@
         <title>Opening a window | Introduction</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.5">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -53,7 +53,7 @@
         data-chapter-title="Opening a window"
         data-filepath="tuto-01-getting-started.md"
         data-basepath="."
-        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-revision="Tue Jan 16 2018 16:47:08 GMT-0800 (PST)"
         data-innerlanguage="">
     
 
@@ -429,33 +429,52 @@
 <p>It is now time to start filling the <code>main</code> function!</p>
 <h1 id="creating-a-window">Creating a window</h1>
 <p>The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the <strong>glutin</strong> library shines.</p>
-<p>Initializing a window with glutin can be done by calling <code>glium::glutin::WindowBuilder()::new().build().unwrap()</code>. However we don&apos;t just want to create a <em>glutin</em> window, but a window with an OpenGL context handled by glium. Instead of calling <code>build()</code> we going to call <code>build_glium()</code>, which is defined in the <code>glium::DisplayBuild</code> trait.</p>
+<p>Initializing an OpenGL window with glutin can be done using the following steps:</p>
+<ol>
+<li>Creating an <code>EventsLoop</code> for handling window and device events.</li>
+<li>Specify Window parameters using <code>glium::glutin::WindowBuilder::new()</code>. These
+are window-specific attributes that have nothing to do with OpenGL.</li>
+<li>Specify Context parameters using <code>glium::glutin::ContextBuilder::new()</code>.
+Here we specify OpenGL-specific attributes like multisampling or vsync.</li>
+<li>Create the OpenGL window (in glium, this is the <code>Display</code>):
+<code>glium::Display::new(window, context, &amp;events_loop).unwrap()</code>.
+This builds a Display using the given window and context attributes, and
+registers the window with the given events_loop.</li>
+</ol>
 <pre><code class="lang-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">use</span> glium::DisplayBuild;
-    <span class="hljs-keyword">let</span> display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+    <span class="hljs-keyword">use</span> glium::glutin;
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> events_loop = glutin::EventsLoop::new();
+    <span class="hljs-keyword">let</span> window = glutin::WindowBuilder::new();
+    <span class="hljs-keyword">let</span> context = glutin::ContextBuilder::new();
+    <span class="hljs-keyword">let</span> display = glium::Display::new(window, context, &amp;events_loop).unwrap();
 }
 </code></pre>
 <p>But there is a problem: as soon as the window has been created, our main function exits and <code>display</code>&apos;s destructor closes the window. To prevent this, we need to loop forever until we detect that a <code>Closed</code> event has been received:</p>
-<pre><code class="lang-rust"><span class="hljs-keyword">loop</span> {
-    <span class="hljs-comment">// listing the events produced by the window and waiting to be received</span>
-    <span class="hljs-keyword">for</span> ev <span class="hljs-keyword">in</span> display.poll_events() {
+<pre><code class="lang-rust"><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> closed = <span class="hljs-keyword">false</span>;
+<span class="hljs-keyword">while</span> !closed {
+    <span class="hljs-comment">// listing the events produced by application and waiting to be received</span>
+    events_loop.poll_events(|ev| {
         <span class="hljs-keyword">match</span> ev {
-            glium::glutin::Event::Closed =&gt; <span class="hljs-keyword">return</span>,   <span class="hljs-comment">// the window has been closed by the user</span>
-            _ =&gt; ()
+            glutin::Event::WindowEvent { event, .. } =&gt; <span class="hljs-keyword">match</span> event {
+                glutin::WindowEvent::Closed =&gt; closed = <span class="hljs-keyword">true</span>,
+                _ =&gt; (),
+            },
+            _ =&gt; (),
         }
-    }
+    });
 }
 </code></pre>
-<p>Right now this code will consume 100% of our CPU, but that will do for now. In a real application you should either use vertical synchronization or sleep for a few milliseconds at the end of the loop, but this is a more advanced topic.</p>
+<p>Right now this code will consume 100% of our CPU, but that will do for now. In a real application you should either use vertical synchronization or sleep for a few milliseconds at the end of the loop, but that is a more advanced topic.</p>
 <p>You can now execute <code>cargo run</code>. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.</p>
 <h3 id="clearing-the-color">Clearing the color</h3>
 <p>The content of the window, however, is not not very appealing. Depending on your system, it can appear black, show a random image, or just some snow. We are expected to draw on the window, so the system doesn&apos;t bother initializing its color to a specific value.</p>
-<p>Glium and the OpenGL API work similarly to a drawing software like Window&apos;s Paint or The GIMP. We start with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to a drawing software, you don&apos;t want your users to see the intermediate steps. Only the final result should be shown.</p>
+<p>Glium and the OpenGL API work similarly to drawing software like Windows&apos; Paint or The GIMP. We start with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to drawing software, you don&apos;t want your users to see the intermediate steps. Only the final result should be shown.</p>
 <p>To handle this, OpenGL uses what is called <em>double buffering</em>. Instead of drawing directly to the window, we are drawing to an image stored in memory. Once we have finished drawing, this image is copied to the window.
 This is represented in glium by the <code>Frame</code> object. When you want to start drawing something on your window, you must first call <code>display.draw()</code> in order to produce a <code>Frame</code>:</p>
 <pre><code class="lang-rust"><span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> target = display.draw();
 </code></pre>
-<p>We can then use this <code>target</code> as a drawing surface. One of the operation that OpenGL and glium provide is filling the surface with a given color. This is what we are going to do.</p>
+<p>We can then use this <code>target</code> as a drawing surface. One of the operations that OpenGL and glium provide is filling the surface with a given color. This is what we are going to do.</p>
 <pre><code class="lang-rust">target.clear_color(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>);
 </code></pre>
 <p>Note that to use this function, we will need to import the <code>Surface</code> trait first:</p>
@@ -468,20 +487,28 @@ This is represented in glium by the <code>Frame</code> object. When you want to 
 <p>This call to <code>finish()</code> means that we have finished drawing. It destroys the <code>Frame</code> object and copies our background image to the window. Our window is now filled with blue.</p>
 <p>Here is our full <code>main</code> function after this step:</p>
 <pre><code class="lang-rust"><span class="hljs-function"><span class="hljs-keyword">fn</span> <span class="hljs-title">main</span></span>() {
-    <span class="hljs-keyword">use</span> glium::{DisplayBuild, Surface};
-    <span class="hljs-keyword">let</span> display = glium::glutin::WindowBuilder::new().build_glium().unwrap();
+    <span class="hljs-keyword">use</span> glium::{glutin, Surface};
 
-    <span class="hljs-keyword">loop</span> {
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> events_loop = glium::glutin::EventsLoop::new();
+    <span class="hljs-keyword">let</span> window = glium::glutin::WindowBuilder::new();
+    <span class="hljs-keyword">let</span> context = glium::glutin::ContextBuilder::new();
+    <span class="hljs-keyword">let</span> display = glium::Display::new(window, context, &amp;events_loop).unwrap();
+
+    <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> closed = <span class="hljs-keyword">false</span>;
+    <span class="hljs-keyword">while</span> !closed {
         <span class="hljs-keyword">let</span> <span class="hljs-keyword">mut</span> target = display.draw();
         target.clear_color(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>);
         target.finish().unwrap();
 
-        <span class="hljs-keyword">for</span> ev <span class="hljs-keyword">in</span> display.poll_events() {
+        events_loop.poll_events(|ev| {
             <span class="hljs-keyword">match</span> ev {
-                glium::glutin::Event::Closed =&gt; <span class="hljs-keyword">return</span>,
-                _ =&gt; ()
+                glutin::Event::WindowEvent { event, .. } =&gt; <span class="hljs-keyword">match</span> event {
+                    glutin::WindowEvent::Closed =&gt; closed = <span class="hljs-keyword">true</span>,
+                    _ =&gt; (),
+                },
+                _ =&gt; (),
             }
-        }
+        });
     }
 }
 </code></pre>
@@ -522,9 +549,13 @@ This is represented in glium by the <code>Frame</code> object. When you want to 
     <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>

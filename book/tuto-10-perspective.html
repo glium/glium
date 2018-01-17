@@ -8,7 +8,7 @@
         <title>Adjusting the perspective | Introduction</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.5">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -53,7 +53,7 @@
         data-chapter-title="Adjusting the perspective"
         data-filepath="tuto-10-perspective.md"
         data-basepath="."
-        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-revision="Tue Jan 16 2018 16:47:08 GMT-0800 (PST)"
         data-innerlanguage="">
     
 
@@ -450,7 +450,7 @@ notice that you will see a larger or smaller part of the scene.</p>
 We compress the objects of our scene so that when they are stretched out to match the window&apos;s
 dimensions they get back to their original aspect.</p>
 <h2 id="introducing-the-perspective-matrix">Introducing the perspective matrix</h2>
-<p>The reason why these two problems are in the same tutorial is because graphics engine usually
+<p>The reason why these two problems are in the same tutorial is because graphics engines usually
 solve both with one matrix: the <strong>perspective matrix</strong>.</p>
 <pre><code class="lang-rust"><span class="hljs-keyword">let</span> perspective = {
     <span class="hljs-keyword">let</span> (width, height) = target.get_dimensions();
@@ -523,7 +523,7 @@ any value between <code>znear</code> and <code>zfar</code>. For example <code>2.
 longer stretched.</p>
 <p>If you compare this to the previous screenshot, you can also see how the teapot now looks
 much better.</p>
-<p><strong><a href="https://github.com/tomaka/glium/blob/master/examples/tutorial-10.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-10.rs" target="_blank">You can find the entire source code here</a>.</strong></p>
 
                     
                     </section>
@@ -561,9 +561,13 @@ much better.</p>
     <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>

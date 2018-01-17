@@ -8,7 +8,7 @@
         <title>Backface culling | Introduction</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
-        <meta name="generator" content="GitBook 2.6.5">
+        <meta name="generator" content="GitBook 2.6.7">
         
         
         <meta name="HandheldFriendly" content="true"/>
@@ -53,7 +53,7 @@
         data-chapter-title="Backface culling"
         data-filepath="tuto-11-backface-culling.md"
         data-basepath="."
-        data-revision="Sat Dec 12 2015 08:09:00 GMT+0000 (UTC)"
+        data-revision="Tue Jan 16 2018 16:47:08 GMT-0800 (PST)"
         data-innerlanguage="">
     
 
@@ -423,7 +423,7 @@ For example if the triangle is clockwise, then you&apos;re seeing face A, and if
 counter-clockwise, then you&apos;re seeing face B.</p>
 <p>When you draw a 3D models, there are faces that you don&apos;t need to draw: the faces that are inside
 of the model. Models are usually seen from the outside, so it&apos;s not a problem if the inside
-doesn&apos;t actually exists.</p>
+doesn&apos;t actually exist.</p>
 <p>If you make sure that all triangles of your model are in counter-clockwise order when the outside
 is facing the camera (which is the case for the teapot used in these tutorials), you can ask the
 video card to automatically discard all triangles that are in clockwise order. This technique is
@@ -496,9 +496,13 @@ our teapot.</p>
     <script src="gitbook/plugins/gitbook-plugin-fontsettings/buttons.js"></script>
     
 
+    
+    <script src="gitbook/plugins/gitbook-plugin-livereload/plugin.js"></script>
+    
+
 <script>
 require(["gitbook"], function(gitbook) {
-    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2}};
+    var config = {"highlight":{},"search":{"maxIndexSize":1000000},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"livereload":{}};
     gitbook.start(config);
 });
 </script>
