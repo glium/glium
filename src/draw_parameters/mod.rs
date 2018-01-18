@@ -76,6 +76,7 @@ use Rect;
 use ToGlEnum;
 use vertex::TransformFeedbackSession;
 
+use std::mem;
 use std::ops::Range;
 
 pub use self::blend::{Blend, BlendingFunction, LinearBlendingFactor};
@@ -274,6 +275,13 @@ pub struct DrawParameters<'a> {
     /// `None` means "don't care". Use this when you don't draw points.
     pub point_size: Option<f32>,
 
+    /// if the bit corresponding to 2^i is 1 in the bitmask, then GL_CLIP_DISTANCEi is enabled.
+    ///
+    /// The most common value for GL_MAX_CLIP_DISTANCES is 8, so 32 bits in the mask is plenty.
+    ///
+    /// See `https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_ClipDistance.xhtml`.
+    pub clip_planes_bitmask: u32,
+
     /// Whether or not the GPU should filter out some faces.
     ///
     /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
@@ -436,6 +444,7 @@ impl<'a> Default for DrawParameters<'a> {
             point_size: None,
             backface_culling: BackfaceCullingMode::CullingDisabled,
             polygon_mode: PolygonMode::Fill,
+            clip_planes_bitmask: 0,
             multisampling: true,
             dithering: true,
             viewport: None,
@@ -483,6 +492,7 @@ pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters
     sync_line_width(ctxt, draw_parameters.line_width);
     sync_point_size(ctxt, draw_parameters.point_size);
     sync_polygon_mode(ctxt, draw_parameters.backface_culling, draw_parameters.polygon_mode);
+    try!(sync_clip_planes_bitmask(ctxt, draw_parameters.clip_planes_bitmask));
     sync_multisampling(ctxt, draw_parameters.multisampling);
     sync_dithering(ctxt, draw_parameters.dithering);
     sync_viewport_scissor(ctxt, draw_parameters.viewport, draw_parameters.scissor,
@@ -582,6 +592,28 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
             ctxt.gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
             ctxt.state.polygon_mode = polygon_mode;
         }
+    }
+}
+
+fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitmask: u32)
+                            -> Result<(), DrawError> {
+    unsafe {
+        let mut max_clip_planes: gl::types::GLint = mem::uninitialized();
+        ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
+        for i in 0..32 {
+            if clip_planes_bitmask & (1 << i) != 0 {
+                if i < max_clip_planes {
+                    ctxt.gl.Enable(gl::CLIP_DISTANCE0 + i as u32);
+                } else {
+                    return Err(DrawError::ClipPlaneIndexOutOfBounds);
+                }
+            } else {
+                if i < max_clip_planes {
+                    ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
+                }
+            }
+        }
+        Ok(())
     }
 }
 
