@@ -275,7 +275,7 @@ pub struct DrawParameters<'a> {
     /// `None` means "don't care". Use this when you don't draw points.
     pub point_size: Option<f32>,
 
-    /// if the bit corresponding to 2^i is 1 in the bitmask, then GL_CLIP_DISTANCEi is enabled.
+    /// If the bit corresponding to 2^i is 1 in the bitmask, then GL_CLIP_DISTANCEi is enabled.
     ///
     /// The most common value for GL_MAX_CLIP_DISTANCES is 8, so 32 bits in the mask is plenty.
     ///
