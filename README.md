@@ -4,17 +4,6 @@
 
 [![](http://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
 
-## Note to current and future Glium users: 
-
-Glium is [no longer actively developed by its original
-author](https://users.rust-lang.org/t/glium-post-mortem/7063). That said, PRs
-are still welcome and maintenance is continued by the surrounding community. If
-you use Glium and would be interested in seeing it moved to its own
-organisation, you can express your interest
-[here](https://github.com/glium/glium/issues/532).
-
-##
-
 Elegant and safe OpenGL wrapper.
 
 Glium is an intermediate layer between OpenGL and your application. You still need to manually handle
