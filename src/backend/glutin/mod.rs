@@ -169,6 +169,7 @@ impl Display {
     #[inline]
     pub fn draw(&self) -> Frame {
         let (w, h) = self.get_framebuffer_dimensions();
+        let dpi_factor = self.gl_window.borrow().hidpi_factor() as u32;
 
         // If the size of the framebuffer has changed, resize the context.
         if self.last_framebuffer_dimensions.get() != (w, h) {
@@ -176,7 +177,7 @@ impl Display {
             self.gl_window.borrow().resize(w, h);
         }
 
-        Frame::new(self.context.clone(), (w, h))
+        Frame::new(self.context.clone(), (w * dpi_factor, h * dpi_factor))
     }
 }
 
