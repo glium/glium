@@ -202,7 +202,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
         let has_mipmaps = texture_levels > 1;
         let data = data;
         let data_raw = if let Some((_, ref data)) = data {
-            data.as_ptr() as *const _
+            data.as_ptr() as *const ::std::os::raw::c_void
         } else {
             ptr::null()
         };
