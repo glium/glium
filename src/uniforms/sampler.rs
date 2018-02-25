@@ -198,7 +198,7 @@ pub struct SamplerBehavior {
     /// Filter to use when magnifying the texture.
     pub magnify_filter: MagnifySamplerFilter,
 
-    /// Sets the depth texture comparison function to use. Default value is None.
+    /// The depth texture comparison function to use. Default value is None.
     pub depth_texture_comparison: Option<DepthTextureComparison>,
 
     /// `1` means no anisotropic filtering, any value above `1` sets the max anisotropy.
