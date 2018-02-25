@@ -137,17 +137,7 @@ fn main() {
         ",
         None).unwrap();
 
-    let shadow_texture = {
-        let mut data = Vec::with_capacity(shadow_map_size);
-        for _ in 0..shadow_map_size {
-            let mut row = Vec::with_capacity(shadow_map_size);
-            for _ in 0..shadow_map_size {
-                row.push(0.0f32);
-            }
-            data.push(row);
-        }
-        glium::texture::DepthTexture2d::new(&display, data).unwrap()
-    };
+    let shadow_texture = glium::texture::DepthTexture2d::empty(&display, shadow_map_size, shadow_map_size).unwrap();
 
     let mut start = Instant::now();
     let mut exit = false;
@@ -180,7 +170,6 @@ fn main() {
                             _ => {}
                         }
                     }
-                    println!("light_t={:?}, camera_t={:?}", light_t, camera_t);
                 },
                 _ => (),
             },
