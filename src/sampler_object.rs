@@ -42,6 +42,13 @@ impl SamplerObject {
             ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MAG_FILTER,
                                       behavior.magnify_filter.to_glenum() as gl::types::GLint);
 
+            if let Some(dtc) = behavior.depth_texture_comparison {
+                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_COMPARE_MODE,
+                                          gl::COMPARE_R_TO_TEXTURE as gl::types::GLint);
+                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_COMPARE_FUNC,
+                                          dtc.to_glenum() as gl::types::GLint);
+            }
+
             if let Some(max_value) = ctxt.capabilities.max_texture_max_anisotropy {
                 let value = if behavior.max_anisotropy as f32 > max_value {
                     max_value
