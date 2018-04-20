@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## Version 0.21.0 (2018-04-11)
+
+ - Updated glutin to version 0.14. Fixes handling of HiDPI on macOS.
+ - Updated gl_generator to version 0.9.
+
 ## Version 0.20.0 (2018-01-22)
 
  - Updated glutin to version 0.12.
