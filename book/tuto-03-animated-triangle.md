@@ -33,7 +33,7 @@ while !closed {
     events_loop.poll_events(|event| {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => closed = true,
+                glutin::WindowEvent::CloseRequested => closed = true,
                 _ => ()
             },
             _ => (),
@@ -83,7 +83,7 @@ while !closed {
     events_loop.poll_events(|event| {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => closed = true,
+                glutin::WindowEvent::CloseRequested => closed = true,
                 _ => ()
             },
             _ => (),
