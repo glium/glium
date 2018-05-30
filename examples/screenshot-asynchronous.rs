@@ -249,7 +249,7 @@ fn main() {
 
             match event {
                 Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::Closed => closed = true,
+                    WindowEvent::CloseRequested => closed = true,
                     WindowEvent::KeyboardInput { input, .. } => {
                         if let ElementState::Pressed = input.state {
                             if let Some(VirtualKeyCode::S) = input.virtual_keycode {

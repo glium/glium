@@ -125,7 +125,7 @@ fn main() {
         events_loop.poll_events(|event| {
             match event {
                 glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    glutin::WindowEvent::CloseRequested => action = support::Action::Stop,
                     _ => (),
                 },
                 _ => (),
