@@ -95,7 +95,7 @@ fn main() {
     events_loop.run_forever(|event| {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => return glutin::ControlFlow::Break,
+                glutin::WindowEvent::CloseRequested => return glutin::ControlFlow::Break,
                 _ => (),
             },
             _ => (),
