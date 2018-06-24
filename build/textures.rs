@@ -325,7 +325,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             use image_format::{{CompressedSrgbFormat, SrgbFormat, UncompressedUintFormat}};
 
             use backend::Facade;
-            use uniforms::{{UniformValue, AsUniformValue, Sampler}};
+            use uniforms::{{UniformValue, AsUniformValue, Sampler, ImageUnit}};
             use framebuffer;
             use Rect;
 
@@ -413,7 +413,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 }}
             ", name)).unwrap();
 
-    // `UniformValue` trait impl
+    // `UniformValue` trait impl for samplers
     {
         match ty {
             TextureType::Regular | TextureType::Compressed |
@@ -459,6 +459,29 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             },
             _ => ()
         }
+    }
+
+    // Generate implementations of image_unit
+    if (ty == TextureType::Regular || ty == TextureType::Integral || ty == TextureType::Unsigned) &&
+        (dimensions != TextureDimensions::Texture2dMultisample && dimensions != TextureDimensions::Texture2dMultisampleArray ){
+        let image_variant = name.replace("Texture", "Image").replace("Cubemap", "ImageCube");
+        writeln!(dest, "
+                    impl<'a> AsUniformValue for ImageUnit<'a, {myname}> {{
+                        #[inline]
+                        fn as_uniform_value(&self) -> UniformValue  {{
+                            UniformValue::{valname}(self.0, Some(self.1))
+                        }}
+                    }}
+
+                    impl {myname} {{
+                        /// Builds an image unit marker object that allows you to indicate how the
+                        /// texture should be bound to an image unit.
+                        #[inline]
+                        pub fn image_unit(&self) -> ImageUnit<{myname}> {{
+                             ImageUnit(self, Default::default())
+                        }}
+                    }}
+                ", myname = name, valname = image_variant).unwrap();
     }
 
     // `ToXXXAttachment` trait impl

@@ -21,6 +21,7 @@ use TextureExt;
 use uniforms::Uniforms;
 use uniforms::UniformValue;
 use uniforms::SamplerBehavior;
+use uniforms::ImageUnitBehavior;
 
 use context::CommandContext;
 use buffer::Inserter;
@@ -41,6 +42,8 @@ impl<U> UniformsExt for U where U: Uniforms {
         let mut texture_bind_points = Bitsfield::new();
         let mut uniform_buffer_bind_points = Bitsfield::new();
         let mut shared_storage_buffer_bind_points = Bitsfield::new();
+        let mut image_unit_bind_points = Bitsfield::new();
+        image_unit_bind_points.set_used(0); // Trying to attach data to image unit 0 would not go well
 
         // Subroutine uniforms must be bound all at once, so we collect them first and process them at the end.
         // The vec contains the uniform we want to set and the value we want to set it to.
@@ -64,7 +67,7 @@ impl<U> UniformsExt for U where U: Uniforms {
                 }
 
                 match bind_uniform(&mut ctxt, &value, program, uniform.location,
-                                   &mut texture_bind_points, name)
+                                   &mut texture_bind_points, &mut image_unit_bind_points, name)
                 {
                     Ok(_) => (),
                     Err(e) => {
@@ -241,7 +244,9 @@ fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &
 
 fn bind_uniform<P>(ctxt: &mut context::CommandContext,
                    value: &UniformValue, program: &P, location: gl::types::GLint,
-                   texture_bind_points: &mut Bitsfield, name: &str)
+                   texture_bind_points: &mut Bitsfield,
+                   image_unit_bind_points: &mut Bitsfield,
+                   name: &str)
                    -> Result<(), DrawError> where P: ProgramExt
 {
     assert!(location >= 0);
@@ -577,6 +582,69 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
         UniformValue::BufferTexture(texture) => {
             bind_texture_uniform(ctxt, &texture, None, location, program, texture_bind_points)
         },
+        UniformValue::Image1d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::IntegralImage1d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::UnsignedImage1d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::Image2d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::IntegralImage2d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::UnsignedImage2d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::Image3d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::IntegralImage3d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::UnsignedImage3d(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::Image1dArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::IntegralImage1dArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::UnsignedImage1dArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::Image2dArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::IntegralImage2dArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::UnsignedImage2dArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::ImageCube(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::IntegralImageCube(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::UnsignedImageCube(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::ImageCubeArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::IntegralImageCubeArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
+        UniformValue::UnsignedImageCubeArray(texture, unit) => {
+            bind_image_uniform(ctxt, &**texture, unit, location, program, image_unit_bind_points)
+        },
     }
 }
 
@@ -650,6 +718,42 @@ fn bind_texture_uniform<P, T>(ctxt: &mut context::CommandContext,
             unsafe { ctxt.gl.BindSampler(texture_unit as gl::types::GLenum, sampler); }
             ctxt.state.texture_units[texture_unit as usize].sampler = sampler;
         }
+    }
+
+    Ok(())
+}
+
+fn bind_image_uniform<P, T>(
+    ctxt: &mut context::CommandContext,
+    texture: &T, unit_behavior: Option<ImageUnitBehavior>,
+    location: gl::types::GLint, program: &P,
+    image_unit_bind_points: &mut Bitsfield
+) -> Result<(), DrawError>
+  where P: ProgramExt, T: TextureExt
+{
+    use ToGlEnum;
+
+    let unit_behavior = unit_behavior.expect("Unit behavior should always be provided");
+    let image_unit = match image_unit_bind_points.get_unused() {
+        Some(unit) => unit,
+        None => return Err(DrawError::InsufficientImageUnits),
+    };
+
+    let (layered, layer) = match unit_behavior.layer {
+        None => (false, 0),
+        Some(l) => (true, l)
+    };
+
+    unsafe {
+        ctxt.gl.BindImageTexture(
+            image_unit as gl::types::GLuint,
+            texture.get_texture_id(),
+            unit_behavior.level as i32,
+            if layered { 1 } else { 0 },
+            layer as i32,
+            unit_behavior.access.to_glenum(),
+            unit_behavior.format.to_glenum(),
+        )
     }
 
     Ok(())

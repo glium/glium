@@ -98,6 +98,9 @@ result to the user.
 #![allow(unused_variables)]
 
 #[macro_use]
+extern crate bitflags;
+
+#[macro_use]
 extern crate lazy_static;
 
 extern crate backtrace;
@@ -946,6 +949,9 @@ pub enum DrawError {
 
     /// Tried to enable a clip plane that does not exist.
     ClipPlaneIndexOutOfBounds,
+
+    /// Tried to use too many image units simultaneously
+    InsufficientImageUnits,
 }
 
 impl Error for DrawError {
@@ -1005,7 +1011,9 @@ impl Error for DrawError {
             FixedIndexRestartingNotSupported =>
                 "Restarting indices (multiple objects per draw call) is not supported by the backend",
             ClipPlaneIndexOutOfBounds =>
-                "Tried to enable a clip plane that does not exist."
+                "Tried to enable a clip plane that does not exist.",
+            InsufficientImageUnits =>
+                "Tried to use more image uniforms that the implementation has support for",
         }
     }
 
