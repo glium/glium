@@ -527,6 +527,14 @@ impl Context {
         Ok(T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1))
     }
 
+    /// Creates a memory barrier, according to the ARB_shader_image_load_store extension
+    pub fn memory_barrier(&self, barrier: MemoryBarrier) {
+        let ctxt = self.make_current();
+        unsafe {
+            ctxt.gl.MemoryBarrier(barrier.bits());
+        }
+    }
+
     /// Execute an arbitrary closure with the OpenGL context active. Useful if another
     /// component needs to directly manipulate OpenGL state.
     ///
@@ -989,5 +997,22 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                 ctxt.state.enabled_debug_output = Some(true);
             }
         }
+    }
+}
+
+bitflags! {
+    pub struct MemoryBarrier: u32 {
+        const VERTEX_ATTRIB_ARRAY_BARRIER = gl::VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+        const ELEMENT_ARRAY_BARRIER = gl::ELEMENT_ARRAY_BARRIER_BIT;
+        const UNIFORM_BARRIER = gl::UNIFORM_BARRIER_BIT;
+        const TEXTURE_FETCH_BARRIER = gl::TEXTURE_FETCH_BARRIER_BIT;
+        const SHADER_IMAGE_ACCESS_BARRIER = gl::SHADER_IMAGE_ACCESS_BARRIER_BIT;
+        const COMMAND_BARRIER = gl::COMMAND_BARRIER_BIT;
+        const PIXEL_BUFFER_BARRIER = gl::PIXEL_BUFFER_BARRIER_BIT;
+        const TEXTURE_UPDATE_BARRIER = gl::TEXTURE_UPDATE_BARRIER_BIT;
+        const BUFFER_UPDATE_BARRIER = gl::BUFFER_UPDATE_BARRIER_BIT;
+        const FRAMEBUFFER_BARRIER = gl::FRAMEBUFFER_BARRIER_BIT;
+        const TRANSFORM_FEEDBACK_BARRIER = gl::TRANSFORM_FEEDBACK_BARRIER_BIT;
+        const ATOMIC_COUNTER_BARRIER = gl::ATOMIC_COUNTER_BARRIER_BIT;
     }
 }

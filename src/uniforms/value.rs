@@ -8,7 +8,9 @@ use crate::uniforms::LayoutMismatchError;
 use crate::uniforms::UniformBlock;
 use crate::uniforms::SamplerBehavior;
 
+use crate::uniforms::ImageUnitBehavior;
 use crate::buffer::BufferAnySlice;
+
 
 /// Type of a uniform in a program.
 #[allow(missing_docs)]
@@ -124,6 +126,9 @@ pub enum UniformType {
     Image2dArray,
     IImage2dArray,
     UImage2dArray,
+    ImageCubeArray,
+    IImageCubeArray,
+    UImageCubeArray,
     Image2dMultisample,
     IImage2dMultisample,
     UImage2dMultisample,
@@ -240,6 +245,28 @@ pub enum UniformValue<'a> {
     UnsignedCubemapArray(&'a texture::UnsignedCubemapArray, Option<SamplerBehavior>),
     DepthCubemapArray(&'a texture::DepthCubemapArray, Option<SamplerBehavior>),
     BufferTexture(texture::buffer_texture::BufferTextureRef<'a>),
+
+    Image1d(&'a texture::Texture1d, Option<ImageUnitBehavior>),
+    IntegralImage1d(&'a texture::IntegralTexture1d, Option<ImageUnitBehavior>),
+    UnsignedImage1d(&'a texture::UnsignedTexture1d, Option<ImageUnitBehavior>),
+    Image2d(&'a texture::Texture2d, Option<ImageUnitBehavior>),
+    IntegralImage2d(&'a texture::IntegralTexture2d, Option<ImageUnitBehavior>),
+    UnsignedImage2d(&'a texture::UnsignedTexture2d, Option<ImageUnitBehavior>),
+    Image3d(&'a texture::Texture3d, Option<ImageUnitBehavior>),
+    IntegralImage3d(&'a texture::IntegralTexture3d, Option<ImageUnitBehavior>),
+    UnsignedImage3d(&'a texture::UnsignedTexture3d, Option<ImageUnitBehavior>),
+    Image1dArray(&'a texture::Texture1dArray, Option<ImageUnitBehavior>),
+    IntegralImage1dArray(&'a texture::IntegralTexture1dArray, Option<ImageUnitBehavior>),
+    UnsignedImage1dArray(&'a texture::UnsignedTexture1dArray, Option<ImageUnitBehavior>),
+    Image2dArray(&'a texture::Texture2dArray, Option<ImageUnitBehavior>),
+    IntegralImage2dArray(&'a texture::IntegralTexture2dArray, Option<ImageUnitBehavior>),
+    UnsignedImage2dArray(&'a texture::UnsignedTexture2dArray, Option<ImageUnitBehavior>),
+    ImageCube(&'a texture::Cubemap, Option<ImageUnitBehavior>),
+    IntegralImageCube(&'a texture::IntegralCubemap, Option<ImageUnitBehavior>),
+    UnsignedImageCube(&'a texture::UnsignedCubemap, Option<ImageUnitBehavior>),
+    ImageCubeArray(&'a texture::CubemapArray, Option<ImageUnitBehavior>),
+    IntegralImageCubeArray(&'a texture::IntegralCubemapArray, Option<ImageUnitBehavior>),
+    UnsignedImageCubeArray(&'a texture::UnsignedCubemapArray, Option<ImageUnitBehavior>),
 }
 
 impl<'a> Clone for UniformValue<'a> {
@@ -348,6 +375,27 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::IntegralTexture2dMultisample(..), UniformType::ISampler2dMultisample) => true,
             (&UniformValue::UnsignedTexture2dMultisample(..), UniformType::USampler2dMultisample) => true,
             (&UniformValue::DepthTexture2dMultisample(..), UniformType::Sampler2dMultisample) => true,
+            (&UniformValue::Image1d(..), UniformType::Image1d) => true,
+            (&UniformValue::IntegralImage1d(..), UniformType::IImage1d) => true,
+            (&UniformValue::UnsignedImage1d(..), UniformType::UImage1d) => true,
+            (&UniformValue::Image2d(..), UniformType::Image2d) => true,
+            (&UniformValue::IntegralImage2d(..), UniformType::IImage2d) => true,
+            (&UniformValue::UnsignedImage2d(..), UniformType::UImage2d) => true,
+            (&UniformValue::Image3d(..), UniformType::Image3d) => true,
+            (&UniformValue::IntegralImage3d(..), UniformType::IImage3d) => true,
+            (&UniformValue::UnsignedImage3d(..), UniformType::UImage3d) => true,
+            (&UniformValue::Image1dArray(..), UniformType::Image1dArray) => true,
+            (&UniformValue::IntegralImage1dArray(..), UniformType::IImage1dArray) => true,
+            (&UniformValue::UnsignedImage1dArray(..), UniformType::UImage1dArray) => true,
+            (&UniformValue::Image2dArray(..), UniformType::Image2dArray) => true,
+            (&UniformValue::IntegralImage2dArray(..), UniformType::IImage2dArray) => true,
+            (&UniformValue::UnsignedImage2dArray(..), UniformType::UImage2dArray) => true,
+            (&UniformValue::ImageCube(..), UniformType::ImageCube) => true,
+            (&UniformValue::IntegralImageCube(..), UniformType::IImageCube) => true,
+            (&UniformValue::UnsignedImageCube(..), UniformType::UImageCube) => true,
+            (&UniformValue::ImageCubeArray(..), UniformType::ImageCubeArray) => true,
+            (&UniformValue::IntegralImageCubeArray(..), UniformType::IImageCubeArray) => true,
+            (&UniformValue::UnsignedImageCubeArray(..), UniformType::UImageCubeArray) => true,
             _ => false,
         }
     }

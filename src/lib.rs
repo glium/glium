@@ -113,6 +113,9 @@ result to the user.
 )]
 
 #[macro_use]
+extern crate bitflags;
+
+#[macro_use]
 extern crate lazy_static;
 
 #[cfg(feature = "glutin")]
@@ -1073,6 +1076,9 @@ pub enum DrawError {
 
     /// Tried to enable a clip plane that does not exist.
     ClipPlaneIndexOutOfBounds,
+
+    /// Tried to use too many image units simultaneously
+    InsufficientImageUnits,
 }
 
 impl Error for DrawError {
@@ -1143,10 +1149,13 @@ impl fmt::Display for DrawError {
             FixedIndexRestartingNotSupported =>
                 "Restarting indices (multiple objects per draw call) is not supported by the backend",
             ClipPlaneIndexOutOfBounds =>
-                "Tried to enable a clip plane that does not exist."
+                "Tried to enable a clip plane that does not exist.",
+            InsufficientImageUnits =>
+                "Tried to use more image uniforms that the implementation has support for",
         };
-        match self {
-            UniformTypeMismatch { name, expected } =>
+
+        match *self {
+            UniformTypeMismatch { ref name, ref expected } =>
                 write!(
                     fmt,
                     "{}, got: {:?}, expected: {:?}",
