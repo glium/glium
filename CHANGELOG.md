@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## Version 0.22.0 (2018-07-02)
 
  - Updated glutin to version 0.17.
  - Updated glutin to version 0.16. Added 'icon_loading' feature.
