@@ -14,7 +14,7 @@ fn main() {
 
     let mut events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
-        .with_dimensions(800, 500)
+        .with_dimensions((800, 500).into())
         .with_title("Glium Deferred Example");
     let context = glutin::ContextBuilder::new();
     let display = glium::Display::new(window, context, &events_loop).unwrap();

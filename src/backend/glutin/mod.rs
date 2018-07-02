@@ -173,7 +173,7 @@ impl Display {
         // If the size of the framebuffer has changed, resize the context.
         if self.last_framebuffer_dimensions.get() != (w, h) {
             self.last_framebuffer_dimensions.set((w, h));
-            self.gl_window.borrow().resize(w, h);
+            self.gl_window.borrow().resize((w, h).into());
         }
 
         Frame::new(self.context.clone(), (w, h))
@@ -262,7 +262,7 @@ unsafe impl Backend for GlutinBackend {
         let gl_window = self.borrow();
         // get_inner_size() returns size in pixels (changed in winit 0.9 - this
         // used to return a hidpi scaled size)
-        let (width, height) = gl_window.get_inner_size().unwrap_or((800, 600));
+        let (width, height) = gl_window.get_inner_size().map(Into::into).unwrap_or((800, 600));
 
         (width, height)
     }
