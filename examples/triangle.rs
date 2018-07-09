@@ -151,7 +151,7 @@ fn main() {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
                 // Break from the main loop when the window is closed.
-                glutin::WindowEvent::Closed => return glutin::ControlFlow::Break,
+                glutin::WindowEvent::CloseRequested => return glutin::ControlFlow::Break,
                 // Redraw the triangle when the window is resized.
                 glutin::WindowEvent::Resized(..) => draw(),
                 _ => (),
