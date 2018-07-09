@@ -378,7 +378,7 @@ fn main() {
             glutin::Event::WindowEvent { event, .. } => {
                 camera.process_input(&event);
                 match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    glutin::WindowEvent::CloseRequested => action = support::Action::Stop,
                     glutin::WindowEvent::KeyboardInput { input, .. } => match input.state {
                         glutin::ElementState::Pressed => match input.virtual_keycode {
                             Some(glutin::VirtualKeyCode::Escape) => action = support::Action::Stop,
