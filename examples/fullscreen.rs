@@ -103,7 +103,7 @@ fn main() {
             Event::WindowEvent { event, window_id } =>
                 if window_id == display.gl_window().id() {
                     match event {
-                        WindowEvent::Closed => action = support::Action::Stop,
+                        WindowEvent::CloseRequested => action = support::Action::Stop,
                         WindowEvent::KeyboardInput { input, .. } => {
                             if let ElementState::Pressed = input.state {
                                 if let Some(VirtualKeyCode::Return) = input.virtual_keycode {
