@@ -460,8 +460,19 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
         {
             let mut name_tmp: Vec<u8> = Vec::with_capacity(1 + name_len as usize);
             let mut name_len_tmp = name_len;
+            // Supported on both OpenGL and GLES 3.0
+            ctxt.gl.GetActiveUniform(program,
+                                     index,
+                                     name_len,
+                                     &mut name_len_tmp,
+                                     ptr::null_mut(),
+                                     ptr::null_mut(),
+                                     name_tmp.as_mut_ptr() as *mut gl::types::GLchar
+            );
+            /*
             ctxt.gl.GetActiveUniformName(program, index, name_len, &mut name_len_tmp,
                                          name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
+                                         */
             name_tmp.set_len(name_len_tmp as usize);
 
             String::from_utf8(name_tmp).unwrap()
