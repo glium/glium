@@ -648,7 +648,21 @@ unsafe impl TextureBufferContent for (u8, u8) {
     }
 }
 
+unsafe impl TextureBufferContent for [u8; 2] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::U8U8
+    }
+}
+
 unsafe impl TextureBufferContent for (i8, i8) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::I8I8
+    }
+}
+
+unsafe impl TextureBufferContent for [i8; 2] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I8I8
@@ -662,7 +676,21 @@ unsafe impl TextureBufferContent for (u16, u16) {
     }
 }
 
+unsafe impl TextureBufferContent for [u16; 2] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::U16U16
+    }
+}
+
 unsafe impl TextureBufferContent for (i16, i16) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::I16I16
+    }
+}
+
+unsafe impl TextureBufferContent for [i16; 2] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I16I16
@@ -676,7 +704,21 @@ unsafe impl TextureBufferContent for (u32, u32) {
     }
 }
 
+unsafe impl TextureBufferContent for [u32; 2] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::U32U32
+    }
+}
+
 unsafe impl TextureBufferContent for (i32, i32) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::I32I32
+    }
+}
+
+unsafe impl TextureBufferContent for [i32; 2] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I32I32
@@ -690,7 +732,21 @@ unsafe impl TextureBufferContent for (u32, u32, u32) {
     }
 }
 
+unsafe impl TextureBufferContent for [u32; 3] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::U32U32U32
+    }
+}
+
 unsafe impl TextureBufferContent for (i32, i32, i32) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::I32I32I32
+    }
+}
+
+unsafe impl TextureBufferContent for [i32; 3] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I32I32I32
@@ -704,7 +760,21 @@ unsafe impl TextureBufferContent for (u8, u8, u8, u8) {
     }
 }
 
+unsafe impl TextureBufferContent for [u8; 4] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::U8U8U8U8
+    }
+}
+
 unsafe impl TextureBufferContent for (i8, i8, i8, i8) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::I8I8I8I8
+    }
+}
+
+unsafe impl TextureBufferContent for [i8; 4] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I8I8I8I8
@@ -718,7 +788,21 @@ unsafe impl TextureBufferContent for (u16, u16, u16, u16) {
     }
 }
 
+unsafe impl TextureBufferContent for [u16; 4] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::U16U16U16U16
+    }
+}
+
 unsafe impl TextureBufferContent for (i16, i16, i16, i16) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::I16I16I16I16
+    }
+}
+
+unsafe impl TextureBufferContent for [i16; 4] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I16I16I16I16
@@ -732,7 +816,21 @@ unsafe impl TextureBufferContent for (u32, u32, u32, u32) {
     }
 }
 
+unsafe impl TextureBufferContent for [u32; 4] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::U32U32U32U32
+    }
+}
+
 unsafe impl TextureBufferContent for (i32, i32, i32, i32) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::I32I32I32I32
+    }
+}
+
+unsafe impl TextureBufferContent for [i32; 4] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::I32I32I32I32
@@ -753,6 +851,13 @@ unsafe impl TextureBufferContent for (f32, f32) {
     }
 }
 
+unsafe impl TextureBufferContent for [f32; 2] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::F32F32
+    }
+}
+
 unsafe impl TextureBufferContent for (f32, f32, f32) {
     #[inline]
     fn get_type() -> TextureBufferContentType {
@@ -760,7 +865,21 @@ unsafe impl TextureBufferContent for (f32, f32, f32) {
     }
 }
 
+unsafe impl TextureBufferContent for [f32; 3] {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::F32F32F32
+    }
+}
+
 unsafe impl TextureBufferContent for (f32, f32, f32, f32) {
+    #[inline]
+    fn get_type() -> TextureBufferContentType {
+        TextureBufferContentType::F32F32F32F32
+    }
+}
+
+unsafe impl TextureBufferContent for [f32; 4] {
     #[inline]
     fn get_type() -> TextureBufferContentType {
         TextureBufferContentType::F32F32F32F32
