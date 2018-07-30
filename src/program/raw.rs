@@ -765,7 +765,8 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
             },
             Handle::Handle(id) => {
@@ -779,7 +780,8 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
                                           error_log.as_mut_ptr() as *mut gl::types::GLchar);
             },

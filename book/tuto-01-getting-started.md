@@ -55,7 +55,7 @@ fn main() {
 }
 ```
 
-But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `Closed` event has been received:
+But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `CloseRequested` event has been received:
 
 ```rust
 let mut closed = false;
@@ -64,7 +64,7 @@ while !closed {
     events_loop.poll_events(|ev| {
         match ev {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => closed = true,
+                glutin::WindowEvent::CloseRequested => closed = true,
                 _ => (),
             },
             _ => (),
@@ -132,7 +132,7 @@ fn main() {
         events_loop.poll_events(|ev| {
             match ev {
                 glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => closed = true,
+                    glutin::WindowEvent::CloseRequested => closed = true,
                     _ => (),
                 },
                 _ => (),

@@ -232,8 +232,10 @@ fn main() {
         events_loop.poll_events(|event| {
             match event {
                 glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
-                    glutin::WindowEvent::CursorMoved { position: (x,y), .. } => cursor_position = Some((x as i32, y as i32)),
+                    glutin::WindowEvent::CloseRequested => action = support::Action::Stop,
+                    glutin::WindowEvent::CursorMoved { position, .. } => {
+                        cursor_position = Some(position.into());
+                    }
                     ev => camera.process_input(&ev),
                 },
                 _ => (),
