@@ -428,6 +428,21 @@ impl RenderBufferAny {
     pub fn kind(&self) -> TextureKind {
         self.kind
     }
+
+    /// Determines the number of depth and stencil bits in the format of this render buffer.
+    pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
+        unsafe {
+            let mut ctxt = self.context.make_current();
+            let mut depth_bits: gl::types::GLint = mem::uninitialized();
+            let mut stencil_bits: gl::types::GLint = mem::uninitialized();
+            ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, self.id);
+            // FIXME: GL version considerations
+            ctxt.gl.GetRenderbufferParameteriv(gl::RENDERBUFFER, gl::RENDERBUFFER_DEPTH_SIZE, &mut depth_bits);
+            ctxt.gl.GetRenderbufferParameteriv(gl::RENDERBUFFER, gl::RENDERBUFFER_STENCIL_SIZE, &mut stencil_bits);
+            ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
+            (depth_bits as u16, stencil_bits as u16)
+        }
+    }
 }
 
 impl Drop for RenderBufferAny {

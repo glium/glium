@@ -18,6 +18,7 @@
  - Replaced the `IntoVerticesSource` trait with `Into<VerticesSource>`.
  - Fixed [rendering bug](https://github.com/glium/glium/issues/1657) on high-DPI screens.
  - Added support for clipping via `gl_ClipDistance`.
+ - Enabled [depth-stencil FBO attachments](https://github.com/glium/glium/issues/253).
 
 ## Version 0.19.0 (2017-12-11)
 
