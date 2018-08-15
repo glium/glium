@@ -43,6 +43,7 @@ fn main() {
             match self.gl_window.swap_buffers() {
                 Ok(()) => Ok(()),
                 Err(glutin::ContextError::IoError(_)) => panic!(),
+                Err(glutin::ContextError::OsError(_)) => panic!(),
                 Err(glutin::ContextError::ContextLost) => Err(glium::SwapBuffersError::ContextLost),
             }
         }
