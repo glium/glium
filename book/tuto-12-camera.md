@@ -101,6 +101,18 @@ void main() {
 Remember that the order of multiplications is the inverse of the order in which the
 transformations must be applied. The matrix to apply first is the nearest to the input.
 
+We are renaming what used to be the *matrix* matrix to the *model* matrix:
+
+```rust
+let model = [
+        [0.01, 0.0, 0.0, 0.0],
+        [0.0, 0.01, 0.0, 0.0],
+        [0.0, 0.0, 0.01, 0.0],
+        [0.0, 0.0, 2.0, 1.0f32],
+    ];
+
+```
+
 As usual, we need to pass a new uniform:
 
 ```rust
