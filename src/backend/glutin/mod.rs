@@ -246,6 +246,7 @@ unsafe impl Backend for GlutinBackend {
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         match self.borrow().swap_buffers() {
             Ok(()) => Ok(()),
+            Err(glutin::ContextError::OsError(s)) => panic!("Error while swapping buffers: {:?}", s),
             Err(glutin::ContextError::IoError(e)) => panic!("Error while swapping buffers: {:?}", e),
             Err(glutin::ContextError::ContextLost) => Err(SwapBuffersError::ContextLost),
         }
