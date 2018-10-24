@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 0.23.0 (2018-10-22)
+
+ - Updated glutin to version 0.18.
+
 ## Version 0.22.0 (2018-07-02)
 
  - Updated glutin to version 0.17.
