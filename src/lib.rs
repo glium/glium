@@ -18,7 +18,7 @@ fn main() {
     let mut events_loop = glium::glutin::EventsLoop::new();
     // 2. Parameters for building the Window.
     let window = glium::glutin::WindowBuilder::new()
-        .with_dimensions(1024, 768)
+        .with_dimensions((1024, 768).into())
         .with_title("Hello world");
     // 3. Parameters for building the OpenGL context.
     let context = glium::glutin::ContextBuilder::new();
