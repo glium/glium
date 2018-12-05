@@ -1006,6 +1006,7 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
 }
 
 bitflags! {
+    #[doc("Represents which kind of memory barrier to insert")]
     pub struct MemoryBarrier: u32 {
         const VERTEX_ATTRIB_ARRAY_BARRIER = gl::VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
         const ELEMENT_ARRAY_BARRIER = gl::ELEMENT_ARRAY_BARRIER_BIT;
