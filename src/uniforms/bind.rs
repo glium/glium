@@ -739,6 +739,10 @@ fn bind_image_uniform<P, T>(
         None => return Err(DrawError::InsufficientImageUnits),
     };
 
+    // Update the program to use the right unit
+    program.set_uniform(ctxt, location,
+                        &RawUniformValue::SignedInt(image_unit as gl::types::GLint));
+
     let (layered, layer) = match unit_behavior.layer {
         None => (false, 0),
         Some(l) => (true, l)
