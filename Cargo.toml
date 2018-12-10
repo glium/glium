@@ -46,11 +46,11 @@ smallvec = "0.6"
 fnv = "1.0.5"
 
 [build-dependencies]
-gl_generator = "0.9"
+gl_generator = "0.10"
 
 [dev-dependencies]
 cgmath = "0.16"
-genmesh = "0.5"
-image = "0.18"
-obj = { version = "0.8", features = ["genmesh"] }
-rand = "0.4"
+genmesh = "0.6"
+image = "0.20"
+obj = { version = "0.9", features = ["genmesh"] }
+rand = "0.6"
