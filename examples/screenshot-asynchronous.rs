@@ -2,7 +2,6 @@
 extern crate glium;
 extern crate image;
 
-use std::path::Path;
 use std::thread;
 
 use glium::{glutin, Surface};
@@ -310,9 +309,7 @@ fn main() {
 
                 // Save the screenshot to file
                 let image = image::DynamicImage::ImageRgba8(image_buffer).flipv();
-                let mut output = std::fs::File::create(&Path::new("glium-example-screenshot.png"))
-                    .unwrap();
-                image.save(&mut output, image::ImageFormat::PNG).unwrap();
+                image.save("glium-example-screenshot.png").unwrap();
             });
         }
     }
