@@ -4,9 +4,10 @@ extern crate rand;
 use glium::glutin;
 
 fn main() {
-
-    let context = glutin::HeadlessRendererBuilder::new(1024, 1024).build().unwrap();
-    let display = glium::HeadlessRenderer::new(context).unwrap();
+    let event_loop = glium::glutin::EventsLoop::new();
+    let context_builder = glutin::ContextBuilder::new();
+    let context = glutin::Context::new(&event_loop, context_builder, false).unwrap();
+    let display = glium::backend::glutin::headless::Headless::new(context).unwrap();
 
     let program = glium::program::ComputeShader::from_source(&display, r#"\
 
