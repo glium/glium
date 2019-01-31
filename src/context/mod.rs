@@ -644,7 +644,8 @@ impl ContextExt for Context {
             let backend = self.backend.borrow();
             if !backend.is_current() {
                 unsafe { backend.make_current() };
-                debug_assert!(backend.is_current());
+                // `backend.is_current` may not always be true here on macOS; see
+                // https://github.com/maps4print/azul/issues/50
             }
         }
 
