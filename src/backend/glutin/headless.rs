@@ -14,11 +14,11 @@ use super::glutin::GlContext;
 /// A headless glutin context.
 pub struct Headless {
     context: Rc<context::Context>,
-    glutin: Rc<glutin::HeadlessContext>,
+    glutin: Rc<glutin::Context>,
 }
 
 /// An implementation of the `Backend` trait for a glutin headless context.
-pub struct GlutinBackend(Rc<glutin::HeadlessContext>);
+pub struct GlutinBackend(Rc<glutin::Context>);
 
 impl Deref for Headless {
     type Target = context::Context;
@@ -28,8 +28,8 @@ impl Deref for Headless {
 }
 
 impl Deref for GlutinBackend {
-    type Target = glutin::HeadlessContext;
-    fn deref(&self) -> &glutin::HeadlessContext {
+    type Target = glutin::Context;
+    fn deref(&self) -> &glutin::Context {
         &self.0
     }
 }
@@ -73,7 +73,7 @@ impl Headless {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new(context: glutin::HeadlessContext) -> Result<Self, IncompatibleOpenGl> {
+    pub fn new(context: glutin::Context) -> Result<Self, IncompatibleOpenGl> {
         Self::with_debug(context, Default::default())
     }
 
@@ -81,12 +81,12 @@ impl Headless {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    pub unsafe fn unchecked(context: glutin::HeadlessContext) -> Result<Self, IncompatibleOpenGl> {
+    pub unsafe fn unchecked(context: glutin::Context) -> Result<Self, IncompatibleOpenGl> {
         Self::unchecked_with_debug(context, Default::default())
     }
 
     /// The same as the `new` constructor, but allows for specifying debug callback behaviour.
-    pub fn with_debug(context: glutin::HeadlessContext, debug: debug::DebugCallbackBehavior)
+    pub fn with_debug(context: glutin::Context, debug: debug::DebugCallbackBehavior)
         -> Result<Self, IncompatibleOpenGl>
     {
         Self::new_inner(context, debug, true)
@@ -94,7 +94,7 @@ impl Headless {
 
     /// The same as the `unchecked` constructor, but allows for specifying debug callback behaviour.
     pub unsafe fn unchecked_with_debug(
-        context: glutin::HeadlessContext,
+        context: glutin::Context,
         debug: debug::DebugCallbackBehavior,
     ) -> Result<Self, IncompatibleOpenGl>
     {
@@ -102,7 +102,7 @@ impl Headless {
     }
 
     fn new_inner(
-        context: glutin::HeadlessContext,
+        context: glutin::Context,
         debug: debug::DebugCallbackBehavior,
         checked: bool,
     ) -> Result<Self, IncompatibleOpenGl>

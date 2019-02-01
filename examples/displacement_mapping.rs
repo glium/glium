@@ -221,7 +221,7 @@ fn main() {
         // polling and handling the events received by the window
         events_loop.poll_events(|event| {
             match event {
-                glutin::Event::WindowEvent { event: glutin::WindowEvent::Closed, .. } =>
+                glutin::Event::WindowEvent { event: glutin::WindowEvent::CloseRequested, .. } =>
                     action = support::Action::Stop,
                 _ => ()
             }

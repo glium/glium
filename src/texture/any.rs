@@ -648,6 +648,19 @@ impl TextureAny {
         }
     }
 
+    /// Determines the number of depth and stencil bits in the format of this texture.
+    pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
+        unsafe {
+            let mut ctxt = self.context.make_current();
+            let mut depth_bits: gl::types::GLint = mem::uninitialized();
+            let mut stencil_bits: gl::types::GLint = mem::uninitialized();
+            // FIXME: GL version considerations
+            ctxt.gl.GetTextureLevelParameteriv(self.id, 0, gl::TEXTURE_DEPTH_SIZE, &mut depth_bits);
+            ctxt.gl.GetTextureLevelParameteriv(self.id, 0, gl::TEXTURE_STENCIL_SIZE, &mut stencil_bits);
+            (depth_bits as u16, stencil_bits as u16)
+        }
+    }
+
     /// Returns the number of mipmap levels of the texture.
     #[inline]
     pub fn get_mipmap_levels(&self) -> u32 {

@@ -43,6 +43,7 @@ fn main() {
             match self.gl_window.swap_buffers() {
                 Ok(()) => Ok(()),
                 Err(glutin::ContextError::IoError(_)) => panic!(),
+                Err(glutin::ContextError::OsError(_)) => panic!(),
                 Err(glutin::ContextError::ContextLost) => Err(glium::SwapBuffersError::ContextLost),
             }
         }
@@ -56,7 +57,7 @@ fn main() {
         // the whole window
         fn get_framebuffer_dimensions(&self) -> (u32, u32) {
             // we default to a dummy value is the window no longer exists
-            self.gl_window.get_inner_size().unwrap_or((128, 128))
+            self.gl_window.get_inner_size().map(Into::into).unwrap_or((128, 128))
         }
 
         fn is_current(&self) -> bool {
@@ -95,7 +96,7 @@ fn main() {
     events_loop.run_forever(|event| {
         match event {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => return glutin::ControlFlow::Break,
+                glutin::WindowEvent::CloseRequested => return glutin::ControlFlow::Break,
                 _ => (),
             },
             _ => (),

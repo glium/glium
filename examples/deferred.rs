@@ -14,7 +14,7 @@ fn main() {
 
     let mut events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
-        .with_dimensions(800, 500)
+        .with_dimensions((800, 500).into())
         .with_title("Glium Deferred Example");
     let context = glutin::ContextBuilder::new();
     let display = glium::Display::new(window, context, &events_loop).unwrap();
@@ -364,7 +364,7 @@ fn main() {
         events_loop.poll_events(|event| {
             match event {
                 glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                    glutin::WindowEvent::CloseRequested => action = support::Action::Stop,
                     _ => (),
                 },
                 _ => (),

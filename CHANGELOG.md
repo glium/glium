@@ -1,6 +1,13 @@
 # Change Log
 
-## Unreleased
+## Version 0.23.0 (2018-12-05)
+
+ - Updated glutin to version 0.19. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0190-2018-11-09).
+
+## Version 0.22.0 (2018-07-02)
+
+ - Updated glutin to version 0.17.
+ - Updated glutin to version 0.16. Added 'icon_loading' feature.
 
 ## Version 0.21.0 (2018-04-11)
 
@@ -15,6 +22,7 @@
  - Replaced the `IntoVerticesSource` trait with `Into<VerticesSource>`.
  - Fixed [rendering bug](https://github.com/glium/glium/issues/1657) on high-DPI screens.
  - Added support for clipping via `gl_ClipDistance`.
+ - Enabled [depth-stencil FBO attachments](https://github.com/glium/glium/issues/253).
 
 ## Version 0.19.0 (2017-12-11)
 
