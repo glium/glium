@@ -13,7 +13,7 @@ fn main() {
     // Create the main window
     let mut events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
-        .with_dimensions(win_size.0, win_size.1)
+        .with_dimensions((win_size.0 as f64, win_size.1 as f64).into())
         .with_title("Shadow Mapping");
     let context = glutin::ContextBuilder::new().with_vsync(true);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
@@ -161,7 +161,7 @@ fn main() {
         // Handle events
         events_loop.poll_events(|event| match event {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => exit = true,
+                glutin::WindowEvent::CloseRequested => exit = true,
                 glutin::WindowEvent::KeyboardInput { input, .. } => if input.state == glutin::ElementState::Pressed {
                     if let Some(key) = input.virtual_keycode {
                         match key {
