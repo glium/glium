@@ -359,6 +359,29 @@ impl<'a, P: PixelValue> Texture1dDataSource<'a> for &'a[P] where P: Copy + Clone
     }
 }
 
+impl<'a, T: Clone + 'a> RawImage1d<'a, T> {
+
+    /// Builds a raw 1d image from a vector of interleaved RGB values.
+    pub fn from_raw_rgb(data: Vec<T>) -> RawImage1d<'a, T>
+        where T: ToClientFormat {
+        RawImage1d {
+            width: (data.len() / 3) as u32,
+            data: Cow::Owned(data),
+            format: T::rgb_format(),
+        }
+    }
+
+    /// Builds a raw 1d image from a vector of interleaved RGBA values.
+    pub fn from_raw_rgba(data: Vec<T>) -> RawImage1d<'a, T>
+        where T: ToClientFormat {
+        RawImage1d {
+            width: (data.len() / 4) as u32,
+            data: Cow::Owned(data),
+            format: T::rgba_format(),
+        }
+    }
+}
+
 /// Trait that describes data for a two-dimensional texture.
 pub trait Texture2dDataSource<'a> {
     /// The type of each pixel.
