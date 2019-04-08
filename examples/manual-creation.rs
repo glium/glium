@@ -19,7 +19,7 @@ There are three concepts in play:
 extern crate glium;
 
 use glium::Surface;
-use glium::glutin::{self, GlContext};
+use glium::glutin::self;
 
 use std::rc::Rc;
 use std::os::raw::c_void;
