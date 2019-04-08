@@ -30,12 +30,12 @@ fn main() {
     let mut events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new();
     let context = glutin::ContextBuilder::new();
-    let gl_window = Rc::new(glutin::GlWindow::new(window, context, &events_loop).unwrap());
+    let gl_window = Rc::new(glutin::WindowedContext::new_windowed(window, context, &events_loop).unwrap());
 
     // in order to create our context, we will need to provide an object which implements
     // the `Backend` trait
     struct Backend {
-        gl_window: Rc<glutin::GlWindow>,
+        gl_window: Rc<glutin::WindowedContext>,
     }
 
     unsafe impl glium::backend::Backend for Backend {
