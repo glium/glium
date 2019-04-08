@@ -4,6 +4,7 @@ use {Frame, IncompatibleOpenGl, SwapBuffersError};
 use debug;
 use context;
 use backend::{self, Backend};
+use backend::glutin::glutin::ContextTrait;
 use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;

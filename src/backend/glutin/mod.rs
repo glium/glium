@@ -18,6 +18,7 @@ use context;
 use backend;
 use backend::Context;
 use backend::Backend;
+use backend::glutin::glutin::ContextTrait;
 use std;
 use std::cell::{Cell, RefCell, Ref};
 use std::error::Error;
