@@ -1,5 +1,9 @@
 # Change Log
 
+## Version 0.24.0 (2019-04-08)
+
+ - Updated glutin to version 0.20. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0200-2019-03-09).
+
 ## Version 0.23.0 (2018-12-05)
 
  - Updated glutin to version 0.19. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0190-2018-11-09).
