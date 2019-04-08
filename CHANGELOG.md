@@ -3,6 +3,7 @@
 ## Version 0.24.0 (2019-04-08)
 
  - Updated glutin to version 0.20. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0200-2019-03-09).
+ - Depth comparison and shadow mapping ([#1679](https://github.com/glium/glium/pull/1679)).
 
 ## Version 0.23.0 (2018-12-05)
 
