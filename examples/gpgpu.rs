@@ -11,7 +11,7 @@ fn main() {
         width: 800.0,
         height: 600.0,
     };
-    let context = glutin::Context::new_headless(&event_loop, context_builder, size).unwrap();
+    let context = context_builder.build_headless(&event_loop, size).unwrap();
     let display = glium::backend::glutin::headless::Headless::new(context).unwrap();
 
     let program = glium::program::ComputeShader::from_source(&display, r#"\
