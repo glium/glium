@@ -18,7 +18,7 @@ use context;
 use backend;
 use backend::Context;
 use backend::Backend;
-use glutin::GlContext;
+use backend::glutin::glutin::ContextTrait;
 use std;
 use std::cell::{Cell, RefCell, Ref};
 use std::error::Error;
@@ -37,7 +37,7 @@ pub struct Display {
     // contains everything related to the current context and its state
     context: Rc<context::Context>,
     // The glutin Window alongside its associated GL Context.
-    gl_window: Rc<RefCell<glutin::GlWindow>>,
+    gl_window: Rc<RefCell<glutin::WindowedContext>>,
     // Used to check whether the framebuffer dimensions have changed between frames. If they have,
     // the glutin context must be resized accordingly.
     last_framebuffer_dimensions: Cell<(u32, u32)>,
@@ -45,7 +45,7 @@ pub struct Display {
 
 /// An implementation of the `Backend` trait for glutin.
 #[derive(Clone)]
-pub struct GlutinBackend(Rc<RefCell<glutin::GlWindow>>);
+pub struct GlutinBackend(Rc<RefCell<glutin::WindowedContext>>);
 
 /// Error that can happen while creating a glium display.
 #[derive(Debug)]
@@ -67,7 +67,7 @@ impl Display {
         events_loop: &glutin::EventsLoop,
     ) -> Result<Self, DisplayCreationError>
     {
-        let gl_window = try!(glutin::GlWindow::new(window_builder, context_builder, events_loop));
+        let gl_window = glutin::WindowedContext::new_windowed(window_builder, context_builder, events_loop)?;
         Self::from_gl_window(gl_window).map_err(From::from)
     }
 
@@ -75,7 +75,7 @@ impl Display {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn from_gl_window(gl_window: glutin::GlWindow) -> Result<Self, IncompatibleOpenGl> {
+    pub fn from_gl_window(gl_window: glutin::WindowedContext) -> Result<Self, IncompatibleOpenGl> {
         Self::with_debug(gl_window, Default::default())
     }
 
@@ -83,12 +83,12 @@ impl Display {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    pub unsafe fn unchecked(gl_window: glutin::GlWindow) -> Result<Self, IncompatibleOpenGl> {
+    pub unsafe fn unchecked(gl_window: glutin::WindowedContext) -> Result<Self, IncompatibleOpenGl> {
         Self::unchecked_with_debug(gl_window, Default::default())
     }
 
     /// The same as the `new` constructor, but allows for specifying debug callback behaviour.
-    pub fn with_debug(gl_window: glutin::GlWindow, debug: debug::DebugCallbackBehavior)
+    pub fn with_debug(gl_window: glutin::WindowedContext, debug: debug::DebugCallbackBehavior)
         -> Result<Self, IncompatibleOpenGl>
     {
         Self::new_inner(gl_window, debug, true)
@@ -96,7 +96,7 @@ impl Display {
 
     /// The same as the `unchecked` constructor, but allows for specifying debug callback behaviour.
     pub unsafe fn unchecked_with_debug(
-        gl_window: glutin::GlWindow,
+        gl_window: glutin::WindowedContext,
         debug: debug::DebugCallbackBehavior,
     ) -> Result<Self, IncompatibleOpenGl>
     {
@@ -104,7 +104,7 @@ impl Display {
     }
 
     fn new_inner(
-        gl_window: glutin::GlWindow,
+        gl_window: glutin::WindowedContext,
         debug: debug::DebugCallbackBehavior,
         checked: bool,
     ) -> Result<Self, IncompatibleOpenGl>
@@ -120,10 +120,10 @@ impl Display {
         })
     }
 
-    /// Rebuilds the Display's `GlWindow` with the given window and context builders.
+    /// Rebuilds the Display's `WindowedContext` with the given window and context builders.
     ///
-    /// This method ensures that the new `GlWindow`'s `Context` will share the display lists of the
-    /// original `GlWindow`'s `Context`.
+    /// This method ensures that the new `WindowedContext`'s `Context` will share the display lists of the
+    /// original `WindowedContext`'s `Context`.
     pub fn rebuild(
         &self,
         window_builder: glutin::WindowBuilder,
@@ -135,11 +135,11 @@ impl Display {
         let new_gl_window = {
             let gl_window = self.gl_window.borrow();
             let context_builder = context_builder.with_shared_lists(gl_window.context());
-            try!(glutin::GlWindow::new(window_builder, context_builder, events_loop))
+            glutin::WindowedContext::new_windowed(window_builder, context_builder, events_loop)?
         };
 
         {
-            // Replace the stored GlWindow with the new one.
+            // Replace the stored WindowedContext with the new one.
             let mut gl_window = self.gl_window.borrow_mut();
             std::mem::replace(&mut (*gl_window), new_gl_window);
         }
@@ -151,9 +151,9 @@ impl Display {
         Ok(())
     }
 
-    /// Borrow the inner glutin GlWindow.
+    /// Borrow the inner glutin WindowedContext.
     #[inline]
-    pub fn gl_window(&self) -> Ref<glutin::GlWindow> {
+    pub fn gl_window(&self) -> Ref<glutin::WindowedContext> {
         self.gl_window.borrow()
     }
 
@@ -234,9 +234,9 @@ impl backend::Facade for Display {
 }
 
 impl Deref for GlutinBackend {
-    type Target = Rc<RefCell<glutin::GlWindow>>;
+    type Target = Rc<RefCell<glutin::WindowedContext>>;
     #[inline]
-    fn deref(&self) -> &Rc<RefCell<glutin::GlWindow>> {
+    fn deref(&self) -> &Rc<RefCell<glutin::WindowedContext>> {
         &self.0
     }
 }
