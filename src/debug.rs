@@ -161,8 +161,6 @@ impl TimestampQuery {
     /// It takes some time to retrieve the value, during which you can execute other
     /// functions.
     pub fn is_ready(&self) -> bool {
-        use std::mem;
-
         let ctxt = self.context.make_current();
 
         if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
@@ -188,8 +186,6 @@ impl TimestampQuery {
     ///
     /// This function doesn't block if `is_ready` returns true.
     pub fn get(self) -> u64 {
-        use std::mem;
-
         let ctxt = self.context.make_current();
 
         if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
