@@ -5,15 +5,19 @@ extern crate cgmath;
 use cgmath::SquareMatrix;
 use glium::{glutin, Surface};
 use std::time::Instant;
+use glutin::dpi::LogicalSize;
 
 fn main() {
-    let win_size = (800, 600);
+    let win_size = LogicalSize {
+        width: 800.0,
+        height: 600.0,
+    };
     let shadow_map_size = 1024;
 
     // Create the main window
     let mut events_loop = glutin::EventsLoop::new();
     let window = glutin::WindowBuilder::new()
-        .with_dimensions(win_size.0, win_size.1)
+        .with_dimensions(win_size)
         .with_title("Shadow Mapping");
     let context = glutin::ContextBuilder::new().with_vsync(true);
     let display = glium::Display::new(window, context, &events_loop).unwrap();
@@ -161,7 +165,7 @@ fn main() {
         // Handle events
         events_loop.poll_events(|event| match event {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => exit = true,
+                glutin::WindowEvent::CloseRequested => exit = true,
                 glutin::WindowEvent::KeyboardInput { input, .. } => if input.state == glutin::ElementState::Pressed {
                     if let Some(key) = input.virtual_keycode {
                         match key {
@@ -227,7 +231,7 @@ fn main() {
 
         // Render the scene from the camera's point of view
         // ===============================================================================
-        let screen_ratio = (win_size.0 as f32) / (win_size.1 as f32);
+        let screen_ratio = (win_size.width / win_size.height) as f32;
         let perspective_matrix: cgmath::Matrix4<f32> = cgmath::perspective(cgmath::Deg(45.0), screen_ratio, 0.0001, 100.0);
         let camera_x = 3.0 * camera_t.cos();
         let camera_z = 3.0 * camera_t.sin();
