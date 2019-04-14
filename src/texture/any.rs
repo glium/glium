@@ -35,6 +35,7 @@ use std::borrow::Cow;
 use std::cell::Cell;
 use std::rc::Rc;
 use std::ops::Range;
+use std::ffi::c_void;
 
 use ops;
 use fbo;
@@ -202,7 +203,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
         let has_mipmaps = texture_levels > 1;
         let data = data;
         let data_raw = if let Some((_, ref data)) = data {
-            data.as_ptr() as *const _
+            data.as_ptr() as *const c_void
         } else {
             ptr::null()
         };
@@ -651,7 +652,7 @@ impl TextureAny {
     /// Determines the number of depth and stencil bits in the format of this texture.
     pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
         unsafe {
-            let mut ctxt = self.context.make_current();
+            let ctxt = self.context.make_current();
             let mut depth_bits: gl::types::GLint = mem::uninitialized();
             let mut stencil_bits: gl::types::GLint = mem::uninitialized();
             // FIXME: GL version considerations
