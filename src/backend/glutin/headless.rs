@@ -4,20 +4,22 @@ use {Frame, IncompatibleOpenGl, SwapBuffersError};
 use debug;
 use context;
 use backend::{self, Backend};
-use backend::glutin::glutin::ContextTrait;
 use std::rc::Rc;
+use std::cell::RefCell;
 use std::ops::Deref;
 use std::os::raw::c_void;
 use super::glutin;
+use super::glutin::PossiblyCurrent as Pc;
+use takeable_option::Takeable;
 
 /// A headless glutin context.
 pub struct Headless {
     context: Rc<context::Context>,
-    glutin: Rc<glutin::Context>,
+    glutin: Rc<RefCell<Takeable<glutin::Context<Pc>>>>,
 }
 
 /// An implementation of the `Backend` trait for a glutin headless context.
-pub struct GlutinBackend(Rc<glutin::Context>);
+pub struct GlutinBackend(Rc<RefCell<Takeable<glutin::Context<Pc>>>>);
 
 impl Deref for Headless {
     type Target = context::Context;
@@ -26,12 +28,13 @@ impl Deref for Headless {
     }
 }
 
+/*
 impl Deref for GlutinBackend {
-    type Target = glutin::Context;
-    fn deref(&self) -> &glutin::Context {
+    type Target = glutin::Context<Pc>;
+    fn deref(&self) -> &glutin::Context<Pc> {
         &self.0
     }
-}
+}*/
 
 unsafe impl Backend for GlutinBackend {
     #[inline]
@@ -41,7 +44,7 @@ unsafe impl Backend for GlutinBackend {
 
     #[inline]
     unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
-        self.0.get_proc_address(symbol) as *const _
+        self.0.borrow().get_proc_address(symbol) as *const _
     }
 
     #[inline]
@@ -51,12 +54,15 @@ unsafe impl Backend for GlutinBackend {
 
     #[inline]
     fn is_current(&self) -> bool {
-        self.0.is_current()
+        self.0.borrow().is_current()
     }
 
     #[inline]
     unsafe fn make_current(&self) {
-        self.0.make_current().unwrap();
+        let mut gl_window_takeable = self.0.borrow_mut();
+        let gl_window = Takeable::take(&mut gl_window_takeable);
+        let gl_window_new = gl_window.make_current().unwrap();
+        Takeable::insert(&mut gl_window_takeable, gl_window_new);
     }
 }
 
@@ -72,7 +78,7 @@ impl Headless {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new(context: glutin::Context) -> Result<Self, IncompatibleOpenGl> {
+    pub fn new(context: glutin::Context<Pc>) -> Result<Self, IncompatibleOpenGl> {
         Self::with_debug(context, Default::default())
     }
 
@@ -80,12 +86,12 @@ impl Headless {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    pub unsafe fn unchecked(context: glutin::Context) -> Result<Self, IncompatibleOpenGl> {
+    pub unsafe fn unchecked(context: glutin::Context<Pc>) -> Result<Self, IncompatibleOpenGl> {
         Self::unchecked_with_debug(context, Default::default())
     }
 
     /// The same as the `new` constructor, but allows for specifying debug callback behaviour.
-    pub fn with_debug(context: glutin::Context, debug: debug::DebugCallbackBehavior)
+    pub fn with_debug(context: glutin::Context<Pc>, debug: debug::DebugCallbackBehavior)
         -> Result<Self, IncompatibleOpenGl>
     {
         Self::new_inner(context, debug, true)
@@ -93,7 +99,7 @@ impl Headless {
 
     /// The same as the `unchecked` constructor, but allows for specifying debug callback behaviour.
     pub unsafe fn unchecked_with_debug(
-        context: glutin::Context,
+        context: glutin::Context<Pc>,
         debug: debug::DebugCallbackBehavior,
     ) -> Result<Self, IncompatibleOpenGl>
     {
@@ -101,12 +107,12 @@ impl Headless {
     }
 
     fn new_inner(
-        context: glutin::Context,
+        context: glutin::Context<Pc>,
         debug: debug::DebugCallbackBehavior,
         checked: bool,
     ) -> Result<Self, IncompatibleOpenGl>
     {
-        let glutin_context = Rc::new(context);
+        let glutin_context = Rc::new(RefCell::new(Takeable::new(context)));
         let glutin_backend = GlutinBackend(glutin_context.clone());
         let context = try!(unsafe { context::Context::new(glutin_backend, checked, debug) });
         Ok(Headless { context: context, glutin: glutin_context })
