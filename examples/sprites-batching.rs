@@ -20,9 +20,9 @@ fn main() {
     println!("Number of sprites: {}", SPRITES_COUNT);
 
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     // generating a bunch of unicolor 2D images that will be used for a texture
     // we store all of them in a `Texture2dArray`

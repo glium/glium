@@ -15,9 +15,9 @@ mod support;
 fn main() {
     // building the display, ie. the main object
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
@@ -121,15 +121,15 @@ fn main() {
         // If enter was pressed toggle fullscreen.
         if enter_pressed {
             if fullscreen {
-                let window = glutin::WindowBuilder::new();
-                let context = glutin::ContextBuilder::new();
-                display.rebuild(window, context, &events_loop).unwrap();
+                let wb = glutin::WindowBuilder::new();
+                let cb = glutin::ContextBuilder::new();
+                display.rebuild(wb, cb, &events_loop).unwrap();
                 fullscreen = false;
             } else {
-                let window = glutin::WindowBuilder::new()
+                let wb = glutin::WindowBuilder::new()
                     .with_fullscreen(Some(events_loop.get_primary_monitor()));
-                let context = glutin::ContextBuilder::new();
-                display.rebuild(window, context, &events_loop).unwrap();
+                let cb = glutin::ContextBuilder::new();
+                display.rebuild(wb, cb, &events_loop).unwrap();
                 fullscreen = true;
             }
         }

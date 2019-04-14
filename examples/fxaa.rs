@@ -222,11 +222,11 @@ fn main() {
 
     // building the display, ie. the main object
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new()
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new()
         .with_depth_buffer(24)
         .with_vsync(true);
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     // building the vertex and index buffers
     let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
