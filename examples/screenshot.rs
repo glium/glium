@@ -4,7 +4,6 @@ extern crate image;
 
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
-use std::path::Path;
 
 fn main() {
     // building the display, ie. the main object
