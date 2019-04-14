@@ -12,7 +12,7 @@
  * [Затенение Гуро](tuto-08-gouraud.md)
  * [Тестирование глубины (depth testing)](tuto-09-depth.md)
  * [Регулировка перспективы](tuto-10-perspective.md)
- * [Backface culling](tuto-11-backface-culling.md)
+ * [Выбраковка](tuto-11-backface-culling.md)
  * [Камера и краткое изложение этапов обработки вершин](tuto-12-camera.md)
  * [Blinn-phong затенение](tuto-13-phong.md)
  * [Карты нормалей](tuto-14-wall.md)
