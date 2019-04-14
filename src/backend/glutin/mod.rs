@@ -62,12 +62,12 @@ impl Display {
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
     pub fn new(
-        window_builder: glutin::WindowBuilder,
-        context_builder: glutin::ContextBuilder,
+        wb: glutin::WindowBuilder,
+        cb: glutin::ContextBuilder,
         events_loop: &glutin::EventsLoop,
     ) -> Result<Self, DisplayCreationError>
     {
-        let gl_window = glutin::WindowedContext::new_windowed(window_builder, context_builder, events_loop)?;
+        let gl_window = glutin::WindowedContext::new_windowed(wb, cb, events_loop)?;
         Self::from_gl_window(gl_window).map_err(From::from)
     }
 
@@ -126,16 +126,16 @@ impl Display {
     /// original `WindowedContext`'s `Context`.
     pub fn rebuild(
         &self,
-        window_builder: glutin::WindowBuilder,
-        context_builder: glutin::ContextBuilder,
+        wb: glutin::WindowBuilder,
+        cb: glutin::ContextBuilder,
         events_loop: &glutin::EventsLoop,
     ) -> Result<(), DisplayCreationError>
     {
         // Share the display lists of the existing context.
         let new_gl_window = {
             let gl_window = self.gl_window.borrow();
-            let context_builder = context_builder.with_shared_lists(gl_window.context());
-            glutin::WindowedContext::new_windowed(window_builder, context_builder, events_loop)?
+            let cb = cb.with_shared_lists(gl_window.context());
+            glutin::WindowedContext::new_windowed(wb, cb, events_loop)?
         };
 
         {
