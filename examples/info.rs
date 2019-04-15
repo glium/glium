@@ -1,6 +1,7 @@
 extern crate glium;
 
 fn main() {
+    #[allow(unused_imports)]
     use glium::{glutin, Api, Profile, Version};
 
     // building the display, ie. the main object

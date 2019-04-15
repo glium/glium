@@ -19,6 +19,7 @@ There are three concepts in play:
 extern crate glium;
 
 use glium::Surface;
+#[allow(unused_imports)]
 use glium::glutin::{self, ContextTrait};
 
 use std::rc::Rc;

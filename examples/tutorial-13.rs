@@ -5,6 +5,7 @@ extern crate glium;
 mod teapot;
 
 fn main() {
+    #![allow(unused_imports)]
     use glium::{glutin, Surface};
 
     let mut events_loop = glutin::EventsLoop::new();

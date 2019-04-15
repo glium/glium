@@ -4,6 +4,7 @@ extern crate cgmath;
 extern crate image;
 
 use glium::index::PrimitiveType;
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 use std::io::Cursor;
 

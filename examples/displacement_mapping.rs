@@ -3,6 +3,7 @@ extern crate image;
 extern crate glium;
 
 use std::io::Cursor;
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 
 mod support;

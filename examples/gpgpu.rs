@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate glium;
 extern crate rand;
+#[allow(unused_imports)]
 use glium::glutin;
 use glutin::dpi::PhysicalSize;
 
