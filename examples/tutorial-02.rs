@@ -2,6 +2,7 @@
 extern crate glium;
 
 fn main() {
+    #[allow(unused_imports)]
     use glium::{glutin, Surface};
 
     let mut events_loop = glutin::EventsLoop::new();

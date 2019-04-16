@@ -4,6 +4,7 @@ extern crate image;
 
 use std::io::Cursor;
 
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 

@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate glium;
 
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 
 mod support;

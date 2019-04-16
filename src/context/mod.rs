@@ -517,19 +517,17 @@ impl Context {
     /// let pixels: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
     /// # }
     /// ```
-    pub fn read_front_buffer<T>(&self) -> T
+    pub fn read_front_buffer<T>(&self) -> Result<T, ops::ReadError>
                                 where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>
     {
         let mut ctxt = self.make_current();
         let dimensions = self.get_framebuffer_dimensions();
         let rect = ::Rect { left: 0, bottom: 0, width: dimensions.0, height: dimensions.1 };
 
-        // FIXME: See https://github.com/glium/glium/pull/1682#issuecomment-375596152
-        // Leave it unchecked for now, it will generate warning as a reminder it needs fixing.
         let mut data = Vec::with_capacity(0);
         ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect,
-                          &mut data, false);
-        T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
+                          &mut data, false)?;
+        Ok(T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1))
     }
 
     /// Execute an arbitrary closure with the OpenGL context active. Useful if another

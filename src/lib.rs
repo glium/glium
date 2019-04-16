@@ -117,6 +117,7 @@ pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTy
 pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::Texture2d;
 pub use version::{Api, Version, get_supported_glsl_version};
+pub use ops::ReadError;
 
 use std::rc::Rc;
 use std::thread;

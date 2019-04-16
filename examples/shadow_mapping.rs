@@ -3,6 +3,7 @@ extern crate glium;
 extern crate cgmath;
 
 use cgmath::SquareMatrix;
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 use std::time::Instant;
 use glutin::dpi::LogicalSize;

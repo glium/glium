@@ -7,6 +7,7 @@ use std::io::Cursor;
 
 use glium::Surface;
 use glium::index::PrimitiveType;
+#[allow(unused_imports)]
 use glium::glutin::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
 
 mod support;

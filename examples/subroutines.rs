@@ -3,6 +3,7 @@ extern crate glium;
 
 mod support;
 
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 use glium::program::ShaderStage;
