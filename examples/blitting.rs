@@ -13,9 +13,9 @@ mod support;
 fn main() {
     // Building the display, ie. the main object
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new().with_vsync(true);
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new().with_vsync(true);
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),

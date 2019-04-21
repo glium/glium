@@ -17,11 +17,11 @@ fn main() {
 
     // Create the main window
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new()
+    let wb = glutin::WindowBuilder::new()
         .with_dimensions(win_size)
         .with_title("Shadow Mapping");
-    let context = glutin::ContextBuilder::new().with_vsync(true);
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let cb = glutin::ContextBuilder::new().with_vsync(true);
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     // Create the boxes to render in the scene
     let (model_vertex_buffer, model_index_buffer) = create_box(&display);

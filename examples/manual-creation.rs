@@ -29,9 +29,9 @@ fn main() {
     // building the glutin window
     // note that it's just `build` and not `build_glium`
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context_builder = glutin::ContextBuilder::new();
-    let gl_window = Rc::new(context_builder.build_windowed(window, &events_loop).unwrap());
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let gl_window = Rc::new(cb.build_windowed(wb, &events_loop).unwrap());
 
     // in order to create our context, we will need to provide an object which implements
     // the `Backend` trait
