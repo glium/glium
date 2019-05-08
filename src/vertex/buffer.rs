@@ -90,7 +90,8 @@ impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     #[inline]
     pub fn per_instance(&'b self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
-        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
+        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3) ||
+             self.get_context().get_version() >= &Version(Api::GlEs, 3, 0)) &&
             !self.get_context().get_extensions().gl_arb_instanced_arrays
         {
             return Err(InstancingNotSupported);
@@ -324,8 +325,9 @@ impl<T> VertexBuffer<T> where T: Copy {
     #[inline]
     pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
-        if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
-            !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
+        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3) ||
+             self.get_context().get_version() >= &Version(Api::GlEs, 3, 0)) &&
+            !self.get_context().get_extensions().gl_arb_instanced_arrays
         {
             return Err(InstancingNotSupported);
         }
@@ -476,8 +478,9 @@ impl VertexBufferAny {
     #[inline]
     pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
         // TODO: don't check this here
-        if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
-            !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
+        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3) ||
+             self.get_context().get_version() >= &Version(Api::GlEs, 3, 0)) &&
+            !self.get_context().get_extensions().gl_arb_instanced_arrays
         {
             return Err(InstancingNotSupported);
         }
