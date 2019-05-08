@@ -66,6 +66,15 @@ impl<T: Copy> GlObject for VertexBuffer<T> {
     }
 }
 
+#[inline]
+pub fn is_instancing_supported<F: ?Sized>(facade: &F) -> bool where F: Facade {
+    let context = facade.get_context();
+
+    context.get_version() >= &Version(Api::Gl, 3, 3) ||
+    context.get_version() >= &Version(Api::GlEs, 3, 0) ||
+    context.get_extensions().gl_arb_instanced_arrays
+}
+
 /// A list of vertices loaded in the graphics card's memory.
 #[derive(Debug)]
 pub struct VertexBuffer<T> where T: Copy {
@@ -89,10 +98,7 @@ impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     /// for each different instance.
     #[inline]
     pub fn per_instance(&'b self) -> Result<PerInstance, InstancingNotSupported> {
-        // TODO: don't check this here
-        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3) ||
-             self.get_context().get_version() >= &Version(Api::GlEs, 3, 0)) &&
-            !self.get_context().get_extensions().gl_arb_instanced_arrays
+        if !is_instancing_supported(self.get_context())
         {
             return Err(InstancingNotSupported);
         }
@@ -324,10 +330,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// vertex shader, but each entry is passed for each different instance.
     #[inline]
     pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
-        // TODO: don't check this here
-        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3) ||
-             self.get_context().get_version() >= &Version(Api::GlEs, 3, 0)) &&
-            !self.get_context().get_extensions().gl_arb_instanced_arrays
+        if !is_instancing_supported(self.get_context())
         {
             return Err(InstancingNotSupported);
         }
@@ -477,10 +480,7 @@ impl VertexBufferAny {
     /// vertex shader, but each entry is passed for each different instance.
     #[inline]
     pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
-        // TODO: don't check this here
-        if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3) ||
-             self.get_context().get_version() >= &Version(Api::GlEs, 3, 0)) &&
-            !self.get_context().get_extensions().gl_arb_instanced_arrays
+        if !is_instancing_supported(self.get_context())
         {
             return Err(InstancingNotSupported);
         }
