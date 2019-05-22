@@ -13,6 +13,9 @@ fn main() {
         height: 600.0,
     };
     let context = cb.build_headless(&event_loop, size).unwrap();
+    let context = unsafe {
+        context.treat_as_current()
+    };
     let display = glium::backend::glutin::headless::Headless::new(context).unwrap();
 
     let program = glium::program::ComputeShader::from_source(&display, r#"\
