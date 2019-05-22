@@ -145,8 +145,10 @@ impl Display {
         };
 
         // Replace the stored WindowedContext with the new one.
-        let mut gl_window = self.gl_window.borrow_mut();
-        Takeable::insert(&mut gl_window, new_gl_window);
+        {
+            let mut gl_window = self.gl_window.borrow_mut();
+            Takeable::insert(&mut gl_window, new_gl_window);
+        }
 
         // Rebuild the Context.
         let backend = GlutinBackend(self.gl_window.clone());
