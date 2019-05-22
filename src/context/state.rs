@@ -72,6 +72,9 @@ pub struct GlState {
     /// Whether GL_PROGRAM_POINT_SIZE is enabled
     pub enabled_program_point_size: bool,
 
+    /// A bitmask containing the currently enabled clip planes.
+    pub enabled_clip_planes: gl::types::GLuint,
+
     /// The latest value passed to `glUseProgram`.
     pub program: Handle,
 
@@ -385,6 +388,7 @@ impl Default for GlState {
             enabled_polygon_smooth: false,
             enabled_primitive_fixed_restart: false,
             enabled_program_point_size: false,
+            enabled_clip_planes: 0,
             
             program: Handle::Id(0),
             vertex_array: 0,
