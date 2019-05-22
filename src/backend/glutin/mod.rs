@@ -25,7 +25,7 @@ use std::fmt;
 use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;
-use glutin::PossiblyCurrent as Pc;
+use glutin::{PossiblyCurrent as Pc, NotCurrent};
 
 /// A GL context combined with a facade for drawing upon.
 ///
@@ -63,7 +63,7 @@ impl Display {
     /// by the implementation.
     pub fn new(
         wb: glutin::WindowBuilder,
-        cb: glutin::ContextBuilder<Pc>,
+        cb: glutin::ContextBuilder<NotCurrent>,
         events_loop: &glutin::EventsLoop,
     ) -> Result<Self, DisplayCreationError>
     {
@@ -130,7 +130,7 @@ impl Display {
     pub fn rebuild(
         &self,
         wb: glutin::WindowBuilder,
-        cb: glutin::ContextBuilder<Pc>,
+        cb: glutin::ContextBuilder<NotCurrent>,
         events_loop: &glutin::EventsLoop,
     ) -> Result<(), DisplayCreationError>
     {
