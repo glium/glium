@@ -28,13 +28,12 @@ impl Deref for Headless {
     }
 }
 
-/*
 impl Deref for GlutinBackend {
-    type Target = glutin::Context<Pc>;
-    fn deref(&self) -> &glutin::Context<Pc> {
+    type Target = Rc<RefCell<Takeable<glutin::Context<Pc>>>>;
+    fn deref(&self) -> &Rc<RefCell<Takeable<glutin::Context<Pc>>>> {
         &self.0
     }
-}*/
+}
 
 unsafe impl Backend for GlutinBackend {
     #[inline]
