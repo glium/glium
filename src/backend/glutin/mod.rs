@@ -83,7 +83,7 @@ impl Display {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    pub unsafe fn unchecked(gl_window: glutin::WindowedContext<Pc>) -> Result<Self, IncompatibleOpenGl> {
+    pub unsafe fn unchecked<T: ContextCurrentState>(gl_window: glutin::WindowedContext<T>) -> Result<Self, IncompatibleOpenGl> {
         Self::unchecked_with_debug(gl_window, Default::default())
     }
 
@@ -95,8 +95,8 @@ impl Display {
     }
 
     /// The same as the `unchecked` constructor, but allows for specifying debug callback behaviour.
-    pub unsafe fn unchecked_with_debug(
-        gl_window: glutin::WindowedContext<Pc>,
+    pub unsafe fn unchecked_with_debug<T: ContextCurrentState>(
+        gl_window: glutin::WindowedContext<T>,
         debug: debug::DebugCallbackBehavior,
     ) -> Result<Self, IncompatibleOpenGl>
     {
