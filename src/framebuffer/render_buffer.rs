@@ -432,7 +432,7 @@ impl RenderBufferAny {
     /// Determines the number of depth and stencil bits in the format of this render buffer.
     pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
         unsafe {
-            let mut ctxt = self.context.make_current();
+            let ctxt = self.context.make_current();
             let mut depth_bits: gl::types::GLint = mem::uninitialized();
             let mut stencil_bits: gl::types::GLint = mem::uninitialized();
             ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, self.id);

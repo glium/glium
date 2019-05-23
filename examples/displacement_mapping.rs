@@ -3,6 +3,7 @@ extern crate image;
 extern crate glium;
 
 use std::io::Cursor;
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 
 mod support;
@@ -10,9 +11,9 @@ mod support;
 fn main() {
     // building the display, ie. the main object
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
                             image::PNG).unwrap().to_rgba();

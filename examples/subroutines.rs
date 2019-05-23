@@ -3,6 +3,7 @@ extern crate glium;
 
 mod support;
 
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 use glium::program::ShaderStage;
@@ -10,9 +11,9 @@ use glium::program::ShaderStage;
 fn main() {
     // building the display, ie. the main object
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {

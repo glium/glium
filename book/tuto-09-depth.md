@@ -47,7 +47,7 @@ We need to change three things:
 The first step consists in changing the context building code:
 
 ```rust
-let context = glutin::ContextBuilder::new().with_depth_buffer(24);
+let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
 ```
 
 We ask for the system to allocate a 24 bits depth buffer. 24 bits is a very common value that

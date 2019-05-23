@@ -17,14 +17,14 @@ fn main() {
     // 1. The **winit::EventsLoop** for handling events.
     let mut events_loop = glium::glutin::EventsLoop::new();
     // 2. Parameters for building the Window.
-    let window = glium::glutin::WindowBuilder::new()
+    let wb = glium::glutin::WindowBuilder::new()
         .with_dimensions(1024, 768)
         .with_title("Hello world");
     // 3. Parameters for building the OpenGL context.
-    let context = glium::glutin::ContextBuilder::new();
+    let cb = glium::glutin::ContextBuilder::new();
     // 4. Build the Display with the given window and OpenGL context parameters and register the
     //    window with the events_loop.
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 }
 ```
 
@@ -117,6 +117,7 @@ pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTy
 pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::Texture2d;
 pub use version::{Api, Version, get_supported_glsl_version};
+pub use ops::ReadError;
 
 use std::rc::Rc;
 use std::thread;
