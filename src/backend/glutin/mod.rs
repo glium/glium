@@ -25,7 +25,7 @@ use std::fmt;
 use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;
-use glutin::{PossiblyCurrent as Pc, NotCurrent};
+use glutin::{PossiblyCurrent as Pc, ContextCurrentState};
 
 /// A GL context combined with a facade for drawing upon.
 ///
@@ -61,16 +61,13 @@ impl Display {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new(
+    pub fn new<T: ContextCurrentState>(
         wb: glutin::WindowBuilder,
-        cb: glutin::ContextBuilder<NotCurrent>,
+        cb: glutin::ContextBuilder<T>,
         events_loop: &glutin::EventsLoop,
     ) -> Result<Self, DisplayCreationError>
     {
         let gl_window = cb.build_windowed(wb, events_loop)?;
-        let gl_window = unsafe {
-            gl_window.treat_as_current()
-        };
         Self::from_gl_window(gl_window).map_err(From::from)
     }
 
@@ -78,7 +75,7 @@ impl Display {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn from_gl_window(gl_window: glutin::WindowedContext<Pc>) -> Result<Self, IncompatibleOpenGl> {
+    pub fn from_gl_window<T: ContextCurrentState>(gl_window: glutin::WindowedContext<T>) -> Result<Self, IncompatibleOpenGl> {
         Self::with_debug(gl_window, Default::default())
     }
 
@@ -91,7 +88,7 @@ impl Display {
     }
 
     /// The same as the `new` constructor, but allows for specifying debug callback behaviour.
-    pub fn with_debug(gl_window: glutin::WindowedContext<Pc>, debug: debug::DebugCallbackBehavior)
+    pub fn with_debug<T: ContextCurrentState>(gl_window: glutin::WindowedContext<T>, debug: debug::DebugCallbackBehavior)
         -> Result<Self, IncompatibleOpenGl>
     {
         Self::new_inner(gl_window, debug, true)
@@ -106,12 +103,15 @@ impl Display {
         Self::new_inner(gl_window, debug, false)
     }
 
-    fn new_inner(
-        gl_window: glutin::WindowedContext<Pc>,
+    fn new_inner<T: ContextCurrentState>(
+        gl_window: glutin::WindowedContext<T>,
         debug: debug::DebugCallbackBehavior,
         checked: bool,
     ) -> Result<Self, IncompatibleOpenGl>
     {
+        let gl_window = unsafe {
+            gl_window.treat_as_current()
+        };
         let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
         let glutin_backend = GlutinBackend(gl_window.clone());
         let framebuffer_dimensions = glutin_backend.get_framebuffer_dimensions();
@@ -127,10 +127,10 @@ impl Display {
     ///
     /// This method ensures that the new `WindowedContext`'s `Context` will share the display lists of the
     /// original `WindowedContext`'s `Context`.
-    pub fn rebuild(
+    pub fn rebuild<T: ContextCurrentState>(
         &self,
         wb: glutin::WindowBuilder,
-        cb: glutin::ContextBuilder<NotCurrent>,
+        cb: glutin::ContextBuilder<T>,
         events_loop: &glutin::EventsLoop,
     ) -> Result<(), DisplayCreationError>
     {
@@ -265,7 +265,7 @@ unsafe impl Backend for GlutinBackend {
 
     #[inline]
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-		let gl_window_takeable = self.borrow();
+        let gl_window_takeable = self.borrow();
         let gl_window = gl_window_takeable.window();
         let (width, height) = gl_window.get_inner_size()
             .map(|logical_size| logical_size.to_physical(gl_window.get_hidpi_factor()))
