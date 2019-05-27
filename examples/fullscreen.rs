@@ -102,7 +102,7 @@ fn main() {
         let mut enter_pressed = false;
         events_loop.poll_events(|event| match event {
             Event::WindowEvent { event, window_id } =>
-                if window_id == display.gl_window().id() {
+                if window_id == display.gl_window().window().id() {
                     match event {
                         WindowEvent::CloseRequested => action = support::Action::Stop,
                         WindowEvent::KeyboardInput { input, .. } => {

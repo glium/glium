@@ -103,6 +103,7 @@ extern crate lazy_static;
 extern crate backtrace;
 extern crate smallvec;
 extern crate fnv;
+extern crate takeable_option;
 
 #[cfg(feature = "glutin")]
 pub use backend::glutin::glutin;
