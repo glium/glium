@@ -489,7 +489,9 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         },
 
         max_indexed_uniform_buffer: {
-            if version >= &Version(Api::Gl, 3, 1) || extensions.gl_arb_uniform_buffer_object {      // TODO: GLES
+            if version >= &Version(Api::Gl, 3, 1) ||
+               version >= &Version(Api::GlEs, 3, 0) ||
+               extensions.gl_arb_uniform_buffer_object {
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_UNIFORM_BUFFER_BINDINGS, &mut val);
                 val
