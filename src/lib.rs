@@ -1011,7 +1011,7 @@ impl Error for DrawError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::DrawError::*;
         match *self {
             UniformBlockLayoutMismatch { ref err, .. } => Some(err),
