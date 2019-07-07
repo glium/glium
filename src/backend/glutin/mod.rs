@@ -62,9 +62,9 @@ impl Display {
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
     pub fn new<T: ContextCurrentState>(
-        wb: glutin::WindowBuilder,
+        wb: glutin::window::WindowBuilder,
         cb: glutin::ContextBuilder<T>,
-        events_loop: &glutin::EventsLoop,
+        events_loop: &glutin::event_loop::EventLoop<()>,
     ) -> Result<Self, DisplayCreationError>
     {
         let gl_window = cb.build_windowed(wb, events_loop)?;
@@ -129,9 +129,9 @@ impl Display {
     /// original `WindowedContext`'s `Context`.
     pub fn rebuild<T: ContextCurrentState>(
         &self,
-        wb: glutin::WindowBuilder,
+        wb: glutin::window::WindowBuilder,
         cb: glutin::ContextBuilder<T>,
-        events_loop: &glutin::EventsLoop,
+        events_loop: &glutin::event_loop::EventLoop<()>,
     ) -> Result<(), DisplayCreationError>
     {
         // Share the display lists of the existing context.
@@ -267,11 +267,9 @@ unsafe impl Backend for GlutinBackend {
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         let gl_window_takeable = self.borrow();
         let gl_window = gl_window_takeable.window();
-        let (width, height) = gl_window.get_inner_size()
-            .map(|logical_size| logical_size.to_physical(gl_window.get_hidpi_factor()))
-            .map(Into::into)
-            // TODO: 800x600 ?
-            .unwrap_or((800, 600));
+        let (width, height) = gl_window.inner_size()
+            .to_physical(gl_window.hidpi_factor())
+            .into();
         (width, height)
     }
 
