@@ -64,7 +64,7 @@ pub struct Context {
 
     /// Glue between glium and the code that handles windowing. Contains functions that allows
     /// you to swap buffers, retrieve the size of the framebuffer, etc.
-    backend: RefCell<Box<Backend>>,
+    backend: RefCell<Box<dyn Backend>>,
 
     /// Whether or not glium must check that the OpenGL context is the current one before each
     /// call.

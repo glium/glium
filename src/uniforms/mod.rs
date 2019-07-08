@@ -229,7 +229,7 @@ impl Error for LayoutMismatchError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::LayoutMismatchError::*;
         match *self {
             MemberMismatch{ ref err, .. } => Some(err.as_ref()),

@@ -1805,7 +1805,7 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
                extensions.gl_ext_texture_srgb
             {
                 match size {
-                    Some(1 ... 3) => gl::SRGB8,
+                    Some(1 ..= 3) => gl::SRGB8,
                     Some(4) => gl::SRGB8_ALPHA8,
                     None => if let RequestType::TexImage(_) = rq_ty { gl::SRGB8 } else { gl::SRGB8_ALPHA8 },
                     _ => unreachable!(),
@@ -1842,7 +1842,7 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
                 match rq_ty {
                     RequestType::TexImage(client) => {
                         match client.map(|c| c.get_num_components()) {
-                            Some(1 ... 3) => gl::COMPRESSED_SRGB,
+                            Some(1 ..= 3) => gl::COMPRESSED_SRGB,
                             Some(4) => gl::COMPRESSED_SRGB_ALPHA,
                             None => gl::COMPRESSED_SRGB_ALPHA,
                             _ => unreachable!(),

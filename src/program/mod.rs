@@ -155,7 +155,7 @@ impl Error for ProgramChooserCreationError {
     }
 
     #[inline]
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::ProgramChooserCreationError::*;
         match *self {
             ProgramCreationError(ref err) => Some(err),
