@@ -109,6 +109,7 @@ macro_rules! implement_vertex {
                             Cow::Borrowed(stringify!($field_name)),
                             {
                                 // calculate the offset of the struct fields
+                                #[allow(deprecated)]
                                 let dummy: $struct_name = unsafe { ::std::mem::uninitialized() };
                                 let offset: usize = {
                                     let dummy_ref = &dummy;
