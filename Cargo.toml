@@ -54,4 +54,4 @@ cgmath = "0.17"
 genmesh = "0.6"
 image = "0.21"
 obj = { version = "0.9", features = ["genmesh"] }
-rand = "0.6"
+rand = "0.7"
