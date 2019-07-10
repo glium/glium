@@ -47,7 +47,7 @@ smallvec = "0.6"
 fnv = "1.0.5"
 
 [build-dependencies]
-gl_generator = "0.11"
+gl_generator = "0.13"
 
 [dev-dependencies]
 cgmath = "0.17"
