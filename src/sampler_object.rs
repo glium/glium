@@ -25,6 +25,7 @@ impl SamplerObject {
 
         let sampler = unsafe {
             use std::mem;
+            #[allow(deprecated)]
             let mut sampler: gl::types::GLuint = mem::uninitialized();
             ctxt.gl.GenSamplers(1, &mut sampler);
             sampler

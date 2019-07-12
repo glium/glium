@@ -288,6 +288,7 @@ impl RenderBufferAny {
             // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
             // FIXME: gles2 only supports very few formats
             let mut ctxt = facade.get_context().make_current();
+            #[allow(deprecated)]
             let mut id = mem::uninitialized();
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
@@ -433,7 +434,9 @@ impl RenderBufferAny {
     pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
         unsafe {
             let ctxt = self.context.make_current();
+            #[allow(deprecated)]
             let mut depth_bits: gl::types::GLint = mem::uninitialized();
+            #[allow(deprecated)]
             let mut stencil_bits: gl::types::GLint = mem::uninitialized();
             ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, self.id);
             // FIXME: GL version considerations

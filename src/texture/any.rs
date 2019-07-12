@@ -215,6 +215,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
 
         BufferAny::unbind_pixel_unpack(&mut ctxt);
 
+        #[allow(deprecated)]
         let id: gl::types::GLuint = mem::uninitialized();
         ctxt.gl.GenTextures(1, mem::transmute(&id));
 
@@ -653,7 +654,9 @@ impl TextureAny {
     pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
         unsafe {
             let ctxt = self.context.make_current();
+            #[allow(deprecated)]
             let mut depth_bits: gl::types::GLint = mem::uninitialized();
+            #[allow(deprecated)]
             let mut stencil_bits: gl::types::GLint = mem::uninitialized();
             // FIXME: GL version considerations
             ctxt.gl.GetTextureLevelParameteriv(self.id, 0, gl::TEXTURE_DEPTH_SIZE, &mut depth_bits);
@@ -1240,12 +1243,15 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
         unsafe {
             let bind_point = texture.bind_to_current(&mut ctxt);
 
+            #[allow(deprecated)]
             let mut is_compressed = mem::uninitialized();
             ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED, &mut is_compressed);
             if is_compressed != 0 {
 
+                #[allow(deprecated)]
                 let mut buffer_size = mem::uninitialized();
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED_IMAGE_SIZE, &mut buffer_size);
+                #[allow(deprecated)]
                 let mut internal_format = mem::uninitialized();
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_INTERNAL_FORMAT, &mut internal_format);
 

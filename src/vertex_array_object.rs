@@ -292,6 +292,7 @@ impl VertexArrayObject {
 
         // building the VAO
         let id = {
+            #[allow(deprecated)]
             let mut id = mem::uninitialized();
             if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                 ctxt.version >= &Version(Api::GlEs, 3, 0) ||

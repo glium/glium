@@ -128,6 +128,7 @@ impl TimestampQuery {
 
         let id = if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
+                #[allow(deprecated)]
                 let mut id = mem::uninitialized();
                 ctxt.gl.GenQueries(1, &mut id);
 
@@ -138,6 +139,7 @@ impl TimestampQuery {
 
         } else if ctxt.extensions.gl_ext_disjoint_timer_query {
             unsafe {
+                #[allow(deprecated)]
                 let mut id = mem::uninitialized();
                 ctxt.gl.GenQueriesEXT(1, &mut id);
 
@@ -165,6 +167,7 @@ impl TimestampQuery {
 
         if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
+                #[allow(deprecated)]
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectiv(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
                 value != 0
@@ -172,6 +175,7 @@ impl TimestampQuery {
 
         } else if ctxt.extensions.gl_ext_disjoint_timer_query {
             unsafe {
+                #[allow(deprecated)]
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectivEXT(self.id, gl::QUERY_RESULT_AVAILABLE_EXT, &mut value);
                 value != 0
@@ -190,6 +194,7 @@ impl TimestampQuery {
 
         if ctxt.version >= &Version(Api::Gl, 3, 2) {    // TODO: extension
             unsafe {
+                #[allow(deprecated)]
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectui64v(self.id, gl::QUERY_RESULT, &mut value);
                 ctxt.gl.DeleteQueries(1, [self.id].as_ptr());
@@ -198,6 +203,7 @@ impl TimestampQuery {
 
         } else if ctxt.extensions.gl_ext_disjoint_timer_query {
             unsafe {
+                #[allow(deprecated)]
                 let mut value = mem::uninitialized();
                 ctxt.gl.GetQueryObjectui64vEXT(self.id, gl::QUERY_RESULT_EXT, &mut value);
                 ctxt.gl.DeleteQueriesEXT(1, [self.id].as_ptr());

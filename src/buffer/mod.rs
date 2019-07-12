@@ -99,6 +99,7 @@ unsafe impl<T> Content for T where T: Copy {
     #[inline]
     fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
         assert!(size == mem::size_of::<T>());
+        #[allow(deprecated)]
         let mut value = unsafe { mem::uninitialized() };
         try!(f(&mut value));
         Ok(value)
