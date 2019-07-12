@@ -114,6 +114,7 @@ impl RawQuery {
         // FIXME: handle Timestamp separately
 
         let id = unsafe {
+            #[allow(deprecated)]
             let mut id = mem::uninitialized();
 
             if ctxt.version >= &Version(Api::Gl, 3, 3) {
@@ -211,6 +212,7 @@ impl RawQuery {
         Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
+            #[allow(deprecated)]
             let mut value = mem::uninitialized();
 
             if ctxt.version >= &Version(Api::Gl, 1, 5) ||
@@ -248,6 +250,7 @@ impl RawQuery {
         Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
+            #[allow(deprecated)]
             let mut value = mem::uninitialized();
             self.raw_get_u32(&mut ctxt, &mut value);
             value
@@ -313,11 +316,13 @@ impl RawQuery {
         Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
+            #[allow(deprecated)]
             let mut value = mem::uninitialized();
             if let Ok(_) = self.raw_get_u64(&mut ctxt, &mut value) {
                 return value;
             }
 
+            #[allow(deprecated)]
             let mut value = mem::uninitialized();
             self.raw_get_u32(&mut ctxt, &mut value);
             value as u64

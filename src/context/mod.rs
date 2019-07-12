@@ -484,6 +484,7 @@ impl Context {
         unsafe {
             let ctxt = self.make_current();
 
+            #[allow(deprecated)]
             let mut value: [gl::types::GLint; 4] = mem::uninitialized();
 
             if ctxt.extensions.gl_nvx_gpu_memory_info {
