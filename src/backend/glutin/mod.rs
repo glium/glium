@@ -61,10 +61,10 @@ impl Display {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new<T: ContextCurrentState>(
+    pub fn new<T: ContextCurrentState, E>(
         wb: glutin::window::WindowBuilder,
         cb: glutin::ContextBuilder<T>,
-        events_loop: &glutin::event_loop::EventLoop<()>,
+        events_loop: &glutin::event_loop::EventLoop<E>,
     ) -> Result<Self, DisplayCreationError>
     {
         let gl_window = cb.build_windowed(wb, events_loop)?;
