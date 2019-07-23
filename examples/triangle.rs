@@ -8,10 +8,10 @@ use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 fn main() {
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -126,7 +126,7 @@ fn main() {
     //
     // In this case we use a closure for simplicity, however keep in mind that most serious
     // applications should probably use a function that takes the resources as an argument.
-    let draw = || {
+    let draw = move || {
         // building the uniforms
         let uniforms = uniform! {
             matrix: [
@@ -148,17 +148,19 @@ fn main() {
     draw();
 
     // the main loop
-    events_loop.run_forever(|event| {
-        match event {
-            glutin::Event::WindowEvent { event, .. } => match event {
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = match event {
+            glutin::event::Event::WindowEvent { event, .. } => match event {
                 // Break from the main loop when the window is closed.
-                glutin::WindowEvent::CloseRequested => return glutin::ControlFlow::Break,
+                glutin::event::WindowEvent::CloseRequested => glutin::event_loop::ControlFlow::Exit,
                 // Redraw the triangle when the window is resized.
-                glutin::WindowEvent::Resized(..) => draw(),
-                _ => (),
+                glutin::event::WindowEvent::Resized(..) => {
+                    draw();
+                    glutin::event_loop::ControlFlow::Poll
+                },
+                _ => glutin::event_loop::ControlFlow::Poll,
             },
-            _ => (),
-        }
-        glutin::ControlFlow::Continue
+            _ => glutin::event_loop::ControlFlow::Poll,
+        };
     });
 }

@@ -127,10 +127,10 @@ mod screenshot {
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new().with_title("Press S to take screenshot");
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new().with_title("Press S to take screenshot");
     let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -244,8 +244,8 @@ fn main() {
         let mut take_screenshot = false;
 
         // React to events
-        events_loop.poll_events(|event| {
-            use glium::glutin::{Event, WindowEvent, ElementState, VirtualKeyCode};
+        event_loop.poll_events(|event| {
+            use glium::glutin::event::{Event, WindowEvent, ElementState, VirtualKeyCode};
 
             match event {
                 Event::WindowEvent { event, .. } => match event {

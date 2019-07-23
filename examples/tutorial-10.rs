@@ -8,10 +8,10 @@ fn main() {
     #[allow(unused_imports)]
     use glium::{glutin, Surface};
 
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     let positions = glium::VertexBuffer::new(&display, &teapot::VERTICES).unwrap();
     let normals = glium::VertexBuffer::new(&display, &teapot::NORMALS).unwrap();
@@ -99,9 +99,9 @@ fn main() {
                     &params).unwrap();
         target.finish().unwrap();
 
-        events_loop.poll_events(|event| {
+        event_loop.poll_events(|event| {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::event::Event::WindowEvent { event, .. } => match event {
                     glutin::WindowEvent::CloseRequested => closed = true,
                     _ => ()
                 },
