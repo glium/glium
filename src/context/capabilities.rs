@@ -248,7 +248,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         can_lose_context: if version >= &Version(Api::Gl, 4, 5) || extensions.gl_khr_robustness ||
                              extensions.gl_arb_robustness || extensions.gl_ext_robustness
-        {0
+        {
             let mut val = 0;
             gl.GetIntegerv(gl::RESET_NOTIFICATION_STRATEGY, &mut val);
 
