@@ -30,7 +30,6 @@ travis-ci = { repository = "glium/glium" }
 
 [features]
 default = ["glutin"]
-icon_loading = ["glutin/icon_loading"]
 unstable = [] # used for benchmarks
 test_headless = []  # used for testing headless display
 

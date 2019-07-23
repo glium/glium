@@ -30,10 +30,10 @@ use std::os::raw::c_void;
 fn main() {
     // building the glutin window
     // note that it's just `build` and not `build_glium`
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
-    let gl_window = cb.build_windowed(wb, &events_loop).unwrap();
+    let gl_window = cb.build_windowed(wb, &event_loop).unwrap();
     let gl_window = unsafe {
         gl_window.treat_as_current()
     };
@@ -64,7 +64,7 @@ fn main() {
         // the whole window
         fn get_framebuffer_dimensions(&self) -> (u32, u32) {
             // we default to a dummy value is the window no longer exists
-            self.gl_window.borrow().window().get_inner_size().map(Into::into).unwrap_or((128, 128))
+            self.gl_window.borrow().window().inner_size().into() // conversion into u32 performs rounding
         }
 
         fn is_current(&self) -> bool {
@@ -103,15 +103,13 @@ fn main() {
     target.finish().unwrap();
 
     // the window is still available
-    events_loop.run_forever(|event| {
-        match event {
-            glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => return glutin::ControlFlow::Break,
-                _ => (),
+    event_loop.run(|event, _, control_flow| {
+        *control_flow = match event {
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => glutin::event_loop::ControlFlow::Exit,
+                _ => glutin::event_loop::ControlFlow::Poll,
             },
-            _ => (),
+            _ => glutin::event_loop::ControlFlow::Poll,
         }
-
-        glutin::ControlFlow::Continue
     });
 }

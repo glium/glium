@@ -4,10 +4,10 @@ fn main() {
     #[allow(unused_imports)]
     use glium::{glutin, Surface};
 
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     let mut closed = false;
     while !closed {
@@ -15,9 +15,9 @@ fn main() {
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.finish().unwrap();
 
-        events_loop.poll_events(|ev| {
+        event_loop.poll_events(|ev| {
             match ev {
-                glutin::Event::WindowEvent { event, .. } => match event {
+                glutin::event::Event::WindowEvent { event, .. } => match event {
                     glutin::WindowEvent::CloseRequested => closed = true,
                     _ => (),
                 },

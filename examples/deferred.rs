@@ -13,12 +13,12 @@ mod support;
 fn main() {
     use cgmath::SquareMatrix;
 
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new()
-        .with_dimensions((800, 500).into())
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new()
+        .with_inner_size((800, 500).into())
         .with_title("Glium Deferred Example");
     let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
@@ -307,7 +307,7 @@ fn main() {
     ];
 
     // the main loop
-    support::start_loop(|| {
+    support::start_loop(event_loop, move |events| {
         // prepass
         let uniforms = uniform! {
             perspective_matrix: Into::<[[f32; 4]; 4]>::into(perspective_matrix),
@@ -362,15 +362,15 @@ fn main() {
         let mut action = support::Action::Continue;
 
         // polling and handling the events received by the window
-        events_loop.poll_events(|event| {
+        for event in events {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::CloseRequested => action = support::Action::Stop,
+                glutin::event::Event::WindowEvent { event, .. } => match event {
+                    glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
                     _ => (),
                 },
                 _ => (),
             }
-        });
+        };
 
         action
     });

@@ -6,7 +6,7 @@ use glium::glutin;
 use glutin::dpi::PhysicalSize;
 
 fn main() {
-    let event_loop = glium::glutin::EventsLoop::new();
+    let event_loop = glium::glutin::event_loop::EventLoop::new();
     let cb = glutin::ContextBuilder::new();
     let size = PhysicalSize {
         width: 800.0,

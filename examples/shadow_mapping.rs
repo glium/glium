@@ -16,12 +16,12 @@ fn main() {
     let shadow_map_size = 1024;
 
     // Create the main window
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new()
-        .with_dimensions(win_size)
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new()
+        .with_inner_size(win_size)
         .with_title("Shadow Mapping");
     let cb = glutin::ContextBuilder::new().with_vsync(true);
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // Create the boxes to render in the scene
     let (model_vertex_buffer, model_index_buffer) = create_box(&display);
@@ -164,14 +164,14 @@ fn main() {
         if light_rotating { light_t += secs * 0.7; }
 
         // Handle events
-        events_loop.poll_events(|event| match event {
-            glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => exit = true,
-                glutin::WindowEvent::KeyboardInput { input, .. } => if input.state == glutin::ElementState::Pressed {
+        event_loop.poll_events(|event| match event {
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => exit = true,
+                glutin::event::WindowEvent::KeyboardInput { input, .. } => if input.state == glutin::event::ElementState::Pressed {
                     if let Some(key) = input.virtual_keycode {
                         match key {
-                            glutin::VirtualKeyCode::C => camera_rotating = !camera_rotating,
-                            glutin::VirtualKeyCode::L => light_rotating = !light_rotating,
+                            glutin::event::VirtualKeyCode::C => camera_rotating = !camera_rotating,
+                            glutin::event::VirtualKeyCode::L => light_rotating = !light_rotating,
                             _ => {}
                         }
                     }

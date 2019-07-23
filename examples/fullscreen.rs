@@ -8,16 +8,16 @@ use std::io::Cursor;
 use glium::Surface;
 use glium::index::PrimitiveType;
 #[allow(unused_imports)]
-use glium::glutin::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
+use glium::glutin::event::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
@@ -81,7 +81,7 @@ fn main() {
 
     println!("Press Enter to switch fullscreen mode");
 
-    support::start_loop(|| {
+    support::start_loop(event_loop, move |events| {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 1.0, 0.0, 1.0);
@@ -100,36 +100,38 @@ fn main() {
 
         // polling and handling the events received by the window
         let mut enter_pressed = false;
-        events_loop.poll_events(|event| match event {
-            Event::WindowEvent { event, window_id } =>
-                if window_id == display.gl_window().window().id() {
-                    match event {
-                        WindowEvent::CloseRequested => action = support::Action::Stop,
-                        WindowEvent::KeyboardInput { input, .. } => {
-                            if let ElementState::Pressed = input.state {
-                                if let Some(VirtualKeyCode::Return) = input.virtual_keycode {
-                                    enter_pressed = true;
+        for event in events {
+            match event {
+                Event::WindowEvent { event, window_id } =>
+                    if *window_id == display.gl_window().window().id() {
+                        match event {
+                            WindowEvent::CloseRequested => action = support::Action::Stop,
+                            WindowEvent::KeyboardInput { input, .. } => {
+                                if let ElementState::Pressed = input.state {
+                                    if let Some(VirtualKeyCode::Return) = input.virtual_keycode {
+                                        enter_pressed = true;
+                                    }
                                 }
-                            }
-                        },
-                        _ => ()
-                    }
-                },
-            _ => (),
-        });
+                            },
+                            _ => ()
+                        }
+                    },
+                _ => (),
+            }
+        };
 
         // If enter was pressed toggle fullscreen.
         if enter_pressed {
             if fullscreen {
-                let wb = glutin::WindowBuilder::new();
+                let wb = glutin::window::WindowBuilder::new();
                 let cb = glutin::ContextBuilder::new();
-                display.rebuild(wb, cb, &events_loop).unwrap();
+                display.rebuild(wb, cb, &event_loop).unwrap();
                 fullscreen = false;
             } else {
-                let wb = glutin::WindowBuilder::new()
-                    .with_fullscreen(Some(events_loop.get_primary_monitor()));
+                let wb = glutin::window::WindowBuilder::new()
+                    .with_fullscreen(Some(event_loop.primary_monitor()));
                 let cb = glutin::ContextBuilder::new();
-                display.rebuild(wb, cb, &events_loop).unwrap();
+                display.rebuild(wb, cb, &event_loop).unwrap();
                 fullscreen = true;
             }
         }
