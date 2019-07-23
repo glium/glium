@@ -7,7 +7,7 @@ use backend::Facade;
 use context::Context;
 use ContextExt;
 
-use std::{ffi, mem, ptr};
+use std::{ffi, ptr};
 use std::rc::Rc;
 
 use GlObject;

@@ -9,7 +9,7 @@ the data of the render buffer.
 */
 use std::rc::Rc;
 use std::ops::{Deref, DerefMut};
-use std::{ mem, fmt };
+use std::fmt;
 use std::error::Error;
 
 use framebuffer::{ColorAttachment, ToColorAttachment};

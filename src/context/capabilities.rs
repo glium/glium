@@ -6,7 +6,6 @@ use std::cmp;
 use std::collections::HashMap;
 use std::ffi::CStr;
 use std::hash::BuildHasherDefault;
-use std::mem;
 
 use fnv::FnvHasher;
 

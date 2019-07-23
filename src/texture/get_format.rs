@@ -3,7 +3,7 @@ use version::Version;
 use version::Api;
 use gl;
 
-use std::{ mem, fmt };
+use std::fmt;
 use std::error::Error;
 
 use texture::any::TextureAny;

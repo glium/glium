@@ -9,7 +9,6 @@ use QueryExt;
 
 use std::cell::Cell;
 use std::fmt;
-use std::mem;
 use std::rc::Rc;
 use std::error::Error;
 
