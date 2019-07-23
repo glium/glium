@@ -119,7 +119,7 @@ macro_rules! implement_vertex {
                                   // dangerous and needs to be fixed more in the
                                   // future. Basically, the problem is that the
                                   // struct might not be allowed to be all
-                                  // zeroes. At least it's safe than uninitialized().
+                                  // zeroes. At least it's safer than uninitialized().
                                   ::std::mem::zeroed()
                                 };
                                 let offset: usize = {
