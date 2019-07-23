@@ -1179,8 +1179,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
     };
 
     // will store the actual size of the buffer so that we can compare it with the expected size
-    #[allow(deprecated)]
-    let mut obtained_size: gl::types::GLint = mem::uninitialized();
+    let mut obtained_size: gl::types::GLint = 0;
 
     // the value of `immutable` is determined below
     // if true, the buffer won't be modifiable with regular OpenGL function calls
