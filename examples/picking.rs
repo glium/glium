@@ -102,7 +102,7 @@ fn main() {
     ).unwrap();
 
     let mut camera = support::camera::CameraState::new();
-    camera.set_position((0.0, 0.0, 1.5));
+    camera.set_position((0.0, 0.0, -1.5));
     camera.set_direction((0.0, 0.0, 1.0));
 
     //id's must be unique and != 0
