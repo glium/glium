@@ -215,8 +215,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
 
         BufferAny::unbind_pixel_unpack(&mut ctxt);
 
-        #[allow(deprecated)]
-        let id: gl::types::GLuint = mem::uninitialized();
+        let id: gl::types::GLuint = 0;
         ctxt.gl.GenTextures(1, mem::transmute(&id));
 
         {
@@ -654,10 +653,8 @@ impl TextureAny {
     pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
         unsafe {
             let ctxt = self.context.make_current();
-            #[allow(deprecated)]
-            let mut depth_bits: gl::types::GLint = mem::uninitialized();
-            #[allow(deprecated)]
-            let mut stencil_bits: gl::types::GLint = mem::uninitialized();
+            let mut depth_bits: gl::types::GLint = 0;
+            let mut stencil_bits: gl::types::GLint = 0;
             // FIXME: GL version considerations
             ctxt.gl.GetTextureLevelParameteriv(self.id, 0, gl::TEXTURE_DEPTH_SIZE, &mut depth_bits);
             ctxt.gl.GetTextureLevelParameteriv(self.id, 0, gl::TEXTURE_STENCIL_SIZE, &mut stencil_bits);
@@ -1243,16 +1240,13 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
         unsafe {
             let bind_point = texture.bind_to_current(&mut ctxt);
 
-            #[allow(deprecated)]
-            let mut is_compressed = mem::uninitialized();
+            let mut is_compressed = 0;
             ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED, &mut is_compressed);
             if is_compressed != 0 {
 
-                #[allow(deprecated)]
-                let mut buffer_size = mem::uninitialized();
+                let mut buffer_size = 0;
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED_IMAGE_SIZE, &mut buffer_size);
-                #[allow(deprecated)]
-                let mut internal_format = mem::uninitialized();
+                let mut internal_format = 0;
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_INTERNAL_FORMAT, &mut internal_format);
 
                 match ClientFormatAny::from_internal_compressed_format(internal_format as gl::types::GLenum) {

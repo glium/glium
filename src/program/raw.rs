@@ -287,19 +287,16 @@ impl RawProgram {
                     Handle::Handle(_) => unreachable!()
                 };
 
-                #[allow(deprecated)]
-                let mut num_supported_formats = mem::uninitialized();
+                let mut num_supported_formats = 0;
                 ctxt.gl.GetIntegerv(gl::NUM_PROGRAM_BINARY_FORMATS, &mut num_supported_formats);
                 if num_supported_formats == 0 {
                     return Err(GetBinaryError::NoFormats)
                 }
 
-                #[allow(deprecated)]
-                let mut buf_len = mem::uninitialized();
+                let mut buf_len = 0;
                 ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
 
-                #[allow(deprecated)]
-                let mut format = mem::uninitialized();
+                let mut format = 0;
                 let mut storage: Vec<u8> = Vec::with_capacity(buf_len as usize);
                 ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
                                          storage.as_mut_ptr() as *mut _);
@@ -730,8 +727,7 @@ unsafe fn create_program(ctxt: &mut CommandContext) -> Handle {
 unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
                                     -> Result<(), ProgramCreationError>
 {
-    #[allow(deprecated)]
-    let mut link_success: gl::types::GLint = mem::uninitialized();
+    let mut link_success: gl::types::GLint = 0;
 
     match id {
         Handle::Id(id) => {
@@ -765,8 +761,7 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
             }
         };
 
-        #[allow(deprecated)]
-        let mut error_log_size: gl::types::GLint = mem::uninitialized();
+        let mut error_log_size: gl::types::GLint = 0;
 
         match id {
             Handle::Id(id) => {

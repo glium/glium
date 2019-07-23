@@ -77,6 +77,10 @@ macro_rules! uniform {
 ///
 /// The parameters must be the name of the struct and the names of its fields.
 ///
+/// ## Safety
+///
+/// You must not use this macro on any struct with fields that cannot be zeroed.
+///
 /// ## Example
 ///
 /// ```
@@ -110,7 +114,14 @@ macro_rules! implement_vertex {
                             {
                                 // calculate the offset of the struct fields
                                 #[allow(deprecated)]
-                                let dummy: $struct_name = unsafe { ::std::mem::uninitialized() };
+                                let dummy: $struct_name = unsafe {
+                                  // Note(Lokathor): This is potentially
+                                  // dangerous and needs to be fixed more in the
+                                  // future. Basically, the problem is that the
+                                  // struct might not be allowed to be all
+                                  // zeroes. At least it's safer than uninitialized().
+                                  ::std::mem::zeroed()
+                                };
                                 let offset: usize = {
                                     let dummy_ref = &dummy;
                                     let field_ref = &dummy.$field_name;

@@ -99,8 +99,11 @@ unsafe impl<T> Content for T where T: Copy {
     #[inline]
     fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
         assert!(size == mem::size_of::<T>());
-        #[allow(deprecated)]
-        let mut value = unsafe { mem::uninitialized() };
+        // Note(Lokathor): This is brittle and dangerous if `T` isn't a type
+        // that can be zeroed. However, it's a breaking change to adjust the API
+        // here (eg: extra trait bound or something) so someone with more
+        // authority than me needs to look at and fix this.
+        let mut value = unsafe { mem::zeroed() };
         try!(f(&mut value));
         Ok(value)
     }
