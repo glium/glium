@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.25.0-glutin22"
+version = "0.25.1-alpha1"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = """
 Elegant and safe OpenGL wrapper.
@@ -47,11 +47,11 @@ smallvec = "0.6"
 fnv = "1.0.5"
 
 [build-dependencies]
-gl_generator = "0.11"
+gl_generator = "0.13"
 
 [dev-dependencies]
 cgmath = "0.17"
 genmesh = "0.6"
 image = "0.21"
 obj = { version = "0.9", features = ["genmesh"] }
-rand = "0.6"
+rand = "0.7"

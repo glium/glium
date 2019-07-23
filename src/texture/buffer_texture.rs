@@ -139,7 +139,7 @@ impl Error for CreationError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::CreationError::*;
         match *self {
             BufferCreationError(ref err) => Some(err),
@@ -397,6 +397,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                     ctxt.extensions.gl_arb_direct_state_access
         {
             unsafe {
+                #[allow(deprecated)]
                 let mut id = mem::uninitialized();
                 ctxt.gl.CreateTextures(gl::TEXTURE_BUFFER, 1, &mut id);
                 ctxt.gl.TextureBuffer(id, internal_format, buffer.get_id());
@@ -406,6 +407,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         } else {
             // reserving the ID
             let id = unsafe {
+                #[allow(deprecated)]
                 let mut id = mem::uninitialized();
                 ctxt.gl.GenTextures(1, &mut id);
                 id

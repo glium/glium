@@ -965,6 +965,7 @@ impl FrameBufferObject {
 
         // building the FBO
         let id = unsafe {
+            #[allow(deprecated)]
             let mut id = mem::uninitialized();
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||

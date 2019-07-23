@@ -1124,6 +1124,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
 
     // creating the id of the buffer
     let id = {
+        #[allow(deprecated)]
         let mut id: gl::types::GLuint = mem::uninitialized();
         if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
             ctxt.gl.CreateBuffers(1, &mut id);
@@ -1179,6 +1180,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
     };
 
     // will store the actual size of the buffer so that we can compare it with the expected size
+    #[allow(deprecated)]
     let mut obtained_size: gl::types::GLint = mem::uninitialized();
 
     // the value of `immutable` is determined below

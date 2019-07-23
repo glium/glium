@@ -598,6 +598,7 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
 fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitmask: u32)
                             -> Result<(), DrawError> {
     unsafe {
+        #[allow(deprecated)]
         let mut max_clip_planes: gl::types::GLint = mem::uninitialized();
         ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
         for i in 0..32 {

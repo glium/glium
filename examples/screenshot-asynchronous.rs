@@ -42,7 +42,7 @@ mod screenshot {
     }
 
     impl AsyncScreenshotTask {
-        fn new(facade: &glium::backend::Facade, target_frame: u64) -> Self {
+        fn new(facade: &dyn glium::backend::Facade, target_frame: u64) -> Self {
             // Get information about current framebuffer
             let dimensions = facade.get_context().get_framebuffer_dimensions();
             let rect = glium::Rect {
@@ -118,7 +118,7 @@ mod screenshot {
             ScreenshotIterator(self)
         }
 
-        pub fn take_screenshot(&mut self, facade: &glium::backend::Facade) {
+        pub fn take_screenshot(&mut self, facade: &dyn glium::backend::Facade) {
             self.screenshot_tasks
                 .push_back(AsyncScreenshotTask::new(facade, self.frame + self.screenshot_delay));
         }

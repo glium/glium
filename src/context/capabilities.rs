@@ -170,6 +170,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 {
     // GL_CONTEXT_FLAGS are only available from GL 3.0 onwards
     let (debug, forward_compatible) = if version >= &Version(Api::Gl, 3, 0) {
+        #[allow(deprecated)]
         let mut val = mem::uninitialized();
         gl.GetIntegerv(gl::CONTEXT_FLAGS, &mut val);
         let val = val as gl::types::GLenum;
@@ -208,6 +209,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         profile: {
             if version >= &Version(Api::Gl, 3, 2) {
+                #[allow(deprecated)]
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::CONTEXT_PROFILE_MASK, &mut val);
                 let val = val as gl::types::GLenum;
@@ -232,12 +234,14 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         {
             // TODO: there seems to be no way to query `GL_CONTEXT_FLAGS` before OpenGL 3.0, even
             //       if `GL_ARB_robustness` is there
+            #[allow(deprecated)]
             let mut val = mem::uninitialized();
             gl.GetIntegerv(gl::CONTEXT_FLAGS, &mut val);
             let val = val as gl::types::GLenum;
             (val & gl::CONTEXT_FLAG_ROBUST_ACCESS_BIT) != 0
 
         } else if extensions.gl_khr_robustness || extensions.gl_ext_robustness {
+            #[allow(deprecated)]
             let mut val = mem::uninitialized();
             gl.GetBooleanv(gl::CONTEXT_ROBUST_ACCESS, &mut val);
             val != 0
@@ -249,6 +253,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         can_lose_context: if version >= &Version(Api::Gl, 4, 5) || extensions.gl_khr_robustness ||
                              extensions.gl_arb_robustness || extensions.gl_ext_robustness
         {
+            #[allow(deprecated)]
             let mut val = mem::uninitialized();
             gl.GetIntegerv(gl::RESET_NOTIFICATION_STRATEGY, &mut val);
 
@@ -272,6 +277,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         },
 
         release_behavior: if extensions.gl_khr_context_flush_control {
+            #[allow(deprecated)]
             let mut val = mem::uninitialized();
             gl.GetIntegerv(gl::CONTEXT_RELEASE_BEHAVIOR, &mut val);
 
@@ -287,6 +293,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         stereo: {
             if version >= &Version(Api::Gl, 1, 0) {
+                #[allow(deprecated)]
                 let mut val: gl::types::GLboolean = mem::uninitialized();
                 gl.GetBooleanv(gl::STEREO, &mut val);
                 val != 0
@@ -299,6 +306,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
             // drivers, so we prefer using `glGetIntegerv` if possible.
             if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_ext_framebuffer_srgb {
+                #[allow(deprecated)]
                 let mut value = mem::uninitialized();
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::FRONT_LEFT,
                                                        gl::FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
@@ -306,6 +314,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                 value as gl::types::GLenum == gl::SRGB
 
             } else if extensions.gl_ext_framebuffer_srgb {
+                #[allow(deprecated)]
                 let mut value = mem::uninitialized();
                 gl.GetBooleanv(gl::FRAMEBUFFER_SRGB_CAPABLE_EXT, &mut value);
                 value != 0
@@ -316,6 +325,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         },
 
         depth_bits: {
+            #[allow(deprecated)]
             let mut value = mem::uninitialized();
 
             // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
@@ -325,6 +335,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             // doesn't even though it provides this extension. I'm not sure whether this is a bug
             // with OS/X or just the extension actually not providing it.
             if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility {
+                #[allow(deprecated)]
                 let mut ty = mem::uninitialized();
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
                                                        gl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
@@ -349,6 +360,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         },
 
         stencil_bits: {
+            #[allow(deprecated)]
             let mut value = mem::uninitialized();
 
             // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
@@ -358,6 +370,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             // doesn't even though it provides this extension. I'm not sure whether this is a bug
             // with OS/X or just the extension actually not providing it.
             if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility {
+                #[allow(deprecated)]
                 let mut ty = mem::uninitialized();
                 gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
                                                        gl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
@@ -402,6 +415,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         } else {
             Some({
+                #[allow(deprecated)]
                 let mut val = mem::uninitialized();
                 gl.GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mut val);
                 val
@@ -414,6 +428,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                extensions.gl_ext_texture_buffer
             {
                 Some({
+                    #[allow(deprecated)]
                     let mut val = mem::uninitialized();
                     gl.GetIntegerv(gl::MAX_TEXTURE_BUFFER_SIZE, &mut val);
                     val
@@ -447,6 +462,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             extensions.gl_arb_tessellation_shader
         {
             Some({
+                #[allow(deprecated)]
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_PATCH_VERTICES, &mut val);
                 val
@@ -457,6 +473,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         },
 
         max_indexed_atomic_counter_buffer: if version >= &Version(Api::Gl, 4, 2) {      // TODO: ARB_shader_atomic_counters   // TODO: GLES
+            #[allow(deprecated)]
             let mut val = mem::uninitialized();
             gl.GetIntegerv(gl::MAX_ATOMIC_COUNTER_BUFFER_BINDINGS, &mut val);
             val
@@ -466,6 +483,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         max_indexed_shader_storage_buffer: {
             if version >= &Version(Api::Gl, 4, 3) || extensions.gl_arb_shader_storage_buffer_object {      // TODO: GLES
+                #[allow(deprecated)]
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_SHADER_STORAGE_BUFFER_BINDINGS, &mut val);
                 val
@@ -476,10 +494,12 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         max_indexed_transform_feedback_buffer: {
             if version >= &Version(Api::Gl, 4, 0) || extensions.gl_arb_transform_feedback3 {      // TODO: GLES
+                #[allow(deprecated)]
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_TRANSFORM_FEEDBACK_BUFFERS, &mut val);
                 val
             } else if version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_transform_feedback {
+                #[allow(deprecated)]
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_TRANSFORM_FEEDBACK_SEPARATE_ATTRIBS_EXT, &mut val);
                 val
@@ -490,6 +510,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
 
         max_indexed_uniform_buffer: {
             if version >= &Version(Api::Gl, 3, 1) || extensions.gl_arb_uniform_buffer_object {      // TODO: GLES
+                #[allow(deprecated)]
                 let mut val = mem::uninitialized();
                 gl.GetIntegerv(gl::MAX_UNIFORM_BUFFER_BINDINGS, &mut val);
                 val
@@ -502,8 +523,11 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                                          version >= &Version(Api::GlEs, 3, 1) ||
                                          extensions.gl_arb_compute_shader
         {
+            #[allow(deprecated)]
             let mut val1 = mem::uninitialized();
+            #[allow(deprecated)]
             let mut val2 = mem::uninitialized();
+            #[allow(deprecated)]
             let mut val3 = mem::uninitialized();
             gl.GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 0, &mut val1);
             gl.GetIntegeri_v(gl::MAX_COMPUTE_WORK_GROUP_COUNT, 1, &mut val2);
@@ -601,6 +625,7 @@ pub unsafe fn get_supported_glsl(gl: &gl::Gl, version: &Version, extensions: &Ex
     // checking if the implementation has a shader compiler
     // a compiler is optional in OpenGL ES
     if version.0 == Api::GlEs {
+        #[allow(deprecated)]
         let mut val = mem::uninitialized();
         gl.GetBooleanv(gl::SHADER_COMPILER, &mut val);
         if val == 0 {
@@ -724,6 +749,7 @@ pub fn get_internal_format(gl: &gl::Gl, version: &Version, extensions: &Extensio
                           version >= &Version(Api::Gl, 4, 2) ||
                           extensions.gl_arb_internalformat_query)
         {
+            #[allow(deprecated)]
             let mut num = mem::uninitialized();
             gl.GetInternalformativ(target, format.to_glenum(), gl::NUM_SAMPLE_COUNTS, 1, &mut num);
 

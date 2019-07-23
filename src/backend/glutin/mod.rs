@@ -202,7 +202,7 @@ impl Error for DisplayCreationError {
     }
 
     #[inline]
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         match *self {
             DisplayCreationError::GlutinCreationError(ref err) => Some(err),
             DisplayCreationError::IncompatibleOpenGl(ref err) => Some(err),

@@ -149,6 +149,7 @@ pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
                   -> Result<InternalFormat, GetFormatError>
 {
     if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
+        #[allow(deprecated)] // For uninitialized()
         let (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
              alpha_sz, alpha_ty, depth_sz, depth_ty) = unsafe
         {
