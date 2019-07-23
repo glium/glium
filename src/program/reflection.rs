@@ -3,7 +3,6 @@ use gl;
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
 use std::ffi;
-use std::mem;
 use std::ptr;
 use std::os::raw;
 

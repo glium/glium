@@ -76,7 +76,6 @@ use Rect;
 use ToGlEnum;
 use vertex::TransformFeedbackSession;
 
-use std::mem;
 use std::ops::Range;
 
 pub use self::blend::{Blend, BlendingFunction, LinearBlendingFactor};

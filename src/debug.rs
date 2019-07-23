@@ -10,7 +10,6 @@ use version::Api;
 use version::Version;
 use gl;
 use std::rc::Rc;
-use std::mem;
 
 pub use context::DebugCallbackBehavior;
 
