@@ -1240,16 +1240,13 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
         unsafe {
             let bind_point = texture.bind_to_current(&mut ctxt);
 
-            #[allow(deprecated)]
-            let mut is_compressed = mem::uninitialized();
+            let mut is_compressed = 0;
             ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED, &mut is_compressed);
             if is_compressed != 0 {
 
-                #[allow(deprecated)]
-                let mut buffer_size = mem::uninitialized();
+                let mut buffer_size = 0;
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_COMPRESSED_IMAGE_SIZE, &mut buffer_size);
-                #[allow(deprecated)]
-                let mut internal_format = mem::uninitialized();
+                let mut internal_format = 0;
                 ctxt.gl.GetTexLevelParameteriv(bind_point, level, gl::TEXTURE_INTERNAL_FORMAT, &mut internal_format);
 
                 match ClientFormatAny::from_internal_compressed_format(internal_format as gl::types::GLenum) {
