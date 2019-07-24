@@ -209,7 +209,7 @@ fn main() {
         if let (Some(cursor), Some(&(ref picking_texture, _))) = (cursor_position, picking_attachments.as_ref()) {
             let read_target = glium::Rect {
                 left: (cursor.0 - 1) as u32,
-                bottom: picking_texture.get_height().unwrap() - std::cmp::max(cursor.1 - 1, 0) as u32,
+                bottom: picking_texture.get_height().unwrap().saturating_sub(std::cmp::max(cursor.1 - 1, 0) as u32),
                 width: 1,
                 height: 1,
             };
