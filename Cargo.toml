@@ -39,7 +39,7 @@ features = []
 optional = true
 
 [dependencies]
-takeable-option = "0.4"
+takeable-option = "0.5"
 backtrace = "0.3.2"
 lazy_static = "1.0"
 smallvec = "0.6"
