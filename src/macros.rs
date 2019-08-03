@@ -113,7 +113,6 @@ macro_rules! implement_vertex {
                             Cow::Borrowed(stringify!($field_name)),
                             {
                                 // calculate the offset of the struct fields
-                                #[allow(deprecated)]
                                 let dummy: $struct_name = unsafe {
                                   // Note(Lokathor): This is potentially
                                   // dangerous and needs to be fixed more in the
