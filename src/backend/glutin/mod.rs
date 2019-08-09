@@ -115,7 +115,7 @@ impl Display {
         let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
         let glutin_backend = GlutinBackend(gl_window.clone());
         let framebuffer_dimensions = glutin_backend.get_framebuffer_dimensions();
-        let context = try!(unsafe { context::Context::new(glutin_backend, checked, debug) });
+        let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         Ok(Display {
             gl_window: gl_window,
             context: context,
@@ -152,7 +152,7 @@ impl Display {
 
         // Rebuild the Context.
         let backend = GlutinBackend(self.gl_window.clone());
-        try!(unsafe { self.context.rebuild(backend) });
+        unsafe { self.context.rebuild(backend) }?;
 
         Ok(())
     }

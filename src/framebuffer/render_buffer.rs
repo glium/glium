@@ -70,7 +70,7 @@ impl RenderBuffer {
                   -> Result<RenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::UncompressedFloat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(RenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::Float, width, height, None)
@@ -123,7 +123,7 @@ impl DepthRenderBuffer {
                   -> Result<DepthRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthFormat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(DepthRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::Depth, width, height, None)
@@ -175,7 +175,7 @@ impl StencilRenderBuffer {
                   -> Result<StencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::StencilFormat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(StencilRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::Stencil, width, height, None)
@@ -228,7 +228,7 @@ impl DepthStencilRenderBuffer {
                   -> Result<DepthStencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthStencilFormat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(DepthStencilRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::DepthStencil, width, height, None)

@@ -214,7 +214,7 @@ impl<T: ?Sized> Buffer<T> where T: Content {
         let target = target.into();
         let alloc = self.alloc.as_ref().unwrap();
 
-        try!(alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes()));
+        alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes())?;
 
         if let Some(inserter) = self.as_slice().add_fence() {
             let mut ctxt = alloc.get_context().make_current();
@@ -383,7 +383,7 @@ impl<T> Buffer<[T]> where T: PixelValue {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-        let data = try!(self.read());
+        let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }
@@ -570,8 +570,8 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     {
         let target = target.into();
 
-        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
-                                target.get_offset_bytes()));
+        self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+                           target.get_offset_bytes())?;
 
         if let Some(inserter) = self.add_fence() {
             let mut ctxt = self.alloc.get_context().make_current();
@@ -680,7 +680,7 @@ impl<'a, T> BufferSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-        let data = try!(self.read());
+        let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }
@@ -927,8 +927,8 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     {
         let target = target.into();
 
-        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
-                                target.get_offset_bytes()));
+        self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+                           target.get_offset_bytes())?;
 
         if let Some(inserter) = self.add_fence() {
             let mut ctxt = self.alloc.get_context().make_current();
@@ -1038,7 +1038,7 @@ impl<'a, T> BufferMutSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-        let data = try!(self.read());
+        let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }

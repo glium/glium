@@ -116,7 +116,7 @@ impl Headless {
         };
         let glutin_context = Rc::new(RefCell::new(Takeable::new(context)));
         let glutin_backend = GlutinBackend(glutin_context.clone());
-        let context = try!(unsafe { context::Context::new(glutin_backend, checked, debug) });
+        let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         Ok(Headless { context: context, glutin: glutin_context })
     }
 

@@ -1745,7 +1745,7 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
                 Some(ClientFormatAny::CompressedFormat(format)) => format,
                 _ => unreachable!(),
             });
-            try!(format_request_to_glenum(context, TextureFormatRequest::Specific(newformat), rq_ty))
+            format_request_to_glenum(context, TextureFormatRequest::Specific(newformat), rq_ty)?
         },
 
         TextureFormatRequest::AnyCompressed => {
@@ -1813,8 +1813,8 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
 
             } else {
                 // no support for sRGB
-                try!(format_request_to_glenum(context, TextureFormatRequest::AnyFloatingPoint,
-                                              rq_ty))
+                format_request_to_glenum(context, TextureFormatRequest::AnyFloatingPoint,
+                                              rq_ty)?
             }
         },
 
@@ -1834,7 +1834,7 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
                 Some(ClientFormatAny::CompressedSrgbFormat(format)) => format,
                 _ => unreachable!(),
             });
-            try!(format_request_to_glenum(context, TextureFormatRequest::Specific(newformat), rq_ty))
+            format_request_to_glenum(context, TextureFormatRequest::Specific(newformat), rq_ty)?
         },
 
         TextureFormatRequest::AnyCompressedSrgb => {
@@ -1855,7 +1855,7 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
 
             } else {
                 // no support for compressed srgb textures
-                try!(format_request_to_glenum(context, TextureFormatRequest::AnySrgb, rq_ty))
+                format_request_to_glenum(context, TextureFormatRequest::AnySrgb, rq_ty)?
             }
         },
 
