@@ -255,7 +255,7 @@ impl<'a> SimpleFrameBuffer<'a> {
             }
         });
 
-        let attachments = try!(attachments.validate(facade));
+        let attachments = attachments.validate(facade)?;
 
         Ok(SimpleFrameBuffer {
             context: facade.get_context().clone(),
@@ -499,10 +499,10 @@ impl<'a> MultiOutputFrameBuffer<'a> {
             fbo::DepthStencilAttachments::None
         };
 
-        let example_attachments = try!(fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
+        let example_attachments = fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
             colors: example_color,
             depth_stencil: depth_stencil_attachments,
-        }).validate(facade));
+        }).validate(facade)?;
 
         Ok(MultiOutputFrameBuffer {
             context: facade.get_context().clone(),
@@ -692,7 +692,7 @@ impl<'a> EmptyFrameBuffer {
             fixed_samples: fixed_samples,
         };
 
-        let attachments = try!(attachments.validate(context));
+        let attachments = attachments.validate(context)?;
 
         Ok(EmptyFrameBuffer {
             context: context.clone(),

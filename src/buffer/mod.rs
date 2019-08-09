@@ -104,7 +104,7 @@ unsafe impl<T> Content for T where T: Copy {
         // here (eg: extra trait bound or something) so someone with more
         // authority than me needs to look at and fix this.
         let mut value = unsafe { mem::zeroed() };
-        try!(f(&mut value));
+        f(&mut value)?;
         Ok(value)
     }
 
@@ -144,7 +144,7 @@ unsafe impl<T> Content for [T] where T: Copy {
         let len = size / mem::size_of::<T>();
         let mut value = Vec::with_capacity(len);
         unsafe { value.set_len(len) };
-        try!(f(&mut value));
+        f(&mut value)?;
         Ok(value)
     }
 

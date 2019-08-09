@@ -121,7 +121,7 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(Buffer::new(facade, data, BufferType::ElementArrayBuffer, mode)).into(),
+            buffer: Buffer::new(facade, data, BufferType::ElementArrayBuffer, mode)?.into(),
             primitives: prim,
         })
     }
@@ -176,8 +176,8 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: try!(Buffer::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                                 mode)).into(),
+            buffer: Buffer::empty_array(facade, BufferType::ElementArrayBuffer, len,
+                                                 mode)?.into(),
             primitives: prim,
         })
     }

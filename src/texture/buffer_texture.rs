@@ -231,7 +231,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                    -> Result<BufferTexture<T>, CreationError>
                    where F: Facade
     {
-        let buffer = try!(Buffer::new(facade, data, BufferType::TextureBuffer, mode));
+        let buffer = Buffer::new(facade, data, BufferType::TextureBuffer, mode)?;
         BufferTexture::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
     }
 
@@ -276,7 +276,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                      -> Result<BufferTexture<T>, CreationError>
                      where F: Facade
     {
-        let buffer = try!(Buffer::empty_array(facade, BufferType::TextureBuffer, len, mode));
+        let buffer = Buffer::empty_array(facade, BufferType::TextureBuffer, len, mode)?;
         BufferTexture::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
     }
 

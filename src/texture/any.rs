@@ -169,11 +169,11 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
     let should_generate_mipmaps = mipmaps.should_generate();
     let texture_levels = mipmaps.num_levels(width, height, depth) as gl::types::GLsizei;
 
-    let teximg_internal_format = try!(image_format::format_request_to_glenum(facade.get_context(), format, image_format::RequestType::TexImage(data.as_ref().map(|&(c, _)| c))));
+    let teximg_internal_format = image_format::format_request_to_glenum(facade.get_context(), format, image_format::RequestType::TexImage(data.as_ref().map(|&(c, _)| c)))?;
     let storage_internal_format = image_format::format_request_to_glenum(facade.get_context(), format, image_format::RequestType::TexStorage).ok();
 
     let (client_format, client_type) = match (&data, format) {
-        (&Some((client_format, _)), f) => try!(image_format::client_format_to_glenum(facade.get_context(), client_format, f, false)),
+        (&Some((client_format, _)), f) => image_format::client_format_to_glenum(facade.get_context(), client_format, f, false)?,
         (&None, TextureFormatRequest::AnyDepth) => (gl::DEPTH_COMPONENT, gl::FLOAT),
         (&None, TextureFormatRequest::Specific(TextureFormat::DepthFormat(_))) => (gl::DEPTH_COMPONENT, gl::FLOAT),
         (&None, TextureFormatRequest::AnyDepthStencil) => (gl::DEPTH_STENCIL, gl::UNSIGNED_INT_24_8),
@@ -1170,10 +1170,10 @@ impl<'t> TextureMipmapExt for TextureAnyMipmap<'t> {
             panic!("Texture data size mismatch");
         }
 
-        let (client_format, client_type) = try!(image_format::client_format_to_glenum(&self.texture.context,
-                                                                                      format,
-                                                                                      self.texture.requested_format, false)
-                                                                                      .map_err(|_| ()));
+        let (client_format, client_type) = image_format::client_format_to_glenum(&self.texture.context,
+                                                                                 format,
+                                                                                 self.texture.requested_format, false)
+                                                                                 .map_err(|_| ())?;
 
         let mut ctxt = self.texture.context.make_current();
 

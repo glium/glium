@@ -114,9 +114,9 @@ impl Alloc {
 
         let size = mem::size_of_val(data);
 
-        let (id, immutable, created_with_buffer_storage, persistent_mapping) = try!(unsafe {
+        let (id, immutable, created_with_buffer_storage, persistent_mapping) = unsafe {
             create_buffer(&mut ctxt, size, Some(data), ty, mode)
-        });
+        }?;
 
         Ok(Alloc {
             context: facade.get_context().clone(),
@@ -138,9 +138,9 @@ impl Alloc {
     {
         let mut ctxt = facade.get_context().make_current();
 
-        let (id, immutable, created_with_buffer_storage, persistent_mapping) = try!(unsafe {
+        let (id, immutable, created_with_buffer_storage, persistent_mapping) = unsafe {
             create_buffer::<()>(&mut ctxt, size, None, ty, mode)
-        });
+        }?;
 
         Ok(Alloc {
             context: facade.get_context().clone(),

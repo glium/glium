@@ -168,7 +168,7 @@ impl Context {
 
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl, &version);
-        try!(check_gl_compatibility(&version, &extensions));
+        check_gl_compatibility(&version, &extensions)?;
 
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
         let report_debug_output_errors = Cell::new(true);

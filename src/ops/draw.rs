@@ -164,11 +164,11 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
     // binding the program and uniforms
     program.use_program(&mut ctxt);
-    try!(uniforms.bind_uniforms(&mut ctxt, program, &mut fences));
+    uniforms.bind_uniforms(&mut ctxt, program, &mut fences)?;
 
     // sync-ing draw_parameters
     unsafe {
-        try!(draw_parameters::sync(&mut ctxt, draw_parameters, dimensions, indices.get_primitives_type()));
+        draw_parameters::sync(&mut ctxt, draw_parameters, dimensions, indices.get_primitives_type())?;
         sync_vertices_per_patch(&mut ctxt, vertices_per_patch);
 
         // TODO: make sure that the program is the right one

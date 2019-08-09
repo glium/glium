@@ -158,7 +158,7 @@ impl RawProgram {
             }
 
             // checking for errors
-            try!(check_program_link_errors(&mut ctxt, id));
+            check_program_link_errors(&mut ctxt, id)?;
 
             id
         };
@@ -227,7 +227,7 @@ impl RawProgram {
             };
 
             // checking for errors
-            try!(check_program_link_errors(&mut ctxt, id));
+            check_program_link_errors(&mut ctxt, id)?;
 
             id
         };
@@ -532,7 +532,7 @@ impl RawProgram {
         let mut fences = Vec::with_capacity(0);
 
         self.use_program(&mut ctxt);
-        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences));
+        uniforms.bind_uniforms(&mut ctxt, self, &mut fences)?;
         ctxt.gl.DispatchCompute(x, y, z);
 
         for fence in fences {
@@ -574,7 +574,7 @@ impl RawProgram {
         self.use_program(&mut ctxt);
 
         let mut fences = Vec::with_capacity(0);
-        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences));
+        uniforms.bind_uniforms(&mut ctxt, self, &mut fences)?;
 
         ctxt.gl.DispatchComputeIndirect(offset as gl::types::GLintptr);
 

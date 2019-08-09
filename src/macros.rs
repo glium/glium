@@ -232,7 +232,7 @@ macro_rules! implement_buffer_content {
                     let storage = storage.into_boxed_slice();
                     let mut storage: Box<$struct_name<$($gs)*>> = unsafe { mem::transmute(storage) };
 
-                    try!(f(&mut storage));
+                    f(&mut storage)?;
                     Ok(storage)
                 }
 
