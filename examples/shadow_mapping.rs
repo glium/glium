@@ -145,7 +145,6 @@ fn main() {
     let shadow_texture = glium::texture::DepthTexture2d::empty(&display, shadow_map_size, shadow_map_size).unwrap();
 
     let mut start = Instant::now();
-    let mut exit = false;
 
     let mut light_t: f64 = 8.7;
     let mut light_rotating = false;
@@ -155,7 +154,7 @@ fn main() {
     println!("This example demonstrates real-time shadow mapping. Press C to toggle camera");
     println!("rotation; press L to toggle light rotation.");
 
-    while !exit {
+    event_loop.run(move |event, _, control_flow| {
         let elapsed_dur = start.elapsed();
         let secs = (elapsed_dur.as_secs() as f64) + (elapsed_dur.subsec_nanos() as f64) * 1e-9;
         start = Instant::now();
@@ -163,10 +162,17 @@ fn main() {
         if camera_rotating { camera_t += secs * 0.7; }
         if light_rotating { light_t += secs * 0.7; }
 
+        let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
         // Handle events
-        event_loop.poll_events(|event| match event {
+        match event {
             glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => exit = true,
+                glutin::event::WindowEvent::CloseRequested => {
+                    *control_flow = glutin::event_loop::ControlFlow::Exit;
+                    return;
+                },
                 glutin::event::WindowEvent::KeyboardInput { input, .. } => if input.state == glutin::event::ElementState::Pressed {
                     if let Some(key) = input.virtual_keycode {
                         match key {
@@ -176,10 +182,15 @@ fn main() {
                         }
                     }
                 },
-                _ => (),
+                _ => return,
             },
-            _ => (),
-        });
+            glutin::event::Event::NewEvents(cause) => match cause {
+                glutin::event::StartCause::ResumeTimeReached { .. } => (),
+                glutin::event::StartCause::Init => (),
+                _ => return,
+            },
+            _ => return,
+        }
 
         // Rotate the light around the center of the scene
         let light_loc = {
@@ -308,7 +319,7 @@ fn main() {
         }
 
         target.finish().unwrap();
-    }
+    });
 }
 
 fn create_box(display: &glium::Display) -> (glium::VertexBuffer<Vertex>, glium::IndexBuffer<u16>) {
