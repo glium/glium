@@ -239,32 +239,38 @@ fn main() {
     // your requirements.
     let mut screenshot_taker = screenshot::AsyncScreenshotTaker::new(5);
 
-    loop {
-        let mut closed = false;
-        let mut take_screenshot = false;
+    event_loop.run(move |event, _, control_flow| {
 
         // React to events
-        event_loop.poll_events(|event| {
-            use glium::glutin::event::{Event, WindowEvent, ElementState, VirtualKeyCode};
+        use glium::glutin::event::{Event, WindowEvent, ElementState, VirtualKeyCode};
 
-            match event {
-                Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::CloseRequested => closed = true,
-                    WindowEvent::KeyboardInput { input, .. } => {
-                        if let ElementState::Pressed = input.state {
-                            if let Some(VirtualKeyCode::S) = input.virtual_keycode {
-                                take_screenshot = true;
-                            }
-                        }
-                    },
-                    _ => (),
+        let mut take_screenshot = false;
+
+        let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
+        match event {
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => {
+                    *control_flow = glutin::event_loop::ControlFlow::Exit;
+                    return;
                 },
-                _ => (),
-            }
-        });
-
-        if closed {
-            return;
+                WindowEvent::KeyboardInput { input, .. } => {
+                    if let ElementState::Pressed = input.state {
+                        if let Some(VirtualKeyCode::S) = input.virtual_keycode {
+                            take_screenshot = true;
+                        }
+                    }
+                },
+                _ => return,
+            },
+            Event::NewEvents(cause) => match cause {
+                glutin::event::StartCause::ResumeTimeReached { .. } => (),
+                glutin::event::StartCause::Init => (),
+                _ => return,
+            },
+            _ => return,
         }
 
         // Tell Screenshot Taker to count next frame
@@ -313,5 +319,5 @@ fn main() {
                 image.save("glium-example-screenshot.png").unwrap();
             });
         }
-    }
+    });
 }
