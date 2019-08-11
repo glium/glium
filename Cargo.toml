@@ -49,6 +49,7 @@ fnv = "1.0.5"
 gl_generator = "0.13"
 
 [dev-dependencies]
+rental = "0.5.4"
 cgmath = "0.17"
 genmesh = "0.6"
 image = "0.21"
