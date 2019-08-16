@@ -9,6 +9,7 @@ use glium::Surface;
 use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::glutin::event::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
+use glium::glutin::window::Fullscreen;
 
 mod support;
 
@@ -36,7 +37,7 @@ fn main() {
 
         implement_vertex!(Vertex, position, tex_coords);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 0.0] },
                 Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 1.0] },
@@ -85,7 +86,7 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 1.0, 0.0, 1.0);
-        target.draw(&vertex_buffer, &index_buffer, &program, &uniform! { 
+        target.draw(&vertex_buffer, &index_buffer, &program, &uniform! {
                 matrix: [
                     [0.5, 0.0, 0.0, 0.0],
                     [0.0, 0.5, 0.0, 0.0],
@@ -127,7 +128,8 @@ fn main() {
                 fullscreen = false;
             } else {
                 let monitor_handle = display.gl_window().window().available_monitors().next().unwrap();
-                display.gl_window().window().set_fullscreen(Some(monitor_handle));
+                let fs = Fullscreen::Borderless(monitor_handle);
+                display.gl_window().window().set_fullscreen(Some(fs));
 
                 fullscreen = true;
             }
