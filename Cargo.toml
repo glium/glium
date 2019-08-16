@@ -52,6 +52,6 @@ gl_generator = "0.13"
 rental = "0.5.4"
 cgmath = "0.17"
 genmesh = "0.6"
-image = "0.21"
+image = "0.22"
 obj = { version = "0.9", features = ["genmesh"] }
 rand = "0.7"
