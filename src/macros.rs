@@ -131,13 +131,12 @@ macro_rules! implement_vertex {
                                 offset
                             },
                             {
-                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: &T)
+                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
                                     -> $crate::vertex::AttributeType
                                 {
                                     <T as $crate::vertex::Attribute>::get_type()
                                 }
-                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
-                                attr_type_of_val(&dummy.$field_name)
+                                attr_type_of_val(None::<&$struct_name>.map(|v| v.$field_name))
                             },
                             false
                         )
@@ -166,13 +165,12 @@ macro_rules! implement_vertex {
                                 dummy_field
                             },
                             {
-                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: &T)
+                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
                                     -> $crate::vertex::AttributeType
                                 {
                                     <T as $crate::vertex::Attribute>::get_type()
                                 }
-                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
-                                attr_type_of_val(&dummy.$field_name)
+                                None::<&$struct_name>.map(|v| v.$field_name)
                             },
                             {
                                 $should_normalize
