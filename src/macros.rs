@@ -131,12 +131,15 @@ macro_rules! implement_vertex {
                                 offset
                             },
                             {
+                                // Obtain the type of the $field_name field of $struct_name and
+                                // call get_type on it.
                                 fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
                                     -> $crate::vertex::AttributeType
                                 {
                                     <T as $crate::vertex::Attribute>::get_type()
                                 }
-                                attr_type_of_val(None::<&$struct_name>.map(|v| v.$field_name))
+                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
+                                attr_type_of_val(field_option)
                             },
                             false
                         )
@@ -165,12 +168,15 @@ macro_rules! implement_vertex {
                                 dummy_field
                             },
                             {
+                                // Obtain the type of the $field_name field of $struct_name and
+                                // call get_type on it.
                                 fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
                                     -> $crate::vertex::AttributeType
                                 {
                                     <T as $crate::vertex::Attribute>::get_type()
                                 }
-                                None::<&$struct_name>.map(|v| v.$field_name)
+                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
+                                attr_type_of_val(field_option)
                             },
                             {
                                 $should_normalize
