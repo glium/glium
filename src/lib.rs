@@ -100,6 +100,7 @@ result to the user.
 #[macro_use]
 extern crate lazy_static;
 
+extern crate memoffset;
 extern crate backtrace;
 extern crate smallvec;
 extern crate fnv;
@@ -160,6 +161,9 @@ mod vertex_array_object;
 mod gl {
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
+
+#[doc(hidden)]
+pub use memoffset::offset_of as __glium_offset_of;
 
 /// The main object of this library. Controls the whole display.
 ///

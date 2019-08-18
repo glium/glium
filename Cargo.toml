@@ -39,6 +39,7 @@ features = []
 optional = true
 
 [dependencies]
+memoffset = "0.5"
 takeable-option = "0.5"
 backtrace = "0.3.2"
 lazy_static = "1.0"

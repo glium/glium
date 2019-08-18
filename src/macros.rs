@@ -111,25 +111,7 @@ macro_rules! implement_vertex {
                     $(
                         (
                             Cow::Borrowed(stringify!($field_name)),
-                            {
-                                // calculate the offset of the struct fields
-                                let dummy: $struct_name = unsafe {
-                                  // Note(Lokathor): This is potentially
-                                  // dangerous and needs to be fixed more in the
-                                  // future. Basically, the problem is that the
-                                  // struct might not be allowed to be all
-                                  // zeroes. At least it's safer than uninitialized().
-                                  ::std::mem::zeroed()
-                                };
-                                let offset: usize = {
-                                    let dummy_ref = &dummy;
-                                    let field_ref = &dummy.$field_name;
-                                    (field_ref as *const _ as usize) - (dummy_ref as *const _ as usize)
-                                };
-                                // NOTE: `glium::vertex::Vertex` requires `$struct_name` to have `Copy` trait
-                                // `Copy` excludes `Drop`, so we don't have to `std::mem::forget(dummy)`
-                                offset
-                            },
+                            $crate::__glium_offset_of!($struct_name, $field_name),
                             {
                                 // Obtain the type of the $field_name field of $struct_name and
                                 // call get_type on it.
@@ -161,12 +143,7 @@ macro_rules! implement_vertex {
                     $(
                         (
                             Cow::Borrowed(stringify!($field_name)),
-                            {
-                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
-                                let dummy_field = &dummy.$field_name;
-                                let dummy_field: usize = unsafe { ::std::mem::transmute(dummy_field) };
-                                dummy_field
-                            },
+                            $crate::__glium_offset_of!($struct_name, $field_name),
                             {
                                 // Obtain the type of the $field_name field of $struct_name and
                                 // call get_type on it.
