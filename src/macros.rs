@@ -162,9 +162,11 @@ macro_rules! implement_vertex {
                         (
                             Cow::Borrowed(stringify!($field_name)),
                             {
-                                let dummy: &$struct_name = unsafe { ::std::mem::transmute(0usize) };
-                                let dummy_field = &dummy.$field_name;
-                                let dummy_field: usize = unsafe { ::std::mem::transmute(dummy_field) };
+                                let dummy: $struct_name = unsafe { ::std::mem::zeroed() };
+                                let dummy_addr = &dummy as *const $struct_name as usize;
+                                let dummy_offset = &dummy.$field_name as *const _ as usize;
+                                let dummy_field: usize = dummy_offset - dummy_addr;
+                                ::std::mem::forget(dummy);
                                 dummy_field
                             },
                             {
