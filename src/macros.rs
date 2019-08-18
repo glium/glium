@@ -138,7 +138,7 @@ macro_rules! implement_vertex {
                                 {
                                     <T as $crate::vertex::Attribute>::get_type()
                                 }
-                                let field_option = None::<&$struct_name>.map(|v| v.$field_name);
+                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
                                 attr_type_of_val(field_option)
                             },
                             false
@@ -175,7 +175,7 @@ macro_rules! implement_vertex {
                                 {
                                     <T as $crate::vertex::Attribute>::get_type()
                                 }
-                                let field_option = None::<&$struct_name>.map(|v| v.$field_name);
+                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
                                 attr_type_of_val(field_option)
                             },
                             {
