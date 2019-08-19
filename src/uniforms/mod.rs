@@ -446,3 +446,4 @@ impl_uniform_block_array!(256);
 impl_uniform_block_array!(512);
 impl_uniform_block_array!(1024);
 impl_uniform_block_array!(2048);
+impl_uniform_block_array!(4096);

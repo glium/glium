@@ -36,19 +36,19 @@ fn main() {
 
         "#).unwrap();
 
+    const NUM_VALUES: usize = 4096;
+
+    #[derive(Clone, Copy)]
     struct Data {
         power: f32,
         _padding: [f32; 3],
-        values: [[f32;4]],
+        values: [[f32;4]; NUM_VALUES],
     }
 
-    implement_buffer_content!(Data);
     implement_uniform_block!(Data, power, values);
 
-    const NUM_VALUES: usize = 4096;
-
     let mut buffer: glium::uniforms::UniformBuffer<Data> =
-              glium::uniforms::UniformBuffer::empty_unsized(&display, 4 + 4*3 + 4 * NUM_VALUES).unwrap();
+              glium::uniforms::UniformBuffer::empty(&display).unwrap();
 
     {
         let mut mapping = buffer.map();
