@@ -373,16 +373,13 @@ macro_rules! implement_uniform_block {
                 }
 
                 fn build_layout(base_offset: usize) -> $crate::program::BlockLayout {
-                    use std::mem;
                     use $crate::program::BlockLayout;
 
-                    fn layout_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: &T, base_offset: usize)
+                    fn layout_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: Option<&T>, base_offset: usize)
                                                                          -> BlockLayout
                     {
                         <T as $crate::uniforms::UniformBlock>::build_layout(base_offset)
                     }
-
-                    let dummy: &$struct_name = unsafe { mem::zeroed() };
 
                     BlockLayout::Struct {
                         members: vec![
@@ -390,11 +387,9 @@ macro_rules! implement_uniform_block {
                                 (
                                     stringify!($field_name).to_owned(),
                                     {
-                                        let offset = {
-                                            let dummy_field: *const _ = &dummy.$field_name;
-                                            dummy_field as *const () as usize
-                                        };
-                                        layout_from_ty(&dummy.$field_name, offset + base_offset)
+                                        let offset = $crate::__glium_offset_of!($struct_name, $field_name);
+                                        let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
+                                        layout_from_ty(field_option, offset + base_offset)
                                     }
                                 ),
                             )+
