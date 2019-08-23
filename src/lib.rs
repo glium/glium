@@ -4,7 +4,7 @@ Easy-to-use, high-level, OpenGL3+ wrapper.
 Glium is based on glutin - a cross-platform crate for building an OpenGL window and handling
 application events.
 
-Glium provides a **Display** which extends the **glutin::GlWindow** with a high-level, safe API.
+Glium provides a **Display** which extends the **glutin::WindowedContext** with a high-level, safe API.
 
 # Initialization
 
@@ -17,14 +17,14 @@ fn main() {
     // 1. The **winit::EventsLoop** for handling events.
     let mut events_loop = glium::glutin::EventsLoop::new();
     // 2. Parameters for building the Window.
-    let window = glium::glutin::WindowBuilder::new()
+    let wb = glium::glutin::WindowBuilder::new()
         .with_dimensions(1024, 768)
         .with_title("Hello world");
     // 3. Parameters for building the OpenGL context.
-    let context = glium::glutin::ContextBuilder::new();
+    let cb = glium::glutin::ContextBuilder::new();
     // 4. Build the Display with the given window and OpenGL context parameters and register the
     //    window with the events_loop.
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 }
 ```
 
@@ -100,9 +100,11 @@ result to the user.
 #[macro_use]
 extern crate lazy_static;
 
+extern crate memoffset;
 extern crate backtrace;
 extern crate smallvec;
 extern crate fnv;
+extern crate takeable_option;
 
 #[cfg(feature = "glutin")]
 pub use backend::glutin::glutin;
@@ -117,6 +119,7 @@ pub use program::ProgramCreationError::{CompilationError, LinkingError, ShaderTy
 pub use sync::{LinearSyncFence, SyncFence};
 pub use texture::Texture2d;
 pub use version::{Api, Version, get_supported_glsl_version};
+pub use ops::ReadError;
 
 use std::rc::Rc;
 use std::thread;
@@ -158,6 +161,9 @@ mod vertex_array_object;
 mod gl {
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
+
+#[doc(hidden)]
+pub use memoffset::offset_of as __glium_offset_of;
 
 /// The main object of this library. Controls the whole display.
 ///
@@ -1009,7 +1015,7 @@ impl Error for DrawError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::DrawError::*;
         match *self {
             UniformBlockLayoutMismatch { ref err, .. } => Some(err),

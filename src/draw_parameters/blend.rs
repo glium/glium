@@ -267,8 +267,8 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
             ctxt.state.enabled_blend = true;
         }
 
-        let (color_eq, alpha_eq) = (try!(blend_eq(ctxt, blend.color)),
-                                    try!(blend_eq(ctxt, blend.alpha)));
+        let (color_eq, alpha_eq) = (blend_eq(ctxt, blend.color)?,
+                                    blend_eq(ctxt, blend.alpha)?);
         if ctxt.state.blend_equation != (color_eq, alpha_eq) {
             unsafe { ctxt.gl.BlendEquationSeparate(color_eq, alpha_eq); }
             ctxt.state.blend_equation = (color_eq, alpha_eq);

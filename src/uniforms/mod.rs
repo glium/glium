@@ -229,7 +229,7 @@ impl Error for LayoutMismatchError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::LayoutMismatchError::*;
         match *self {
             MemberMismatch{ ref err, .. } => Some(err.as_ref()),
@@ -446,3 +446,4 @@ impl_uniform_block_array!(256);
 impl_uniform_block_array!(512);
 impl_uniform_block_array!(1024);
 impl_uniform_block_array!(2048);
+impl_uniform_block_array!(4096);

@@ -1,5 +1,18 @@
 # Change Log
 
+## Version 0.25.1 (2019-07-08)
+
+- Silenced deprecation warning when invoking `implement_vertex`.
+
+## Version 0.25.0 (2019-05-24)
+
+- Updated glutin to version 0.21.
+
+## Version 0.24.0 (2019-04-08)
+
+ - Updated glutin to version 0.20. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0200-2019-03-09).
+ - Depth comparison and shadow mapping ([#1679](https://github.com/glium/glium/pull/1679)).
+
 ## Version 0.23.0 (2018-12-05)
 
  - Updated glutin to version 0.19. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0190-2018-11-09).

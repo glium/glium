@@ -48,7 +48,7 @@ impl Error for CreationError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::CreationError::*;
         match *self {
             BufferCreationError(ref error) => Some(error),
@@ -171,7 +171,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(Buffer::new(facade, data, BufferType::ArrayBuffer, mode));
+        let buffer = Buffer::new(facade, data, BufferType::ArrayBuffer, mode)?;
         Ok(buffer.into())
     }
 
@@ -225,7 +225,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(Buffer::empty_array(facade, BufferType::ArrayBuffer, elements, mode));
+        let buffer = Buffer::empty_array(facade, BufferType::ArrayBuffer, elements, mode)?;
         Ok(buffer.into())
     }
 }
@@ -271,8 +271,8 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Default)),
+            buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Default)?,
             bindings: bindings,
         })
     }
@@ -287,8 +287,8 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Dynamic)),
+            buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Dynamic)?,
             bindings: bindings,
         })
     }

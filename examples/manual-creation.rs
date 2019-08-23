@@ -17,30 +17,37 @@ There are three concepts in play:
 
 */
 extern crate glium;
+extern crate takeable_option;
 
+use takeable_option::Takeable;
 use glium::Surface;
-use glium::glutin::{self, GlContext};
+use glium::glutin::{self, PossiblyCurrent};
 
 use std::rc::Rc;
+use std::cell::RefCell;
 use std::os::raw::c_void;
 
 fn main() {
     // building the glutin window
     // note that it's just `build` and not `build_glium`
-    let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new();
-    let gl_window = Rc::new(glutin::GlWindow::new(window, context, &events_loop).unwrap());
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let gl_window = cb.build_windowed(wb, &event_loop).unwrap();
+    let gl_window = unsafe {
+        gl_window.treat_as_current()
+    };
+    let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
 
     // in order to create our context, we will need to provide an object which implements
     // the `Backend` trait
     struct Backend {
-        gl_window: Rc<glutin::GlWindow>,
+        gl_window: Rc<RefCell<Takeable<glutin::WindowedContext<PossiblyCurrent>>>>,
     }
 
     unsafe impl glium::backend::Backend for Backend {
         fn swap_buffers(&self) -> Result<(), glium::SwapBuffersError> {
-            match self.gl_window.swap_buffers() {
+            match self.gl_window.borrow().swap_buffers() {
                 Ok(()) => Ok(()),
                 Err(glutin::ContextError::IoError(_)) => panic!(),
                 Err(glutin::ContextError::OsError(_)) => panic!(),
@@ -50,25 +57,28 @@ fn main() {
 
         // this function is called only after the OpenGL context has been made current
         unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
-            self.gl_window.get_proc_address(symbol) as *const _
+            self.gl_window.borrow().get_proc_address(symbol) as *const _
         }
 
         // this function is used to adjust the viewport when the user wants to draw or blit on
         // the whole window
         fn get_framebuffer_dimensions(&self) -> (u32, u32) {
             // we default to a dummy value is the window no longer exists
-            self.gl_window.get_inner_size().map(Into::into).unwrap_or((128, 128))
+            self.gl_window.borrow().window().inner_size().into() // conversion into u32 performs rounding
         }
 
         fn is_current(&self) -> bool {
             // if you are using a library that doesn't provide an equivalent to `is_current`, you
             // can just put `unimplemented!` and pass `false` when you create
             // the `Context` (see below)
-            self.gl_window.is_current()
+            self.gl_window.borrow().is_current()
         }
 
         unsafe fn make_current(&self) {
-            self.gl_window.make_current().unwrap();
+            let mut gl_window_takeable = self.gl_window.borrow_mut();
+            let gl_window = Takeable::take(&mut gl_window_takeable);
+            let gl_window = gl_window.make_current().unwrap();
+            Takeable::insert(&mut gl_window_takeable, gl_window);
         }
     }
 
@@ -93,15 +103,13 @@ fn main() {
     target.finish().unwrap();
 
     // the window is still available
-    events_loop.run_forever(|event| {
-        match event {
-            glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => return glutin::ControlFlow::Break,
-                _ => (),
+    event_loop.run(|event, _, control_flow| {
+        *control_flow = match event {
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => glutin::event_loop::ControlFlow::Exit,
+                _ => glutin::event_loop::ControlFlow::Poll,
             },
-            _ => (),
+            _ => glutin::event_loop::ControlFlow::Poll,
         }
-
-        glutin::ControlFlow::Continue
     });
 }

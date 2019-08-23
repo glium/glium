@@ -3,7 +3,7 @@ use version::Version;
 use version::Api;
 use gl;
 
-use std::{ mem, fmt };
+use std::fmt;
 use std::error::Error;
 
 use texture::any::TextureAny;
@@ -152,16 +152,16 @@ pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
         let (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
              alpha_sz, alpha_ty, depth_sz, depth_ty) = unsafe
         {
-            let mut red_sz = mem::uninitialized();
-            let mut red_ty = mem::uninitialized();
-            let mut green_sz = mem::uninitialized();
-            let mut green_ty = mem::uninitialized();
-            let mut blue_sz = mem::uninitialized();
-            let mut blue_ty = mem::uninitialized();
-            let mut alpha_sz = mem::uninitialized();
-            let mut alpha_ty = mem::uninitialized();
-            let mut depth_sz = mem::uninitialized();
-            let mut depth_ty = mem::uninitialized();
+            let mut red_sz = 0;
+            let mut red_ty = 0;
+            let mut green_sz = 0;
+            let mut green_ty = 0;
+            let mut blue_sz = 0;
+            let mut blue_ty = 0;
+            let mut alpha_sz = 0;
+            let mut alpha_ty = 0;
+            let mut depth_sz = 0;
+            let mut depth_ty = 0;
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                ctxt.extensions.gl_arb_direct_state_access

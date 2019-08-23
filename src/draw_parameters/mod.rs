@@ -76,7 +76,6 @@ use Rect;
 use ToGlEnum;
 use vertex::TransformFeedbackSession;
 
-use std::mem;
 use std::ops::Range;
 
 pub use self::blend::{Blend, BlendingFunction, LinearBlendingFactor};
@@ -485,28 +484,28 @@ pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawEr
 pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters,
             dimensions: (u32, u32), primitives_types: PrimitiveType) -> Result<(), DrawError>
 {
-    try!(depth::sync_depth(ctxt, &draw_parameters.depth));
+    depth::sync_depth(ctxt, &draw_parameters.depth)?;
     stencil::sync_stencil(ctxt, &draw_parameters.stencil);
-    try!(blend::sync_blending(ctxt, draw_parameters.blend));
+    blend::sync_blending(ctxt, draw_parameters.blend)?;
     sync_color_mask(ctxt, draw_parameters.color_mask);
     sync_line_width(ctxt, draw_parameters.line_width);
     sync_point_size(ctxt, draw_parameters.point_size);
     sync_polygon_mode(ctxt, draw_parameters.backface_culling, draw_parameters.polygon_mode);
-    try!(sync_clip_planes_bitmask(ctxt, draw_parameters.clip_planes_bitmask));
+    sync_clip_planes_bitmask(ctxt, draw_parameters.clip_planes_bitmask)?;
     sync_multisampling(ctxt, draw_parameters.multisampling);
     sync_dithering(ctxt, draw_parameters.dithering);
     sync_viewport_scissor(ctxt, draw_parameters.viewport, draw_parameters.scissor,
                           dimensions);
-    try!(sync_rasterizer_discard(ctxt, draw_parameters.draw_primitives));
-    try!(sync_queries(ctxt, draw_parameters.samples_passed_query,
+    sync_rasterizer_discard(ctxt, draw_parameters.draw_primitives)?;
+    sync_queries(ctxt, draw_parameters.samples_passed_query,
                       draw_parameters.time_elapsed_query,
                       draw_parameters.primitives_generated_query,
-                      draw_parameters.transform_feedback_primitives_written_query));
+                      draw_parameters.transform_feedback_primitives_written_query)?;
     sync_conditional_render(ctxt, draw_parameters.condition);
-    try!(sync_smooth(ctxt, draw_parameters.smooth, primitives_types));
-    try!(sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex));
+    sync_smooth(ctxt, draw_parameters.smooth, primitives_types)?;
+    sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex)?;
     sync_primitive_bounding_box(ctxt, &draw_parameters.primitive_bounding_box);
-    try!(sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index));
+    sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index)?;
 
     Ok(())
 }
@@ -598,7 +597,7 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
 fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitmask: u32)
                             -> Result<(), DrawError> {
     unsafe {
-        let mut max_clip_planes: gl::types::GLint = mem::uninitialized();
+        let mut max_clip_planes: gl::types::GLint = 0;
         ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
         for i in 0..32 {
             if clip_planes_bitmask & (1 << i) != 0 {
@@ -745,27 +744,27 @@ fn sync_queries(ctxt: &mut context::CommandContext,
                 -> Result<(), DrawError>
 {
     if let Some(SamplesQueryParam::SamplesPassedQuery(q)) = samples_passed_query {
-        try!(q.begin_query(ctxt));
+        q.begin_query(ctxt)?;
     } else if let Some(SamplesQueryParam::AnySamplesPassedQuery(q)) = samples_passed_query {
-        try!(q.begin_query(ctxt));
+        q.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_samples_passed_query(ctxt);
     }
 
     if let Some(time_elapsed_query) = time_elapsed_query {
-        try!(time_elapsed_query.begin_query(ctxt));
+        time_elapsed_query.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_time_elapsed_query(ctxt);
     }
 
     if let Some(primitives_generated_query) = primitives_generated_query {
-        try!(primitives_generated_query.begin_query(ctxt));
+        primitives_generated_query.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_primitives_generated_query(ctxt);
     }
 
     if let Some(tfq) = transform_feedback_primitives_written_query {
-        try!(tfq.begin_query(ctxt));
+        tfq.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_transform_feedback_primitives_written_query(ctxt);
     }

@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.23.0"
+version = "0.26.0-alpha3"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = """
 Elegant and safe OpenGL wrapper.
@@ -30,27 +30,29 @@ travis-ci = { repository = "glium/glium" }
 
 [features]
 default = ["glutin"]
-icon_loading = ["glutin/icon_loading"]
 unstable = [] # used for benchmarks
 test_headless = []  # used for testing headless display
 
 [dependencies.glutin]
-version = "0.19"
+version = "0.22.0-alpha3"
 features = []
 optional = true
 
 [dependencies]
+memoffset = "0.5"
+takeable-option = "0.5"
 backtrace = "0.3.2"
 lazy_static = "1.0"
 smallvec = "0.6"
 fnv = "1.0.5"
 
 [build-dependencies]
-gl_generator = "0.10"
+gl_generator = "0.13"
 
 [dev-dependencies]
-cgmath = "0.16"
+rental = "0.5.4"
+cgmath = "0.17"
 genmesh = "0.6"
-image = "0.20"
+image = "0.22"
 obj = { version = "0.9", features = ["genmesh"] }
-rand = "0.6"
+rand = "0.7"

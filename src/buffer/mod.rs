@@ -99,8 +99,12 @@ unsafe impl<T> Content for T where T: Copy {
     #[inline]
     fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
         assert!(size == mem::size_of::<T>());
-        let mut value = unsafe { mem::uninitialized() };
-        try!(f(&mut value));
+        // Note(Lokathor): This is brittle and dangerous if `T` isn't a type
+        // that can be zeroed. However, it's a breaking change to adjust the API
+        // here (eg: extra trait bound or something) so someone with more
+        // authority than me needs to look at and fix this.
+        let mut value = unsafe { mem::zeroed() };
+        f(&mut value)?;
         Ok(value)
     }
 
@@ -140,7 +144,7 @@ unsafe impl<T> Content for [T] where T: Copy {
         let len = size / mem::size_of::<T>();
         let mut value = Vec::with_capacity(len);
         unsafe { value.set_len(len) };
-        try!(f(&mut value));
+        f(&mut value)?;
         Ok(value)
     }
 
