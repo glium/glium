@@ -24,8 +24,7 @@ impl SamplerObject {
                 ctxt.extensions.gl_arb_sampler_objects);
 
         let sampler = unsafe {
-            use std::mem;
-            let mut sampler: gl::types::GLuint = mem::uninitialized();
+            let mut sampler: gl::types::GLuint = 0;
             ctxt.gl.GenSamplers(1, &mut sampler);
             sampler
         };
@@ -41,6 +40,13 @@ impl SamplerObject {
                                       behavior.minify_filter.to_glenum() as gl::types::GLint);
             ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_MAG_FILTER,
                                       behavior.magnify_filter.to_glenum() as gl::types::GLint);
+
+            if let Some(dtc) = behavior.depth_texture_comparison {
+                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_COMPARE_MODE,
+                                          gl::COMPARE_R_TO_TEXTURE as gl::types::GLint);
+                ctxt.gl.SamplerParameteri(sampler, gl::TEXTURE_COMPARE_FUNC,
+                                          dtc.to_glenum() as gl::types::GLint);
+            }
 
             if let Some(max_value) = ctxt.capabilities.max_texture_max_anisotropy {
                 let value = if behavior.max_anisotropy as f32 > max_value {

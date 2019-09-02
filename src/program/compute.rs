@@ -46,10 +46,10 @@ impl ComputeShader {
     {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
 
-        let shader = try!(build_shader(facade, gl::COMPUTE_SHADER, src));
+        let shader = build_shader(facade, gl::COMPUTE_SHADER, src)?;
 
         Ok(ComputeShader {
-            raw: try!(RawProgram::from_shaders(facade, &[shader], false, false, false, None))
+            raw: RawProgram::from_shaders(facade, &[shader], false, false, false, None)?
         })
     }
 
@@ -61,7 +61,7 @@ impl ComputeShader {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
 
         Ok(ComputeShader {
-            raw: try!(RawProgram::from_binary(facade, data))
+            raw: RawProgram::from_binary(facade, data)?
         })
     }
 

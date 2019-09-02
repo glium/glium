@@ -1,12 +1,22 @@
 #[macro_use]
 extern crate glium;
 extern crate rand;
+#[allow(unused_imports)]
 use glium::glutin;
+use glutin::dpi::PhysicalSize;
 
 fn main() {
-
-    let context = glutin::HeadlessRendererBuilder::new(1024, 1024).build().unwrap();
-    let display = glium::HeadlessRenderer::new(context).unwrap();
+    let event_loop = glium::glutin::event_loop::EventLoop::new();
+    let cb = glutin::ContextBuilder::new();
+    let size = PhysicalSize {
+        width: 800.0,
+        height: 600.0,
+    };
+    let context = cb.build_headless(&event_loop, size).unwrap();
+    let context = unsafe {
+        context.treat_as_current()
+    };
+    let display = glium::backend::glutin::headless::Headless::new(context).unwrap();
 
     let program = glium::program::ComputeShader::from_source(&display, r#"\
 
@@ -26,19 +36,19 @@ fn main() {
 
         "#).unwrap();
 
+    const NUM_VALUES: usize = 4096;
+
+    #[derive(Clone, Copy)]
     struct Data {
         power: f32,
         _padding: [f32; 3],
-        values: [[f32;4]],
+        values: [[f32;4]; NUM_VALUES],
     }
 
-    implement_buffer_content!(Data);
     implement_uniform_block!(Data, power, values);
 
-    const NUM_VALUES: usize = 4096;
-
     let mut buffer: glium::uniforms::UniformBuffer<Data> =
-              glium::uniforms::UniformBuffer::empty_unsized(&display, 4 + 4*3 + 4 * NUM_VALUES).unwrap();
+              glium::uniforms::UniformBuffer::empty(&display).unwrap();
 
     {
         let mut mapping = buffer.map();

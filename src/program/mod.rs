@@ -55,8 +55,8 @@ pub fn is_subroutine_supported<C: ?Sized>(ctxt: &C) -> bool where C: Capabilitie
     ctxt.get_version() >= &Version(Api::Gl, 4, 0) || ctxt.get_extensions().gl_arb_shader_subroutine
 }
 
-/// Some shader compilers have race-condition issues, so we lock this mutex
-/// in the GL thread every time we compile a shader or link a program.
+// Some shader compilers have race-condition issues, so we lock this mutex
+// in the GL thread every time we compile a shader or link a program.
 // TODO: replace by a StaticMutex
 lazy_static! {
     static ref COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
@@ -155,7 +155,7 @@ impl Error for ProgramChooserCreationError {
     }
 
     #[inline]
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::ProgramChooserCreationError::*;
         match *self {
             ProgramCreationError(ref err) => Some(err),

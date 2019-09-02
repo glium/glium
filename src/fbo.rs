@@ -323,7 +323,9 @@ impl<'a> FramebufferAttachments<'a> {
                 raw_attachments.stencil = Some(handle_tex!(s, dimensions, samples, stencil_bits));
             },
             DepthStencilAttachments::DepthStencilAttachment(LayeredAttachment(ref ds)) => {
-                // FIXME: bits count
+                let depth_stencil_bits = ds.get_texture().get_depth_stencil_bits();
+                depth_bits = Some(depth_stencil_bits.0);
+                stencil_bits = Some(depth_stencil_bits.1);
                 raw_attachments.depth_stencil = Some(handle_tex!(ds, dimensions, samples));
             },
         }
@@ -502,7 +504,14 @@ impl<'a> FramebufferAttachments<'a> {
                 raw_attachments.stencil = Some(handle_atch!(s, dimensions, samples, stencil_bits));
             },
             DepthStencilAttachments::DepthStencilAttachment(ref ds) => {
-                // FIXME: bits count
+                let depth_stencil_bits = match ds {
+                    &RegularAttachment::Texture(ref tex) =>
+                        tex.get_texture().get_depth_stencil_bits(),
+                    &RegularAttachment::RenderBuffer(ref rb) =>
+                        rb.get_depth_stencil_bits(),
+                };
+                depth_bits = Some(depth_stencil_bits.0);
+                stencil_bits = Some(depth_stencil_bits.1);
                 raw_attachments.depth_stencil = Some(handle_atch!(ds, dimensions, samples));
             },
         }
@@ -956,7 +965,7 @@ impl FrameBufferObject {
 
         // building the FBO
         let id = unsafe {
-            let mut id = mem::uninitialized();
+            let mut id = 0;
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                 ctxt.extensions.gl_arb_direct_state_access

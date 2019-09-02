@@ -292,7 +292,7 @@ impl VertexArrayObject {
 
         // building the VAO
         let id = {
-            let mut id = mem::uninitialized();
+            let mut id = 0;
             if ctxt.version >= &Version(Api::Gl, 3, 0) ||
                 ctxt.version >= &Version(Api::GlEs, 3, 0) ||
                 ctxt.extensions.gl_arb_vertex_array_object
