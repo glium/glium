@@ -7,7 +7,7 @@ use std::rc::Rc;
 /// Builds a context with dummy OpenGL functions.
 pub fn build_context() -> Rc<glium::backend::Context> {
     unsafe {
-        glium::backend::Context::new::<_, ()>(DummyBackend, false, Default::default()).unwrap()
+        glium::backend::Context::new::<_>(DummyBackend, false, Default::default()).unwrap()
     }
 }
 
@@ -85,7 +85,7 @@ unsafe impl glium::backend::Backend for DummyBackend {
             "glGenBuffers" | "glGenTextures" | "glGenFramebuffers" | "glGenRenderbuffers" |
             "glGenVertexArrays" | "glGenSamplers" => {
                 extern "system" fn gen(num: usize, bufs: *mut u32) {
-                    for i in (0 .. num) { unsafe { *bufs.offset(i as isize) = 1; } }
+                    for i in 0 .. num { unsafe { *bufs.offset(i as isize) = 1; } }
                 }
                 gen as *const _
             },
@@ -115,7 +115,7 @@ unsafe impl glium::backend::Backend for DummyBackend {
             },
 
             "glGetFramebufferAttachmentParameteriv" => {
-                extern "system" fn get_fbap(target: u32, atch: u32, pname: u32, params: *mut i32) {
+                extern "system" fn get_fbap(_target: u32, _atch: u32, _pname: u32, _params: *mut i32) {
                 }
                 get_fbap as *const _
             },
@@ -177,7 +177,7 @@ unsafe impl glium::backend::Backend for DummyBackend {
                 use_program as *const _
             },
 
-            name => ptr::null()
+            _name => ptr::null()
         }
     }
 
