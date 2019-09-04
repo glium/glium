@@ -7,7 +7,7 @@ use std::rc::Rc;
 /// Builds a context with dummy OpenGL functions.
 pub fn build_context() -> Rc<glium::backend::Context> {
     unsafe {
-        glium::backend::Context::new::<_, ()>(DummyBackend, false, Default::default()).unwrap()
+        glium::backend::Context::new::<_>(DummyBackend, false, Default::default()).unwrap()
     }
 }
 
