@@ -405,6 +405,10 @@ impl RawProgram {
     /// and `stride`.
     ///
     /// The `stride` is the number of bytes between two vertices.
+    ///
+    /// This function only check the identity for type and offset(exclude the naming) between vertex attributes.
+    ///
+    /// The correctness of semantic meaning(i.e. naming) between vertex attributes is the responsibility of user.
     pub fn transform_feedback_matches(&self, format: &VertexFormat, stride: usize) -> bool {
         // TODO: doesn't support multiple buffers
 
@@ -419,9 +423,14 @@ impl RawProgram {
         }
 
         for elem in buf.elements.iter() {
-            if format.iter().find(|e| &e.0 == &*elem.name && e.1 == elem.offset && e.2 == elem.ty)
+            if format.iter().find(|e| e.1 == elem.offset && e.2 == elem.ty)
                             .is_none()
             {
+                return false;
+            }
+            
+
+            if format.iter().any(|e| e.1 != elem.offset && e.0 == elem.name) {
                 return false;
             }
         }
