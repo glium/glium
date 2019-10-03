@@ -724,7 +724,7 @@ impl Drop for Context {
                 if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
                     ctxt.gl.Disable(gl::DEBUG_OUTPUT);
                 } else if ctxt.extensions.gl_arb_debug_output {
-                    ctxt.gl.DebugMessageCallbackARB(mem::transmute(0usize),
+                    ctxt.gl.DebugMessageCallbackARB(None,
                                                     ptr::null());
                 }
 
@@ -962,8 +962,8 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                ctxt.version >= &Version(Api::GlEs, 3, 2) ||
                (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
             {
-                ctxt.gl.DebugMessageCallback(callback_wrapper, context_raw_ptr.0
-                                                                 as *const _);
+                ctxt.gl.DebugMessageCallback(Some(callback_wrapper), context_raw_ptr.0
+                                                                     as *const _);
                 ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                             ptr::null(), gl::TRUE);
 
@@ -975,8 +975,8 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
             } else if ctxt.version >= &Version(Api::GlEs, 2, 0) &&
                       ctxt.extensions.gl_khr_debug
             {
-                ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, context_raw_ptr.0
-                                                                 as *const _);
+                ctxt.gl.DebugMessageCallbackKHR(Some(callback_wrapper), context_raw_ptr.0
+                                                                        as *const _);
                 ctxt.gl.DebugMessageControlKHR(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                                ptr::null(), gl::TRUE);
 
@@ -986,8 +986,8 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                 }
 
             } else {
-                ctxt.gl.DebugMessageCallbackARB(callback_wrapper, context_raw_ptr.0
-                                                                    as *const _);
+                ctxt.gl.DebugMessageCallbackARB(Some(callback_wrapper), context_raw_ptr.0
+                                                                        as *const _);
                 ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
                                                0, ptr::null(), gl::TRUE);
 

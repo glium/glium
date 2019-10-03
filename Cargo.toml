@@ -47,7 +47,7 @@ smallvec = "0.6"
 fnv = "1.0.5"
 
 [build-dependencies]
-gl_generator = "0.13"
+gl_generator = "0.14"
 
 [dev-dependencies]
 rental = "0.5.4"
