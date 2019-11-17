@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.26.0-alpha3"
+version = "0.26.0-alpha5"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = """
 Elegant and safe OpenGL wrapper.
