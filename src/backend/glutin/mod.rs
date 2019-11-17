@@ -254,6 +254,11 @@ unsafe impl Backend for GlutinBackend {
             Ok(()) => Ok(()),
             Err(glutin::ContextError::IoError(e)) => panic!("I/O Error while swapping buffers: {:?}", e),
             Err(glutin::ContextError::OsError(e)) => panic!("OS Error while swapping buffers: {:?}", e),
+            // As of writing the FunctionUnavailable error is only thrown if
+            // you are swapping buffers with damage rectangles specified.
+            // Currently we don't support this so we just panic as this
+            // case should be unreachable.
+            Err(glutin::ContextError::FunctionUnavailable) => panic!("function unavailable error while swapping buffers"),
             Err(glutin::ContextError::ContextLost) => Err(SwapBuffersError::ContextLost),
         }
     }
