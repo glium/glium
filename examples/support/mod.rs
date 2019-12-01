@@ -3,10 +3,11 @@
 extern crate genmesh;
 extern crate obj;
 
-use std::thread;
 use std::time::{Duration, Instant};
 use glium::{self, Display};
 use glium::vertex::VertexBufferAny;
+use glium::glutin::event_loop::{EventLoop, ControlFlow};
+use glium::glutin::event::{Event, StartCause};
 
 pub mod camera;
 
@@ -15,29 +16,43 @@ pub enum Action {
     Continue,
 }
 
-pub fn start_loop<F>(mut callback: F) where F: FnMut() -> Action {
-    let mut accumulator = Duration::new(0, 0);
-    let mut previous_clock = Instant::now();
-
-    loop {
-        match callback() {
-            Action::Stop => break,
-            Action::Continue => ()
+pub fn start_loop<F>(event_loop: EventLoop<()>, mut callback: F)->! where F: 'static + FnMut(&Vec<Event<()>>) -> Action {
+    let mut events_buffer = Vec::new();
+    let mut next_frame_time = Instant::now();
+    event_loop.run(move |event, _, control_flow| {
+        let run_callback = match event {
+            Event::NewEvents(cause) => {
+                match cause {
+                    StartCause::ResumeTimeReached { .. } | StartCause::Init => {
+                        true
+                    },
+                    _ => false
+                }
+            },
+            _ => {
+                events_buffer.push(event);
+                false
+            }
         };
 
-        let now = Instant::now();
-        accumulator += now - previous_clock;
-        previous_clock = now;
+        let action = if run_callback {
+            let action = callback(&events_buffer);
+            next_frame_time = Instant::now() + Duration::from_nanos(16666667);
+            // TODO: Add back the old accumulator loop in some way
 
-        let fixed_time_stamp = Duration::new(0, 16666667);
-        while accumulator >= fixed_time_stamp {
-            accumulator -= fixed_time_stamp;
+            events_buffer.clear();
+            action
+        } else {
+            Action::Continue
+        };
 
-            // if you have a game, update the state here
+        match action {
+            Action::Continue => {
+                *control_flow = ControlFlow::WaitUntil(next_frame_time);
+            },
+            Action::Stop => *control_flow = ControlFlow::Exit
         }
-
-        thread::sleep(fixed_time_stamp - accumulator);
-    }
+    })
 }
 
 /// Returns a vertex buffer that should be rendered as `TrianglesList`.

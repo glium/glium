@@ -61,10 +61,10 @@ impl Display {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new<T: ContextCurrentState>(
-        wb: glutin::WindowBuilder,
+    pub fn new<T: ContextCurrentState, E>(
+        wb: glutin::window::WindowBuilder,
         cb: glutin::ContextBuilder<T>,
-        events_loop: &glutin::EventsLoop,
+        events_loop: &glutin::event_loop::EventLoop<E>,
     ) -> Result<Self, DisplayCreationError>
     {
         let gl_window = cb.build_windowed(wb, events_loop)?;
@@ -115,7 +115,7 @@ impl Display {
         let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
         let glutin_backend = GlutinBackend(gl_window.clone());
         let framebuffer_dimensions = glutin_backend.get_framebuffer_dimensions();
-        let context = try!(unsafe { context::Context::new(glutin_backend, checked, debug) });
+        let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         Ok(Display {
             gl_window: gl_window,
             context: context,
@@ -129,9 +129,9 @@ impl Display {
     /// original `WindowedContext`'s `Context`.
     pub fn rebuild<T: ContextCurrentState>(
         &self,
-        wb: glutin::WindowBuilder,
+        wb: glutin::window::WindowBuilder,
         cb: glutin::ContextBuilder<T>,
-        events_loop: &glutin::EventsLoop,
+        events_loop: &glutin::event_loop::EventLoop<()>,
     ) -> Result<(), DisplayCreationError>
     {
         // Share the display lists of the existing context.
@@ -152,7 +152,7 @@ impl Display {
 
         // Rebuild the Context.
         let backend = GlutinBackend(self.gl_window.clone());
-        try!(unsafe { self.context.rebuild(backend) });
+        unsafe { self.context.rebuild(backend) }?;
 
         Ok(())
     }
@@ -202,7 +202,7 @@ impl Error for DisplayCreationError {
     }
 
     #[inline]
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         match *self {
             DisplayCreationError::GlutinCreationError(ref err) => Some(err),
             DisplayCreationError::IncompatibleOpenGl(ref err) => Some(err),
@@ -254,6 +254,11 @@ unsafe impl Backend for GlutinBackend {
             Ok(()) => Ok(()),
             Err(glutin::ContextError::IoError(e)) => panic!("I/O Error while swapping buffers: {:?}", e),
             Err(glutin::ContextError::OsError(e)) => panic!("OS Error while swapping buffers: {:?}", e),
+            // As of writing the FunctionUnavailable error is only thrown if
+            // you are swapping buffers with damage rectangles specified.
+            // Currently we don't support this so we just panic as this
+            // case should be unreachable.
+            Err(glutin::ContextError::FunctionUnavailable) => panic!("function unavailable error while swapping buffers"),
             Err(glutin::ContextError::ContextLost) => Err(SwapBuffersError::ContextLost),
         }
     }
@@ -267,11 +272,9 @@ unsafe impl Backend for GlutinBackend {
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         let gl_window_takeable = self.borrow();
         let gl_window = gl_window_takeable.window();
-        let (width, height) = gl_window.get_inner_size()
-            .map(|logical_size| logical_size.to_physical(gl_window.get_hidpi_factor()))
-            .map(Into::into)
-            // TODO: 800x600 ?
-            .unwrap_or((800, 600));
+        let (width, height) = gl_window.inner_size()
+            .to_physical(gl_window.hidpi_factor())
+            .into();
         (width, height)
     }
 

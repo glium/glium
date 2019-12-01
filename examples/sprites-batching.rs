@@ -19,10 +19,10 @@ fn main() {
     const SPRITES_COUNT: usize = 1024;
     println!("Number of sprites: {}", SPRITES_COUNT);
 
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // generating a bunch of unicolor 2D images that will be used for a texture
     // we store all of them in a `Texture2dArray`
@@ -212,7 +212,7 @@ fn main() {
     ).unwrap();
 
     // the main loop
-    support::start_loop(|| {
+    support::start_loop(event_loop, move |events| {
         // moving the sprites in a random direction
         // in a game, you would typically write the exact positions and texture IDs of your sprites
         {
@@ -246,15 +246,15 @@ fn main() {
 
         let mut action = support::Action::Continue;
 
-        events_loop.poll_events(|event| {
+        for event in events {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::CloseRequested => action = support::Action::Stop,
+                glutin::event::Event::WindowEvent { event, .. } => match event {
+                    glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
                     _ => ()
                 },
                 _ => (),
             }
-        });
+        };
 
         action
     });

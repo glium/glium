@@ -114,9 +114,9 @@ impl Alloc {
 
         let size = mem::size_of_val(data);
 
-        let (id, immutable, created_with_buffer_storage, persistent_mapping) = try!(unsafe {
+        let (id, immutable, created_with_buffer_storage, persistent_mapping) = unsafe {
             create_buffer(&mut ctxt, size, Some(data), ty, mode)
-        });
+        }?;
 
         Ok(Alloc {
             context: facade.get_context().clone(),
@@ -138,9 +138,9 @@ impl Alloc {
     {
         let mut ctxt = facade.get_context().make_current();
 
-        let (id, immutable, created_with_buffer_storage, persistent_mapping) = try!(unsafe {
+        let (id, immutable, created_with_buffer_storage, persistent_mapping) = unsafe {
             create_buffer::<()>(&mut ctxt, size, None, ty, mode)
-        });
+        }?;
 
         Ok(Alloc {
             context: facade.get_context().clone(),
@@ -1124,7 +1124,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
 
     // creating the id of the buffer
     let id = {
-        let mut id: gl::types::GLuint = mem::uninitialized();
+        let mut id: gl::types::GLuint = 0;
         if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
             ctxt.gl.CreateBuffers(1, &mut id);
         } else if ctxt.version >= &Version(Api::Gl, 1, 5) ||
@@ -1179,7 +1179,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
     };
 
     // will store the actual size of the buffer so that we can compare it with the expected size
-    let mut obtained_size: gl::types::GLint = mem::uninitialized();
+    let mut obtained_size: gl::types::GLint = 0;
 
     // the value of `immutable` is determined below
     // if true, the buffer won't be modifiable with regular OpenGL function calls

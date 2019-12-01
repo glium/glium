@@ -5,14 +5,9 @@
 extern crate glium;
 extern crate test;
 
-use glium::DisplayBuild;
 use glium::Surface;
-use glium::glutin;
 
 use test::Bencher;
-
-use std::mem;
-use std::ptr;
 
 mod support;
 

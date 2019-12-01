@@ -587,7 +587,7 @@ fn bind_texture_uniform<P, T>(ctxt: &mut context::CommandContext,
                               -> Result<(), DrawError> where P: ProgramExt, T: TextureExt
 {
     let sampler = if let Some(sampler) = sampler {
-        Some(try!(::sampler_object::get_sampler(ctxt, &sampler)))
+        Some(::sampler_object::get_sampler(ctxt, &sampler)?)
     } else {
         None
     };
