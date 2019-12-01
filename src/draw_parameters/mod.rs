@@ -600,15 +600,19 @@ fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitm
         let mut max_clip_planes: gl::types::GLint = 0;
         ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
         for i in 0..32 {
-            if clip_planes_bitmask & (1 << i) != 0 {
-                if i < max_clip_planes {
-                    ctxt.gl.Enable(gl::CLIP_DISTANCE0 + i as u32);
+            if clip_planes_bitmask & (1 << i) != ctxt.state.enabled_clip_planes & (1 << i) {
+                if clip_planes_bitmask & (1 << i) != 0 {
+                    if i < max_clip_planes {
+                        ctxt.gl.Enable(gl::CLIP_DISTANCE0 + i as u32);
+                        ctxt.state.enabled_clip_planes |= 1 << i;
+                    } else {
+                        return Err(DrawError::ClipPlaneIndexOutOfBounds);
+                    }
                 } else {
-                    return Err(DrawError::ClipPlaneIndexOutOfBounds);
-                }
-            } else {
-                if i < max_clip_planes {
-                    ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
+                    if i < max_clip_planes {
+                        ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
+                        ctxt.state.enabled_clip_planes &= !(1 << i);
+                    }
                 }
             }
         }
@@ -932,14 +936,15 @@ fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
     if ctxt.version >= &Version(Api::Gl, 3, 1)   || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
     ctxt.extensions.gl_arb_es3_compatibility
     {
-        if enabled {
-            unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
-            ctxt.state.enabled_primitive_fixed_restart = true;
-        } else {
-            unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
-            ctxt.state.enabled_primitive_fixed_restart = false;
+        if ctxt.state.enabled_primitive_fixed_restart != enabled {
+            if enabled {
+                unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+                ctxt.state.enabled_primitive_fixed_restart = true;
+            } else {
+                unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+                ctxt.state.enabled_primitive_fixed_restart = false;
+            }
         }
-
     } else {
         if enabled {
             return Err(DrawError::FixedIndexRestartingNotSupported);
