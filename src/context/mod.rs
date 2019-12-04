@@ -320,8 +320,9 @@ impl Context {
         err
     }
 
-    /// DEPRECATED. Use `get_opengl_version` instead.
+    /// Returns the OpenGL version
     #[inline]
+    #[deprecated(note = "use `get_opengl_version` instead.")]
     pub fn get_version(&self) -> &Version {
         &self.version
     }
