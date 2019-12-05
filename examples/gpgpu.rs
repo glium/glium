@@ -38,6 +38,7 @@ fn main() {
 
     const NUM_VALUES: usize = 4096;
 
+    #[repr(C)]
     #[derive(Clone, Copy)]
     struct Data {
         power: f32,
