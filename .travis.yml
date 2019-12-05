@@ -12,7 +12,7 @@ rust:
 matrix:
   allow_failures:
     - rust: nightly
-    - env: FEATURES='glutin' TEST=1 COVERAGE=1
+    - env: FEATURES='glutin' TEST=1 COVERAGE=1 CHECK=0
 
 env: 
   global:
@@ -20,8 +20,9 @@ env:
     - secure: "AfE+PLANOT0mgUKpgGUu4yIrSNKxoNST5zFBeajONEEE0wl/bZVE6iGqucNPR0EaIgMfk+NGgCLLM7VFfy+HF5alBiqUUOapef+fc91iHVzoBgtlLXOO7E1UntrieBQCodURTaBtotCMe7jtlkNajkvUD6atKTYh1AYJ3JY2bHA="
     - GLIUM_HEADLESS_TESTS=1
   matrix:
-    - FEATURES='' TEST=0 COVERAGE=0
-    - FEATURES='glutin' TEST=1 COVERAGE=1
+    - FEATURES='' TEST=0 COVERAGE=0 CHECK=0
+    - FEATURES='glutin' TEST=0 COVERAGE=0 CHECK=1
+    - FEATURES='glutin' TEST=1 COVERAGE=1 CHECK=0
 
 addons:
   apt:
@@ -34,8 +35,8 @@ addons:
     - cmake                     # for kcov
 
 script:
-    # We run everything with `-j 1` or travis runs out of memory
     - cargo build -v --no-default-features --features "$FEATURES"
+    - if [ "$CHECK" -eq 1 ]; then cargo check --examples --tests --benches --no-default-features --features "$FEATURES"; fi
     - if [ "$TEST" -eq 1 ]; then cargo test -v -j 1 --no-default-features --features "$FEATURES"; fi
     #- if [ "$TRAVIS_RUST_VERSION" = "nightly" ]; then cargo test -v --manifest-path macros/Cargo.toml; fi
 
