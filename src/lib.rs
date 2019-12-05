@@ -147,6 +147,7 @@ pub mod program;
 pub mod uniforms;
 pub mod vertex;
 pub mod texture;
+pub mod field;
 
 mod context;
 mod fbo;
