@@ -50,15 +50,20 @@ pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, CopyError};
 pub use self::alloc::{is_buffer_read_supported};
 pub use self::fences::Inserter;
 
-/// DEPRECATED. Only here for backward compatibility.
+/// DEPRECATED. Only here for backwards compatibility.
+#[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::Buffer as BufferView;
-/// DEPRECATED. Only here for backward compatibility.
+/// DEPRECATED. Only here for backwards compatibility.
+#[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::BufferSlice as BufferViewSlice;
-/// DEPRECATED. Only here for backward compatibility.
+/// DEPRECATED. Only here for backwards compatibility.
+#[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::BufferMutSlice as BufferViewMutSlice;
-/// DEPRECATED. Only here for backward compatibility.
+/// DEPRECATED. Only here for backwards compatibility.
+#[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::BufferAny as BufferViewAny;
-/// DEPRECATED. Only here for backward compatibility.
+/// DEPRECATED. Only here for backwards compatibility.
+#[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::BufferAnySlice as BufferViewAnySlice;
 
 use gl;

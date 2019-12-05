@@ -335,9 +335,9 @@ impl<T> VertexBuffer<T> where T: Copy {
 }
 
 impl<T> VertexBuffer<T> where T: Copy + Send + 'static {
-    /// DEPRECATED: use `.into()` instead.
     /// Discard the type information and turn the vertex buffer into a `VertexBufferAny`.
     #[inline]
+    #[deprecated(note = "use .into() instead.")]
     pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
         VertexBufferAny {
             buffer: self.buffer.into(),
