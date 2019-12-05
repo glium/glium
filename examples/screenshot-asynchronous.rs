@@ -2,9 +2,9 @@
 extern crate glium;
 extern crate image;
 
-use std::path::Path;
 use std::thread;
 
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
@@ -42,7 +42,7 @@ mod screenshot {
     }
 
     impl AsyncScreenshotTask {
-        fn new(facade: &glium::backend::Facade, target_frame: u64) -> Self {
+        fn new(facade: &dyn glium::backend::Facade, target_frame: u64) -> Self {
             // Get information about current framebuffer
             let dimensions = facade.get_context().get_framebuffer_dimensions();
             let rect = glium::Rect {
@@ -118,7 +118,7 @@ mod screenshot {
             ScreenshotIterator(self)
         }
 
-        pub fn take_screenshot(&mut self, facade: &glium::backend::Facade) {
+        pub fn take_screenshot(&mut self, facade: &dyn glium::backend::Facade) {
             self.screenshot_tasks
                 .push_back(AsyncScreenshotTask::new(facade, self.frame + self.screenshot_delay));
         }
@@ -127,10 +127,10 @@ mod screenshot {
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new().with_title("Press S to take screenshot");
-    let context = glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new().with_title("Press S to take screenshot");
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
     let vertex_buffer = {
@@ -239,32 +239,38 @@ fn main() {
     // your requirements.
     let mut screenshot_taker = screenshot::AsyncScreenshotTaker::new(5);
 
-    loop {
-        let mut closed = false;
-        let mut take_screenshot = false;
+    event_loop.run(move |event, _, control_flow| {
 
         // React to events
-        events_loop.poll_events(|event| {
-            use glium::glutin::{Event, WindowEvent, ElementState, VirtualKeyCode};
+        use glium::glutin::event::{Event, WindowEvent, ElementState, VirtualKeyCode};
 
-            match event {
-                Event::WindowEvent { event, .. } => match event {
-                    WindowEvent::Closed => closed = true,
-                    WindowEvent::KeyboardInput { input, .. } => {
-                        if let ElementState::Pressed = input.state {
-                            if let Some(VirtualKeyCode::S) = input.virtual_keycode {
-                                take_screenshot = true;
-                            }
-                        }
-                    },
-                    _ => (),
+        let mut take_screenshot = false;
+
+        let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
+        match event {
+            Event::WindowEvent { event, .. } => match event {
+                WindowEvent::CloseRequested => {
+                    *control_flow = glutin::event_loop::ControlFlow::Exit;
+                    return;
                 },
-                _ => (),
-            }
-        });
-
-        if closed {
-            return;
+                WindowEvent::KeyboardInput { input, .. } => {
+                    if let ElementState::Pressed = input.state {
+                        if let Some(VirtualKeyCode::S) = input.virtual_keycode {
+                            take_screenshot = true;
+                        }
+                    }
+                },
+                _ => return,
+            },
+            Event::NewEvents(cause) => match cause {
+                glutin::event::StartCause::ResumeTimeReached { .. } => (),
+                glutin::event::StartCause::Init => (),
+                _ => return,
+            },
+            _ => return,
         }
 
         // Tell Screenshot Taker to count next frame
@@ -310,10 +316,8 @@ fn main() {
 
                 // Save the screenshot to file
                 let image = image::DynamicImage::ImageRgba8(image_buffer).flipv();
-                let mut output = std::fs::File::create(&Path::new("glium-example-screenshot.png"))
-                    .unwrap();
-                image.save(&mut output, image::ImageFormat::PNG).unwrap();
+                image.save("glium-example-screenshot.png").unwrap();
             });
         }
-    }
+    });
 }

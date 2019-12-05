@@ -5,16 +5,17 @@ extern crate glium;
 extern crate image;
 
 use std::io::Cursor;
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 
 mod support;
 
 fn main() {
     // Building the display, ie. the main object
-    let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new().with_vsync(true);
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new().with_vsync(true);
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
@@ -31,7 +32,7 @@ fn main() {
     dest_texture.as_surface().clear_color(0.0, 0.0, 0.0, 1.0);
 
     // the main loop
-    support::start_loop(|| {
+    support::start_loop(event_loop, move |events| {
         // we have one out of 60 chances to blit one `opengl_texture` over `dest_texture`
         if rand::random::<f64>() <= 0.016666 {
             let (left, bottom, dimensions): (f32, f32, f32) = rand::random();
@@ -53,16 +54,16 @@ fn main() {
 
         let mut action = support::Action::Continue;
 
-        // polling and handling the events received by the window
-        events_loop.poll_events(|event| {
+            // handling the events received by the window since the last frame
+        for event in events {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                glutin::event::Event::WindowEvent { event, .. } => match event {
+                    glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
                     _ => (),
                 },
                 _ => (),
             }
-        });
+        }
 
         action
     });

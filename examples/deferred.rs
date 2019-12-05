@@ -2,22 +2,42 @@
 extern crate glium;
 extern crate cgmath;
 extern crate image;
+#[macro_use]
+extern crate rental;
 
 use glium::index::PrimitiveType;
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 use std::io::Cursor;
 
 mod support;
 
+pub struct Dt {
+    depthtexture: glium::texture::DepthTexture2d,
+    textures: [glium::texture::Texture2d; 4],
+    light_texture: glium::texture::Texture2d,
+}
+
+rental! {
+    mod my_rentals {
+        use super::Dt;
+        #[rental]
+        pub struct Data {
+            dt: Box<Dt>,
+            buffs: (glium::framebuffer::MultiOutputFrameBuffer<'dt>, glium::framebuffer::SimpleFrameBuffer<'dt>, &'dt Dt),
+        }
+    }
+}
+
 fn main() {
     use cgmath::SquareMatrix;
 
-    let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new()
-        .with_dimensions(800, 500)
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new()
+        .with_inner_size((800, 500).into())
         .with_title("Glium Deferred Example");
-    let context = glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]), image::PNG).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
@@ -263,11 +283,22 @@ fn main() {
     let texture3 = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
     let texture4 = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
     let depthtexture = glium::texture::DepthTexture2d::empty_with_format(&display, glium::texture::DepthFormat::F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
-    let output = &[("output1", &texture1), ("output2", &texture2), ("output3", &texture3), ("output4", &texture4)];
-    let mut framebuffer = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(&display, output.iter().cloned(), &depthtexture).unwrap();
-
     let light_texture = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
-    let mut light_buffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, &light_texture, &depthtexture).unwrap();
+
+    let mut tenants = my_rentals::Data::new(
+        Box::new(Dt {
+            depthtexture,
+            textures: [texture1, texture2, texture3, texture4],
+            light_texture,
+        }),
+        |dt| {
+            let output = [("output1", &dt.textures[0]), ("output2", &dt.textures[1]), ("output3", &dt.textures[2]), ("output4", &dt.textures[3])];
+            let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(&display, output.into_iter().cloned(), &dt.depthtexture).unwrap();
+            let light_buffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, &dt.light_texture, &dt.depthtexture).unwrap();
+            (framebuffer, light_buffer, dt)
+        }
+    );
+
 
     let ortho_matrix: cgmath::Matrix4<f32> = cgmath::ortho(0.0, 800.0, 0.0, 500.0, -1.0, 1.0);
 
@@ -306,71 +337,73 @@ fn main() {
     ];
 
     // the main loop
-    support::start_loop(|| {
-        // prepass
-        let uniforms = uniform! {
-            perspective_matrix: Into::<[[f32; 4]; 4]>::into(perspective_matrix),
-            view_matrix: Into::<[[f32; 4]; 4]>::into(view_matrix),
-            model_matrix: Into::<[[f32; 4]; 4]>::into(model_matrix),
-            tex: &opengl_texture
-        };
-        framebuffer.clear_color(0.0, 0.0, 0.0, 0.0);
-        framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &Default::default()).unwrap();
+    support::start_loop(event_loop, move |events| {
+        tenants.rent_mut(|(framebuffer, light_buffer, dt)| {
+            // prepass
+            let uniforms = uniform! {
+                perspective_matrix: Into::<[[f32; 4]; 4]>::into(perspective_matrix),
+                view_matrix: Into::<[[f32; 4]; 4]>::into(view_matrix),
+                model_matrix: Into::<[[f32; 4]; 4]>::into(model_matrix),
+                tex: &opengl_texture
+            };
+            framebuffer.clear_color(0.0, 0.0, 0.0, 0.0);
+            framebuffer.draw(&floor_vertex_buffer, &floor_index_buffer, &prepass_program, &uniforms, &Default::default()).unwrap();
 
-        // lighting
-        let draw_params = glium::DrawParameters {
-            //depth_function: glium::DepthFunction::IfLessOrEqual,
-            blend: glium::Blend {
-                color: glium::BlendingFunction::Addition {
-                    source: glium::LinearBlendingFactor::One,
-                    destination: glium::LinearBlendingFactor::One
+            // lighting
+            let draw_params = glium::DrawParameters {
+                //depth_function: glium::DepthFunction::IfLessOrEqual,
+                blend: glium::Blend {
+                    color: glium::BlendingFunction::Addition {
+                        source: glium::LinearBlendingFactor::One,
+                        destination: glium::LinearBlendingFactor::One
+                    },
+                    alpha: glium::BlendingFunction::Addition {
+                        source: glium::LinearBlendingFactor::One,
+                        destination: glium::LinearBlendingFactor::One
+                    },
+                    constant_value: (1.0, 1.0, 1.0, 1.0)
                 },
-                alpha: glium::BlendingFunction::Addition {
-                    source: glium::LinearBlendingFactor::One,
-                    destination: glium::LinearBlendingFactor::One
-                },
-                constant_value: (1.0, 1.0, 1.0, 1.0)
-            },
-            .. Default::default()
-        };
-        light_buffer.clear_color(0.0, 0.0, 0.0, 0.0);
-        for light in lights.iter() {
+                .. Default::default()
+            };
+            light_buffer.clear_color(0.0, 0.0, 0.0, 0.0);
+            for light in lights.iter() {
+                let uniforms = uniform! {
+                    matrix: Into::<[[f32; 4]; 4]>::into(ortho_matrix),
+                    position_texture: &dt.textures[0],
+                    normal_texture: &dt.textures[1],
+                    light_position: light.position,
+                    light_attenuation: light.attenuation,
+                    light_color: light.color,
+                    light_radius: light.radius
+                };
+                light_buffer.draw(&quad_vertex_buffer, &quad_index_buffer, &lighting_program, &uniforms, &draw_params).unwrap();
+            }
+
+            // composition
             let uniforms = uniform! {
                 matrix: Into::<[[f32; 4]; 4]>::into(ortho_matrix),
-                position_texture: &texture1,
-                normal_texture: &texture2,
-                light_position: light.position,
-                light_attenuation: light.attenuation,
-                light_color: light.color,
-                light_radius: light.radius
+                decal_texture: &dt.textures[2],
+                lighting_texture: &dt.light_texture
             };
-            light_buffer.draw(&quad_vertex_buffer, &quad_index_buffer, &lighting_program, &uniforms, &draw_params).unwrap();
-        }
+            let mut target = display.draw();
+            target.clear_color(0.0, 0.0, 0.0, 0.0);
+            target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &Default::default()).unwrap();
+            target.finish().unwrap();
 
-        // composition
-        let uniforms = uniform! {
-            matrix: Into::<[[f32; 4]; 4]>::into(ortho_matrix),
-            decal_texture: &texture3,
-            lighting_texture: &light_texture
-        };
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&quad_vertex_buffer, &quad_index_buffer, &composition_program, &uniforms, &Default::default()).unwrap();
-        target.finish().unwrap();
+            let mut action = support::Action::Continue;
 
-        let mut action = support::Action::Continue;
-
-        // polling and handling the events received by the window
-        events_loop.poll_events(|event| {
-            match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+            // polling and handling the events received by the window
+            for event in events {
+                match event {
+                    glutin::event::Event::WindowEvent { event, .. } => match event {
+                        glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
+                        _ => (),
+                    },
                     _ => (),
-                },
-                _ => (),
-            }
-        });
+                }
+            };
 
-        action
+            action
+        })
     });
 }

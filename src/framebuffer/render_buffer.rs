@@ -9,7 +9,7 @@ the data of the render buffer.
 */
 use std::rc::Rc;
 use std::ops::{Deref, DerefMut};
-use std::{ mem, fmt };
+use std::fmt;
 use std::error::Error;
 
 use framebuffer::{ColorAttachment, ToColorAttachment};
@@ -70,7 +70,7 @@ impl RenderBuffer {
                   -> Result<RenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::UncompressedFloat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(RenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::Float, width, height, None)
@@ -123,7 +123,7 @@ impl DepthRenderBuffer {
                   -> Result<DepthRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthFormat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(DepthRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::Depth, width, height, None)
@@ -175,7 +175,7 @@ impl StencilRenderBuffer {
                   -> Result<StencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::StencilFormat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(StencilRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::Stencil, width, height, None)
@@ -228,7 +228,7 @@ impl DepthStencilRenderBuffer {
                   -> Result<DepthStencilRenderBuffer, CreationError> where F: Facade
     {
         let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthStencilFormat(format));
-        let format = try!(image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer));
+        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
 
         Ok(DepthStencilRenderBuffer {
             buffer: RenderBufferAny::new(facade, format, TextureKind::DepthStencil, width, height, None)
@@ -288,7 +288,7 @@ impl RenderBufferAny {
             // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
             // FIXME: gles2 only supports very few formats
             let mut ctxt = facade.get_context().make_current();
-            let mut id = mem::uninitialized();
+            let mut id = 0;
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||
                ctxt.extensions.gl_arb_direct_state_access
@@ -427,6 +427,21 @@ impl RenderBufferAny {
     #[inline]
     pub fn kind(&self) -> TextureKind {
         self.kind
+    }
+
+    /// Determines the number of depth and stencil bits in the format of this render buffer.
+    pub fn get_depth_stencil_bits(&self) -> (u16, u16) {
+        unsafe {
+            let ctxt = self.context.make_current();
+            let mut depth_bits: gl::types::GLint = 0;
+            let mut stencil_bits: gl::types::GLint = 0;
+            ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, self.id);
+            // FIXME: GL version considerations
+            ctxt.gl.GetRenderbufferParameteriv(gl::RENDERBUFFER, gl::RENDERBUFFER_DEPTH_SIZE, &mut depth_bits);
+            ctxt.gl.GetRenderbufferParameteriv(gl::RENDERBUFFER, gl::RENDERBUFFER_STENCIL_SIZE, &mut stencil_bits);
+            ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
+            (depth_bits as u16, stencil_bits as u16)
+        }
     }
 }
 

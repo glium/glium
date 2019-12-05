@@ -370,11 +370,11 @@ fn get_transform_feedback_varyings() {
             #version 110
 
             varying vec2 normal;
-            varying int color;
+            varying float color;
 
             void main() {
                 normal = vec2(0.0, 0.0);
-                color = 5;
+                color = 5.0;
 
                 gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
             }
@@ -415,13 +415,13 @@ fn get_transform_feedback_varyings() {
 
     assert_eq!(program.get_transform_feedback_buffers()[1],
                 glium::program::TransformFeedbackBuffer {
-                    id: 0,
+                    id: 1,
                     stride: 4,
                     elements: vec![glium::program::TransformFeedbackVarying {
                         name: "color".to_string(),
                         offset: 0,
                         size: 4,
-                        ty: glium::vertex::AttributeType::U32,
+                        ty: glium::vertex::AttributeType::F32,
                     }]
                 });
 

@@ -40,7 +40,7 @@ impl<T> PixelBuffer<T> where T: PixelValue {
     #[inline]
     pub fn read_as_texture_2d<S>(&self) -> Result<S, ReadError> where S: Texture2dDataSink<T> {
         let dimensions = self.dimensions.get().expect("The pixel buffer is empty");
-        let data = try!(self.read());
+        let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), dimensions.0, dimensions.1))
     }
 }

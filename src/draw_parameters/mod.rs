@@ -274,6 +274,13 @@ pub struct DrawParameters<'a> {
     /// `None` means "don't care". Use this when you don't draw points.
     pub point_size: Option<f32>,
 
+    /// If the bit corresponding to 2^i is 1 in the bitmask, then GL_CLIP_DISTANCEi is enabled.
+    ///
+    /// The most common value for GL_MAX_CLIP_DISTANCES is 8, so 32 bits in the mask is plenty.
+    ///
+    /// See `https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/gl_ClipDistance.xhtml`.
+    pub clip_planes_bitmask: u32,
+
     /// Whether or not the GPU should filter out some faces.
     ///
     /// After the vertex shader stage, the GPU will try to remove the faces that aren't facing
@@ -436,6 +443,7 @@ impl<'a> Default for DrawParameters<'a> {
             point_size: None,
             backface_culling: BackfaceCullingMode::CullingDisabled,
             polygon_mode: PolygonMode::Fill,
+            clip_planes_bitmask: 0,
             multisampling: true,
             dithering: true,
             viewport: None,
@@ -476,27 +484,28 @@ pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawEr
 pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters,
             dimensions: (u32, u32), primitives_types: PrimitiveType) -> Result<(), DrawError>
 {
-    try!(depth::sync_depth(ctxt, &draw_parameters.depth));
+    depth::sync_depth(ctxt, &draw_parameters.depth)?;
     stencil::sync_stencil(ctxt, &draw_parameters.stencil);
-    try!(blend::sync_blending(ctxt, draw_parameters.blend));
+    blend::sync_blending(ctxt, draw_parameters.blend)?;
     sync_color_mask(ctxt, draw_parameters.color_mask);
     sync_line_width(ctxt, draw_parameters.line_width);
     sync_point_size(ctxt, draw_parameters.point_size);
     sync_polygon_mode(ctxt, draw_parameters.backface_culling, draw_parameters.polygon_mode);
+    sync_clip_planes_bitmask(ctxt, draw_parameters.clip_planes_bitmask)?;
     sync_multisampling(ctxt, draw_parameters.multisampling);
     sync_dithering(ctxt, draw_parameters.dithering);
     sync_viewport_scissor(ctxt, draw_parameters.viewport, draw_parameters.scissor,
                           dimensions);
-    try!(sync_rasterizer_discard(ctxt, draw_parameters.draw_primitives));
-    try!(sync_queries(ctxt, draw_parameters.samples_passed_query,
+    sync_rasterizer_discard(ctxt, draw_parameters.draw_primitives)?;
+    sync_queries(ctxt, draw_parameters.samples_passed_query,
                       draw_parameters.time_elapsed_query,
                       draw_parameters.primitives_generated_query,
-                      draw_parameters.transform_feedback_primitives_written_query));
+                      draw_parameters.transform_feedback_primitives_written_query)?;
     sync_conditional_render(ctxt, draw_parameters.condition);
-    try!(sync_smooth(ctxt, draw_parameters.smooth, primitives_types));
-    try!(sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex));
+    sync_smooth(ctxt, draw_parameters.smooth, primitives_types)?;
+    sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex)?;
     sync_primitive_bounding_box(ctxt, &draw_parameters.primitive_bounding_box);
-    try!(sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index));
+    sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index)?;
 
     Ok(())
 }
@@ -582,6 +591,32 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
             ctxt.gl.PolygonMode(gl::FRONT_AND_BACK, polygon_mode);
             ctxt.state.polygon_mode = polygon_mode;
         }
+    }
+}
+
+fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitmask: u32)
+                            -> Result<(), DrawError> {
+    unsafe {
+        let mut max_clip_planes: gl::types::GLint = 0;
+        ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
+        for i in 0..32 {
+            if clip_planes_bitmask & (1 << i) != ctxt.state.enabled_clip_planes & (1 << i) {
+                if clip_planes_bitmask & (1 << i) != 0 {
+                    if i < max_clip_planes {
+                        ctxt.gl.Enable(gl::CLIP_DISTANCE0 + i as u32);
+                        ctxt.state.enabled_clip_planes |= 1 << i;
+                    } else {
+                        return Err(DrawError::ClipPlaneIndexOutOfBounds);
+                    }
+                } else {
+                    if i < max_clip_planes {
+                        ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
+                        ctxt.state.enabled_clip_planes &= !(1 << i);
+                    }
+                }
+            }
+        }
+        Ok(())
     }
 }
 
@@ -713,27 +748,27 @@ fn sync_queries(ctxt: &mut context::CommandContext,
                 -> Result<(), DrawError>
 {
     if let Some(SamplesQueryParam::SamplesPassedQuery(q)) = samples_passed_query {
-        try!(q.begin_query(ctxt));
+        q.begin_query(ctxt)?;
     } else if let Some(SamplesQueryParam::AnySamplesPassedQuery(q)) = samples_passed_query {
-        try!(q.begin_query(ctxt));
+        q.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_samples_passed_query(ctxt);
     }
 
     if let Some(time_elapsed_query) = time_elapsed_query {
-        try!(time_elapsed_query.begin_query(ctxt));
+        time_elapsed_query.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_time_elapsed_query(ctxt);
     }
 
     if let Some(primitives_generated_query) = primitives_generated_query {
-        try!(primitives_generated_query.begin_query(ctxt));
+        primitives_generated_query.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_primitives_generated_query(ctxt);
     }
 
     if let Some(tfq) = transform_feedback_primitives_written_query {
-        try!(tfq.begin_query(ctxt));
+        tfq.begin_query(ctxt)?;
     } else {
         TimeElapsedQuery::end_transform_feedback_primitives_written_query(ctxt);
     }
@@ -901,14 +936,15 @@ fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
     if ctxt.version >= &Version(Api::Gl, 3, 1)   || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
     ctxt.extensions.gl_arb_es3_compatibility
     {
-        if enabled {
-            unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
-            ctxt.state.enabled_primitive_fixed_restart = true;
-        } else {
-            unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
-            ctxt.state.enabled_primitive_fixed_restart = false;
+        if ctxt.state.enabled_primitive_fixed_restart != enabled {
+            if enabled {
+                unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+                ctxt.state.enabled_primitive_fixed_restart = true;
+            } else {
+                unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+                ctxt.state.enabled_primitive_fixed_restart = false;
+            }
         }
-
     } else {
         if enabled {
             return Err(DrawError::FixedIndexRestartingNotSupported);

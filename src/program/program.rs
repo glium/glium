@@ -91,14 +91,14 @@ impl Program {
                 let shaders_store = {
                     let mut shaders_store = Vec::new();
                     for (src, ty) in shaders.into_iter() {
-                        shaders_store.push(try!(build_shader(facade, ty, src)));
+                        shaders_store.push(build_shader(facade, ty, src)?);
                     }
                     shaders_store
                 };
 
-                (try!(RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
+                (RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
                                                has_tessellation_control_shader, has_tessellation_evaluation_shader,
-                                               transform_feedback_varyings)),
+                                               transform_feedback_varyings)?,
                  outputs_srgb, uses_point_size)
             },
 
@@ -107,7 +107,7 @@ impl Program {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
-                (try!(RawProgram::from_binary(facade, data)), outputs_srgb, uses_point_size)
+                (RawProgram::from_binary(facade, data)?, outputs_srgb, uses_point_size)
             },
         };
         Ok(Program {

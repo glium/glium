@@ -59,8 +59,8 @@ impl DrawCommandsNoIndicesBuffer {
                     -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                     where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Default));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Default)?;
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -72,8 +72,8 @@ impl DrawCommandsNoIndicesBuffer {
                             -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                             where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Dynamic));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Dynamic)?;
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -85,8 +85,8 @@ impl DrawCommandsNoIndicesBuffer {
                                -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                                where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Persistent));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Persistent)?;
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -98,8 +98,8 @@ impl DrawCommandsNoIndicesBuffer {
                               -> Result<DrawCommandsNoIndicesBuffer, BufferCreationError>
                               where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Immutable));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Immutable)?;
         Ok(DrawCommandsNoIndicesBuffer { buffer: buf })
     }
 
@@ -160,8 +160,8 @@ impl DrawCommandsIndicesBuffer {
                     -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                     where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Default));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Default)?;
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
@@ -173,8 +173,8 @@ impl DrawCommandsIndicesBuffer {
                             -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                             where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Dynamic));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Dynamic)?;
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
@@ -186,8 +186,8 @@ impl DrawCommandsIndicesBuffer {
                                -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                                where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Persistent));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Persistent)?;
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 
@@ -199,8 +199,8 @@ impl DrawCommandsIndicesBuffer {
                               -> Result<DrawCommandsIndicesBuffer, BufferCreationError>
                               where F: Facade
     {
-        let buf = try!(Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
-                                               elements, BufferMode::Immutable));
+        let buf = Buffer::empty_array(facade, BufferType::DrawIndirectBuffer,
+                                               elements, BufferMode::Immutable)?;
         Ok(DrawCommandsIndicesBuffer { buffer: buf })
     }
 

@@ -1,5 +1,83 @@
 # Change Log
 
+## Version 0.25.1 (2019-07-08)
+
+- Silenced deprecation warning when invoking `implement_vertex`.
+
+## Version 0.25.0 (2019-05-24)
+
+- Updated glutin to version 0.21.
+
+## Version 0.24.0 (2019-04-08)
+
+ - Updated glutin to version 0.20. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0200-2019-03-09).
+ - Depth comparison and shadow mapping ([#1679](https://github.com/glium/glium/pull/1679)).
+
+## Version 0.23.0 (2018-12-05)
+
+ - Updated glutin to version 0.19. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0190-2018-11-09).
+
+## Version 0.22.0 (2018-07-02)
+
+ - Updated glutin to version 0.17.
+ - Updated glutin to version 0.16. Added 'icon_loading' feature.
+
+## Version 0.21.0 (2018-04-11)
+
+ - Updated glutin to version 0.14. Fixes handling of HiDPI on macOS.
+ - Updated gl_generator to version 0.9.
+
+## Version 0.20.0 (2018-01-22)
+
+ - Updated glutin to version 0.12.
+ - Updated smallvec from version 0.4 to 0.6.
+ - Updated misc internal dependencies and dev-dependencies (lazy_static, cgmath, rand, image, gl_generator).
+ - Replaced the `IntoVerticesSource` trait with `Into<VerticesSource>`.
+ - Fixed [rendering bug](https://github.com/glium/glium/issues/1657) on high-DPI screens.
+ - Added support for clipping via `gl_ClipDistance`.
+ - Enabled [depth-stencil FBO attachments](https://github.com/glium/glium/issues/253).
+
+## Version 0.19.0 (2017-12-11)
+
+ - Updated glutin to version 0.11. Notably includes the [winit 0.9 update](https://github.com/tomaka/winit/blob/master/CHANGELOG.md#version-090-2017-12-01).
+ - Updated gl_generator to 0.7 (internal dependency).
+
+## Version 0.18.1 (2017-11-05)
+
+ - Fixed links pointing to tomaka/glium instead of glium/glium
+ - Various documentation updates, bugfixes, and dependency updates.
+
+## Version 0.18.0 (2017-10-15)
+
+ - Updated glutin to version 0.10.
+ - Added support for is_buffer_supported usage on all buffer types.
+ - Various documentation updates and bugfixes.
+
+## Version 0.17.1 (2017-08-27)
+
+ - Changed documentation to docs.rs.
+ - Various bugfixes and updates to internal dependencies.
+
+## Version 0.17.0 (2017-07-12)
+
+ - Updated glutin to version 0.9.
+ - Redesigned API around EventsLoop to match updated winit design.
+ - Added support for vector normalization.
+ - Various bugfixes.
+
+## Version 0.16.0 (2017-01-07)
+
+ - Added asynchronous screenshot example.
+ - Updated tutorials to compile on Mac OS X.
+ - Various tutorial documentation updates.
+ - Fix buffer reads which could fail being safe.
+ - Various bugfixes.
+
+## Version 0.15.0 (2016-07-03)
+
+ - Updated glutin to version 0.6.1
+ - Various internal dependency updates.
+
 ## Version 0.14.0 (2016-04-11)
 
  - Updated glutin to version 0.5.

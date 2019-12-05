@@ -64,7 +64,7 @@ pub struct Context {
 
     /// Glue between glium and the code that handles windowing. Contains functions that allows
     /// you to swap buffers, retrieve the size of the framebuffer, etc.
-    backend: RefCell<Box<Backend>>,
+    backend: RefCell<Box<dyn Backend>>,
 
     /// Whether or not glium must check that the OpenGL context is the current one before each
     /// call.
@@ -168,7 +168,7 @@ impl Context {
 
         let version = version::get_gl_version(&gl);
         let extensions = extensions::get_extensions(&gl, &version);
-        try!(check_gl_compatibility(&version, &extensions));
+        check_gl_compatibility(&version, &extensions)?;
 
         let capabilities = capabilities::get_capabilities(&gl, &version, &extensions);
         let report_debug_output_errors = Cell::new(true);
@@ -320,8 +320,9 @@ impl Context {
         err
     }
 
-    /// DEPRECATED. Use `get_opengl_version` instead.
+    /// Returns the OpenGL version
     #[inline]
+    #[deprecated(note = "use `get_opengl_version` instead.")]
     pub fn get_version(&self) -> &Version {
         &self.version
     }
@@ -484,7 +485,7 @@ impl Context {
         unsafe {
             let ctxt = self.make_current();
 
-            let mut value: [gl::types::GLint; 4] = mem::uninitialized();
+            let mut value: [gl::types::GLint; 4] = [0; 4];
 
             if ctxt.extensions.gl_nvx_gpu_memory_info {
                 ctxt.gl.GetIntegerv(gl::GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX,
@@ -517,7 +518,7 @@ impl Context {
     /// let pixels: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
     /// # }
     /// ```
-    pub fn read_front_buffer<T>(&self) -> T
+    pub fn read_front_buffer<T>(&self) -> Result<T, ops::ReadError>
                                 where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>
     {
         let mut ctxt = self.make_current();
@@ -526,8 +527,8 @@ impl Context {
 
         let mut data = Vec::with_capacity(0);
         ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect,
-                          &mut data, false);
-        T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1)
+                          &mut data, false)?;
+        Ok(T::from_raw(Cow::Owned(data), dimensions.0, dimensions.1))
     }
 
     /// Execute an arbitrary closure with the OpenGL context active. Useful if another
@@ -724,7 +725,7 @@ impl Drop for Context {
                 if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.extensions.gl_khr_debug {
                     ctxt.gl.Disable(gl::DEBUG_OUTPUT);
                 } else if ctxt.extensions.gl_arb_debug_output {
-                    ctxt.gl.DebugMessageCallbackARB(mem::transmute(0usize),
+                    ctxt.gl.DebugMessageCallbackARB(None,
                                                     ptr::null());
                 }
 
@@ -962,8 +963,8 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                ctxt.version >= &Version(Api::GlEs, 3, 2) ||
                (ctxt.version >= &Version(Api::Gl, 1, 0) && ctxt.extensions.gl_khr_debug)
             {
-                ctxt.gl.DebugMessageCallback(callback_wrapper, context_raw_ptr.0
-                                                                 as *const _);
+                ctxt.gl.DebugMessageCallback(Some(callback_wrapper), context_raw_ptr.0
+                                                                     as *const _);
                 ctxt.gl.DebugMessageControl(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                             ptr::null(), gl::TRUE);
 
@@ -975,8 +976,8 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
             } else if ctxt.version >= &Version(Api::GlEs, 2, 0) &&
                       ctxt.extensions.gl_khr_debug
             {
-                ctxt.gl.DebugMessageCallbackKHR(callback_wrapper, context_raw_ptr.0
-                                                                 as *const _);
+                ctxt.gl.DebugMessageCallbackKHR(Some(callback_wrapper), context_raw_ptr.0
+                                                                        as *const _);
                 ctxt.gl.DebugMessageControlKHR(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE, 0,
                                                ptr::null(), gl::TRUE);
 
@@ -986,8 +987,8 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
                 }
 
             } else {
-                ctxt.gl.DebugMessageCallbackARB(callback_wrapper, context_raw_ptr.0
-                                                                    as *const _);
+                ctxt.gl.DebugMessageCallbackARB(Some(callback_wrapper), context_raw_ptr.0
+                                                                        as *const _);
                 ctxt.gl.DebugMessageControlARB(gl::DONT_CARE, gl::DONT_CARE, gl::DONT_CARE,
                                                0, ptr::null(), gl::TRUE);
 

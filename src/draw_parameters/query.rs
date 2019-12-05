@@ -9,7 +9,6 @@ use QueryExt;
 
 use std::cell::Cell;
 use std::fmt;
-use std::mem;
 use std::rc::Rc;
 use std::error::Error;
 
@@ -114,7 +113,7 @@ impl RawQuery {
         // FIXME: handle Timestamp separately
 
         let id = unsafe {
-            let mut id = mem::uninitialized();
+            let mut id = 0;
 
             if ctxt.version >= &Version(Api::Gl, 3, 3) {
                 match ty {
@@ -211,7 +210,7 @@ impl RawQuery {
         Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
-            let mut value = mem::uninitialized();
+            let mut value = 0;
 
             if ctxt.version >= &Version(Api::Gl, 1, 5) ||
                ctxt.version >= &Version(Api::GlEs, 3, 0)
@@ -248,7 +247,7 @@ impl RawQuery {
         Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
-            let mut value = mem::uninitialized();
+            let mut value = 0;
             self.raw_get_u32(&mut ctxt, &mut value);
             value
         }
@@ -313,12 +312,12 @@ impl RawQuery {
         Buffer::<u8>::unbind_query(&mut ctxt);
 
         unsafe {
-            let mut value = mem::uninitialized();
+            let mut value = 0;
             if let Ok(_) = self.raw_get_u64(&mut ctxt, &mut value) {
                 return value;
             }
 
-            let mut value = mem::uninitialized();
+            let mut value = 0;
             self.raw_get_u32(&mut ctxt, &mut value);
             value as u64
         }

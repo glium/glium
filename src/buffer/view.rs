@@ -29,6 +29,7 @@ use buffer::alloc::ReadMapping;
 use buffer::alloc::WriteMapping;
 use buffer::alloc::ReadError;
 use buffer::alloc::CopyError;
+use field::Field;
 
 /// Represents a view of a buffer.
 pub struct Buffer<T: ?Sized> where T: Content {
@@ -214,7 +215,7 @@ impl<T: ?Sized> Buffer<T> where T: Content {
         let target = target.into();
         let alloc = self.alloc.as_ref().unwrap();
 
-        try!(alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes()));
+        alloc.copy_to(0 .. self.get_size(), &target.alloc, target.get_offset_bytes())?;
 
         if let Some(inserter) = self.as_slice().add_fence() {
             let mut ctxt = alloc.get_context().make_current();
@@ -242,22 +243,12 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     ///     value1: u16,
     ///     value2: u16,
     /// }
-    /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
-    /// #                                                   unsafe { std::mem::uninitialized() };
-    /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
+    /// let slice = unsafe { buffer.slice_custom(glium::field::field!(BufferContent, value2)) };
     /// ```
-    ///
-    /// # Safety
-    ///
-    /// The object whose reference is passed to the closure is uninitialized. Therefore you
-    /// **must not** access the content of the object.
-    ///
-    /// You **must** return a reference to an element from the parameter. The closure **must not**
-    /// panic.
     #[inline]
-    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferSlice<R>
-                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                    R: Content
+    pub unsafe fn slice_custom<R>(&self, f: Field<R>) -> BufferSlice<R>
+    where
+        R: Content,
     {
         self.as_slice().slice_custom(f)
     }
@@ -267,9 +258,9 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     /// This method builds an object that represents a slice of the buffer. No actual operation
     /// OpenGL is performed.
     #[inline]
-    pub unsafe fn slice_custom_mut<F, R: ?Sized>(&mut self, f: F) -> BufferMutSlice<R>
-                                                 where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                        R: Content
+    pub unsafe fn slice_custom_mut<R>(&mut self, f: Field<R>) -> BufferMutSlice<R>
+    where
+        R: Content,
     {
         self.as_mut_slice().slice_custom(f)
     }
@@ -383,7 +374,7 @@ impl<T> Buffer<[T]> where T: PixelValue {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-        let data = try!(self.read());
+        let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }
@@ -570,8 +561,8 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     {
         let target = target.into();
 
-        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
-                                target.get_offset_bytes()));
+        self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+                           target.get_offset_bytes())?;
 
         if let Some(inserter) = self.add_fence() {
             let mut ctxt = self.alloc.get_context().make_current();
@@ -599,27 +590,15 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     ///     value1: u16,
     ///     value2: u16,
     /// }
-    /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
-    /// #                                                   unsafe { std::mem::uninitialized() };
-    /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
+    /// let slice = unsafe { buffer.slice_custom(glium::field::field!(BufferContent, value2)) };
     /// ```
-    ///
-    /// # Safety
-    ///
-    /// The object whose reference is passed to the closure is uninitialized. Therefore you
-    /// **must not** access the content of the object.
-    ///
-    /// You **must** return a reference to an element from the parameter. The closure **must not**
-    /// panic.
     #[inline]
-    pub unsafe fn slice_custom<F, R: ?Sized>(&self, f: F) -> BufferSlice<'a, R>
-                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                   R: Content
+    pub unsafe fn slice_custom<R>(&self, f: Field<R>) -> BufferSlice<'a, R>
+    where
+        R: Content,
     {
-        let data: &T = mem::zeroed();
-        let result = f(data);
-        let size = mem::size_of_val(result);
-        let result = result as *const R as *const () as usize;
+        let size = f.size();
+        let result = f.offs();
 
         assert!(result <= self.get_size());
         assert!(result + size <= self.get_size());
@@ -680,7 +659,7 @@ impl<'a, T> BufferSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-        let data = try!(self.read());
+        let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }
@@ -927,8 +906,8 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     {
         let target = target.into();
 
-        try!(self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
-                                target.get_offset_bytes()));
+        self.alloc.copy_to(self.bytes_start .. self.bytes_end, &target.alloc,
+                           target.get_offset_bytes())?;
 
         if let Some(inserter) = self.add_fence() {
             let mut ctxt = self.alloc.get_context().make_current();
@@ -957,26 +936,16 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     ///     value2: u16,
     /// }
     /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
-    /// #                                                   unsafe { std::mem::uninitialized() };
-    /// let slice = unsafe { buffer.slice_custom(|content| &content.value2) };
+    /// #                                                   unsafe { std::mem::zeroed() };
+    /// let slice = unsafe { buffer.slice_custom(glium::field::field!(BufferContent, value2)) };
     /// ```
-    ///
-    /// # Safety
-    ///
-    /// The object whose reference is passed to the closure is uninitialized. Therefore you
-    /// **must not** access the content of the object.
-    ///
-    /// You **must** return a reference to an element from the parameter. The closure **must not**
-    /// panic.
     #[inline]
-    pub unsafe fn slice_custom<F, R: ?Sized>(self, f: F) -> BufferMutSlice<'a, R>
-                                             where F: for<'r> FnOnce(&'r T) -> &'r R,
-                                                   R: Content
+    pub unsafe fn slice_custom<R>(self, f: Field<R>) -> BufferMutSlice<'a, R>
+    where
+        R: Content,
     {
-        let data: &T = mem::zeroed();
-        let result = f(data);
-        let size = mem::size_of_val(result);
-        let result = result as *const R as *const () as usize;
+        let size = f.size();
+        let result = f.offs();
 
         assert!(result <= self.get_size());
         assert!(result + size <= self.get_size());
@@ -1038,7 +1007,7 @@ impl<'a, T> BufferMutSlice<'a, [T]> where T: PixelValue + 'a {
     /// Reads the content of the buffer.
     #[inline]
     pub fn read_as_texture_1d<S>(&self) -> Result<S, ReadError> where S: Texture1dDataSink<T> {
-        let data = try!(self.read());
+        let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), self.len() as u32))
     }
 }

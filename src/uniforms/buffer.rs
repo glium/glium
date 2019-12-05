@@ -81,7 +81,7 @@ impl<T> UniformBuffer<T> where T: Copy {
                    -> Result<UniformBuffer<T>, BufferCreationError>
                    where F: Facade
     {
-        let buffer = try!(Buffer::new(facade, &data, BufferType::UniformBuffer, mode));
+        let buffer = Buffer::new(facade, &data, BufferType::UniformBuffer, mode)?;
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -122,7 +122,7 @@ impl<T> UniformBuffer<T> where T: Copy {
     fn empty_impl<F: ?Sized>(facade: &F, mode: BufferMode) -> Result<UniformBuffer<T>, BufferCreationError>
                      where F: Facade
     {
-        let buffer = try!(Buffer::empty(facade, BufferType::UniformBuffer, mode));
+        let buffer = Buffer::empty(facade, BufferType::UniformBuffer, mode)?;
 
         Ok(UniformBuffer {
             buffer: buffer,
@@ -192,7 +192,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
                              -> Result<UniformBuffer<T>, BufferCreationError>
                              where F: Facade
     {
-        let buffer = try!(Buffer::empty_unsized(facade, BufferType::UniformBuffer, size, mode));
+        let buffer = Buffer::empty_unsized(facade, BufferType::UniformBuffer, size, mode)?;
 
         Ok(UniformBuffer {
             buffer: buffer,

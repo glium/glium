@@ -4,7 +4,7 @@ use std::ops::{Deref, DerefMut};
 use utils::range::RangeArgument;
 
 use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
-use vertex::{Vertex, VerticesSource, IntoVerticesSource, PerInstance};
+use vertex::{Vertex, VerticesSource, PerInstance};
 use vertex::format::VertexFormat;
 
 use gl;
@@ -48,7 +48,7 @@ impl Error for CreationError {
         }
     }
 
-    fn cause(&self) -> Option<&Error> {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::CreationError::*;
         match *self {
             BufferCreationError(ref error) => Some(error),
@@ -171,7 +171,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(Buffer::new(facade, data, BufferType::ArrayBuffer, mode));
+        let buffer = Buffer::new(facade, data, BufferType::ArrayBuffer, mode)?;
         Ok(buffer.into())
     }
 
@@ -225,7 +225,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
-        let buffer = try!(Buffer::empty_array(facade, BufferType::ArrayBuffer, elements, mode));
+        let buffer = Buffer::empty_array(facade, BufferType::ArrayBuffer, elements, mode)?;
         Ok(buffer.into())
     }
 }
@@ -271,8 +271,8 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Default)),
+            buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Default)?,
             bindings: bindings,
         })
     }
@@ -287,8 +287,8 @@ impl<T> VertexBuffer<T> where T: Copy {
         // FIXME: check that the format is supported
 
         Ok(VertexBuffer {
-            buffer: try!(Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Dynamic)),
+            buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Dynamic)?,
             bindings: bindings,
         })
     }
@@ -335,9 +335,9 @@ impl<T> VertexBuffer<T> where T: Copy {
 }
 
 impl<T> VertexBuffer<T> where T: Copy + Send + 'static {
-    /// DEPRECATED: use `.into()` instead.
     /// Discard the type information and turn the vertex buffer into a `VertexBufferAny`.
     #[inline]
+    #[deprecated(note = "use .into() instead.")]
     pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
         VertexBufferAny {
             buffer: self.buffer.into(),
@@ -392,9 +392,9 @@ impl<'a, T> From<&'a mut VertexBuffer<T>> for BufferMutSlice<'a, [T]> where T: C
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for &'a VertexBuffer<T> where T: Copy {
+impl<'a, T> Into<VerticesSource<'a>> for &'a VertexBuffer<T> where T: Copy {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
@@ -422,9 +422,9 @@ impl<'a, T> From<VertexBufferSlice<'a, T>> for BufferSlice<'a, [T]> where T: Cop
     }
 }
 
-impl<'a, T> IntoVerticesSource<'a> for VertexBufferSlice<'a, T> where T: Copy {
+impl<'a, T> Into<VerticesSource<'a>> for VertexBufferSlice<'a, T> where T: Copy {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }
@@ -517,9 +517,9 @@ impl DerefMut for VertexBufferAny {
     }
 }
 
-impl<'a> IntoVerticesSource<'a> for &'a VertexBufferAny {
+impl<'a> Into<VerticesSource<'a>> for &'a VertexBufferAny {
     #[inline]
-    fn into_vertices_source(self) -> VerticesSource<'a> {
+    fn into(self) -> VerticesSource<'a> {
         VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
     }
 }

@@ -14,6 +14,9 @@ pub enum SamplerWrapFunction {
 
     /// Samples at coord `x + 1` map to coord `1`.
     Clamp,
+    
+    /// Use texture border.
+    BorderClamp,
 
     /// Same as Mirror, but only for one repetition,
     MirrorClamp
@@ -26,6 +29,7 @@ impl ToGlEnum for SamplerWrapFunction {
             SamplerWrapFunction::Repeat => gl::REPEAT,
             SamplerWrapFunction::Mirror => gl::MIRRORED_REPEAT,
             SamplerWrapFunction::Clamp => gl::CLAMP_TO_EDGE,
+            SamplerWrapFunction::BorderClamp => gl::CLAMP_TO_BORDER,
             SamplerWrapFunction::MirrorClamp => gl::MIRROR_CLAMP_TO_EDGE,
         }
     }
@@ -91,6 +95,51 @@ impl ToGlEnum for MinifySamplerFilter {
     }
 }
 
+/// The depth texture comparison operation to use when comparing the r value to the value in the
+/// currently bound texture.
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub enum DepthTextureComparison {
+    /// The r value is less than or equal to the texture value
+    LessOrEqual,
+
+    /// The r value is greater than or equal to the texture value
+    GreaterOrEqual,
+
+    /// The r value is less than to the texture value
+    Less,
+
+    /// The r value is greater than to the texture value
+    Greater,
+
+    /// The r value is equal to the texture value
+    Equal,
+
+    /// The r value is not equal to the texture value
+    NotEqual,
+
+    /// Always return 1.0 (true)
+    Always,
+
+    /// Never return 1.0 will return 0.0 (false)
+    Never,
+}
+
+impl ToGlEnum for DepthTextureComparison {
+    #[inline]
+    fn to_glenum(&self) -> gl::types::GLenum {
+        match *self {
+            DepthTextureComparison::LessOrEqual => gl::LEQUAL,
+            DepthTextureComparison::GreaterOrEqual => gl::GEQUAL,
+            DepthTextureComparison::Less => gl::LESS,
+            DepthTextureComparison::Greater => gl::GREATER,
+            DepthTextureComparison::Equal => gl::EQUAL,
+            DepthTextureComparison::NotEqual => gl::NOTEQUAL,
+            DepthTextureComparison::Always => gl::ALWAYS,
+            DepthTextureComparison::Never => gl::NEVER,
+        }
+    }
+}
+
 /// A sampler.
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Sampler<'t, T: 't>(pub &'t T, pub SamplerBehavior);
@@ -119,6 +168,12 @@ impl<'t, T: 't> Sampler<'t, T> {
         self
     }
 
+    /// Sets the depth texture comparison method.
+    pub fn depth_texture_comparison(mut self, comparison: Option<DepthTextureComparison>) -> Sampler<'t, T> {
+        self.1.depth_texture_comparison = comparison;
+        self
+    }
+
     /// Changes the magnifying filter of the sampler.
     pub fn anisotropy(mut self, level: u16) -> Sampler<'t, T> {
         self.1.max_anisotropy = level;
@@ -135,8 +190,7 @@ impl<'t, T: 't> Clone for Sampler<'t, T> {
 }
 
 /// Behavior of a sampler.
-// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS,
-//       GL_TEXTURE_COMPARE_MODE, GL_TEXTURE_COMPARE_FUNC
+// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
@@ -147,6 +201,9 @@ pub struct SamplerBehavior {
 
     /// Filter to use when magnifying the texture.
     pub magnify_filter: MagnifySamplerFilter,
+
+    /// The depth texture comparison function to use. Default value is None.
+    pub depth_texture_comparison: Option<DepthTextureComparison>,
 
     /// `1` means no anisotropic filtering, any value above `1` sets the max anisotropy.
     ///
@@ -171,6 +228,7 @@ impl Default for SamplerBehavior {
             ),
             minify_filter: MinifySamplerFilter::LinearMipmapLinear,
             magnify_filter: MagnifySamplerFilter::Linear,
+            depth_texture_comparison: None,
             max_anisotropy: 1,
         }
     }

@@ -7,7 +7,7 @@ use backend::Facade;
 use context::Context;
 use ContextExt;
 
-use std::{ffi, mem, ptr};
+use std::{ffi, ptr};
 use std::rc::Rc;
 
 use GlObject;
@@ -114,7 +114,7 @@ pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, sourc
 
         // checking compilation success by reading a flag on the shader
         let compilation_success = {
-            let mut compilation_success: gl::types::GLint = mem::uninitialized();
+            let mut compilation_success: gl::types::GLint = 0;
             match id {
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
@@ -138,7 +138,7 @@ pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, sourc
 
         } else {
             // compilation error
-            let mut error_log_size: gl::types::GLint = mem::uninitialized();
+            let mut error_log_size: gl::types::GLint = 0;
 
             match id {
                 Handle::Id(id) => {

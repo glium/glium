@@ -1,16 +1,17 @@
 #[macro_use]
 extern crate glium;
 
+#[allow(unused_imports)]
 use glium::{glutin, Surface};
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new().with_depth_buffer(24);
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building the vertex and index buffers
     let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
@@ -125,7 +126,7 @@ fn main() {
     let mut camera = support::camera::CameraState::new();
     
     // the main loop
-    support::start_loop(|| {
+    support::start_loop(event_loop, move |events| {
         camera.update();
 
         // building the uniforms
@@ -155,15 +156,15 @@ fn main() {
         let mut action = support::Action::Continue;
 
         // polling and handling the events received by the window
-        events_loop.poll_events(|event| {
+        for event in events {
             match event {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => action = support::Action::Stop,
+                glutin::event::Event::WindowEvent { event, .. } => match event {
+                    glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
                     ev => camera.process_input(&ev),
                 },
                 _ => (),
             }
-        });
+        };
 
         action
     });

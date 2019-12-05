@@ -9,7 +9,7 @@ use context::Context;
 use ContextExt;
 use UniformsExt;
 
-use std::{ffi, fmt, mem};
+use std::{ffi, fmt};
 use std::collections::hash_map::{self, HashMap};
 use std::rc::Rc;
 use std::cell::RefCell;
@@ -158,7 +158,7 @@ impl RawProgram {
             }
 
             // checking for errors
-            try!(check_program_link_errors(&mut ctxt, id));
+            check_program_link_errors(&mut ctxt, id)?;
 
             id
         };
@@ -227,7 +227,7 @@ impl RawProgram {
             };
 
             // checking for errors
-            try!(check_program_link_errors(&mut ctxt, id));
+            check_program_link_errors(&mut ctxt, id)?;
 
             id
         };
@@ -287,16 +287,16 @@ impl RawProgram {
                     Handle::Handle(_) => unreachable!()
                 };
 
-                let mut num_supported_formats = mem::uninitialized();
+                let mut num_supported_formats = 0;
                 ctxt.gl.GetIntegerv(gl::NUM_PROGRAM_BINARY_FORMATS, &mut num_supported_formats);
                 if num_supported_formats == 0 {
                     return Err(GetBinaryError::NoFormats)
                 }
 
-                let mut buf_len = mem::uninitialized();
+                let mut buf_len = 0;
                 ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
 
-                let mut format = mem::uninitialized();
+                let mut format = 0;
                 let mut storage: Vec<u8> = Vec::with_capacity(buf_len as usize);
                 ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
                                          storage.as_mut_ptr() as *mut _);
@@ -405,6 +405,10 @@ impl RawProgram {
     /// and `stride`.
     ///
     /// The `stride` is the number of bytes between two vertices.
+    ///
+    /// This function only check the identity for type and offset(exclude the naming) between vertex attributes.
+    ///
+    /// The correctness of semantic meaning(i.e. naming) between vertex attributes is the responsibility of user.
     pub fn transform_feedback_matches(&self, format: &VertexFormat, stride: usize) -> bool {
         // TODO: doesn't support multiple buffers
 
@@ -419,9 +423,14 @@ impl RawProgram {
         }
 
         for elem in buf.elements.iter() {
-            if format.iter().find(|e| &e.0 == &*elem.name && e.1 == elem.offset && e.2 == elem.ty)
+            if format.iter().find(|e| e.1 == elem.offset && e.2 == elem.ty)
                             .is_none()
             {
+                return false;
+            }
+            
+
+            if format.iter().any(|e| e.1 != elem.offset && e.0 == elem.name) {
                 return false;
             }
         }
@@ -532,7 +541,7 @@ impl RawProgram {
         let mut fences = Vec::with_capacity(0);
 
         self.use_program(&mut ctxt);
-        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences));
+        uniforms.bind_uniforms(&mut ctxt, self, &mut fences)?;
         ctxt.gl.DispatchCompute(x, y, z);
 
         for fence in fences {
@@ -574,7 +583,7 @@ impl RawProgram {
         self.use_program(&mut ctxt);
 
         let mut fences = Vec::with_capacity(0);
-        try!(uniforms.bind_uniforms(&mut ctxt, self, &mut fences));
+        uniforms.bind_uniforms(&mut ctxt, self, &mut fences)?;
 
         ctxt.gl.DispatchComputeIndirect(offset as gl::types::GLintptr);
 
@@ -727,7 +736,7 @@ unsafe fn create_program(ctxt: &mut CommandContext) -> Handle {
 unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
                                     -> Result<(), ProgramCreationError>
 {
-    let mut link_success: gl::types::GLint = mem::uninitialized();
+    let mut link_success: gl::types::GLint = 0;
 
     match id {
         Handle::Id(id) => {
@@ -761,11 +770,12 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
             }
         };
 
-        let mut error_log_size: gl::types::GLint = mem::uninitialized();
+        let mut error_log_size: gl::types::GLint = 0;
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
             },
             Handle::Handle(id) => {
@@ -779,7 +789,8 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
+                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
+                    ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
                                           error_log.as_mut_ptr() as *mut gl::types::GLchar);
             },

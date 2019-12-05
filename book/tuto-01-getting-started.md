@@ -49,13 +49,13 @@ fn main() {
     use glium::glutin;
 
     let mut events_loop = glutin::EventsLoop::new();
-    let window = glutin::WindowBuilder::new();
-    let context = glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let wb = glutin::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 }
 ```
 
-But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `Closed` event has been received:
+But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `CloseRequested` event has been received:
 
 ```rust
 let mut closed = false;
@@ -64,7 +64,7 @@ while !closed {
     events_loop.poll_events(|ev| {
         match ev {
             glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::Closed => closed = true,
+                glutin::WindowEvent::CloseRequested => closed = true,
                 _ => (),
             },
             _ => (),
@@ -119,9 +119,9 @@ fn main() {
     use glium::{glutin, Surface};
 
     let mut events_loop = glium::glutin::EventsLoop::new();
-    let window = glium::glutin::WindowBuilder::new();
-    let context = glium::glutin::ContextBuilder::new();
-    let display = glium::Display::new(window, context, &events_loop).unwrap();
+    let wb = glium::glutin::WindowBuilder::new();
+    let cb = glium::glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 
     let mut closed = false;
     while !closed {
@@ -132,7 +132,7 @@ fn main() {
         events_loop.poll_events(|ev| {
             match ev {
                 glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::Closed => closed = true,
+                    glutin::WindowEvent::CloseRequested => closed = true,
                     _ => (),
                 },
                 _ => (),
