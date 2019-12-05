@@ -336,7 +336,7 @@ impl Context {
     /// Returns the GLSL version guaranteed to be supported.
     #[inline]
     pub fn get_supported_glsl_version(&self) -> Version {
-        version::get_supported_glsl_version(self.get_version())
+        version::get_supported_glsl_version(self.get_opengl_version())
     }
 
     /// Returns true if the given GLSL version is supported.

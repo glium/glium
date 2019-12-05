@@ -1646,7 +1646,7 @@ pub fn format_request_to_glenum(context: &Context, format: TextureFormatRequest,
                                 rq_ty: RequestType)
                                 -> Result<gl::types::GLenum, FormatNotSupportedError>
 {
-    let version = context.get_version();
+    let version = context.get_opengl_version();
     let extensions = context.get_extensions();
 
     let is_client_compressed = match rq_ty.get_client_format() {
