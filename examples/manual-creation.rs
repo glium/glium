@@ -49,6 +49,7 @@ fn main() {
         fn swap_buffers(&self) -> Result<(), glium::SwapBuffersError> {
             match self.gl_window.borrow().swap_buffers() {
                 Ok(()) => Ok(()),
+                Err(glutin::ContextError::FunctionUnavailable) => panic!(),
                 Err(glutin::ContextError::IoError(_)) => panic!(),
                 Err(glutin::ContextError::OsError(_)) => panic!(),
                 Err(glutin::ContextError::ContextLost) => Err(glium::SwapBuffersError::ContextLost),
