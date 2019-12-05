@@ -95,5 +95,5 @@ pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
         }
     }
 
-    glium::vertex::VertexBuffer::new(display, &vertex_data).unwrap().into_vertex_buffer_any()
+    glium::vertex::VertexBuffer::new(display, &vertex_data).unwrap().into()
 }

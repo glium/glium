@@ -489,7 +489,7 @@ impl VertexBufferAny {
 impl<T> From<VertexBuffer<T>> for VertexBufferAny where T: Copy + Send + 'static {
     #[inline]
     fn from(buf: VertexBuffer<T>) -> VertexBufferAny {
-        buf.into_vertex_buffer_any()
+        buf.into()
     }
 }
 
@@ -497,7 +497,7 @@ impl<T> From<Buffer<[T]>> for VertexBufferAny where T: Vertex + Copy + Send + 's
     #[inline]
     fn from(buf: Buffer<[T]>) -> VertexBufferAny {
         let buf: VertexBuffer<T> = buf.into();
-        buf.into_vertex_buffer_any()
+        buf.into()
     }
 }
 
