@@ -471,7 +471,7 @@ pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawEr
         return Err(DrawError::InvalidDepthRange);
     }
 
-    if !params.draw_primitives && context.get_version() < &Version(Api::Gl, 3, 0) &&
+    if !params.draw_primitives && context.get_opengl_version() < &Version(Api::Gl, 3, 0) &&
         !context.get_extensions().gl_ext_transform_feedback
     {
         return Err(DrawError::RasterizerDiscardNotSupported);

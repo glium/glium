@@ -106,7 +106,7 @@ pub fn build_fullscreen_red_pipeline<F: ?Sized>(facade: &F) -> (glium::vertex::V
         glium::VertexBuffer::new(facade, &[
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-        ]).unwrap().into_vertex_buffer_any(),
+        ]).unwrap().into(),
 
         glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, &[0u8, 1, 2, 3]).unwrap().into(),
 
@@ -168,7 +168,7 @@ pub fn build_rectangle_vb_ib<F: ?Sized>(facade: &F)
         glium::VertexBuffer::new(facade, &[
             Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
             Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-        ]).unwrap().into_vertex_buffer_any(),
+        ]).unwrap().into(),
 
         glium::IndexBuffer::new(facade, PrimitiveType::TriangleStrip, &[0u8, 1, 2, 3]).unwrap().into(),
     )

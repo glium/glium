@@ -82,7 +82,7 @@ pub trait Facade {
 
 impl<T: ?Sized> CapabilitiesSource for T where T: Facade {
     fn get_version(&self) -> &Version {
-        self.get_context().deref().get_version()
+        self.get_context().deref().get_opengl_version()
     }
 
     fn get_extensions(&self) -> &ExtensionsList {
