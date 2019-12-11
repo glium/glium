@@ -339,6 +339,10 @@ impl<T> VertexBuffer<T> where T: Copy + Send + 'static {
     #[inline]
     #[deprecated(note = "use .into() instead.")]
     pub fn into_vertex_buffer_any(self) -> VertexBufferAny {
+        self.into_vertex_buffer_any_inner()
+    }
+    #[inline]
+    fn into_vertex_buffer_any_inner(self) -> VertexBufferAny {
         VertexBufferAny {
             buffer: self.buffer.into(),
             bindings: self.bindings,
@@ -489,7 +493,7 @@ impl VertexBufferAny {
 impl<T> From<VertexBuffer<T>> for VertexBufferAny where T: Copy + Send + 'static {
     #[inline]
     fn from(buf: VertexBuffer<T>) -> VertexBufferAny {
-        buf.into()
+        buf.into_vertex_buffer_any_inner()
     }
 }
 
@@ -497,7 +501,7 @@ impl<T> From<Buffer<[T]>> for VertexBufferAny where T: Vertex + Copy + Send + 's
     #[inline]
     fn from(buf: Buffer<[T]>) -> VertexBufferAny {
         let buf: VertexBuffer<T> = buf.into();
-        buf.into()
+        buf.into_vertex_buffer_any_inner()
     }
 }
 
