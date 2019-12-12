@@ -9,7 +9,7 @@ use glium::index::PrimitiveType;
 fn main() {
     // building the display, ie. the main object
     let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new().with_visible(false);
+    let wb = glutin::window::WindowBuilder::new().with_visible(true);
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
