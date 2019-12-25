@@ -23,7 +23,7 @@ fn main() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [-0.5, -0.5] },
                 Vertex { position: [ 0.0,  0.5] },
@@ -127,7 +127,7 @@ fn main() {
     // level of tessellation
     let mut tess_level: i32 = 5;
     println!("The current tessellation level is {} ; use the Up and Down keys to change it", tess_level);
-    
+
     // the main loop
     support::start_loop(event_loop, move |events| {
         // building the uniforms

@@ -389,7 +389,7 @@ impl Default for GlState {
             enabled_primitive_fixed_restart: false,
             enabled_program_point_size: false,
             enabled_clip_planes: 0,
-            
+
             program: Handle::Id(0),
             vertex_array: 0,
             clear_color: (0.0, 0.0, 0.0, 0.0),

@@ -98,7 +98,7 @@ macro_rules! unowned_draw_test {
                                                  glium::texture::MipmapsOption::NoMipmap,
                                                  empty_texture.get_texture_type())
             };
-            
+
             draw_and_validate!(display, program, texture, vb, ib, $rust_value);
         }
     );

@@ -23,7 +23,7 @@ fn main() {
 
         implement_vertex!(Vertex, position, color);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
                 Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
@@ -66,7 +66,7 @@ fn main() {
             "
         },
 
-        110 => {  
+        110 => {
             vertex: "
                 #version 110
 

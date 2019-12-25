@@ -5,7 +5,7 @@ use gl;
 /// Describes a version.
 ///
 /// A version can only be compared to another version if they belong to the same API.
-/// For example, both `Version(Gl, 3, 0) >= Version(GlEs, 3, 0)` and `Version(GlEs, 3, 0) >= 
+/// For example, both `Version(Gl, 3, 0) >= Version(GlEs, 3, 0)` and `Version(GlEs, 3, 0) >=
 /// Version(Gl, 3, 0)` return `false`.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Version(pub Api, pub u8, pub u8);
