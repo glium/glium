@@ -152,7 +152,7 @@ pub enum AttributeType {
 impl AttributeType {
     /// Returns true if the backend supports this type of attribute.
     pub fn is_supported<C: ?Sized>(&self, caps: &C) -> bool where C: CapabilitiesSource {
-        match self {    
+        match self {
             &AttributeType::I8 | &AttributeType::I8I8 | &AttributeType::I8I8I8 |
             &AttributeType::I8I8I8I8 | &AttributeType::U8 | &AttributeType::U8U8 |
             &AttributeType::U8U8U8 | &AttributeType::U8U8U8U8 | &AttributeType::I16 |
@@ -162,7 +162,7 @@ impl AttributeType {
             &AttributeType::F32F32 | &AttributeType::F32F32F32 | &AttributeType::F32F32F32F32 |
             &AttributeType::F32x2x2 | &AttributeType::F32x2x3 | &AttributeType::F32x2x4 |
             &AttributeType::F32x3x2 | &AttributeType::F32x3x3 | &AttributeType::F32x3x4 |
-            &AttributeType::F32x4x2 | &AttributeType::F32x4x3 | &AttributeType::F32x4x4 => 
+            &AttributeType::F32x4x2 | &AttributeType::F32x4x3 | &AttributeType::F32x4x4 =>
             {
                 true
             },
@@ -201,7 +201,7 @@ impl AttributeType {
             &AttributeType::F16F16F16F16 |
             &AttributeType::F16x2x2 | &AttributeType::F16x2x3 | &AttributeType::F16x2x4 |
             &AttributeType::F16x3x2 | &AttributeType::F16x3x3 | &AttributeType::F16x3x4 |
-            &AttributeType::F16x4x2 | &AttributeType::F16x4x3 | &AttributeType::F16x4x4 => 
+            &AttributeType::F16x4x2 | &AttributeType::F16x4x3 | &AttributeType::F16x4x4 =>
             {
                 caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
                 caps.get_version() >= &Version(Api::Gl, 4, 0) ||

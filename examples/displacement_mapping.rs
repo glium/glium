@@ -31,7 +31,7 @@ fn main() {
 
         implement_vertex!(Vertex, position, tex_coords);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [-0.5,  0.5, 3.0], tex_coords: [1.0, 1.0] },
                 Vertex { position: [ 0.5,  0.5, 3.0], tex_coords: [0.0, 1.0] },
@@ -118,7 +118,7 @@ fn main() {
                     vec3 normal = normalize(gl_TessCoord.x * tc_normal[0] +
                                             gl_TessCoord.y * tc_normal[1] +
                                             gl_TessCoord.z * tc_normal[2]);
- 
+
                     vec2 tex_coords = gl_TessCoord.x * tc_tex_coords[0] +
                                       gl_TessCoord.y * tc_tex_coords[1] +
                                       gl_TessCoord.z * tc_tex_coords[2];

@@ -1308,7 +1308,7 @@ fn primitive_restart_index() {
         ]).unwrap()
     };
 
-    let index_buffer = glium::IndexBuffer::<u8>::new(&display, glium::index::PrimitiveType::LineStrip, 
+    let index_buffer = glium::IndexBuffer::<u8>::new(&display, glium::index::PrimitiveType::LineStrip,
                                                      &[0, 1, 255, 2, 3]).unwrap();
     let program = program!(&display,
         140 => {

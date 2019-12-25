@@ -14,7 +14,7 @@ pub enum SamplerWrapFunction {
 
     /// Samples at coord `x + 1` map to coord `1`.
     Clamp,
-    
+
     /// Use texture border.
     BorderClamp,
 

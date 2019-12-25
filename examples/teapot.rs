@@ -124,7 +124,7 @@ fn main() {
 
     //
     let mut camera = support::camera::CameraState::new();
-    
+
     // the main loop
     support::start_loop(event_loop, move |events| {
         camera.update();

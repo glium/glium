@@ -34,7 +34,7 @@ fn main() {
 
         implement_vertex!(Vertex, position, tex_coords);
 
-        glium::VertexBuffer::new(&display, 
+        glium::VertexBuffer::new(&display,
             &[
                 Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 0.0] },
                 Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 1.0] },
@@ -79,7 +79,7 @@ fn main() {
             "
         },
 
-        110 => {  
+        110 => {
             vertex: "
                 #version 110
 
@@ -107,7 +107,7 @@ fn main() {
             ",
         },
 
-        100 => {  
+        100 => {
             vertex: "
                 #version 100
 
@@ -135,7 +135,7 @@ fn main() {
             ",
         },
     ).unwrap();
-    
+
     // the main loop
     support::start_loop(event_loop, move |events| {
         // building the uniforms

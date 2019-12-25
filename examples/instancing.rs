@@ -88,7 +88,7 @@ fn main() {
         .unwrap();
 
     let camera = support::camera::CameraState::new();
-    
+
     // the main loop
     support::start_loop(event_loop, move |events| {
         // updating the teapots

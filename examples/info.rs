@@ -45,7 +45,7 @@ fn main() {
              } else {
                  "none"
              });
-    
+
     println!("{} context renderer: {}", api, display.get_opengl_renderer_string());
     println!("{} context vendor: {}", api, display.get_opengl_vendor_string());
 }

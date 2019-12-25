@@ -428,7 +428,7 @@ impl RawProgram {
             {
                 return false;
             }
-            
+
 
             if format.iter().any(|e| e.1 != elem.offset && e.0 == elem.name) {
                 return false;

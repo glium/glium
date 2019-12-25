@@ -31,7 +31,7 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
             ctxt.state.color_mask = (1, 1, 1, 1);
             ctxt.gl.ColorMask(1, 1, 1, 1);
         }
-    
+
         if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
            ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control
         {
