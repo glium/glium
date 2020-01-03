@@ -466,11 +466,11 @@ fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types
         AttributeType::F64x4x2 => (gl::DOUBLE, 4, 2),
         AttributeType::F64x4x3 => (gl::DOUBLE, 4, 3),
         AttributeType::F64x4x4 => (gl::DOUBLE, 4, 4),
-        AttributeType::I2I10I10I10Reversed => (gl::INT_2_10_10_10_REV, 1, 1),
-        AttributeType::U2U10U10U10Reversed => (gl::UNSIGNED_INT_2_10_10_10_REV, 1, 1),
-        AttributeType::I10I10I10I2 => (gl::INT_10_10_10_2_OES, 1, 1),
-        AttributeType::U10U10U10U2 => (gl::UNSIGNED_INT_10_10_10_2_OES, 1, 1),
-        AttributeType::F10F11F11UnsignedIntReversed => (gl::UNSIGNED_INT_10F_11F_11F_REV, 1, 1),
+        AttributeType::I2I10I10I10Reversed => (gl::INT_2_10_10_10_REV, 4, 1),
+        AttributeType::U2U10U10U10Reversed => (gl::UNSIGNED_INT_2_10_10_10_REV, 4, 1),
+        AttributeType::I10I10I10I2 => (gl::INT_10_10_10_2_OES, 4, 1),
+        AttributeType::U10U10U10U2 => (gl::UNSIGNED_INT_10_10_10_2_OES, 4, 1),
+        AttributeType::F10F11F11UnsignedIntReversed => (gl::UNSIGNED_INT_10F_11F_11F_REV, 3, 1),
         AttributeType::FixedFloatI16U16 => (gl::FIXED, 1, 1),
     }
 }
