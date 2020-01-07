@@ -62,11 +62,57 @@ lazy_static! {
     static ref COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
 }
 
+/// Used in ProgramCreationError::CompilationError to explain which shader stage failed compilation 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum ShaderType {
+    /// Vertex shader, maps to gl::VERTEX_SHADER
+    Vertex,
+    /// Geometry shader, maps to gl::GEOMETRY_SHADER
+    Geometry,
+    /// Fragment shader, maps to gl::FRAGMENT_SHADER
+    Fragment,
+    /// Tesselation control shader, maps to gl::TESS_CONTROL_SHADER
+    TesselationControl,
+    /// Tesselation evaluation shader, maps to gl::TESS_EVALUATION_SHADER
+    TesselationEvaluation,
+    /// Compute shader, maps to gl::COMPUTE_SHADER
+    Compute,
+}
+
+impl ShaderType {
+    /// Creates an instance of gl::types::GLenum corresponding to the given ShaderType
+    pub fn to_opengl_type(self) -> gl::types::GLenum {
+        match self {
+            ShaderType::Vertex => gl::VERTEX_SHADER,
+            ShaderType::Geometry => gl::GEOMETRY_SHADER,
+            ShaderType::Fragment => gl::FRAGMENT_SHADER,
+            ShaderType::TesselationControl => gl::TESS_CONTROL_SHADER,
+            ShaderType::TesselationEvaluation => gl::TESS_EVALUATION_SHADER,
+            ShaderType::Compute => gl::COMPUTE_SHADER,
+        }
+    }
+    /// Creates an instance of ShaderType corresponding to the given gl::types::GLenum.
+    /// This routine will panic if the given shadertype is not supported by glium.
+    pub fn from_opengl_type(gl_type: gl::types::GLenum) -> Self {
+        match gl_type {
+            gl::VERTEX_SHADER => ShaderType::Vertex,
+            gl::GEOMETRY_SHADER => ShaderType::Geometry,
+            gl::FRAGMENT_SHADER => ShaderType::Fragment,
+            gl::TESS_CONTROL_SHADER => ShaderType::TesselationControl,
+            gl::TESS_EVALUATION_SHADER => ShaderType::TesselationEvaluation,
+            gl::COMPUTE_SHADER  => ShaderType::Compute,
+            _ => {
+                panic!("Unsupported shader type")
+            }
+        }
+    }
+}
+
 /// Error that can be triggered when creating a `Program`.
 #[derive(Clone, Debug)]
 pub enum ProgramCreationError {
     /// Error while compiling one of the shaders.
-    CompilationError(String),
+    CompilationError(String, ShaderType),
 
     /// Error while linking the program.
     LinkingError(String),
@@ -95,7 +141,7 @@ impl fmt::Display for ProgramCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         use self::ProgramCreationError::*;
         match *self {
-            CompilationError(ref s) =>
+            CompilationError(ref s, _) =>
                 write!(fmt, "{}: {}", self.description(), s),
             LinkingError(ref s) =>
                 write!(fmt, "{}: {}", self.description(), s),
@@ -109,8 +155,16 @@ impl Error for ProgramCreationError {
     fn description(&self) -> &str {
         use self::ProgramCreationError::*;
         match *self {
-            CompilationError(_) =>
-                "Compilation error in one of the shaders",
+            CompilationError(_,typ) => {
+                match typ {
+                    ShaderType::Vertex => "Compilation error in vertex shader",
+                    ShaderType::Geometry => "Compilation error in geometry shader",
+                    ShaderType::Fragment => "Compilation error in fragment shader",
+                    ShaderType::TesselationControl => "Compilation error in tesselation control shader",
+                    ShaderType::TesselationEvaluation => "Compilation error in tesselation evaluation shader",
+                    ShaderType::Compute => "Compilation error in compute shader"
+                }
+            },
             LinkingError(_) =>
                 "Error while linking shaders together",
             ShaderTypeNotSupported =>

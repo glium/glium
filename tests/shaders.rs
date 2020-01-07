@@ -70,7 +70,7 @@ fn program_compilation_error() {
         None);
 
     match program {
-        Err(glium::CompilationError(_)) => (),
+        Err(glium::CompilationError(..)) => (),
         _ => panic!()
     };
 

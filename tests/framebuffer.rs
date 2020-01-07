@@ -209,7 +209,7 @@ fn multioutput() {
         ",
         None)
     {
-        Err(glium::CompilationError(_)) => return,
+        Err(glium::CompilationError(..)) => return,
         Ok(p) => p,
         e => e.unwrap()
     };
