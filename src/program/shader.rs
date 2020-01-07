@@ -13,7 +13,7 @@ use std::rc::Rc;
 use GlObject;
 use Handle;
 
-use program::ProgramCreationError;
+use program::{ProgramCreationError, ShaderType};
 
 /// A single, compiled but unlinked, shader.
 pub struct Shader {
@@ -172,10 +172,10 @@ pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, sourc
             error_log.set_len(error_log_size as usize);
 
             match String::from_utf8(error_log) {
-                Ok(msg) => Err(ProgramCreationError::CompilationError(msg)),
+                Ok(msg) => Err(ProgramCreationError::CompilationError(msg, ShaderType::from_opengl_type(shader_type))),
                 Err(_) => Err(
                     ProgramCreationError::CompilationError("Could not convert the log \
-                                                            message to UTF-8".to_owned())
+                                                            message to UTF-8".to_owned(), ShaderType::from_opengl_type(shader_type))
                 ),
             }
         }

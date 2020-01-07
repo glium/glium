@@ -18,7 +18,7 @@ use ProgramExt;
 use Handle;
 use RawUniformValue;
 
-use program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, Binary};
+use program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, ShaderType, Binary};
 use program::GetBinaryError;
 
 use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
@@ -55,22 +55,22 @@ impl Program {
                 let mut has_tessellation_evaluation_shader = false;
 
                 let mut shaders = vec![
-                    (vertex_shader, gl::VERTEX_SHADER),
-                    (fragment_shader, gl::FRAGMENT_SHADER)
+                    (vertex_shader, ShaderType::Vertex),
+                    (fragment_shader, ShaderType::Fragment)
                 ];
 
                 if let Some(gs) = geometry_shader {
-                    shaders.push((gs, gl::GEOMETRY_SHADER));
+                    shaders.push((gs, ShaderType::Geometry));
                     has_geometry_shader = true;
                 }
 
                 if let Some(ts) = tessellation_control_shader {
-                    shaders.push((ts, gl::TESS_CONTROL_SHADER));
+                    shaders.push((ts, ShaderType::TesselationControl));
                     has_tessellation_control_shader = true;
                 }
 
                 if let Some(ts) = tessellation_evaluation_shader {
-                    shaders.push((ts, gl::TESS_EVALUATION_SHADER));
+                    shaders.push((ts, ShaderType::TesselationEvaluation));
                     has_tessellation_evaluation_shader = true;
                 }
 
@@ -91,7 +91,7 @@ impl Program {
                 let shaders_store = {
                     let mut shaders_store = Vec::new();
                     for (src, ty) in shaders.into_iter() {
-                        shaders_store.push(build_shader(facade, ty, src)?);
+                        shaders_store.push(build_shader(facade, ty.to_opengl_type(), src)?);
                     }
                     shaders_store
                 };
