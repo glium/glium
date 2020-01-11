@@ -37,7 +37,7 @@ impl Fences {
         let mut existing_fences = self.fences.borrow_mut();
         let mut new_fences = SmallVec::new();
 
-        for existing in existing_fences.drain() {
+        for existing in existing_fences.drain(..) {
             if (existing.0.start >= range.start && existing.0.start < range.end) ||
                (existing.0.end > range.start && existing.0.end < range.end)
             {
@@ -53,7 +53,7 @@ impl Fences {
     /// Cleans up all fences in the container. Must be called or you'll get a panic.
     pub fn clean(&mut self, ctxt: &mut CommandContext) {
         let mut fences = self.fences.borrow_mut();
-        for (_, sync) in fences.drain() {
+        for (_, sync) in fences.drain(..) {
             unsafe { sync::destroy_linear_sync_fence(ctxt, sync) };
         }
     }
@@ -73,7 +73,7 @@ impl<'a> Inserter<'a> {
         let mut written = false;
 
         let mut existing_fences = self.fences.fences.borrow_mut();
-        for existing in existing_fences.drain() {
+        for existing in existing_fences.drain(..) {
             if existing.0.start < self.range.start && existing.0.end <= self.range.start {
                 new_fences.push(existing);
 
