@@ -20,8 +20,8 @@ pub fn start_loop<F>(event_loop: EventLoop<()>, mut callback: F)->! where F: 'st
     let mut events_buffer = Vec::new();
     let mut next_frame_time = Instant::now();
     event_loop.run(move |event, _, control_flow| {
-        let run_callback = match event {
-            Event::NewEvents(cause) => {
+        let run_callback = match event.to_static() {
+            Some(Event::NewEvents(cause)) => {
                 match cause {
                     StartCause::ResumeTimeReached { .. } | StartCause::Init => {
                         true
@@ -29,10 +29,14 @@ pub fn start_loop<F>(event_loop: EventLoop<()>, mut callback: F)->! where F: 'st
                     _ => false
                 }
             },
-            _ => {
+            Some(event) => {
                 events_buffer.push(event);
                 false
             }
+            None => {
+                // Ignore this event.
+                false
+            },
         };
 
         let action = if run_callback {

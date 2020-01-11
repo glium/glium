@@ -235,8 +235,7 @@ fn main() {
                 glutin::event::Event::WindowEvent { event, .. } => match event {
                     glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
                     glutin::event::WindowEvent::CursorMoved { position, .. } => {
-                        let hidpi_factor = display.gl_window().window().hidpi_factor();
-                        cursor_position = Some(position.to_physical(hidpi_factor).into());
+                        cursor_position = Some(position.cast::<i32>().into());
                     }
                     ev => camera.process_input(&ev),
                 },

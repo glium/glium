@@ -33,8 +33,9 @@ fn main() {
     use cgmath::SquareMatrix;
 
     let event_loop = glutin::event_loop::EventLoop::new();
+    let size: glutin::dpi::LogicalSize<u32> = (800, 500).into();
     let wb = glutin::window::WindowBuilder::new()
-        .with_inner_size((800, 500).into())
+        .with_inner_size(size)
         .with_title("Glium Deferred Example");
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();

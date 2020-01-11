@@ -273,7 +273,6 @@ unsafe impl Backend for GlutinBackend {
         let gl_window_takeable = self.borrow();
         let gl_window = gl_window_takeable.window();
         let (width, height) = gl_window.inner_size()
-            .to_physical(gl_window.hidpi_factor())
             .into();
         (width, height)
     }
