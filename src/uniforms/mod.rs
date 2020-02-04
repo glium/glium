@@ -143,6 +143,8 @@ let program = glium::Program::from_source(&display,
 pub use self::buffer::UniformBuffer;
 pub use self::sampler::{SamplerWrapFunction, MagnifySamplerFilter, MinifySamplerFilter, DepthTextureComparison};
 pub use self::sampler::{Sampler, SamplerBehavior};
+pub use self::image_unit::{ImageUnitAccess, ImageUnitFormat};
+pub use self::image_unit::{ImageUnit, ImageUnitBehavior};
 pub use self::uniforms::{EmptyUniforms, UniformsStorage};
 pub use self::value::{UniformValue, UniformType};
 
@@ -156,6 +158,7 @@ use program::BlockLayout;
 
 mod bind;
 mod buffer;
+mod image_unit;
 mod sampler;
 mod uniforms;
 mod value;

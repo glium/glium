@@ -25,6 +25,7 @@ use version::Version;
 
 pub use context::Context;
 pub use context::ReleaseBehavior;
+pub use context::MemoryBarrier;
 
 #[cfg(feature = "glutin")]
 pub mod glutin;
