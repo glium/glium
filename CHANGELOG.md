@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 0.26.0 (2020-02-09)
+
+- Updated glutin to version 0.23.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0230-2020-02-06).
+- Removal of some unsound code that rustc warns about
+- Report the precise shader stage in which a shader failed compilation
+
 ## Version 0.25.1 (2019-07-08)
 
 - Silenced deprecation warning when invoking `implement_vertex`.
