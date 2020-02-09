@@ -31,13 +31,13 @@ fn main() {
 
 
     let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-diffuse.jpg")[..]),
-                            image::JPEG).unwrap().to_rgba();
+                            image::ImageFormat::Jpeg).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
     let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let diffuse_texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-normal.png")[..]),
-                            image::PNG).unwrap().to_rgba();
+                            image::ImageFormat::Png).unwrap().to_rgba();
     let image_dimensions = image.dimensions();
     let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let normal_map = glium::texture::Texture2d::new(&display, image).unwrap();
