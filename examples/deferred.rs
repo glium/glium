@@ -294,7 +294,7 @@ fn main() {
         }),
         |dt| {
             let output = [("output1", &dt.textures[0]), ("output2", &dt.textures[1]), ("output3", &dt.textures[2]), ("output4", &dt.textures[3])];
-            let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(&display, output.into_iter().cloned(), &dt.depthtexture).unwrap();
+            let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(&display, output.iter().cloned(), &dt.depthtexture).unwrap();
             let light_buffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, &dt.light_texture, &dt.depthtexture).unwrap();
             (framebuffer, light_buffer, dt)
         }
