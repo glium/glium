@@ -23,7 +23,7 @@ impl<T> Field<T> {
 }
 
 #[doc(hidden)]
-pub fn _hidden_field<T>(offs: usize, size: usize, _: Option<&T>) -> Field<T> {
+pub fn _hidden_field<T>(offs: usize, _: usize, _: Option<&T>) -> Field<T> {
     Field {
         offs,
         size: std::mem::size_of::<T>(),
@@ -37,6 +37,6 @@ macro_rules! field {
     ($struct_name:ident, $field_name:ident) => {{
         let opt = None::<&$struct_name>.map(|v| &v.$field_name);
         let offs = $crate::__glium_offset_of!($struct_name, $field_name);
-        $crate::field::_hidden_field(offs, size, opt)
+        $crate::field::_hidden_field(offs, 0, opt)
     }};
 }

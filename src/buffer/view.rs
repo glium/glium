@@ -243,7 +243,9 @@ impl<T: ?Sized> Buffer<T> where T: Content {
     ///     value1: u16,
     ///     value2: u16,
     /// }
-    /// let slice = unsafe { buffer.slice_custom(glium::field::field!(BufferContent, value2)) };
+    ///
+    /// # let buffer: glium::buffer::Buffer<BufferContent> = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+    /// let slice = unsafe { buffer.slice_custom(glium::field!(BufferContent, value2)) };
     /// ```
     #[inline]
     pub unsafe fn slice_custom<R>(&self, f: Field<R>) -> BufferSlice<R>
@@ -590,7 +592,9 @@ impl<'a, T: ?Sized> BufferSlice<'a, T> where T: Content + 'a {
     ///     value1: u16,
     ///     value2: u16,
     /// }
-    /// let slice = unsafe { buffer.slice_custom(glium::field::field!(BufferContent, value2)) };
+    ///
+    /// # let buffer: glium::buffer::Buffer<BufferContent> = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+    /// let slice = unsafe { buffer.slice_custom(glium::field!(BufferContent, value2)) };
     /// ```
     #[inline]
     pub unsafe fn slice_custom<R>(&self, f: Field<R>) -> BufferSlice<'a, R>
@@ -937,7 +941,7 @@ impl<'a, T: ?Sized> BufferMutSlice<'a, T> where T: Content + 'a {
     /// }
     /// # let buffer: glium::buffer::BufferSlice<BufferContent> =
     /// #                                                   unsafe { std::mem::zeroed() };
-    /// let slice = unsafe { buffer.slice_custom(glium::field::field!(BufferContent, value2)) };
+    /// let slice = unsafe { buffer.slice_custom(glium::field!(BufferContent, value2)) };
     /// ```
     #[inline]
     pub unsafe fn slice_custom<R>(self, f: Field<R>) -> BufferMutSlice<'a, R>
