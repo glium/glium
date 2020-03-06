@@ -603,19 +603,7 @@ pub enum ValidationError {
 impl fmt::Display for ValidationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         use self::ValidationError::*;
-        match *self {
-            TooManyColorAttachments{ ref maximum, ref obtained } =>
-                write!(fmt, "{}: found {}, maximum: {}", self.description(), obtained, maximum),
-            _ =>
-                write!(fmt, "{}", self.description()),
-        }
-    }
-}
-
-impl Error for ValidationError {
-    fn description(&self) -> &str {
-        use self::ValidationError::*;
-        match *self {
+        let desc = match self {
             EmptyFramebufferObjectsNotSupported =>
                 "You requested an empty framebuffer object, but they are not supported",
             EmptyFramebufferUnsupportedDimensions =>
@@ -626,9 +614,17 @@ impl Error for ValidationError {
                 "All attachments must have the same number of samples",
             TooManyColorAttachments {..} =>
                 "Backends only support a certain number of color attachments",
+        };
+        match self {
+            TooManyColorAttachments{ ref maximum, ref obtained } =>
+                write!(fmt, "{}: found {}, maximum: {}", desc, obtained, maximum),
+            _ =>
+                fmt.write_str(desc),
         }
     }
 }
+
+impl Error for ValidationError {}
 
 /// Data structure stored in the hashmap.
 ///

@@ -78,23 +78,20 @@ pub enum ReadError {
 
 impl fmt::Display for ReadError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for ReadError {
-    fn description(&self) -> &str {
         use self::ReadError::*;
-        match *self {
+        let desc = match *self {
             OutputFormatNotSupported =>
                 "The implementation doesn't support converting to the requested output format",
             AttachmentTypeNotSupported =>
                 "The implementation doesn't support reading a depth, depth-stencil or stencil attachment",
             ClampingNotSupported =>
                 "Clamping the values is not supported by the implementation",
-        }
+        };
+        fmt.write_str(desc)
     }
 }
+
+impl Error for ReadError {}
 
 /// Reads pixels from the source into the destination.
 ///

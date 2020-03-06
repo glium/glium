@@ -35,19 +35,16 @@ impl From<BufferCreationError> for CreationError {
 
 impl fmt::Display for CreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::CreationError::*;
+        let desc = match self {
+            FormatNotSupported => "The vertex format is not supported by the backend",
+            BufferCreationError(_) => "Error while creating the vertex buffer",
+        };
+        fmt.write_str(desc)
     }
 }
 
 impl Error for CreationError {
-    fn description(&self) -> &str {
-        use self::CreationError::*;
-        match *self {
-            FormatNotSupported => "The vertex format is not supported by the backend",
-            BufferCreationError(_) => "Error while creating the vertex buffer",
-        }
-    }
-
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::CreationError::*;
         match *self {

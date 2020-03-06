@@ -18,15 +18,11 @@ pub struct FormatNotSupportedError;
 
 impl fmt::Display for FormatNotSupportedError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        write!(fmt, "Format is not supported by OpenGL")
     }
 }
 
-impl Error for FormatNotSupportedError {
-    fn description(&self) -> &str {
-        "Format is not supported by OpenGL"
-    }
-}
+impl Error for FormatNotSupportedError {}
 
 /// Texture format request.
 #[derive(Copy, Clone, Debug)]

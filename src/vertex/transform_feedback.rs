@@ -108,21 +108,18 @@ pub enum TransformFeedbackSessionCreationError {
 
 impl fmt::Display for TransformFeedbackSessionCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for TransformFeedbackSessionCreationError {
-    fn description(&self) -> &str {
         use self::TransformFeedbackSessionCreationError::*;
-        match *self {
+        let desc = match *self {
             NotSupported =>
                 "Transform feedback is not supported by the OpenGL implementation",
             WrongVertexFormat =>
                 "The format of the output doesn't match what the program is expected to output",
-        }
+        };
+        fmt.write_str(desc)
     }
 }
+
+impl Error for TransformFeedbackSessionCreationError {}
 
 /// Returns true if transform feedback is supported by the OpenGL implementation.
 #[inline]

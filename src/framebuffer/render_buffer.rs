@@ -38,18 +38,15 @@ pub enum CreationError {
 
 impl fmt::Display for CreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::CreationError::*;
+        let desc = match *self {
+            FormatNotSupported => "The requested format is not supported",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for CreationError {
-    fn description(&self) -> &str {
-        use self::CreationError::*;
-        match *self {
-            FormatNotSupported => "The requested format is not supported",
-        }
-    }
-}
+impl Error for CreationError {}
 
 impl From<image_format::FormatNotSupportedError> for CreationError {
     fn from(_: image_format::FormatNotSupportedError) -> CreationError {

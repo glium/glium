@@ -67,18 +67,15 @@ pub enum QueryCreationError {
 
 impl fmt::Display for QueryCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::QueryCreationError::*;
+        let desc = match *self {
+            NotSupported => "The given query type is not supported",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for QueryCreationError {
-    fn description(&self) -> &str {
-        use self::QueryCreationError::*;
-        match *self {
-            NotSupported => "The given query type is not supported",
-        }
-    }
-}
+impl Error for QueryCreationError {}
 
 /// Error that can happen when writing the value of a query to a buffer.
 #[derive(Copy, Clone, Debug)]
@@ -89,18 +86,15 @@ pub enum ToBufferError {
 
 impl fmt::Display for ToBufferError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::ToBufferError::*;
+        let desc = match *self {
+            NotSupported => "Writing the result to a buffer is not supported",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for ToBufferError {
-    fn description(&self) -> &str {
-        use self::ToBufferError::*;
-        match *self {
-            NotSupported => "Writing the result to a buffer is not supported",
-        }
-    }
-}
+impl Error for ToBufferError {}
 
 impl RawQuery {
     /// Builds a new query. Returns `None` if the backend doesn't support this type.
