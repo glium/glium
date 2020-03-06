@@ -19,19 +19,15 @@ pub enum GetFormatError {
 
 impl fmt::Display for GetFormatError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::GetFormatError::*;
+        let desc = match self {
+            NotSupported => "The backend doesn't support retrieving the internal format",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for GetFormatError {
-    fn description(&self) -> &str {
-        use self::GetFormatError::*;
-        match *self {
-            NotSupported =>
-                "The backend doesn't support retrieving the internal format",
-        }
-    }
-}
+impl Error for GetFormatError {}
 
 /// Internal format of a texture.
 ///

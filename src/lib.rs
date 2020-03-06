@@ -956,9 +956,20 @@ pub enum DrawError {
 }
 
 impl Error for DrawError {
-    fn description(&self) -> &str {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::DrawError::*;
         match *self {
+            UniformBlockLayoutMismatch { ref err, .. } => Some(err),
+            _ => None,
+        }
+    }
+}
+
+
+impl fmt::Display for DrawError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        use self::DrawError::*;
+        let desc = match self {
             NoDepthBuffer =>
                 "A depth function has been requested but no depth buffer is available",
             AttributeTypeMismatch =>
@@ -1013,55 +1024,40 @@ impl Error for DrawError {
                 "Restarting indices (multiple objects per draw call) is not supported by the backend",
             ClipPlaneIndexOutOfBounds =>
                 "Tried to enable a clip plane that does not exist."
-        }
-    }
-
-    fn source(&self) -> Option<&(dyn Error + 'static)> {
-        use self::DrawError::*;
-        match *self {
-            UniformBlockLayoutMismatch { ref err, .. } => Some(err),
-            _ => None,
-        }
-    }
-}
-
-
-impl fmt::Display for DrawError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        use self::DrawError::*;
-        match *self {
-            UniformTypeMismatch { ref name, ref expected } =>
+        };
+        match self {
+            UniformTypeMismatch { name, expected } =>
                 write!(
                     fmt,
                     "{}, got: {:?}, expected: {:?}",
-                    self.description(),
+                    desc,
                     name,
                     expected,
                 ),
-            UniformBufferToValue { ref name } =>
+            UniformBufferToValue { name } =>
                 write!(
                     fmt,
                     "{}: {}",
-                    self.description(),
+                    desc,
                     name,
                 ),
-            UniformValueToBlock { ref name } =>
+            UniformValueToBlock { name } =>
                 write!(
                     fmt,
                     "{}: {}",
-                    self.description(),
+                    desc,
                     name,
                 ),
-            UniformBlockLayoutMismatch { ref name, ref err } =>
+            UniformBlockLayoutMismatch { name, err } =>
                 write!(
                     fmt,
                     "{}: {}, caused by {}",
-                    self.description(),
+                    desc,
                     name,
                     err,
                 ),
             _ =>
-                write!(fmt, "{}", self.description()),
+                fmt.write_str(desc),
         }
     }
 }
@@ -1087,21 +1083,18 @@ pub enum SwapBuffersError {
     AlreadySwapped,
 }
 
-impl Error for SwapBuffersError {
-    fn description(&self) -> &str {
+impl Error for SwapBuffersError {}
+
+impl fmt::Display for SwapBuffersError {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         use self::SwapBuffersError::*;
-        match *self {
+        let desc = match *self {
             ContextLost =>
                 "the OpenGL context has been lost and needs to be recreated",
             AlreadySwapped =>
                 "the buffers have already been swapped",
-        }
-    }
-}
-
-impl fmt::Display for SwapBuffersError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
+        };
+        fmt.write_str(desc)
     }
 }
 
@@ -1256,16 +1249,11 @@ pub struct IncompatibleOpenGl(pub String);
 
 impl fmt::Display for IncompatibleOpenGl {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        fmt.write_str("The OpenGL implementation is too old to work with glium")
     }
 }
 
-impl Error for IncompatibleOpenGl {
-    #[inline]
-    fn description(&self) -> &str {
-        "The OpenGL implementation is too old to work with glium"
-    }
-}
+impl Error for IncompatibleOpenGl {}
 
 #[allow(dead_code)]
 #[inline]

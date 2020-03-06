@@ -213,22 +213,6 @@ pub enum LayoutMismatchError {
 }
 
 impl Error for LayoutMismatchError {
-    fn description(&self) -> &str {
-        use self::LayoutMismatchError::*;
-        match *self {
-            TypeMismatch { .. } =>
-                "There is a mismatch in the type of one element",
-            LayoutMismatch { .. } =>
-                "The expected layout is totally different from what we have",
-            OffsetMismatch { .. } =>
-                "The type of data is good, but there is a misalignment",
-            MemberMismatch { .. } =>
-                "There is a mismatch in a submember of this layout",
-            MissingField { .. } =>
-                "A field is missing in either the expected of the input data layout",
-        }
-    }
-
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::LayoutMismatchError::*;
         match *self {
@@ -241,13 +225,25 @@ impl Error for LayoutMismatchError {
 impl fmt::Display for LayoutMismatchError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         use self::LayoutMismatchError::*;
+        let desc = match *self {
+            TypeMismatch { .. } =>
+                "There is a mismatch in the type of one element",
+            LayoutMismatch { .. } =>
+                "The expected layout is totally different from what we have",
+            OffsetMismatch { .. } =>
+                "The type of data is good, but there is a misalignment",
+            MemberMismatch { .. } =>
+                "There is a mismatch in a submember of this layout",
+            MissingField { .. } =>
+                "A field is missing in either the expected of the input data layout",
+        };
         match *self {
             //duplicate Patternmatching, different Types can't be condensed
             TypeMismatch { ref expected, ref obtained } =>
                 write!(
                     fmt,
                     "{}, got: {:?}, expected: {:?}",
-                    self.description(),
+                    desc,
                     obtained,
                     expected,
                 ),
@@ -255,7 +251,7 @@ impl fmt::Display for LayoutMismatchError {
                 write!(
                     fmt,
                     "{}, got: {:?}, expected: {:?}",
-                    self.description(),
+                    desc,
                     obtained,
                     expected,
                 ),
@@ -263,7 +259,7 @@ impl fmt::Display for LayoutMismatchError {
                 write!(
                     fmt,
                     "{}, got: {}, expected: {}",
-                    self.description(),
+                    desc,
                     obtained,
                     expected,
                 ),
@@ -271,7 +267,7 @@ impl fmt::Display for LayoutMismatchError {
                 write!(
                     fmt,
                     "{}, {}: {}",
-                    self.description(),
+                    desc,
                     member,
                     err,
                 ),
@@ -279,7 +275,7 @@ impl fmt::Display for LayoutMismatchError {
                 write!(
                     fmt,
                     "{}: {}",
-                    self.description(),
+                    desc,
                     name,
                 ),
         }

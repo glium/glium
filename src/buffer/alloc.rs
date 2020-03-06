@@ -32,19 +32,16 @@ pub enum ReadError {
 
 impl fmt::Display for ReadError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::ReadError::*;
+        let desc = match *self {
+            NotSupported => "The backend doesn't support reading from a buffer",
+            ContextLost => "The context has been lost. Reading from the buffer would return garbage data",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for ReadError {
-    fn description(&self) -> &str {
-        use self::ReadError::*;
-        match *self {
-            NotSupported => "The backend doesn't support reading from a buffer",
-            ContextLost => "The context has been lost. Reading from the buffer would return garbage data",
-        }
-    }
-}
+impl Error for ReadError {}
 
 /// Error that can happen when copying data between buffers.
 #[derive(Debug, Copy, Clone)]
@@ -55,18 +52,15 @@ pub enum CopyError {
 
 impl fmt::Display for CopyError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::CopyError::*;
+        let desc = match *self {
+            NotSupported => "The backend doesn't support copying between buffers",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for CopyError {
-    fn description(&self) -> &str {
-        use self::CopyError::*;
-        match *self {
-            NotSupported => "The backend doesn't support copying between buffers",
-        }
-    }
-}
+impl Error for CopyError {}
 
 /// A buffer in the graphics card's memory.
 pub struct Alloc {
