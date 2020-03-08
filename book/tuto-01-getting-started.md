@@ -48,8 +48,8 @@ Initializing an OpenGL window with glutin can be done using the following steps:
 fn main() {
     use glium::glutin;
 
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let mut events_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &events_loop).unwrap();
 }
@@ -63,8 +63,8 @@ while !closed {
     // listing the events produced by application and waiting to be received
     events_loop.poll_events(|ev| {
         match ev {
-            glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => closed = true,
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => closed = true,
                 _ => (),
             },
             _ => (),
