@@ -12,14 +12,15 @@ use backend::Facade;
 
 /// Buffer that contains a uniform block.
 ///
-/// For example, to use a `UniformBuffer<[u32; 8]>`, you must declare it as
-///
+/// For example, to use a `UniformBuffer<[u32; 8]>`, you must declare it in GLSL as
+///```ignore
 ///     uniform MyBlock {
 ///         uint array[8];
 ///     };
+///```
 ///
 /// and pass it to `uniform!` like this:
-///
+///     # use glium::uniform;
 ///     uniform! {
 ///         MyBlock: &buffer,
 ///     }
