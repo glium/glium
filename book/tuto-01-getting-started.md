@@ -34,46 +34,46 @@ The first step when creating a graphical application is to create a window. If y
 
 Initializing an OpenGL window with glutin can be done using the following steps:
 
-1. Creating an `EventsLoop` for handling window and device events.
+1. Creating an `EventLoop` for handling window and device events.
 2. Specify Window parameters using `glium::glutin::WindowBuilder::new()`. These
    are window-specific attributes that have nothing to do with OpenGL.
 3. Specify Context parameters using `glium::glutin::ContextBuilder::new()`.
    Here we specify OpenGL-specific attributes like multisampling or vsync.
 4. Create the OpenGL window (in glium, this is the `Display`):
-   `glium::Display::new(window, context, &events_loop).unwrap()`.
+   `glium::Display::new(window, context, &event_loop).unwrap()`.
    This builds a Display using the given window and context attributes, and
-   registers the window with the given events_loop.
+   registers the window with the given event_loop.
 
 ```rust
 fn main() {
     use glium::glutin;
 
-    let mut events_loop = glutin::EventsLoop::new();
-    let wb = glutin::WindowBuilder::new();
+    let mut event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 }
 ```
 
-But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `CloseRequested` event has been received:
+But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `CloseRequested` event has been received. We do so by calling `event_loop.run`:
 
 ```rust
-let mut closed = false;
-while !closed {
-    // listing the events produced by application and waiting to be received
-    events_loop.poll_events(|ev| {
-        match ev {
-            glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => closed = true,
-                _ => (),
+event_loop.run(move |ev, _, control_flow| {
+    let next_frame_time = std::time::Instant::now() +
+        std::time::Duration::from_nanos(16_666_667);
+    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+    match ev {
+        glutin::event::Event::WindowEvent { event, .. } => match event {
+            glutin::event::WindowEvent::CloseRequested => {
+                *control_flow = glutin::event_loop::ControlFlow::Exit;
+                return;
             },
-            _ => (),
-        }
-    });
-}
+            _ => return,
+        },
+        _ => (),
+    }
+});
 ```
-
-Right now this code will consume 100% of our CPU, but that will do for now. In a real application you should either use vertical synchronization or sleep for a few milliseconds at the end of the loop, but that is a more advanced topic.
 
 You can now execute `cargo run`. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.
 
@@ -116,28 +116,33 @@ Here is our full `main` function after this step:
 
 ```rust
 fn main() {
-    use glium::{glutin, Surface};
+    use glium::glutin;
 
-    let mut events_loop = glium::glutin::EventsLoop::new();
-    let wb = glium::glutin::WindowBuilder::new();
-    let cb = glium::glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    let mut event_loop = glutin::event_loop::EventLoop::new();
+    let wb = glutin::window::WindowBuilder::new();
+    let cb = glutin::ContextBuilder::new();
+    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-    let mut closed = false;
-    while !closed {
+    event_loop.run(move |ev, _, control_flow| {
+
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
         target.finish().unwrap();
 
-        events_loop.poll_events(|ev| {
-            match ev {
-                glutin::Event::WindowEvent { event, .. } => match event {
-                    glutin::WindowEvent::CloseRequested => closed = true,
-                    _ => (),
+        let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+
+        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+        match ev {
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => {
+                    *control_flow = glutin::event_loop::ControlFlow::Exit;
+                    return;
                 },
-                _ => (),
-            }
-        });
-    }
+                _ => return,
+            },
+            _ => (),
+        }
+    });
 }
 ```
