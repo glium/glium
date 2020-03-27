@@ -2,7 +2,7 @@
 
 ## Version 0.27.0 (2020-03-26)
 
-- Updated glutin to version 0.23.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0240-2020-03-11).
+- Updated glutin to version 0.24.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0240-2020-03-11).
 
 ## Version 0.26.0 (2020-02-09)
 
