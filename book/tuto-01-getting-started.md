@@ -115,10 +115,12 @@ This call to `finish()` means that we have finished drawing. It destroys the `Fr
 Here is our full `main` function after this step:
 
 ```rust
-fn main() {
-    use glium::glutin;
+extern crate glium;
 
-    let mut event_loop = glutin::event_loop::EventLoop::new();
+fn main() {
+    use glium::{glutin, Surface};
+
+    let event_loop = glutin::event_loop::EventLoop::new();
     let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
