@@ -97,6 +97,12 @@ macro_rules! uniform {
 /// # }
 /// ```
 ///
+/// ## Naming convention
+///
+/// When it comes to using to using your vertex array in a shader you must make sure that all your attribute variables *match* the field names in the struct you are calling calling this macro for.
+///
+/// So, if you have a `vertex_position` atribute/input in your shader, a field named `vertex_position` must be present in the struct. Ohterwise the drawing functions will panic.
+///
 #[macro_export]
 macro_rules! implement_vertex {
     ($struct_name:ident, $($field_name:ident),+) => (
