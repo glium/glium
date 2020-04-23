@@ -514,12 +514,12 @@ impl Context {
     /// # extern crate glium;
     /// # extern crate glutin;
     /// # fn main() {
-    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-    /// let pixels: Vec<Vec<(u8, u8, u8, u8)>> = display.read_front_buffer();
+    /// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+    /// let pixels: Result<Vec<Vec<(u8, u8, u8, u8)>>, _> = display.read_front_buffer();
     /// # }
     /// ```
     pub fn read_front_buffer<T>(&self) -> Result<T, ops::ReadError>
-                                where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>
+        where T: texture::Texture2dDataSink<(u8, u8, u8, u8)>
     {
         let mut ctxt = self.make_current();
         let dimensions = self.get_framebuffer_dimensions();

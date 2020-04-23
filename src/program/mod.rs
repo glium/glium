@@ -140,21 +140,7 @@ pub enum ProgramCreationError {
 impl fmt::Display for ProgramCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         use self::ProgramCreationError::*;
-        match *self {
-            CompilationError(ref s, _) =>
-                write!(fmt, "{}: {}", self.description(), s),
-            LinkingError(ref s) =>
-                write!(fmt, "{}: {}", self.description(), s),
-            _ =>
-                write!(fmt, "{}", self.description()),
-        }
-    }
-}
-
-impl Error for ProgramCreationError {
-    fn description(&self) -> &str {
-        use self::ProgramCreationError::*;
-        match *self {
+        let desc = match *self {
             CompilationError(_,typ) => {
                 match typ {
                     ShaderType::Vertex => "Compilation error in vertex shader",
@@ -177,9 +163,19 @@ impl Error for ProgramCreationError {
                 "Point size is not supported by the backend.",
             BinaryHeaderError =>
                 "The glium-specific binary header was not found or is corrupt.",
+        };
+        match *self {
+            CompilationError(ref s, _) =>
+                write!(fmt, "{}: {}", desc, s),
+            LinkingError(ref s) =>
+                write!(fmt, "{}: {}", desc, s),
+            _ =>
+                write!(fmt, "{}", desc),
         }
     }
 }
+
+impl Error for ProgramCreationError {}
 
 /// Error type that is returned by the `program!` macro.
 #[derive(Clone, Debug)]
@@ -194,20 +190,15 @@ pub enum ProgramChooserCreationError {
 impl fmt::Display for ProgramChooserCreationError {
     #[inline]
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
+        use self::ProgramChooserCreationError::*;
+        match *self {
+            ProgramCreationError(ref err) => write!(fmt, "{}", err),
+            NoVersion => fmt.write_str("No version of the program has been found for the current OpenGL version."),
+        }
     }
 }
 
 impl Error for ProgramChooserCreationError {
-    #[inline]
-    fn description(&self) -> &str {
-        use self::ProgramChooserCreationError::*;
-        match *self {
-            ProgramCreationError(ref err) => err.description(),
-            NoVersion => "No version of the program has been found for the current OpenGL version.",
-        }
-    }
-
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::ProgramChooserCreationError::*;
@@ -235,19 +226,16 @@ pub enum GetBinaryError {
 
 impl fmt::Display for GetBinaryError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::GetBinaryError::*;
+        let desc = match *self {
+            NotSupported => "The backend doesn't support binary",
+            NoFormats => "The backend does not supply any binary formats.",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for GetBinaryError {
-    fn description(&self) -> &str {
-        use self::GetBinaryError::*;
-        match *self {
-            NotSupported => "The backend doesn't support binary",
-            NoFormats => "The backend does not supply any binary formats.",
-        }
-    }
-}
+impl Error for GetBinaryError {}
 
 /// Input when creating a program.
 pub enum ProgramCreationInput<'a> {

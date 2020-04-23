@@ -188,19 +188,14 @@ impl Display {
 
 impl fmt::Display for DisplayCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(fmt, "{}", self.description())
+        match self {
+            DisplayCreationError::GlutinCreationError(err) => write!(fmt, "{}", err),
+            DisplayCreationError::IncompatibleOpenGl(err) => write!(fmt, "{}", err),
+        }
     }
 }
 
 impl Error for DisplayCreationError {
-    #[inline]
-    fn description(&self) -> &str {
-        match *self {
-            DisplayCreationError::GlutinCreationError(ref err) => err.description(),
-            DisplayCreationError::IncompatibleOpenGl(ref err) => err.description(),
-        }
-    }
-
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match *self {

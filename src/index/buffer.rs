@@ -30,23 +30,20 @@ pub enum CreationError {
 
 impl fmt::Display for CreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for CreationError {
-    fn description(&self) -> &str {
         use self::CreationError::*;
-        match *self {
+        let desc = match *self {
             IndexTypeNotSupported =>
                 "The type of index is not supported by the backend",
             PrimitiveTypeNotSupported =>
                 "The type of primitives is not supported by the backend",
             BufferCreationError(_) =>
                 "An error happened while creating the buffer",
-        }
+        };
+        fmt.write_str(desc)
     }
+}
 
+impl Error for CreationError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::CreationError::*;
         match *self {

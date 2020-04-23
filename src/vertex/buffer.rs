@@ -35,19 +35,16 @@ impl From<BufferCreationError> for CreationError {
 
 impl fmt::Display for CreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        use self::CreationError::*;
+        let desc = match self {
+            FormatNotSupported => "The vertex format is not supported by the backend",
+            BufferCreationError(_) => "Error while creating the vertex buffer",
+        };
+        fmt.write_str(desc)
     }
 }
 
 impl Error for CreationError {
-    fn description(&self) -> &str {
-        use self::CreationError::*;
-        match *self {
-            FormatNotSupported => "The vertex format is not supported by the backend",
-            BufferCreationError(_) => "Error while creating the vertex buffer",
-        }
-    }
-
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::CreationError::*;
         match *self {
@@ -244,13 +241,15 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// let bindings = Cow::Owned(vec![(
     ///         Cow::Borrowed("position"), 0,
     ///         glium::vertex::AttributeType::F32F32,
+    ///         false,
     ///     ), (
     ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(),
     ///         glium::vertex::AttributeType::F32,
+    ///         false,
     ///     ),
     /// ]);
     ///
-    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+    /// # let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
     /// let data = vec![
     ///     1.0, -0.3, 409.0,
     ///     -0.4, 2.8, 715.0f32

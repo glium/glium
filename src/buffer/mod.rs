@@ -192,18 +192,15 @@ pub enum BufferCreationError {
 
 impl fmt::Display for BufferCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
+        let desc = match self {
+            BufferCreationError::OutOfMemory => "Not enough memory to create the buffer",
+            BufferCreationError::BufferTypeNotSupported => "This type of buffer is not supported",
+        };
+        fmt.write_str(desc)
     }
 }
 
-impl Error for BufferCreationError {
-    fn description(&self) -> &str {
-        match self {
-            &BufferCreationError::OutOfMemory => "Not enough memory to create the buffer",
-            &BufferCreationError::BufferTypeNotSupported => "This type of buffer is not supported",
-        }
-    }
-}
+impl Error for BufferCreationError {}
 
 /// How the buffer is created.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

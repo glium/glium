@@ -94,23 +94,20 @@ pub enum TextureCreationError {
 
 impl fmt::Display for TextureCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for TextureCreationError {
-    fn description(&self) -> &str {
         use self::TextureCreationError::*;
-        match *self {
+        let desc = match *self {
             NotSupported =>
                 "Buffer textures are not supported at all",
             FormatNotSupported =>
                 "The requested format is not supported in combination with the given texture buffer type",
             TooLarge =>
                 "The size of the buffer that you are trying to bind exceeds `GL_MAX_TEXTURE_BUFFER_SIZE`",
-        }
+        };
+        fmt.write_str(desc)
     }
 }
+
+impl Error for TextureCreationError {}
 
 /// Error that can happen while building a buffer texture.
 #[derive(Copy, Clone, Debug)]
@@ -124,21 +121,18 @@ pub enum CreationError {
 
 impl fmt::Display for CreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "{}", self.description())
-    }
-}
-
-impl Error for CreationError {
-    fn description(&self) -> &str {
         use self::CreationError::*;
-        match *self {
+        let desc = match *self {
             BufferCreationError(_) =>
                 "Failed to create the buffer",
             TextureCreationError(_) =>
                 "Failed to create the texture",
-        }
+        };
+        fmt.write_str(desc)
     }
+}
 
+impl Error for CreationError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::CreationError::*;
         match *self {
