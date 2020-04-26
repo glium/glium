@@ -47,6 +47,14 @@ target.draw(&vertex_buffer, &indices, &program, &uniforms,
             &Default::default()).unwrap();
 ```
 
+Note that in glium the matrices are column-major.  If we were to write the above matrix in standard mathematical notation, it would look like this (unfortunately, markdown does not let us format things with LaTeX, so this doesn't look nicely formatted):
+```
+1.0   0.0   0.0    t
+0.0   1.0   0.0   0.0
+0.0   0.0   1.0   0.0
+0.0   0.0   0.0   1.0
+```
+
 You should see exactly the same thing as previously, but what we now have is much more flexible. For example, if instead we want to rotate the triangle we can try this matrix instead:
 
 ```rust
