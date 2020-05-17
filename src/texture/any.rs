@@ -362,14 +362,18 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
                 0 => 1,
                 a => a
             };
+            
+            // if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+            //     ctxt.gl.TexStorage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
+            //                                     samples.unwrap() as gl::types::GLsizei,
+            //                                     storage_internal_format.unwrap() as gl::types::GLenum,
+            //                                     width, height, gl::TRUE);
 
-            if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
-                ctxt.gl.TexStorage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
-                                                samples.unwrap() as gl::types::GLsizei,
-                                                storage_internal_format.unwrap() as gl::types::GLenum,
-                                                width, height, gl::TRUE);
+            // } else 
+            
+            println!("{}", storage_internal_format.unwrap());
 
-            } else if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
+            if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_texture_multisample {
                 ctxt.gl.TexImage2DMultisample(gl::TEXTURE_2D_MULTISAMPLE,
                                               samples.unwrap() as gl::types::GLsizei,
                                               teximg_internal_format as gl::types::GLenum,
