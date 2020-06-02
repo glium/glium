@@ -307,6 +307,22 @@ impl Program {
         self.raw.get_shader_storage_blocks()
     }
 
+    /// Returns the list of shader storage blocks.
+    ///
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// for (name, uniform) in program.get_atomic_counters() {
+    ///     println!("Name: {}", name);
+    /// }
+    /// ```
+    #[inline]
+    pub fn get_atomic_counters(&self)
+            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+        self.raw.get_atomic_counters()
+    }
+
     /// Returns the subroutine uniforms of this program.
     ///
     /// Since subroutine uniforms are unique per shader and *not* per program,
