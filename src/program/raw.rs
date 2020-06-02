@@ -62,6 +62,7 @@ pub struct RawProgram {
     frag_data_locations: RefCell<HashMap<String, Option<u32>, BuildHasherDefault<FnvHasher>>>,
     tf_buffers: Vec<TransformFeedbackBuffer>,
     ssbos: HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>,
+    atomic_counters: HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>,
     output_primitives: Option<OutputPrimitives>,
     has_geometry_shader: bool,
     has_tessellation_control_shader: bool,
@@ -163,7 +164,7 @@ impl RawProgram {
             id
         };
 
-        let uniforms = unsafe { reflect_uniforms(&mut ctxt, id) };
+        let (uniforms, atomic_counters) = unsafe { reflect_uniforms(&mut ctxt, id) };
         let attributes = unsafe { reflect_attributes(&mut ctxt, id) };
         let blocks = unsafe { reflect_uniform_blocks(&mut ctxt, id) };
         let tf_buffers = unsafe { reflect_transform_feedback(&mut ctxt, id) };
@@ -193,6 +194,7 @@ impl RawProgram {
             frag_data_locations: RefCell::new(HashMap::with_hasher(Default::default())),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
+            atomic_counters: atomic_counters,
             output_primitives: output_primitives,
             has_geometry_shader: has_geometry_shader,
             has_tessellation_control_shader: has_tessellation_control_shader,
@@ -232,7 +234,7 @@ impl RawProgram {
             id
         };
 
-        let (uniforms, attributes, blocks, tf_buffers, ssbos, subroutine_data) = unsafe {
+        let ((uniforms, atomic_counters), attributes, blocks, tf_buffers, ssbos, subroutine_data) = unsafe {
             (
                 reflect_uniforms(&mut ctxt, id),
                 reflect_attributes(&mut ctxt, id),
@@ -264,6 +266,7 @@ impl RawProgram {
             frag_data_locations: RefCell::new(HashMap::with_hasher(Default::default())),
             tf_buffers: tf_buffers,
             ssbos: ssbos,
+            atomic_counters: atomic_counters,
             output_primitives: output_primitives,
             has_geometry_shader: has_geometry_shader,
             has_tessellation_control_shader: has_tessellation_control_shader,
@@ -509,6 +512,22 @@ impl RawProgram {
         &self.ssbos
     }
 
+    /// Returns the list of atomic_counters
+    ///
+    /// ## Example
+    ///
+    /// ```no_run
+    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// for (name, uniform) in program.get_atomic_counters() {
+    ///     println!("Name: {}", name);
+    /// }
+    /// ```
+    #[inline]
+    pub fn get_atomic_counters(&self)
+            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+        &self.atomic_counters
+    }
+
     /// Returns data associated with the programs subroutines.
     #[inline]
     pub fn get_subroutine_data(&self) -> &SubroutineData {
@@ -670,6 +689,12 @@ impl ProgramExt for RawProgram {
     fn get_shader_storage_blocks(&self)
                                  -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.ssbos
+    }
+
+    #[inline]
+    fn get_atomic_counters(&self)
+                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+        &self.atomic_counters
     }
 
     #[inline]

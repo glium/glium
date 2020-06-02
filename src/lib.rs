@@ -266,6 +266,10 @@ trait BufferExt {
     /// `glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)` if necessary.
     fn prepare_and_bind_for_shared_storage(&self, &mut CommandContext, index: gl::types::GLuint);
 
+    /// Makes sure that the buffer is bound to the indexed `GL_ATOMIC_COUNTER_BUFFER` point and calls
+    /// `glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT)` if necessary.
+    fn prepare_and_bind_for_atomic_counter(&self, &mut CommandContext, index: gl::types::GLuint);
+
     /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform
     /// feedback object.
     fn bind_to_transform_feedback(&self, &mut CommandContext, index: gl::types::GLuint);
@@ -320,6 +324,8 @@ trait ProgramExt {
     fn get_uniform_blocks(&self) -> &HashMap<String, program::UniformBlock, BuildHasherDefault<FnvHasher>>;
 
     fn get_shader_storage_blocks(&self) -> &HashMap<String, program::UniformBlock, BuildHasherDefault<FnvHasher>>;
+
+    fn get_atomic_counters(&self) -> &HashMap<String, program::UniformBlock, BuildHasherDefault<FnvHasher>>;
 
     fn get_subroutine_data(&self) -> &program::SubroutineData;
 }

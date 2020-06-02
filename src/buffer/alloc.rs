@@ -360,6 +360,24 @@ impl Alloc {
         self.latest_shader_write.set(ctxt.state.next_draw_call_id);        // TODO: put this somewhere else
     }
 
+    /// Makes sure that the buffer is bound to the indexed `GL_ATOMIC_COUNTER_BUFFER` point and calls
+    /// `glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT)` if necessary.
+    pub fn prepare_and_bind_for_atomic_counter(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+                                               range: Range<usize>)
+    {
+        self.assert_unmapped(ctxt);
+        self.assert_not_transform_feedback(ctxt);
+
+        if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_atomic_counter {
+            unsafe { ctxt.gl.MemoryBarrier(gl::ATOMIC_COUNTER_BARRIER_BIT); }
+            ctxt.state.latest_memory_barrier_atomic_counter = ctxt.state.next_draw_call_id;
+        }
+
+        self.indexed_bind(ctxt, BufferType::AtomicCounterBuffer, index, range);
+
+        self.latest_shader_write.set(ctxt.state.next_draw_call_id);        // TODO: put this somewhere else
+    }
+
     /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform
     /// feedback object.
     #[inline]

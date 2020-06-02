@@ -103,6 +103,20 @@ impl<U> UniformsExt for U where U: Uniforms {
                 if let Some(fence) = fence {
                     fences.push(fence);
                 }
+            } else if let Some(block) = program.get_atomic_counters().get(name) {
+                let fence = match bind_atomic_counter(&mut ctxt, &value, block, program,
+                                                      name)
+                {
+                    Ok(f) => f,
+                    Err(e) => {
+                        visiting_result = Err(e);
+                        return;
+                    }
+                };
+
+                if let Some(fence) = fence {
+                    fences.push(fence);
+                }
             } else if let UniformValue::Subroutine(stage, sr_name) = value {
                 if let Some(subroutine_uniform) = program.get_subroutine_data().subroutine_uniforms.get(&(name.into(), stage)) {
                     subroutine_bindings.entry(stage).or_insert(Vec::new());
@@ -230,6 +244,37 @@ fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &
 
             buffer.prepare_and_bind_for_shared_storage(ctxt, bind_point as gl::types::GLuint);
             program.set_shader_storage_block_binding(ctxt, block_id, bind_point as gl::types::GLuint);
+
+            Ok(fence)
+        },
+        _ => {
+            Err(DrawError::UniformValueToBlock { name: name.to_owned() })
+        }
+    }
+}
+
+fn bind_atomic_counter<'a, P>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
+                              block: &program::UniformBlock,
+                              program: &P, name: &str)
+                              -> Result<Option<Inserter<'a>>, DrawError>
+                              where P: ProgramExt
+{
+    match value {
+        &UniformValue::Block(buffer, ref layout) => {
+            match layout(block) {
+                Ok(_) => (),
+                Err(e) => {
+                    return Err(DrawError::UniformBlockLayoutMismatch {
+                        name: name.to_owned(),
+                        err: e,
+                    });
+                }
+            }
+
+            assert!(buffer.get_offset_bytes() == 0);     // TODO: not implemented
+            let fence = buffer.add_fence();
+
+            buffer.prepare_and_bind_for_atomic_counter(ctxt, block.initial_binding as gl::types::GLuint);
 
             Ok(fence)
         },
