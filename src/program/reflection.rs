@@ -175,8 +175,9 @@ pub enum OutputPrimitives {
     Quads,
 }
 
+/// Returns a list of uniforms and a list of atomic counters of a program.
 pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
-                               -> HashMap<String, Uniform, BuildHasherDefault<FnvHasher>>
+                               -> (HashMap<String, Uniform, BuildHasherDefault<FnvHasher>>, HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>)
 {
     // number of active uniforms
     let active_uniforms = {
@@ -196,9 +197,24 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         active_uniforms
     };
 
+    let query_atomic_counters = ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
+         (ctxt.extensions.gl_arb_program_interface_query && ctxt.extensions.gl_arb_shader_atomic_counters);
+    let mut active_atomic_counters: gl::types::GLint = 0;
+    if query_atomic_counters {
+        let program = match program {
+            Handle::Id(program) => {
+                ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATOMIC_COUNTER_BUFFERS, &mut active_atomic_counters);
+            },
+            _ => ()
+        };
+    }
+
     // the result of this function
     let mut uniforms = HashMap::with_hasher(BuildHasherDefault::<FnvHasher>::default());
-    uniforms.reserve(active_uniforms as usize);
+    uniforms.reserve((active_uniforms - active_atomic_counters) as usize);
+
+    let mut atomic_counters = HashMap::with_hasher(Default::default());
+    atomic_counters.reserve(active_atomic_counters as usize);
 
     for uniform_id in 0 .. active_uniforms {
         let mut uniform_name_tmp: Vec<u8> = Vec::with_capacity(64);
@@ -225,7 +241,6 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
                                               as *mut gl::types::GLchar);
             }
         };
-
         uniform_name_tmp.set_len(uniform_name_tmp_len as usize);
 
         let uniform_name = String::from_utf8(uniform_name_tmp).unwrap();
@@ -245,11 +260,39 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
             }
         };
 
-        uniforms.insert(uniform_name, Uniform {
-            location: location as i32,
-            ty: glenum_to_uniform_type(data_type),
-            size: if data_size == 1 { None } else { Some(data_size as usize) },
-        });
+
+        if data_type == gl::UNSIGNED_INT_ATOMIC_COUNTER {
+            assert!(query_atomic_counters);
+            let mut atomic_counter_id: gl::types::GLint = 0;
+            let mut atomic_counter_buffer_bind_point: gl::types::GLint = 0;
+            match program {
+                Handle::Id(program) => {
+                    ctxt.gl.GetActiveUniformsiv(program, 1, &(uniform_id as gl::types::GLuint),
+                                                gl::UNIFORM_ATOMIC_COUNTER_BUFFER_INDEX,
+                                                &mut atomic_counter_id);
+                    ctxt.gl.GetActiveAtomicCounterBufferiv(program,
+                                                           atomic_counter_id as gl::types::GLuint,
+                                                           gl::ATOMIC_COUNTER_BUFFER_BINDING,
+                                                           &mut atomic_counter_buffer_bind_point);
+                },
+                Handle::Handle(_) => unreachable!(),
+            }
+            atomic_counters.insert(uniform_name, UniformBlock {
+                id: atomic_counter_id,
+                initial_binding: atomic_counter_buffer_bind_point,
+                size: 4,
+                layout: BlockLayout::BasicType {
+                    ty: UniformType::UnsignedInt,
+                    offset_in_buffer: 0,
+                },
+            });
+        } else {
+            uniforms.insert(uniform_name, Uniform {
+                location: location as i32,
+                ty: glenum_to_uniform_type(data_type),
+                size: if data_size == 1 { None } else { Some(data_size as usize) },
+            });
+        }
     }
 
     // Flatten arrays
@@ -277,7 +320,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
         }
     }
 
-    uniforms_flattened
+    (uniforms_flattened, atomic_counters)
 }
 
 pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)

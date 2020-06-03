@@ -217,6 +217,12 @@ impl ProgramExt for ComputeShader {
     }
 
     #[inline]
+    fn get_atomic_counters(&self)
+                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+        self.raw.get_atomic_counters()
+    }
+
+    #[inline]
     fn get_subroutine_data(&self) -> &SubroutineData {
         self.raw.get_subroutine_data()
     }
