@@ -49,6 +49,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_ARB_occlusion_query",
             "GL_ARB_pixel_buffer_object",
             "GL_ARB_robustness",
+            "GL_ARB_seamless_cube_map",
             "GL_ARB_shader_image_load_store",
             "GL_ARB_shader_objects",
             "GL_ARB_texture_buffer_object",

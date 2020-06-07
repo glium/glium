@@ -91,6 +91,7 @@ extensions! {
     "GL_ARB_robustness" => gl_arb_robustness,
     "GL_ARB_robust_buffer_access_behavior" => gl_arb_robust_buffer_access_behavior,
     "GL_ARB_sampler_objects" => gl_arb_sampler_objects,
+    "GL_ARB_seamless_cube_map" => gl_arb_seamless_cube_map,
     "GL_ARB_shader_atomic_counters" => gl_arb_shader_atomic_counters,
     "GL_ARB_shader_image_load_store" => gl_arb_shader_image_load_store,
     "GL_ARB_shader_objects" => gl_arb_shader_objects,
