@@ -227,6 +227,9 @@ impl Context {
             /*assert!(::get_gl_error(&mut ctxt).is_none(),
                     "glium has triggered an OpenGL error during initialization. Please report \
                      this error: https://github.com/tomaka/glium/issues");*/
+            if ctxt.version >= &Version(Api::Gl, 3, 2) && ctxt.extensions.gl_arb_seamless_cube_map {
+                ctxt.gl.Enable(gl::TEXTURE_CUBE_MAP_SEAMLESS);
+            }
         }
 
         Ok(context)
