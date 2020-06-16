@@ -5,8 +5,8 @@ In order to draw on a texture, use a `SimpleFrameBuffer`. This framebuffer is co
 shaders that write to `gl_FragColor`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-# let texture: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
+# let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+# let texture: glium::texture::Texture2d = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
 let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
 // framebuffer.draw(...);    // draws over `texture`
 ```
@@ -15,9 +15,9 @@ If, however, your shader wants to write to multiple color buffers at once, you m
 a `MultiOutputFrameBuffer`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-# let texture1: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
-# let texture2: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
+# let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+# let texture1: glium::texture::Texture2d = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+# let texture2: glium::texture::Texture2d = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
 let output = [ ("output1", &texture1), ("output2", &texture2) ];
 let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, output.iter().cloned());
 // framebuffer.draw(...);

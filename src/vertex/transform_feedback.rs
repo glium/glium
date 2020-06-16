@@ -61,10 +61,10 @@ use gl;
 /// # extern crate glium;
 /// # use glium::Surface;
 /// # fn main() {
-/// # let display: glium::Display = unsafe { std::mem::uninitialized() };
-/// # let program: glium::Program = unsafe { std::mem::uninitialized() };
-/// # let vb: glium::vertex::VertexBufferAny = unsafe { std::mem::uninitialized() };
-/// # let ib: glium::index::IndexBuffer<u16> = unsafe { std::mem::uninitialized() };
+/// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+/// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+/// # let vb: glium::vertex::VertexBufferAny = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+/// # let ib: glium::index::IndexBuffer<u16> = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 /// #[derive(Copy, Clone, Debug, PartialEq)]
 /// struct Vertex {
 ///     output_val: (f32, f32),

@@ -13,9 +13,9 @@ The second way is to use the `uniform!` macro provided by glium:
 extern crate glium;
 
 # fn main() {
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let tex: f32 = unsafe { std::mem::uninitialized() };
-# let matrix: f32 = unsafe { std::mem::uninitialized() };
+# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# let tex: f32 = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# let matrix: f32 = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 let uniforms = uniform! {
     texture: tex,
     matrix: matrix
@@ -34,8 +34,8 @@ In order to customize the way a texture is being sampled, you must use a `Sample
 extern crate glium;
 
 # fn main() {
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
+# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# let texture: glium::texture::Texture2d = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 let uniforms = uniform! {
     texture: glium::uniforms::Sampler::new(&texture)
                         .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
@@ -53,8 +53,8 @@ can link the buffer to the name of the block, just like any other uniform.
 #[macro_use]
 extern crate glium;
 # fn main() {
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
+# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# let texture: glium::texture::Texture2d = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 
 let program = glium::Program::from_source(&display,
     "
@@ -99,8 +99,8 @@ A subroutine uniform is unique per shader stage, and not per program.
 #[macro_use]
 extern crate glium;
 # fn main() {
-# let display: glium::Display = unsafe { std::mem::uninitialized() };
-# let texture: glium::texture::Texture2d = unsafe { std::mem::uninitialized() };
+# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# let texture: glium::texture::Texture2d = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 
 let program = glium::Program::from_source(&display,
     "

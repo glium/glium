@@ -130,7 +130,7 @@ impl Program {
     /// # Example
     ///
     /// ```no_run
-    /// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+    /// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
     /// # let vertex_source = ""; let fragment_source = ""; let geometry_source = "";
     /// let program = glium::Program::from_source(&display, vertex_source, fragment_source,
     ///     Some(geometry_source));
@@ -189,7 +189,7 @@ impl Program {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
     /// for (name, uniform) in program.uniforms() {
     ///     println!("Name: {} - Type: {:?}", name, uniform.ty);
     /// }
@@ -204,7 +204,7 @@ impl Program {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
     /// for (name, uniform) in program.get_uniform_blocks() {
     ///     println!("Name: {}", name);
     /// }
@@ -275,7 +275,7 @@ impl Program {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
     /// for (name, attribute) in program.attributes() {
     ///     println!("Name: {} - Type: {:?}", name, attribute.ty);
     /// }
@@ -296,7 +296,7 @@ impl Program {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
     /// for (name, uniform) in program.get_shader_storage_blocks() {
     ///     println!("Name: {}", name);
     /// }
@@ -312,7 +312,7 @@ impl Program {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
     /// for (name, uniform) in program.get_atomic_counters() {
     ///     println!("Name: {}", name);
     /// }
@@ -330,7 +330,7 @@ impl Program {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
     /// for (&(ref name, shader), uniform) in program.get_subroutine_uniforms() {
     ///     println!("Name: {}", name);
     /// }

@@ -118,7 +118,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
     ///
     /// implement_vertex!(Vertex, position, texcoords);
     ///
-    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+    /// # let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
     /// let vertex_buffer = glium::VertexBuffer::new(&display, &[
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },

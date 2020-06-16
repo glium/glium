@@ -101,7 +101,7 @@ pub enum MessageType {
 /// ## Example
 ///
 /// ```no_run
-/// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+/// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 /// let before = glium::debug::TimestampQuery::new(&display);
 /// // do some stuff here
 /// let after = glium::debug::TimestampQuery::new(&display);
