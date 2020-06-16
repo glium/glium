@@ -32,7 +32,7 @@ Once you have a struct that implements the `Vertex` trait, you can build an arra
 upload it to the video memory by creating a `VertexBuffer`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
 # #[derive(Copy, Clone)]
 # struct MyVertex {
 #     position: [f32; 3],
@@ -74,17 +74,17 @@ Each source can be:
 
 ```no_run
 # use glium::Surface;
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
 # #[derive(Copy, Clone)]
 # struct MyVertex { position: [f32; 3], texcoords: [f32; 2], }
 # impl glium::vertex::Vertex for MyVertex {
 #     fn build_bindings() -> glium::vertex::VertexFormat { unimplemented!() }
 # }
-# let program: glium::program::Program = unsafe { ::std::mem::uninitialized() };
+# let program: glium::program::Program = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
 # let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 # let uniforms = glium::uniforms::EmptyUniforms;
-# let vertex_buffer: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::uninitialized() };
-# let vertex_buffer2: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::uninitialized() };
+# let vertex_buffer: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+# let vertex_buffer2: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
 # let mut frame = display.draw();
 // drawing with a single vertex buffer
 frame.draw(&vertex_buffer, &indices, &program, &uniforms, &Default::default()).unwrap();

@@ -20,7 +20,7 @@
 //! `SamplesPassedQuery` allows you to know the number of samples that have been drawn.
 //!
 //! ```no_run
-//! # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+//! # let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
 //! let query = glium::draw_parameters::SamplesPassedQuery::new(&display).unwrap();
 //! let params = glium::DrawParameters {
 //!     samples_passed_query: Some((&query).into()),
@@ -31,7 +31,7 @@
 //! After drawing with these parameters, you can retrieve the value inside the query:
 //!
 //! ```no_run
-//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::uninitialized() };
+//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 //! let value = query.get();
 //! ```
 //!
@@ -39,7 +39,7 @@
 //! you can also use the query as a condition for drawing:
 //!
 //! ```no_run
-//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::uninitialized() };
+//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
 //! let params = glium::DrawParameters {
 //!     condition: Some(glium::draw_parameters::ConditionalRendering {
 //!         query: (&query).into(),
