@@ -146,14 +146,19 @@ include!(concat!(env!("OUT_DIR"), "/textures.rs"));
 
 /// Represents a layer of a cubemap.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-#[allow(missing_docs)]      // TODO:
 pub enum CubeLayer {
+    /// The positive X layer of the cubemap.
     PositiveX,
+    /// The negative X layer of the cubemap.
     NegativeX,
+    /// The positive Y layer of the cubemap.
     PositiveY,
+    /// The negative Y layer of the cubemap.
     NegativeY,
+    /// The positive Z layer of the cubemap.
     PositiveZ,
-    NegativeZ,
+    /// The negative Z layer of the cubemap.
+    NegativeZ
 }
 
 impl CubeLayer {
@@ -176,13 +181,18 @@ impl CubeLayer {
 
 /// Represents a kind of texture.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
-#[allow(missing_docs)]      // TODO:
 pub enum TextureKind {
+    /// A float-based texture.
     Float,
+    /// An integral data based texture.
     Integral,
+    /// A texture that uses unsigned integer data.
     Unsigned,
+    /// A depth texture.
     Depth,
+    /// A stencil texture.
     Stencil,
+    /// A depth stencil texture.
     DepthStencil,
 }
 
@@ -422,9 +432,11 @@ pub struct RawImage2d<'a, T: Clone + 'a> {
     pub format: ClientFormat,
 }
 
-#[allow(missing_docs)]
+/// Used for converting number types to pixel formats
 pub trait ToClientFormat {
+  /// Converts the format to an RGB format.
   fn rgb_format() -> ClientFormat;
+  /// Converts the format to an RGBA format.
   fn rgba_format() -> ClientFormat;
 }
 

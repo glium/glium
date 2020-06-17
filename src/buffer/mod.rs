@@ -282,23 +282,46 @@ impl Default for BufferMode {
     }
 }
 
-/// Type of a buffer.
+/// The type of a buffer. See https://www.khronos.org/opengl/wiki/GLAPI/glBindBuffer
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[allow(missing_docs)]
 pub enum BufferType {
+    /// See: https://www.khronos.org/opengl/wiki/Buffer_Object#General_use
     ArrayBuffer,
+    /// See: https://www.khronos.org/opengl/wiki/Pixel_Buffer_Object
     PixelPackBuffer,
+    /// See: https://www.khronos.org/opengl/wiki/Pixel_Buffer_Object
     PixelUnpackBuffer,
+    /// A buffer which stores uniform data.
     UniformBuffer,
+    /// Used for reading a copied buffer. See:
+    /// https://www.khronos.org/opengl/wiki/Buffer_Object#Copying
     CopyReadBuffer,
+    /// Used for writing a copied buffer. See:
+    /// https://www.khronos.org/opengl/wiki/Buffer_Object#Copying
     CopyWriteBuffer,
+    /// A buffer used for storing atomic counters. See: 
+    /// https://www.khronos.org/opengl/wiki/Atomic_Counter
     AtomicCounterBuffer,
+    /// This buffer is used as the source for indirect compute dispatch operations.
+    /// This requires OpenGL 4.3 or ARB_compute_shader.
     DispatchIndirectBuffer,
+    /// A buffer used for indirect rendering.
+    /// From https://www.khronos.org/opengl/wiki/Vertex_Rendering#Indirect_rendering:
+    /// "Indirect rendering is the process of issuing a drawing command to 
+    /// OpenGL, except that most of the parameters to that command come from 
+    /// GPU storage provided by a buffer."
     DrawIndirectBuffer,
+    /// See: https://www.khronos.org/opengl/wiki/Query_Object#Query_buffer_object
     QueryBuffer,
+    /// See: https://www.khronos.org/opengl/wiki/Shader_Storage_Buffer_Object
     ShaderStorageBuffer,
+    /// A buffer used for storing buffer textures. See:
+    /// https://www.khronos.org/opengl/wiki/Buffer_Texture
     TextureBuffer,
+    /// An indexed buffer binding used for transform feedback operations. See:
+    /// https://www.khronos.org/opengl/wiki/Transform_Feedback
     TransformFeedbackBuffer,
+    /// See: https://www.khronos.org/opengl/wiki/Buffer_Object#General_use
     ElementArrayBuffer,
 }
 

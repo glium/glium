@@ -42,16 +42,24 @@ use fbo;
 
 /// Type of a texture.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[allow(missing_docs)]      // TODO: document and remove
 pub enum Dimensions {
+    /// Dimensions of a one-dimensional texture.
     Texture1d { width: u32 },
+    /// Dimensions of the one-dimensional textures within an array.
     Texture1dArray { width: u32, array_size: u32 },
+    /// Dimensions of a two-dimensional texture.
     Texture2d { width: u32, height: u32 },
+    /// Dimensions of the two-dimensional textures within an array.
     Texture2dArray { width: u32, height: u32, array_size: u32 },
+    /// Same as Texture2d, except it's multisampled.
     Texture2dMultisample { width: u32, height: u32, samples: u32 },
+    /// Same as Texture2dArray, except it's multisampled.
     Texture2dMultisampleArray { width: u32, height: u32, array_size: u32, samples: u32 },
+    /// Dimensions for a three-dimensional texture.
     Texture3d { width: u32, height: u32, depth: u32 },
+    /// The dimensions of a cubemap.
     Cubemap { dimension: u32 },
+    /// The dimensions of a cubemap array.
     CubemapArray { dimension: u32, array_size: u32 },
 }
 

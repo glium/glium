@@ -65,45 +65,87 @@ pub enum TextureFormatRequest {
 /// List of client-side pixel formats.
 ///
 /// These are all the possible formats of input data when uploading to a texture.
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ClientFormat {
+    /// Single unsigned bytes representing the input pixel format.
     U8,
+    /// Sets of two unsigned bytes representing the input pixel format.
     U8U8,
+    /// Sets of three unsigned bytes representing the input pixel format.
     U8U8U8,
+    /// Sets of four unsigned bytes representing the input pixel format.
     U8U8U8U8,
+    /// Single signed bytes representing the input pixel format.
     I8,
+    /// Sets of two signed bytes representing the input pixel format.
     I8I8,
+    /// Sets of three signed bytes representing the input pixel format.
     I8I8I8,
+    /// Sets of four signed bytes representing the input pixel format.
     I8I8I8I8,
+    
+    /// Single unsigned 16-bit values representing the input pixel format.
     U16,
+    /// Sets of two unsigned 16-bit values representing the input pixel format.
     U16U16,
+    /// Sets of three unsigned 16-bit values representing the input pixel format.
     U16U16U16,
+    /// Sets of four unsigned 16-bit values representing the input pixel format.
     U16U16U16U16,
+    /// Single signed 16-bit values representing the input pixel format.
     I16,
+    /// Sets of two signed 16-bit values representing the input pixel format.
     I16I16,
+    /// Sets of three signed 16-bit values representing the input pixel format.
     I16I16I16,
+    /// Sets of four signed 16-bit values representing the input pixel format.
     I16I16I16I16,
+    
+    /// Single unsigned 32-bit values representing the input pixel format.
     U32,
+    /// Sets of two unsigned 32-bit values representing the input pixel format.
     U32U32,
+    /// Sets of three unsigned 32-bit values representing the input pixel format.
     U32U32U32,
+    /// Sets of four unsigned 32-bit values representing the input pixel format.
     U32U32U32U32,
+    /// Single signed 32-bit values representing the input pixel format.
     I32,
+    /// Sets of two signed 32-bit values representing the input pixel format.
     I32I32,
+    /// Sets of three signed 32-bit values representing the input pixel format.
     I32I32I32,
+    /// Sets of four signed 32-bit values representing the input pixel format.
     I32I32I32I32,
+    /// Two unsigned three bit values and then an unsigned two bit value representing
+    /// the pixel format.
     U3U3U2,
+    /// An unsigned five bit value, an unsigned six bit value, and then
+    /// another unsigned five bit value representing the pixel format.
     U5U6U5,
+    /// Four unsigned four-bit values representing the pixel format.
     U4U4U4U4,
+    /// Three unsigned five bit values and then an unsigned one bit value representing
+    /// the pixel format.
     U5U5U5U1,
+    /// Three unsigned ten bit values and then an unsigned one two bit value 
+    /// representing the pixel format.
     U10U10U10U2,
+    /// A 16-bit floating-point value representing the pixel format.
     F16,
+    /// Two 16-bit floating-point values representing the pixel format.
     F16F16,
+    /// Three 16-bit floating-point values representing the pixel format.
     F16F16F16,
+    /// Four 16-bit floating-point values representing the pixel format.
     F16F16F16F16,
+    /// A 32-bit floating-point value representing the pixel format.
     F32,
+    /// Two 32-bit floating-point values representing the pixel format.
     F32F32,
+    /// Three 32-bit floating-point values representing the pixel format.
     F32F32F32,
+    /// Four 32-bit floating-point values representing the pixel format.
     F32F32F32F32,
 }
 
@@ -619,10 +661,11 @@ impl UncompressedFloatFormat {
 }
 
 /// List of uncompressed pixel formats that contain floating-point data in the sRGB color space.
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum SrgbFormat {
+    /// RGB format.
     U8U8U8,
+    /// RGBA format.
     U8U8U8U8,
 }
 
@@ -687,15 +730,21 @@ impl SrgbFormat {
 }
 
 /// List of uncompressed pixel formats that contain signed integral data.
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedIntFormat {
+    /// A signed 8-bit pixel format. Not sure why one would use this.
     I8,
+    /// A signed 16-bit pixel format.
     I16,
+    /// A signed 32-bit pixel format.
     I32,
+    /// A 16-bit pixel format with the bytes separated.
     I8I8,
+    /// A 32-bit pixel format split into two 16-bit units.
     I16I16,
+    /// A 64-bit pixel format split into two 32-bit units.
     I32I32,
+    /// A 24-bit pixel format split into three 8-bit units.
     I8I8I8,
     /// May not be supported by renderbuffers.
     I16I16I16,
@@ -703,7 +752,9 @@ pub enum UncompressedIntFormat {
     I32I32I32,
     /// May not be supported by renderbuffers.
     I8I8I8I8,
+    /// A 64-bit pixel format split into four 16-bit units.
     I16I16I16I16,
+    /// A 128-bit pixel format split into four 32-bit units.
     I32I32I32I32,
 }
 
@@ -846,15 +897,21 @@ impl UncompressedIntFormat {
 }
 
 /// List of uncompressed pixel formats that contain unsigned integral data.
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedUintFormat {
+    /// An unsigned 8-bit pixel format.
     U8,
+    /// An unsigned 16-bit pixel format.
     U16,
+    /// An unsigned 32-bit pixel format.
     U32,
+    /// A 16-bit pixel format with the bytes separated.
     U8U8,
+    /// A 32-bit pixel format split into two 16-bit units.
     U16U16,
+    /// A 64-bit pixel format split into two 32-bit units.
     U32U32,
+    /// A 24-bit pixel format split into three 8-bit units.
     U8U8U8,
     /// May not be supported by renderbuffers.
     U16U16U16,
@@ -862,9 +919,10 @@ pub enum UncompressedUintFormat {
     U32U32U32,
     /// May not be supported by renderbuffers.
     U8U8U8U8,
+    /// A 64-bit pixel format split into four 16-bit units.
     U16U16U16U16,
+    /// A 128-bit pixel format split into four 32-bit units.
     U32U32U32U32,
-    U10U10U10U2,
 }
 
 impl UncompressedUintFormat {
@@ -1126,14 +1184,17 @@ impl CompressedFormat {
 }
 
 /// List of compressed pixel formats in the sRGB color space.
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum CompressedSrgbFormat {
     /// BPTC format. sRGB with alpha. Also called `BC7` by DirectX.
     Bptc,
+    /// S3TC DXT1 without alpha, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt1NoAlpha,
+    /// S3TC DXT1 with 1-bit alpha, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt1Alpha,
+    /// S3TC DXT3, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt3Alpha,
+    /// S3TC DXT5, see https://www.opengl.org/wiki/S3_Texture_Compression.
     S3tcDxt5Alpha,
 }
 
@@ -1195,13 +1256,15 @@ impl CompressedSrgbFormat {
 ///
 /// `I16`, `I24` and `I32` are still treated as if they were floating points.
 /// Only the internal representation is integral.
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum DepthFormat {
+    /// 16-bit integer depth format.
     I16,
+    /// 24-bit integer depth format.
     I24,
     /// May not be supported by all hardware.
     I32,
+    /// 32-bit float depth format.
     F32,
 }
 
@@ -1260,10 +1323,13 @@ impl DepthFormat {
 /// List of formats available for depth-stencil textures.
 // TODO: If OpenGL 4.3 or ARB_stencil_texturing is not available, then depth/stencil
 //       textures are treated by samplers exactly like depth-only textures
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum DepthStencilFormat {
+    /// 24-bit integer with an 8-bit integer after it representing a depth 
+    /// stencil format.
     I24I8,
+    /// 32-bit float with an 8-bit integer after it representing a depth
+    /// stencil format.
     F32I8,
 }
 
@@ -1314,12 +1380,15 @@ impl DepthStencilFormat {
 ///
 /// Stencil textures are a very recent OpenGL feature that may not be supported everywhere.
 /// Only `I8` is supported for textures. All the other formats can only be used with renderbuffers.
-#[allow(missing_docs)]
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum StencilFormat {
+    /// This is only supported for renderbuffers.
     I1,
+    /// This is only supported for renderbuffers.
     I4,
+    /// This is supported for textures and renderbuffers.
     I8,
+    /// This is only supported for renderbuffers.
     I16,
 }
 
@@ -1398,16 +1467,24 @@ impl StencilFormat {
 
 /// Format of the internal representation of a texture.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-#[allow(missing_docs)]
 pub enum TextureFormat {
+    /// A texture format that uses uncompressed floats to represent itself.
     UncompressedFloat(UncompressedFloatFormat),
+    /// A texture format that uses uncompressed signed data with integrals to represent itself.
     UncompressedIntegral(UncompressedIntFormat),
+    /// A texture format that uses uncompressed unsigned data with integrals to represent itself.
     UncompressedUnsigned(UncompressedUintFormat),
+    /// A texture format that uses uncompressed SRGB data to represent itself.
     Srgb(SrgbFormat),
+    /// A generic compressed texture format.
     CompressedFormat(CompressedFormat),
+    /// A texture format that uses compressed SRGB data to represent itself.
     CompressedSrgbFormat(CompressedSrgbFormat),
+    /// A texture format that takes advantage of depth.
     DepthFormat(DepthFormat),
+    /// A texture format that takes advantage of the stencil.
     StencilFormat(StencilFormat),
+    /// A texture format that takes advantage of the depth and stencil.
     DepthStencilFormat(DepthStencilFormat),
 }
 

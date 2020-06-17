@@ -1141,16 +1141,20 @@ pub struct Subroutine {
 }
 
 /// The different stages of the program pipeline.
-#[allow(missing_docs)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ShaderStage {
+    /// The vertex shader.
     Vertex,
+    /// The fragment shader.
     Fragment,
+    /// The tessellation control shader.
     TessellationControl,
+    /// The tessellation evaluation shader.
     TessellationEvaluation,
+    /// The geometry shader.
     Geometry,
-    // FIXME? According to https://www.opengl.org/sdk/docs/man/html/glUniformSubroutines.xhtml ,
-    // compute shaders are not supported.
+    // FIXME: Add support for compute shaders! This is, in fact, supported.
+    // See: https://www.khronos.org/opengl/wiki/Compute_Shader
     // Compute,
 }
 

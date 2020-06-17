@@ -408,10 +408,12 @@ trait UniformsExt {
 ///
 /// Blocks and subroutines are not included.
 #[derive(Copy, Clone, Debug)]
-#[allow(missing_docs)]
 pub enum RawUniformValue {
+    /// A signed 32-bit integer.
     SignedInt(gl::types::GLint),
+    /// An unsigned 32-bit integer.
     UnsignedInt(gl::types::GLuint),
+    /// A 32-bit float.
     Float(gl::types::GLfloat),
     /// 2x2 column-major matrix.
     Mat2([[gl::types::GLfloat; 2]; 2]),
@@ -419,32 +421,54 @@ pub enum RawUniformValue {
     Mat3([[gl::types::GLfloat; 3]; 3]),
     /// 4x4 column-major matrix.
     Mat4([[gl::types::GLfloat; 4]; 4]),
+    /// The representation of a vec2 as an array of two floats.
     Vec2([gl::types::GLfloat; 2]),
+    /// The representation of a vec3 as an array of three floats.
     Vec3([gl::types::GLfloat; 3]),
+    /// The representation of a vec4 as an array of four floats.
     Vec4([gl::types::GLfloat; 4]),
+    /// The representation of an ivec2 as an array of two signed ints.
     IntVec2([gl::types::GLint; 2]),
+    /// The representation of an ivec3 as an array of three signed ints.
     IntVec3([gl::types::GLint; 3]),
+    /// The representation of an ivec4 as an array of four signed ints.
     IntVec4([gl::types::GLint; 4]),
-    UnsignedIntVec2([gl::types::GLuint; 2]),
-    UnsignedIntVec3([gl::types::GLuint; 3]),
-    UnsignedIntVec4([gl::types::GLuint; 4]),
-
-    // Double precision primitives
+    /// The representation of an uvec2 as an array of two signed ints.
+    IntVec2([gl::types::GLint; 2]),
+    /// The representation of an uvec3 as an array of three signed ints.
+    IntVec3([gl::types::GLint; 3]),
+    /// The representation of an uvec4 as an array of four signed ints.
+    IntVec4([gl::types::GLint; 4]),
+    /// A double-precision float.
     Double(gl::types::GLdouble),
+    /// A double-precision 2x2 column major matrix.
     DoubleMat2([[gl::types::GLdouble; 2]; 2]),
+    /// A double-precision 3x3 column major matrix.
     DoubleMat3([[gl::types::GLdouble; 3]; 3]),
+    /// A double-precision 4x4 column major matrix.
     DoubleMat4([[gl::types::GLdouble; 4]; 4]),
+    /// The representation of a dvec2 as an array of two double-precision floats.
     DoubleVec2([gl::types::GLdouble; 2]),
+    /// The representation of a dvec3 as an array of three double-precision floats.
     DoubleVec3([gl::types::GLdouble; 3]),
+    /// The representation of a dvec4 as an array of four double-precision floats.
     DoubleVec4([gl::types::GLdouble; 4]),
+    /// A 64-bit signed integer.
     Int64(gl::types::GLint64),
+    /// A 64-bit signed integer vec2.
     Int64Vec2([gl::types::GLint64; 2]),
+    /// A 64-bit signed integer vec3.
     Int64Vec3([gl::types::GLint64; 3]),
+    /// A 64-bit signed integer vec4.
     Int64Vec4([gl::types::GLint64; 4]),
-    UnsignedInt64(gl::types::GLuint64),
-    UnsignedInt64Vec2([gl::types::GLuint64; 2]),
-    UnsignedInt64Vec3([gl::types::GLuint64; 3]),
-    UnsignedInt64Vec4([gl::types::GLuint64; 4]),
+    /// A 64-bit unsigned integer.
+    Int64(gl::types::GLuint64),
+    /// A 64-bit unsigned integer vec2.
+    Int64Vec2([gl::types::GLuint64; 2]),
+    /// A 64-bit unsigned integer vec3.
+    Int64Vec3([gl::types::GLuint64; 3]),
+    /// A 64-bit unsigned integer vec4.
+    Int64Vec4([gl::types::GLuint64; 4]),
 }
 
 /// Area of a surface in pixels.
