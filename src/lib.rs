@@ -433,12 +433,12 @@ pub enum RawUniformValue {
     IntVec3([gl::types::GLint; 3]),
     /// The representation of an ivec4 as an array of four signed ints.
     IntVec4([gl::types::GLint; 4]),
-    /// The representation of an uvec2 as an array of two signed ints.
-    IntVec2([gl::types::GLint; 2]),
-    /// The representation of an uvec3 as an array of three signed ints.
-    IntVec3([gl::types::GLint; 3]),
-    /// The representation of an uvec4 as an array of four signed ints.
-    IntVec4([gl::types::GLint; 4]),
+    /// The representation of an uvec2 as an array of two unsigned ints.
+    UnsignedIntVec2([gl::types::GLuint; 2]),
+    /// The representation of an uvec3 as an array of three unsigned ints.
+    UnsignedIntVec3([gl::types::GLuint; 3]),
+    /// The representation of an uvec4 as an array of four unsigned ints.
+    UnsignedIntVec4([gl::types::GLuint; 4]),
     /// A double-precision float.
     Double(gl::types::GLdouble),
     /// A double-precision 2x2 column major matrix.
@@ -462,13 +462,13 @@ pub enum RawUniformValue {
     /// A 64-bit signed integer vec4.
     Int64Vec4([gl::types::GLint64; 4]),
     /// A 64-bit unsigned integer.
-    Int64(gl::types::GLuint64),
+    UnsignedInt64(gl::types::GLuint64),
     /// A 64-bit unsigned integer vec2.
-    Int64Vec2([gl::types::GLuint64; 2]),
+    UnsignedInt64Vec2([gl::types::GLuint64; 2]),
     /// A 64-bit unsigned integer vec3.
-    Int64Vec3([gl::types::GLuint64; 3]),
+    UnsignedInt64Vec3([gl::types::GLuint64; 3]),
     /// A 64-bit unsigned integer vec4.
-    Int64Vec4([gl::types::GLuint64; 4]),
+    UnsignedInt64Vec4([gl::types::GLuint64; 4]),
 }
 
 /// Area of a surface in pixels.

@@ -923,6 +923,8 @@ pub enum UncompressedUintFormat {
     U16U16U16U16,
     /// A 128-bit pixel format split into four 32-bit units.
     U32U32U32U32,
+    /// A 32-bit pixel format with a 2-bit alpha.
+    U10U10U10U2
 }
 
 impl UncompressedUintFormat {

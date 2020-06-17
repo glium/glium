@@ -44,23 +44,74 @@ use fbo;
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Dimensions {
     /// Dimensions of a one-dimensional texture.
-    Texture1d { width: u32 },
+    Texture1d { 
+        /// The width.
+        width: u32 
+    },
     /// Dimensions of the one-dimensional textures within an array.
-    Texture1dArray { width: u32, array_size: u32 },
+    Texture1dArray { 
+        /// The width.
+        width: u32, 
+        /// The array size.
+        array_size: u32 
+    },
     /// Dimensions of a two-dimensional texture.
-    Texture2d { width: u32, height: u32 },
+    Texture2d { 
+        /// The width.
+        width: u32,
+        /// The height.
+        height: u32 
+    },
     /// Dimensions of the two-dimensional textures within an array.
-    Texture2dArray { width: u32, height: u32, array_size: u32 },
+    Texture2dArray { 
+        /// The width.
+        width: u32, 
+        /// The height.
+        height: u32, 
+        /// The array size.
+        array_size: u32 
+    },
     /// Same as Texture2d, except it's multisampled.
-    Texture2dMultisample { width: u32, height: u32, samples: u32 },
+    Texture2dMultisample { 
+        /// The width.
+        width: u32, 
+        /// The height.
+        height: u32, 
+        /// The samples.
+        samples: u32 
+    },
     /// Same as Texture2dArray, except it's multisampled.
-    Texture2dMultisampleArray { width: u32, height: u32, array_size: u32, samples: u32 },
+    Texture2dMultisampleArray { 
+        /// The width.
+        width: u32, 
+        /// The height.
+        height: u32, 
+        /// The array size.
+        array_size: u32, 
+        /// The samples.
+        samples: u32 
+    },
     /// Dimensions for a three-dimensional texture.
-    Texture3d { width: u32, height: u32, depth: u32 },
+    Texture3d { 
+        /// The width.
+        width: u32, 
+        /// The height.
+        height: u32, 
+        /// The depth.
+        depth: u32 
+    },
     /// The dimensions of a cubemap.
-    Cubemap { dimension: u32 },
+    Cubemap { 
+        /// The dimensions in a single value.
+        dimension: u32 
+    },
     /// The dimensions of a cubemap array.
-    CubemapArray { dimension: u32, array_size: u32 },
+    CubemapArray { 
+        /// The dimensions in a single value.
+        dimension: u32, 
+        /// The array size.
+        array_size: u32
+    },
 }
 
 /// A texture whose type isn't fixed at compile-time.
