@@ -13,7 +13,7 @@ use gl;
 
 
 pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
-             rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
+             rect: Option<&Rect>, color: Option<[f32; 4]>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
 {
     unsafe {
@@ -71,8 +71,8 @@ pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments>,
         let mut flags = 0;
 
         if let Some(color) = color {
-            let color = (color.0 as gl::types::GLclampf, color.1 as gl::types::GLclampf,
-                         color.2 as gl::types::GLclampf, color.3 as gl::types::GLclampf);
+            let color = (color[0] as gl::types::GLclampf, color[1] as gl::types::GLclampf,
+                         color[2] as gl::types::GLclampf, color[3] as gl::types::GLclampf);
 
             flags |= gl::COLOR_BUFFER_BIT;
 

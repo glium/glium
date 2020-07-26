@@ -692,17 +692,17 @@ pub struct BlitTarget {
 ///
 pub trait Surface {
     /// Clears some attachments of the target.
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<[f32; 4]>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>);
 
     /// Clears the color attachment of the target.
-    fn clear_color(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.clear(None, Some((red, green, blue, alpha)), false, None, None);
+    fn clear_color(&mut self, color: [f32; 4]) {
+        self.clear(None, Some(color), false, None, None);
     }
 
     /// Clears the color attachment of the target. The color is in sRGB format.
-    fn clear_color_srgb(&mut self, red: f32, green: f32, blue: f32, alpha: f32) {
-        self.clear(None, Some((red, green, blue, alpha)), true, None, None);
+    fn clear_color_srgb(&mut self, color: [f32; 4]) {
+        self.clear(None, Some(color), true, None, None);
     }
 
     /// Clears the depth attachment of the target.
@@ -716,22 +716,22 @@ pub trait Surface {
     }
 
     /// Clears the color and depth attachments of the target.
-    fn clear_color_and_depth(&mut self, color: (f32, f32, f32, f32), depth: f32) {
+    fn clear_color_and_depth(&mut self, color: [f32; 4], depth: f32) {
         self.clear(None, Some(color), false, Some(depth), None);
     }
 
     /// Clears the color and depth attachments of the target. The color is in sRGB format.
-    fn clear_color_srgb_and_depth(&mut self, color: (f32, f32, f32, f32), depth: f32) {
+    fn clear_color_srgb_and_depth(&mut self, color: [f32; 4], depth: f32) {
         self.clear(None, Some(color), true, Some(depth), None);
     }
 
     /// Clears the color and stencil attachments of the target.
-    fn clear_color_and_stencil(&mut self, color: (f32, f32, f32, f32), stencil: i32) {
+    fn clear_color_and_stencil(&mut self, color: [f32; 4], stencil: i32) {
         self.clear(None, Some(color), false, None, Some(stencil));
     }
 
     /// Clears the color and stencil attachments of the target. The color is in sRGB format.
-    fn clear_color_srgb_and_stencil(&mut self, color: (f32, f32, f32, f32), stencil: i32) {
+    fn clear_color_srgb_and_stencil(&mut self, color: [f32; 4], stencil: i32) {
         self.clear(None, Some(color), true, None, Some(stencil));
     }
 
@@ -741,12 +741,12 @@ pub trait Surface {
     }
 
     /// Clears the color, depth and stencil attachments of the target.
-    fn clear_all(&mut self, color: (f32, f32, f32, f32), depth: f32, stencil: i32) {
+    fn clear_all(&mut self, color: [f32; 4], depth: f32, stencil: i32) {
         self.clear(None, Some(color), false, Some(depth), Some(stencil));
     }
 
     /// Clears the color, depth and stencil attachments of the target. The color is in sRGB format.
-    fn clear_all_srgb(&mut self, color: (f32, f32, f32, f32), depth: f32, stencil: i32) {
+    fn clear_all_srgb(&mut self, color: [f32; 4], depth: f32, stencil: i32) {
         self.clear(None, Some(color), true, Some(depth), Some(stencil));
     }
 
@@ -1151,7 +1151,7 @@ impl Frame {
 
 impl Surface for Frame {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
+    fn clear(&mut self, rect: Option<&Rect>, color: Option<[f32; 4]>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
         ops::clear(&self.context, None, rect, color, color_srgb, depth, stencil);
