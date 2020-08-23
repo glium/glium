@@ -95,6 +95,9 @@ pub struct Capabilities {
     /// `None` if the extension is not supported by the hardware.
     pub max_texture_max_anisotropy: Option<gl::types::GLfloat>,
 
+    /// Maximum size of a texture (i.e. GL_MAX_TEXTURE_SIZE)
+    pub max_texture_size: gl::types::GLint,
+
     /// Maximum size of a buffer texture. `None` if this is not supported.
     pub max_texture_buffer_size: Option<gl::types::GLint>,
 
@@ -405,6 +408,12 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
                 gl.GetFloatv(gl::MAX_TEXTURE_MAX_ANISOTROPY_EXT, &mut val);
                 val
             })
+        },
+
+        max_texture_size: {
+            let mut val = 0;
+            gl.GetIntegerv(gl::MAX_TEXTURE_SIZE, &mut val);
+            val
         },
 
         max_texture_buffer_size: {
