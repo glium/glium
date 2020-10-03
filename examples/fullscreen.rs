@@ -128,7 +128,7 @@ fn main() {
                 fullscreen = false;
             } else {
                 let monitor_handle = display.gl_window().window().available_monitors().next().unwrap();
-                let fs = Fullscreen::Borderless(monitor_handle);
+                let fs = Fullscreen::Borderless(Some(monitor_handle));
                 display.gl_window().window().set_fullscreen(Some(fs));
 
                 fullscreen = true;
