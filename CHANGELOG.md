@@ -1,5 +1,11 @@
 # Change Log
 
+## Version 0.28.0 (2020-10-03)
+
+- Updated glutin to version 0.25.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0250-2020-10-02).
+- Implemented atomic counters.
+- Added `CubeMapArrays` support.
+
 ## Version 0.27.0 (2020-03-26)
 
 - Updated glutin to version 0.24.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0240-2020-03-11).
