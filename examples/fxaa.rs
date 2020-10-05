@@ -3,6 +3,7 @@ extern crate glium;
 
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
+use glium::backend::Facade;
 
 mod support;
 

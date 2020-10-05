@@ -70,6 +70,11 @@ impl backend::Facade for Headless {
     fn get_context(&self) -> &Rc<context::Context> {
         &self.context
     }
+
+    #[inline]
+    fn draw(&self) -> Frame {
+        Frame::new(self.context.clone(), self.get_framebuffer_dimensions())
+    }
 }
 
 impl Headless {
@@ -118,19 +123,5 @@ impl Headless {
         let glutin_backend = GlutinBackend(glutin_context.clone());
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         Ok(Headless { context: context, glutin: glutin_context })
-    }
-
-    /// Start drawing on the backbuffer.
-    ///
-    /// This function returns a `Frame`, which can be used to draw on it. When the `Frame` is
-    /// destroyed, the buffers are swapped.
-    ///
-    /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
-    ///
-    /// If the framebuffer dimensions have changed since the last call to `draw`, the inner glutin
-    /// context will be resized accordingly before returning the `Frame`.
-    #[inline]
-    pub fn draw(&self) -> Frame {
-        Frame::new(self.context.clone(), self.get_framebuffer_dimensions())
     }
 }
