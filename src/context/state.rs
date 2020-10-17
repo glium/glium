@@ -463,7 +463,7 @@ impl Default for GlState {
             transform_feedback_enabled: None,
             transform_feedback_paused: false,
             primitive_bounding_box: (-1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0),
-            polygon_offset:(0.0,0.0),
+            polygon_offset: (0.0, 0.0),
 
             next_draw_call_id: 1,
             latest_memory_barrier_vertex_attrib_array: 1,

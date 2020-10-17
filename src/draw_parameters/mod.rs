@@ -395,7 +395,7 @@ pub struct DrawParameters<'a> {
 
     /// If enabled, shifts the depth value of towards of away from the camera. This is useful for
     /// drawing decals and wireframes, for example.
-    pub polygon_offset:PolygonOffset,
+    pub polygon_offset: PolygonOffset,
 }
 
 /// Condition whether to render or not.
@@ -438,17 +438,17 @@ impl<'a> From<&'a AnySamplesPassedQuery> for SamplesQueryParam<'a> {
 
 /// Specifies the depth offset applied to rendered geometry
 #[derive(Debug, Copy, Clone)]
-pub struct PolygonOffset{
+pub struct PolygonOffset {
     /// Scale polygon depth with a factor
-    pub factor:f32,
+    pub factor: f32,
     /// Add a constant value to polygon depth
-    pub units:f32,
+    pub units: f32,
     /// If true, the depth offset is enabled for points
-    pub point:bool,
+    pub point: bool,
     /// If true, the depth offset is enabled for lines
-    pub line:bool,
+    pub line: bool,
     /// If true, the depth offset is enabled for triangles
-    pub fill:bool,
+    pub fill: bool,
 }
 
 impl Default for PolygonOffset {
@@ -490,7 +490,7 @@ impl<'a> Default for DrawParameters<'a> {
             provoking_vertex: ProvokingVertex::LastVertex,
             primitive_bounding_box: (-1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0),
             primitive_restart_index: false,
-            polygon_offset:Default::default(),
+            polygon_offset: Default::default(),
         }
     }
 }
@@ -538,7 +538,8 @@ pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters
     sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex)?;
     sync_primitive_bounding_box(ctxt, &draw_parameters.primitive_bounding_box);
     sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index)?;
-    sync_polygon_offset(ctxt,draw_parameters.polygon_offset);
+    sync_polygon_offset(ctxt, draw_parameters.polygon_offset);
+
     Ok(())
 }
 
@@ -998,7 +999,7 @@ fn set_flag_enabled(ctxt: &mut context::CommandContext, cap: gl::types::GLenum, 
 fn sync_polygon_offset(ctxt: &mut context::CommandContext, offset: PolygonOffset) {
     let (factor, units) = ctxt.state.polygon_offset;
 
-    if factor != offset.factor || units != offset.units {
+    if ctxt.state.polygon_offset != (offset.factor, offset.units) {
         unsafe {
             ctxt.gl.PolygonOffset(offset.factor, offset.units);
         }
