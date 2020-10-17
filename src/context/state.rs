@@ -45,6 +45,12 @@ pub struct GlState {
     /// Whether GL_POLYGON_OFFSET_FILL is enabled
     pub enabled_polygon_offset_fill: bool,
 
+    /// Whether GL_POLYGON_OFFSET_LINE is enabled
+    pub enabled_polygon_offset_line: bool,
+
+    /// Whether GL_POLYGON_OFFSET_POINT is enabled
+    pub enabled_polygon_offset_point: bool,
+
     /// Whether GL_PRIMITIVE_RESTART_FIXED_INDEX is enabled
     pub enabled_primitive_fixed_restart: bool,
 
@@ -214,6 +220,9 @@ pub struct GlState {
     /// The latest value passed to `glPolygonMode`.
     pub polygon_mode: gl::types::GLenum,
 
+    /// The latest values passed to `glPolygonOffset`.
+    pub polygon_offset: (gl::types::GLfloat, gl::types::GLfloat),
+
     /// The latest value passed to `glHint` for smoothing.
     pub smooth: (gl::types::GLenum, gl::types::GLenum),
 
@@ -379,6 +388,8 @@ impl Default for GlState {
             enabled_framebuffer_srgb: false,
             enabled_multisample: true,
             enabled_polygon_offset_fill: false,
+            enabled_polygon_offset_line: false,
+            enabled_polygon_offset_point: false,
             enabled_rasterizer_discard: false,
             enabled_sample_alpha_to_coverage: false,
             enabled_sample_coverage: false,
@@ -452,6 +463,7 @@ impl Default for GlState {
             transform_feedback_enabled: None,
             transform_feedback_paused: false,
             primitive_bounding_box: (-1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0),
+            polygon_offset:(0.0,0.0),
 
             next_draw_call_id: 1,
             latest_memory_barrier_vertex_attrib_array: 1,
