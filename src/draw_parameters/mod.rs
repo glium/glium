@@ -60,7 +60,7 @@
 //! to draw with it results in a `WrongQueryOperation` error returned by the `draw` function.
 //!
 //! For the same reasons, as soon as you call `is_ready` on a query it will stop being usable.
-//!
+
 use gl;
 use context;
 use context::Context;
@@ -392,6 +392,10 @@ pub struct DrawParameters<'a> {
     /// If the backend does not support GL_PRIMITIVE_RESTART_FIXED_INDEX, an Error
     /// of type `FixedIndexRestartingNotSupported` will be returned.
     pub primitive_restart_index: bool,
+
+    /// If enabled, shifts the depth value of towards of away from the camera. This is useful for
+    /// drawing decals and wireframes, for example.
+    pub polygon_offset: PolygonOffset,
 }
 
 /// Condition whether to render or not.
@@ -432,6 +436,33 @@ impl<'a> From<&'a AnySamplesPassedQuery> for SamplesQueryParam<'a> {
     }
 }
 
+/// Specifies the depth offset applied to rendered geometry
+#[derive(Debug, Copy, Clone)]
+pub struct PolygonOffset {
+    /// Scale polygon depth with a factor
+    pub factor: f32,
+    /// Add a constant value to polygon depth
+    pub units: f32,
+    /// If true, the depth offset is enabled for points
+    pub point: bool,
+    /// If true, the depth offset is enabled for lines
+    pub line: bool,
+    /// If true, the depth offset is enabled for triangles
+    pub fill: bool,
+}
+
+impl Default for PolygonOffset {
+    fn default() -> Self {
+        PolygonOffset{
+            factor: 0.0,
+            units: 0.0,
+            point: false,
+            line: false,
+            fill: false
+        }
+    }
+}
+
 impl<'a> Default for DrawParameters<'a> {
     fn default() -> DrawParameters<'a> {
         DrawParameters {
@@ -459,6 +490,7 @@ impl<'a> Default for DrawParameters<'a> {
             provoking_vertex: ProvokingVertex::LastVertex,
             primitive_bounding_box: (-1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0),
             primitive_restart_index: false,
+            polygon_offset: Default::default(),
         }
     }
 }
@@ -506,6 +538,7 @@ pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters
     sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex)?;
     sync_primitive_bounding_box(ctxt, &draw_parameters.primitive_bounding_box);
     sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index)?;
+    sync_polygon_offset(ctxt, draw_parameters.polygon_offset);
 
     Ok(())
 }
@@ -954,3 +987,38 @@ fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
 
     Ok(())
 }
+
+fn set_flag_enabled(ctxt: &mut context::CommandContext, cap: gl::types::GLenum, enabled: bool) {
+    if enabled {
+        unsafe { ctxt.gl.Enable(cap); }
+    } else {
+        unsafe { ctxt.gl.Disable(cap); }
+    }
+}
+
+fn sync_polygon_offset(ctxt: &mut context::CommandContext, offset: PolygonOffset) {
+    let (factor, units) = ctxt.state.polygon_offset;
+
+    if ctxt.state.polygon_offset != (offset.factor, offset.units) {
+        unsafe {
+            ctxt.gl.PolygonOffset(offset.factor, offset.units);
+        }
+        ctxt.state.polygon_offset = (offset.factor, offset.units);
+    }
+
+    if offset.point != ctxt.state.enabled_polygon_offset_point {
+        ctxt.state.enabled_polygon_offset_point = offset.point;
+        set_flag_enabled(ctxt, gl::POLYGON_OFFSET_POINT, offset.point);
+    }
+
+    if offset.line != ctxt.state.enabled_polygon_offset_line {
+        ctxt.state.enabled_polygon_offset_line = offset.line;
+        set_flag_enabled(ctxt, gl::POLYGON_OFFSET_LINE, offset.line);
+    }
+
+    if offset.fill != ctxt.state.enabled_polygon_offset_fill {
+        ctxt.state.enabled_polygon_offset_fill = offset.fill;
+        set_flag_enabled(ctxt, gl::POLYGON_OFFSET_FILL, offset.fill);
+    }
+}
+
