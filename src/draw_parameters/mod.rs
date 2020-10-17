@@ -60,28 +60,30 @@
 //! to draw with it results in a `WrongQueryOperation` error returned by the `draw` function.
 //!
 //! For the same reasons, as soon as you call `is_ready` on a query it will stop being usable.
-//!
-use std::ops::Range;
 
-use CapabilitiesSource;
+use gl;
 use context;
 use context::Context;
-use DrawError;
-use gl;
+use version::Version;
+use version::Api;
+
 use index::PrimitiveType;
+
 use QueryExt;
+use CapabilitiesSource;
+use DrawError;
 use Rect;
 use ToGlEnum;
-use version::Api;
-use version::Version;
 use vertex::TransformFeedbackSession;
 
+use std::ops::Range;
+
 pub use self::blend::{Blend, BlendingFunction, LinearBlendingFactor};
-pub use self::depth::{Depth, DepthClamp, DepthTest};
-pub use self::query::{PrimitivesGeneratedQuery, SamplesPassedQuery, TimeElapsedQuery};
+pub use self::depth::{Depth, DepthTest, DepthClamp};
+pub use self::query::{QueryCreationError};
+pub use self::query::{SamplesPassedQuery, TimeElapsedQuery, PrimitivesGeneratedQuery};
 pub use self::query::{AnySamplesPassedQuery, TransformFeedbackPrimitivesWrittenQuery};
-pub use self::query::QueryCreationError;
-pub use self::stencil::{Stencil, StencilOperation, StencilTest};
+pub use self::stencil::{StencilTest, StencilOperation, Stencil};
 
 mod blend;
 mod depth;
