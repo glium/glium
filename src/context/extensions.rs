@@ -1,7 +1,7 @@
 use std::ffi::CStr;
-use version::Version;
-use version::Api;
-use gl;
+use crate::version::Version;
+use crate::version::Api;
+use crate::gl;
 
 macro_rules! extensions {
     ($($string:expr => $field:ident,)+) => {

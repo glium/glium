@@ -8,16 +8,16 @@ Backend implementation for the glutin library
 Only available if the 'glutin' feature is enabled.
 
 */
-pub extern crate glutin;
+pub use glutin;
 
 pub mod headless;
 
-use backend;
-use backend::Backend;
-use backend::Context;
-use context;
-use debug;
-use glutin::{ContextCurrentState, PossiblyCurrent as Pc};
+use crate::backend;
+use crate::backend::Backend;
+use crate::backend::Context;
+use crate::context;
+use crate::debug;
+use crate::glutin::{ContextCurrentState, PossiblyCurrent as Pc};
 use std::cell::{Cell, Ref, RefCell};
 use std::error::Error;
 use std::fmt;
@@ -25,7 +25,7 @@ use std::ops::Deref;
 use std::os::raw::c_void;
 use std::rc::Rc;
 use takeable_option::Takeable;
-use {Frame, IncompatibleOpenGl, SwapBuffersError};
+use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
 
 /// A GL context combined with a facade for drawing upon.
 ///
@@ -57,7 +57,7 @@ pub enum DisplayCreationError {
 }
 
 impl std::fmt::Debug for Display {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[glium::backend::glutin::Display]")
     }
 }
@@ -69,7 +69,7 @@ impl Display {
     /// by the implementation.
     pub fn new<T: ContextCurrentState, E>(
         wb: glutin::window::WindowBuilder,
-        cb: glutin::ContextBuilder<T>,
+        cb: glutin::ContextBuilder<'_, T>,
         events_loop: &glutin::event_loop::EventLoop<E>,
     ) -> Result<Self, DisplayCreationError> {
         let gl_window = cb.build_windowed(wb, events_loop)?;
@@ -123,8 +123,8 @@ impl Display {
         let framebuffer_dimensions = glutin_backend.get_framebuffer_dimensions();
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         Ok(Display {
-            gl_window: gl_window,
-            context: context,
+            gl_window,
+            context,
             last_framebuffer_dimensions: Cell::new(framebuffer_dimensions),
         })
     }
@@ -136,7 +136,7 @@ impl Display {
     pub fn rebuild<T: ContextCurrentState>(
         &self,
         wb: glutin::window::WindowBuilder,
-        cb: glutin::ContextBuilder<T>,
+        cb: glutin::ContextBuilder<'_, T>,
         events_loop: &glutin::event_loop::EventLoop<()>,
     ) -> Result<(), DisplayCreationError> {
         // Share the display lists of the existing context.
@@ -162,7 +162,7 @@ impl Display {
 
     /// Borrow the inner glutin WindowedContext.
     #[inline]
-    pub fn gl_window(&self) -> Ref<Takeable<glutin::WindowedContext<Pc>>> {
+    pub fn gl_window(&self) -> Ref<'_, Takeable<glutin::WindowedContext<Pc>>> {
         self.gl_window.borrow()
     }
 
@@ -190,7 +190,7 @@ impl Display {
 }
 
 impl fmt::Display for DisplayCreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
             DisplayCreationError::GlutinCreationError(err) => write!(fmt, "{}", err),
             DisplayCreationError::IncompatibleOpenGl(err) => write!(fmt, "{}", err),

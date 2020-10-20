@@ -58,26 +58,26 @@ use std::ops::{Deref, DerefMut};
 use std::rc::Rc;
 use std::error::Error;
 
-use gl;
-use version::Version;
-use version::Api;
-use backend::Facade;
-use context::Context;
-use context::CommandContext;
-use ContextExt;
-use GlObject;
+use crate::gl;
+use crate::version::Version;
+use crate::version::Api;
+use crate::backend::Facade;
+use crate::context::Context;
+use crate::context::CommandContext;
+use crate::ContextExt;
+use crate::GlObject;
 
-use TextureExt;
+use crate::TextureExt;
 
-use BufferExt;
-use buffer::BufferMode;
-use buffer::BufferType;
-use buffer::Buffer;
-use buffer::BufferCreationError;
-use buffer::Content as BufferContent;
+use crate::BufferExt;
+use crate::buffer::BufferMode;
+use crate::buffer::BufferType;
+use crate::buffer::Buffer;
+use crate::buffer::BufferCreationError;
+use crate::buffer::Content as BufferContent;
 
-use uniforms::AsUniformValue;
-use uniforms::UniformValue;
+use crate::uniforms::AsUniformValue;
+use crate::uniforms::UniformValue;
 
 /// Error that can happen while building the texture part of a buffer texture.
 #[derive(Copy, Clone, Debug)]
@@ -93,7 +93,7 @@ pub enum TextureCreationError {
 }
 
 impl fmt::Display for TextureCreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::TextureCreationError::*;
         let desc = match *self {
             NotSupported =>
@@ -120,7 +120,7 @@ pub enum CreationError {
 }
 
 impl fmt::Display for CreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::CreationError::*;
         let desc = match *self {
             BufferCreationError(_) =>
@@ -447,8 +447,8 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
         };
 
         Ok(BufferTexture {
-            buffer: buffer,
-            ty: ty,
+            buffer,
+            ty,
             texture: id,
         })
     }
@@ -488,7 +488,7 @@ impl<T> Drop for BufferTexture<T> where [T]: BufferContent {
 impl<T> BufferTexture<T> where [T]: BufferContent {
     /// Builds a `BufferTextureRef`.
     #[inline]
-    pub fn as_buffer_texture_ref(&self) -> BufferTextureRef {
+    pub fn as_buffer_texture_ref(&self) -> BufferTextureRef<'_> {
         BufferTextureRef {
             texture: self.texture,
             ty: self.ty,
@@ -499,7 +499,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent {
 
 impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         // FIXME: handle `glMemoryBarrier` for the buffer
         UniformValue::BufferTexture(self.as_buffer_texture_ref())
     }
@@ -507,7 +507,7 @@ impl<T> AsUniformValue for BufferTexture<T> where [T]: BufferContent {
 
 impl<'a, T: 'a> AsUniformValue for &'a BufferTexture<T> where [T]: BufferContent {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         // FIXME: handle `glMemoryBarrier` for the buffer
         UniformValue::BufferTexture(self.as_buffer_texture_ref())
     }
@@ -546,7 +546,7 @@ impl<'a> TextureExt for BufferTextureRef<'a> {
     }
 
     #[inline]
-    fn bind_to_current(&self, ctxt: &mut CommandContext) -> gl::types::GLenum {
+    fn bind_to_current(&self, ctxt: &mut CommandContext<'_>) -> gl::types::GLenum {
         unsafe { ctxt.gl.BindTexture(gl::TEXTURE_BUFFER, self.texture); }
         gl::TEXTURE_BUFFER
     }

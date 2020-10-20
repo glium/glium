@@ -1,19 +1,19 @@
-use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType};
-use buffer::{BufferMode, BufferCreationError};
-use gl;
-use GlObject;
+use crate::buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType};
+use crate::buffer::{BufferMode, BufferCreationError};
+use crate::gl;
+use crate::GlObject;
 
-use backend::Facade;
+use crate::backend::Facade;
 
-use index::IndicesSource;
-use index::Index;
-use index::IndexType;
-use index::PrimitiveType;
+use crate::index::IndicesSource;
+use crate::index::Index;
+use crate::index::IndexType;
+use crate::index::PrimitiveType;
 
 use std::ops::{Deref, DerefMut};
 use std::fmt;
 use std::error::Error;
-use utils::range::RangeArgument;
+use crate::utils::range::RangeArgument;
 
 /// Error that can happen while creating an index buffer.
 #[derive(Debug, Copy, Clone)]
@@ -29,7 +29,7 @@ pub enum CreationError {
 }
 
 impl fmt::Display for CreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::CreationError::*;
         let desc = match *self {
             IndexTypeNotSupported =>
@@ -118,7 +118,7 @@ impl<T> IndexBuffer<T> where T: Index {
         }
 
         Ok(IndexBuffer {
-            buffer: Buffer::new(facade, data, BufferType::ElementArrayBuffer, mode)?.into(),
+            buffer: Buffer::new(facade, data, BufferType::ElementArrayBuffer, mode)?,
             primitives: prim,
         })
     }
@@ -174,7 +174,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
         Ok(IndexBuffer {
             buffer: Buffer::empty_array(facade, BufferType::ElementArrayBuffer, len,
-                                                 mode)?.into(),
+                                                 mode)?,
             primitives: prim,
         })
     }
@@ -193,7 +193,7 @@ impl<T> IndexBuffer<T> where T: Index {
 
     /// Returns `None` if out of range.
     #[inline]
-    pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<IndexBufferSlice<T>> {
+    pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<IndexBufferSlice<'_, T>> {
         self.buffer.slice(range).map(|b| {
             IndexBufferSlice {
                 buffer: b,
@@ -258,7 +258,7 @@ impl<'a, T> From<&'a IndexBuffer<T>> for IndicesSource<'a> where T: Index {
 
 /// Slice of an `IndexBuffer`.
 #[derive(Debug)]
-pub struct IndexBufferSlice<'a, T: 'a> where T: Index {
+pub struct IndexBufferSlice<'a, T> where T: Index {
     buffer: BufferSlice<'a, [T]>,
     primitives: PrimitiveType,
 }

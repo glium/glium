@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::ffi::CStr;
-use gl;
+use crate::gl;
 
 /// Describes a version.
 ///
@@ -103,7 +103,7 @@ pub fn get_supported_glsl_version(gl_version: &Version) -> Version {
 
             // only other valid GLES version is 2.0
             if *gl_version == Version(gl_version.0, 2, 0){
-                return Version(Api::GlEs, 1, 0);
+                Version(Api::GlEs, 1, 0)
             } else {
                 panic!("no corresponding glsl version exists")
             }

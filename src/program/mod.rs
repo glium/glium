@@ -3,11 +3,11 @@
 use std::fmt;
 use std::error::Error;
 use std::sync::Mutex;
-use CapabilitiesSource;
+use crate::CapabilitiesSource;
 
-use gl;
-use version::Api;
-use version::Version;
+use crate::gl;
+use crate::version::Api;
+use crate::version::Version;
 
 pub use self::compute::{ComputeShader, ComputeCommand};
 pub use self::program::Program;
@@ -138,7 +138,7 @@ pub enum ProgramCreationError {
 }
 
 impl fmt::Display for ProgramCreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         use self::ProgramCreationError::*;
         let desc = match *self {
             CompilationError(_,typ) => {
@@ -189,7 +189,7 @@ pub enum ProgramChooserCreationError {
 
 impl fmt::Display for ProgramChooserCreationError {
     #[inline]
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         use self::ProgramChooserCreationError::*;
         match *self {
             ProgramCreationError(ref err) => write!(fmt, "{}", err),
@@ -225,7 +225,7 @@ pub enum GetBinaryError {
 }
 
 impl fmt::Display for GetBinaryError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::GetBinaryError::*;
         let desc = match *self {
             NotSupported => "The backend doesn't support binary",
@@ -311,11 +311,11 @@ impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
                          tessellation_control_shader, tessellation_evaluation_shader } = code;
 
         ProgramCreationInput::SourceCode {
-            vertex_shader: vertex_shader,
-            tessellation_control_shader: tessellation_control_shader,
-            tessellation_evaluation_shader: tessellation_evaluation_shader,
-            geometry_shader: geometry_shader,
-            fragment_shader: fragment_shader,
+            vertex_shader,
+            tessellation_control_shader,
+            tessellation_evaluation_shader,
+            geometry_shader,
+            fragment_shader,
             transform_feedback_varyings: None,
             outputs_srgb: false,
             uses_point_size: false,

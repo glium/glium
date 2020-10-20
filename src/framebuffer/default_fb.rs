@@ -2,25 +2,25 @@
 
 use std::rc::Rc;
 
-use backend::Facade;
-use context::Context;
+use crate::backend::Facade;
+use crate::context::Context;
 
-use DrawParameters;
-use FboAttachments;
-use Rect;
-use BlitTarget;
-use ContextExt;
-use ToGlEnum;
-use ops;
-use uniforms;
+use crate::DrawParameters;
+use crate::FboAttachments;
+use crate::Rect;
+use crate::BlitTarget;
+use crate::ContextExt;
+use crate::ToGlEnum;
+use crate::ops;
+use crate::uniforms;
 
-use {Program, Surface};
-use DrawError;
+use crate::{Program, Surface};
+use crate::DrawError;
 
-use {fbo, gl};
-use framebuffer;
-use index;
-use vertex;
+use crate::{fbo, gl};
+use crate::framebuffer;
+use crate::index;
+use crate::vertex;
 
 /// One of the color attachments on the default framebuffer.
 #[derive(Copy, Clone, Debug)]
@@ -76,7 +76,7 @@ impl Surface for DefaultFramebuffer {
 
     fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
                          index_buffer: I, program: &Program, uniforms: &U,
-                         draw_parameters: &DrawParameters) -> Result<(), DrawError>
+                         draw_parameters: &DrawParameters<'_>) -> Result<(), DrawError>
                          where I: Into<index::IndicesSource<'a>>, U: uniforms::Uniforms,
                          V: vertex::MultiVerticesSource<'b>
     {
@@ -120,7 +120,7 @@ impl Surface for DefaultFramebuffer {
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer,
+    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer<'_>,
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
@@ -129,7 +129,7 @@ impl Surface for DefaultFramebuffer {
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer,
+    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer<'_>,
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
@@ -140,7 +140,7 @@ impl Surface for DefaultFramebuffer {
 
 impl FboAttachments for DefaultFramebuffer {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
+    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
         None
     }
 }

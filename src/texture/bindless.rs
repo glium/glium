@@ -57,23 +57,23 @@ do in the future). Binding the wrong type of texture may lead to undefined value
 the texture.
 
 */
-use texture::any::TextureAny;
-use TextureExt;
-use GlObject;
+use crate::texture::any::TextureAny;
+use crate::TextureExt;
+use crate::GlObject;
 
-use ContextExt;
-use gl;
+use crate::ContextExt;
+use crate::gl;
 
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
 
-use program::BlockLayout;
-use uniforms::AsUniformValue;
-use uniforms::LayoutMismatchError;
-use uniforms::UniformBlock;
-use uniforms::UniformValue;
-use uniforms::UniformType;
-use uniforms::SamplerBehavior;
+use crate::program::BlockLayout;
+use crate::uniforms::AsUniformValue;
+use crate::uniforms::LayoutMismatchError;
+use crate::uniforms::UniformBlock;
+use crate::uniforms::UniformValue;
+use crate::uniforms::UniformType;
+use crate::uniforms::SamplerBehavior;
 
 /// A texture that is resident in video memory. This allows you to use bindless textures in your
 /// shaders.
@@ -102,7 +102,7 @@ impl ResidentTexture {
         // store the handle in the context
         Ok(ResidentTexture {
             texture: Some(texture),
-            handle: handle,
+            handle,
         })
     }
 
@@ -177,7 +177,7 @@ impl<'a> TextureHandle<'a> {
 
 impl<'a> AsUniformValue for TextureHandle<'a> {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         // TODO: u64
         unimplemented!();
     }
@@ -252,7 +252,7 @@ impl<'a> UniformBlock for TextureHandle<'a> {
 
         } else if let &BlockLayout::Struct { ref members } = layout {
             if members.len() == 1 {
-                <TextureHandle as UniformBlock>::matches(&members[0].1, base_offset)
+                <TextureHandle<'_> as UniformBlock>::matches(&members[0].1, base_offset)
 
             } else {
                 Err(LayoutMismatchError::LayoutMismatch {
@@ -297,6 +297,6 @@ mod test {
 
     #[test]
     fn texture_handle_size() {
-        assert_eq!(mem::size_of::<TextureHandle>(), 8);
+        assert_eq!(mem::size_of::<TextureHandle<'_>>(), 8);
     }
 }

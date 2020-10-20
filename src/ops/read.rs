@@ -2,22 +2,22 @@ use std::ptr;
 use std::fmt;
 use std::error::Error;
 
-use pixel_buffer::PixelBuffer;
-use texture::ClientFormat;
-use texture::PixelValue;
-use image_format::{TextureFormatRequest, TextureFormat};
+use crate::pixel_buffer::PixelBuffer;
+use crate::texture::ClientFormat;
+use crate::texture::PixelValue;
+use crate::image_format::{TextureFormatRequest, TextureFormat};
 
-use fbo;
-use fbo::FramebuffersContainer;
+use crate::fbo;
+use crate::fbo::FramebuffersContainer;
 
-use buffer::BufferAny;
-use BufferExt;
-use Rect;
-use context::CommandContext;
-use gl;
+use crate::buffer::BufferAny;
+use crate::BufferExt;
+use crate::Rect;
+use crate::context::CommandContext;
+use crate::gl;
 
-use version::Version;
-use version::Api;
+use crate::version::Version;
+use crate::version::Api;
 
 /// A source for reading pixels.
 pub enum Source<'a> {
@@ -77,7 +77,7 @@ pub enum ReadError {
 }
 
 impl fmt::Display for ReadError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::ReadError::*;
         let desc = match *self {
             OutputFormatNotSupported =>
@@ -100,7 +100,7 @@ impl Error for ReadError {}
 /// The `(u8, u8, u8, u8)` format is guaranteed to be supported.
 // TODO: differentiate between GL_* and GL_*_INTEGER
 #[inline]
-pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, dest: D,
+pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext<'_>, source: S, rect: &Rect, dest: D,
                          clamp: bool) -> Result<(), ReadError>
                          where S: Into<Source<'a>>, D: Into<Destination<'a, T>>,
                                T: PixelValue
@@ -132,10 +132,8 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
                 ctxt.state.clamp_color = gl::FALSE as gl::types::GLenum;
             }
         }
-    } else {
-        if clamp {
-            return Err(ReadError::ClampingNotSupported);
-        }
+    } else if clamp {
+        return Err(ReadError::ClampingNotSupported);
     }
 
     // TODO: check dimensions?
@@ -250,7 +248,7 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext, source: S, rect: &Rect, 
                                    rect.height as gl::types::GLsizei, format, gltype,
                                    ptr::null_mut());
 
-                ::pixel_buffer::store_infos(pixel_buffer, (rect.width, rect.height));
+                crate::pixel_buffer::store_infos(pixel_buffer, (rect.width, rect.height));
             }
         }
     };

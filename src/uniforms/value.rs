@@ -1,14 +1,14 @@
-use program;
-use program::BlockLayout;
-use program::ShaderStage;
-use texture;
+use crate::program;
+use crate::program::BlockLayout;
+use crate::program::ShaderStage;
+use crate::texture;
 
-use uniforms::AsUniformValue;
-use uniforms::LayoutMismatchError;
-use uniforms::UniformBlock;
-use uniforms::SamplerBehavior;
+use crate::uniforms::AsUniformValue;
+use crate::uniforms::LayoutMismatchError;
+use crate::uniforms::UniformBlock;
+use crate::uniforms::SamplerBehavior;
 
-use buffer::BufferAnySlice;
+use crate::buffer::BufferAnySlice;
 
 /// Type of a uniform in a program.
 #[allow(missing_docs)]
@@ -453,35 +453,35 @@ macro_rules! impl_uniform_block_basic {
 
 impl AsUniformValue for i8 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::SignedInt(*self as i32)
     }
 }
 
 impl AsUniformValue for u8 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt(*self as u32)
     }
 }
 
 impl AsUniformValue for i16 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::SignedInt(*self as i32)
     }
 }
 
 impl AsUniformValue for u16 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt(*self as u32)
     }
 }
 
 impl AsUniformValue for i32 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::SignedInt(*self as i32)
     }
 }
@@ -490,7 +490,7 @@ impl_uniform_block_basic!(i32, UniformType::Int);
 
 impl AsUniformValue for [i32; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::IntVec2(*self)
     }
 }
@@ -499,7 +499,7 @@ impl_uniform_block_basic!([i32; 2], UniformType::IntVec2);
 
 impl AsUniformValue for (i32, i32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::IntVec2([self.0, self.1])
     }
 }
@@ -508,7 +508,7 @@ impl_uniform_block_basic!((i32, i32), UniformType::IntVec2);
 
 impl AsUniformValue for [i32; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::IntVec3(*self)
     }
 }
@@ -517,7 +517,7 @@ impl_uniform_block_basic!([i32; 3], UniformType::IntVec3);
 
 impl AsUniformValue for (i32, i32, i32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::IntVec3([self.0, self.1, self.2])
     }
 }
@@ -526,7 +526,7 @@ impl_uniform_block_basic!((i32, i32, i32), UniformType::IntVec3);
 
 impl AsUniformValue for [i32; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::IntVec4(*self)
     }
 }
@@ -535,7 +535,7 @@ impl_uniform_block_basic!([i32; 4], UniformType::IntVec4);
 
 impl AsUniformValue for (i32, i32, i32, i32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::IntVec4([self.0, self.1, self.2, self.3])
     }
 }
@@ -544,7 +544,7 @@ impl_uniform_block_basic!((i32, i32, i32, i32), UniformType::IntVec4);
 
 impl AsUniformValue for u32 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt(*self as u32)
     }
 }
@@ -553,7 +553,7 @@ impl_uniform_block_basic!(u32, UniformType::UnsignedInt);
 
 impl AsUniformValue for [u32; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedIntVec2(*self)
     }
 }
@@ -562,7 +562,7 @@ impl_uniform_block_basic!([u32; 2], UniformType::UnsignedIntVec2);
 
 impl AsUniformValue for (u32, u32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedIntVec2([self.0, self.1])
     }
 }
@@ -571,7 +571,7 @@ impl_uniform_block_basic!((u32, u32), UniformType::UnsignedIntVec2);
 
 impl AsUniformValue for [u32; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedIntVec3(*self)
     }
 }
@@ -580,7 +580,7 @@ impl_uniform_block_basic!([u32; 3], UniformType::UnsignedIntVec3);
 
 impl AsUniformValue for (u32, u32, u32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedIntVec3([self.0, self.1, self.2])
     }
 }
@@ -589,7 +589,7 @@ impl_uniform_block_basic!((u32, u32, u32), UniformType::UnsignedIntVec3);
 
 impl AsUniformValue for [u32; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedIntVec4(*self)
     }
 }
@@ -598,7 +598,7 @@ impl_uniform_block_basic!([u32; 4], UniformType::UnsignedIntVec4);
 
 impl AsUniformValue for (u32, u32, u32, u32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedIntVec4([self.0, self.1, self.2, self.3])
     }
 }
@@ -607,7 +607,7 @@ impl_uniform_block_basic!((u32, u32, u32, u32), UniformType::UnsignedIntVec4);
 
 impl AsUniformValue for bool {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Bool(*self)
     }
 }
@@ -616,7 +616,7 @@ impl_uniform_block_basic!(bool, UniformType::Bool);
 
 impl AsUniformValue for [bool; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::BoolVec2(*self)
     }
 }
@@ -625,7 +625,7 @@ impl_uniform_block_basic!([bool; 2], UniformType::BoolVec2);
 
 impl AsUniformValue for (bool, bool) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::BoolVec2([self.0, self.1])
     }
 }
@@ -634,7 +634,7 @@ impl_uniform_block_basic!((bool, bool), UniformType::BoolVec2);
 
 impl AsUniformValue for [bool; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::BoolVec3(*self)
     }
 }
@@ -643,7 +643,7 @@ impl_uniform_block_basic!([bool; 3], UniformType::BoolVec3);
 
 impl AsUniformValue for (bool, bool, bool) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::BoolVec3([self.0, self.1, self.2])
     }
 }
@@ -652,7 +652,7 @@ impl_uniform_block_basic!((bool, bool, bool), UniformType::BoolVec3);
 
 impl AsUniformValue for [bool; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::BoolVec4(*self)
     }
 }
@@ -661,7 +661,7 @@ impl_uniform_block_basic!([bool; 4], UniformType::BoolVec4);
 
 impl AsUniformValue for (bool, bool, bool, bool) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::BoolVec4([self.0, self.1, self.2, self.3])
     }
 }
@@ -670,7 +670,7 @@ impl_uniform_block_basic!((bool, bool, bool, bool), UniformType::BoolVec4);
 
 impl AsUniformValue for f32 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Float(*self)
     }
 }
@@ -679,7 +679,7 @@ impl_uniform_block_basic!(f32, UniformType::Float);
 
 impl AsUniformValue for [[f32; 2]; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Mat2(*self)
     }
 }
@@ -688,7 +688,7 @@ impl_uniform_block_basic!([[f32; 2]; 2], UniformType::FloatMat2);
 
 impl AsUniformValue for [[f32; 3]; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Mat3(*self)
     }
 }
@@ -697,7 +697,7 @@ impl_uniform_block_basic!([[f32; 3]; 3], UniformType::FloatMat3);
 
 impl AsUniformValue for [[f32; 4]; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Mat4(*self)
     }
 }
@@ -706,7 +706,7 @@ impl_uniform_block_basic!([[f32; 4]; 4], UniformType::FloatMat4);
 
 impl AsUniformValue for (f32, f32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Vec2([self.0, self.1])
     }
 }
@@ -715,7 +715,7 @@ impl_uniform_block_basic!((f32, f32), UniformType::FloatVec2);
 
 impl AsUniformValue for (f32, f32, f32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Vec3([self.0, self.1, self.2])
     }
 }
@@ -724,7 +724,7 @@ impl_uniform_block_basic!((f32, f32, f32), UniformType::FloatVec3);
 
 impl AsUniformValue for (f32, f32, f32, f32) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Vec4([self.0, self.1, self.2, self.3])
     }
 }
@@ -733,7 +733,7 @@ impl_uniform_block_basic!((f32, f32, f32, f32), UniformType::FloatVec4);
 
 impl AsUniformValue for [f32; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Vec2(*self)
     }
 }
@@ -742,7 +742,7 @@ impl_uniform_block_basic!([f32; 2], UniformType::FloatVec2);
 
 impl AsUniformValue for [f32; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Vec3(*self)
     }
 }
@@ -751,7 +751,7 @@ impl_uniform_block_basic!([f32; 3], UniformType::FloatVec3);
 
 impl AsUniformValue for [f32; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Vec4(*self)
     }
 }
@@ -762,7 +762,7 @@ impl_uniform_block_basic!([f32; 4], UniformType::FloatVec4);
 // Start of double type variants
 impl AsUniformValue for f64 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Double(*self)
     }
 }
@@ -771,7 +771,7 @@ impl_uniform_block_basic!(f64, UniformType::Double);
 
 impl AsUniformValue for [f64; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleVec2(*self)
     }
 }
@@ -780,7 +780,7 @@ impl_uniform_block_basic!([f64; 2], UniformType::DoubleVec2);
 
 impl AsUniformValue for (f64, f64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleVec2([self.0, self.1])
     }
 }
@@ -789,7 +789,7 @@ impl_uniform_block_basic!((f64, f64), UniformType::DoubleVec2);
 
 impl AsUniformValue for [f64; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleVec3(*self)
     }
 }
@@ -798,7 +798,7 @@ impl_uniform_block_basic!([f64; 3], UniformType::DoubleVec3);
 
 impl AsUniformValue for (f64, f64, f64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleVec3([self.0, self.1, self.2])
     }
 }
@@ -807,7 +807,7 @@ impl_uniform_block_basic!((f64, f64, f64), UniformType::DoubleVec3);
 
 impl AsUniformValue for [f64; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleVec4(*self)
     }
 }
@@ -816,7 +816,7 @@ impl_uniform_block_basic!([f64; 4], UniformType::DoubleVec4);
 
 impl AsUniformValue for (f64, f64, f64, f64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleVec4([self.0, self.1, self.2, self.3])
     }
 }
@@ -825,7 +825,7 @@ impl_uniform_block_basic!((f64, f64, f64, f64), UniformType::DoubleVec4);
 
 impl AsUniformValue for [[f64; 2]; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleMat2(*self)
     }
 }
@@ -834,7 +834,7 @@ impl_uniform_block_basic!([[f64; 2]; 2], UniformType::DoubleMat2);
 
 impl AsUniformValue for [[f64; 3]; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleMat3(*self)
     }
 }
@@ -843,7 +843,7 @@ impl_uniform_block_basic!([[f64; 3]; 3], UniformType::DoubleMat3);
 
 impl AsUniformValue for [[f64; 4]; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::DoubleMat4(*self)
     }
 }
@@ -852,7 +852,7 @@ impl_uniform_block_basic!([[f64; 4]; 4], UniformType::DoubleMat4);
 
 impl AsUniformValue for i64 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Int64(*self as i64)
     }
 }
@@ -861,7 +861,7 @@ impl_uniform_block_basic!(i64, UniformType::Int);
 
 impl AsUniformValue for [i64; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Int64Vec2(*self)
     }
 }
@@ -870,7 +870,7 @@ impl_uniform_block_basic!([i64; 2], UniformType::Int64Vec2);
 
 impl AsUniformValue for (i64, i64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Int64Vec2([self.0, self.1])
     }
 }
@@ -879,7 +879,7 @@ impl_uniform_block_basic!((i64, i64), UniformType::Int64Vec2);
 
 impl AsUniformValue for [i64; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Int64Vec3(*self)
     }
 }
@@ -888,7 +888,7 @@ impl_uniform_block_basic!([i64; 3], UniformType::Int64Vec3);
 
 impl AsUniformValue for (i64, i64, i64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Int64Vec3([self.0, self.1, self.2])
     }
 }
@@ -897,7 +897,7 @@ impl_uniform_block_basic!((i64, i64, i64), UniformType::Int64Vec3);
 
 impl AsUniformValue for [i64; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Int64Vec4(*self)
     }
 }
@@ -906,7 +906,7 @@ impl_uniform_block_basic!([i64; 4], UniformType::Int64Vec4);
 
 impl AsUniformValue for (i64, i64, i64, i64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Int64Vec4([self.0, self.1, self.2, self.3])
     }
 }
@@ -915,7 +915,7 @@ impl_uniform_block_basic!((i64, i64, i64, i64), UniformType::Int64Vec4);
 
 impl AsUniformValue for u64 {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt64(*self as u64)
     }
 }
@@ -924,7 +924,7 @@ impl_uniform_block_basic!(u64, UniformType::UnsignedInt64);
 
 impl AsUniformValue for [u64; 2] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt64Vec2(*self)
     }
 }
@@ -933,7 +933,7 @@ impl_uniform_block_basic!([u64; 2], UniformType::UnsignedInt64Vec2);
 
 impl AsUniformValue for (u64, u64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt64Vec2([self.0, self.1])
     }
 }
@@ -942,7 +942,7 @@ impl_uniform_block_basic!((u64, u64), UniformType::UnsignedInt64Vec2);
 
 impl AsUniformValue for [u64; 3] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt64Vec3(*self)
     }
 }
@@ -951,7 +951,7 @@ impl_uniform_block_basic!([u64; 3], UniformType::UnsignedInt64Vec3);
 
 impl AsUniformValue for (u64, u64, u64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt64Vec3([self.0, self.1, self.2])
     }
 }
@@ -960,7 +960,7 @@ impl_uniform_block_basic!((u64, u64, u64), UniformType::UnsignedInt64Vec3);
 
 impl AsUniformValue for [u64; 4] {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt64Vec4(*self)
     }
 }
@@ -969,7 +969,7 @@ impl_uniform_block_basic!([u64; 4], UniformType::UnsignedInt64Vec4);
 
 impl AsUniformValue for (u64, u64, u64, u64) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::UnsignedInt64Vec4([self.0, self.1, self.2, self.3])
     }
 }
@@ -979,7 +979,7 @@ impl_uniform_block_basic!((u64, u64, u64, u64), UniformType::UnsignedInt64Vec4);
 // Subroutines
 impl<'a> AsUniformValue for (&'a str, ShaderStage) {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         UniformValue::Subroutine(self.1, self.0)
     }
 }

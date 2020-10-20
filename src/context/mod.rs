@@ -1,7 +1,6 @@
 //! Contains everything related to the interface between glium and the OpenGL implementation.
 
-use gl;
-use backtrace;
+use crate::gl;
 
 use std::collections::HashMap;
 use std::mem;
@@ -17,22 +16,22 @@ use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
-use IncompatibleOpenGl;
-use SwapBuffersError;
-use CapabilitiesSource;
-use ContextExt;
-use backend::Backend;
-use version;
-use version::Api;
-use version::Version;
+use crate::IncompatibleOpenGl;
+use crate::SwapBuffersError;
+use crate::CapabilitiesSource;
+use crate::ContextExt;
+use crate::backend::Backend;
+use crate::version;
+use crate::version::Api;
+use crate::version::Version;
 
-use debug;
-use fbo;
-use ops;
-use sampler_object;
-use texture;
-use uniforms;
-use vertex_array_object;
+use crate::debug;
+use crate::fbo;
+use crate::ops;
+use crate::sampler_object;
+use crate::texture;
+use crate::uniforms;
+use crate::vertex_array_object;
 
 pub use self::capabilities::{ReleaseBehavior, Capabilities, Profile};
 pub use self::extensions::ExtensionsList;
@@ -197,20 +196,20 @@ impl Context {
         };
 
         let context = Rc::new(Context {
-            gl: gl,
+            gl,
             state: gl_state,
-            version: version,
-            extensions: extensions,
-            capabilities: capabilities,
-            debug_callback: debug_callback,
-            report_debug_output_errors: report_debug_output_errors,
+            version,
+            extensions,
+            capabilities,
+            debug_callback,
+            report_debug_output_errors,
             backend: RefCell::new(Box::new(backend)),
-            check_current_context: check_current_context,
+            check_current_context,
             framebuffer_objects: Some(framebuffer_objects),
-            vertex_array_objects: vertex_array_objects,
-            samplers: samplers,
-            resident_texture_handles: resident_texture_handles,
-            resident_image_handles: resident_image_handles,
+            vertex_array_objects,
+            samplers,
+            resident_texture_handles,
+            resident_image_handles,
         });
 
         if context.debug_callback.is_some() {
@@ -220,7 +219,7 @@ impl Context {
         // making sure that an error wasn't triggered during initialization
         {
             let mut ctxt = context.make_current();
-            if ::get_gl_error(&mut ctxt).is_some() {
+            if crate::get_gl_error(&mut ctxt).is_some() {
                 println!("glium has triggered an OpenGL error during initialization. Please report \
                           this error: https://github.com/tomaka/glium/issues");
             }
@@ -309,10 +308,8 @@ impl Context {
         }
 
         let backend = self.backend.borrow();
-        if self.check_current_context {
-            if !backend.is_current() {
-                unsafe { backend.make_current() };
-            }
+        if self.check_current_context && !backend.is_current() {
+            unsafe { backend.make_current() };
         }
 
         // swapping
@@ -345,7 +342,7 @@ impl Context {
     /// Returns true if the given GLSL version is supported.
     #[inline]
     pub fn is_glsl_version_supported(&self, version: &Version) -> bool {
-        self.capabilities().supported_glsl_versions.iter().find(|&v| v == version).is_some()
+        self.capabilities().supported_glsl_versions.iter().any(|v| v == version)
     }
 
     /// Returns a string containing this GL version or release number used by this context.
@@ -471,12 +468,9 @@ impl Context {
         unsafe {
             let ctxt = self.make_current();
 
-            if ctxt.version >= &Version(Api::GlEs, 2, 0) ||
-                ctxt.version >= &Version(Api::Gl, 4, 1)
-            {
-                if !ctxt.capabilities.supported_glsl_versions.is_empty() {
-                    ctxt.gl.ReleaseShaderCompiler();
-                }
+            if (ctxt.version >= &Version(Api::GlEs, 2, 0) ||
+                ctxt.version >= &Version(Api::Gl, 4, 1)) && !ctxt.capabilities.supported_glsl_versions.is_empty() {
+                ctxt.gl.ReleaseShaderCompiler();
             }
         }
     }
@@ -500,7 +494,7 @@ impl Context {
                 Some(value[0] as usize * 1024)
 
             } else {
-                return None;
+                None
             }
         }
     }
@@ -526,7 +520,7 @@ impl Context {
     {
         let mut ctxt = self.make_current();
         let dimensions = self.get_framebuffer_dimensions();
-        let rect = ::Rect { left: 0, bottom: 0, width: dimensions.0, height: dimensions.1 };
+        let rect = crate::Rect { left: 0, bottom: 0, width: dimensions.0, height: dimensions.1 };
 
         let mut data = Vec::with_capacity(0);
         ops::read(&mut ctxt, ops::Source::DefaultFramebuffer(gl::FRONT_LEFT), &rect,
@@ -554,7 +548,7 @@ impl Context {
     pub fn assert_no_error(&self, user_msg: Option<&str>) {
         let mut ctxt = self.make_current();
 
-        match (::get_gl_error(&mut ctxt), user_msg) {
+        match (crate::get_gl_error(&mut ctxt), user_msg) {
             (Some(msg), None) => panic!("{}", msg),
             (Some(msg), Some(user_msg)) => panic!("{} : {}", user_msg, msg),
             (None, _) => ()
@@ -641,7 +635,7 @@ impl ContextExt for Context {
         self.report_debug_output_errors.set(value);
     }
 
-    fn make_current(&self) -> CommandContext {
+    fn make_current(&self) -> CommandContext<'_> {
         if self.check_current_context {
             let backend = self.backend.borrow();
             if !backend.is_current() {
@@ -955,11 +949,9 @@ fn init_debug_callback(context: &Rc<Context>, synchronous: bool) {
         if ctxt.version >= &Version(Api::Gl, 4,5) || ctxt.version >= &Version(Api::GlEs, 3, 2) ||
            ctxt.extensions.gl_khr_debug || ctxt.extensions.gl_arb_debug_output
         {
-            if synchronous {
-                if ctxt.state.enabled_debug_output_synchronous != true {
-                    ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
-                    ctxt.state.enabled_debug_output_synchronous = true;
-                }
+            if synchronous && !ctxt.state.enabled_debug_output_synchronous {
+                ctxt.gl.Enable(gl::DEBUG_OUTPUT_SYNCHRONOUS);
+                ctxt.state.enabled_debug_output_synchronous = true;
             }
 
             if ctxt.version >= &Version(Api::Gl, 4, 5) ||

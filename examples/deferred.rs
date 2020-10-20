@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate glium;
-extern crate cgmath;
-extern crate image;
 #[macro_use]
 extern crate rental;
 

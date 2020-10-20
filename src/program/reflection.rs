@@ -1,4 +1,4 @@
-use gl;
+use crate::gl;
 
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
@@ -8,15 +8,15 @@ use std::os::raw;
 
 use fnv::FnvHasher;
 
-use context::CommandContext;
-use version::Version;
-use version::Api;
+use crate::context::CommandContext;
+use crate::version::Version;
+use crate::version::Api;
 
-use uniforms::UniformType;
-use vertex::AttributeType;
-use program;
+use crate::uniforms::UniformType;
+use crate::vertex::AttributeType;
+use crate::program;
 
-use Handle;
+use crate::Handle;
 
 /// Information about a uniform (except its name).
 #[derive(Debug, Copy, Clone)]
@@ -176,7 +176,7 @@ pub enum OutputPrimitives {
 }
 
 /// Returns a list of uniforms and a list of atomic counters of a program.
-pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
+pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext<'_>, program: Handle)
                                -> (HashMap<String, Uniform, BuildHasherDefault<FnvHasher>>, HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>)
 {
     // number of active uniforms
@@ -323,7 +323,7 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext, program: Handle)
     (uniforms_flattened, atomic_counters)
 }
 
-pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
+pub unsafe fn reflect_attributes(ctxt: &mut CommandContext<'_>, program: Handle)
                                  -> HashMap<String, Attribute, BuildHasherDefault<FnvHasher>>
 {
     // number of active attributes
@@ -397,7 +397,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
         };
 
         attributes.insert(attr_name, Attribute {
-            location: location,
+            location,
             ty: glenum_to_attribute_type(data_type),
             size: data_size as usize,
         });
@@ -406,7 +406,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext, program: Handle)
     attributes
 }
 
-pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
+pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext<'_>, program: Handle)
                                      -> HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>
 {
     // uniform blocks are not supported, so there's none
@@ -528,7 +528,7 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext, program: Handle)
     blocks
 }
 
-pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Handle)
+pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext<'_>, program: Handle)
                                          -> Vec<TransformFeedbackBuffer>
 {
     let program = match program {
@@ -628,10 +628,10 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
             let prev_size = result[0].stride;
             result[0].stride += size as usize * ty.get_size_bytes();
             result[0].elements.push(TransformFeedbackVarying {        // TODO: handle arrays
-                name: name,
+                name,
                 size: size as usize * ty.get_size_bytes(),
                 offset: prev_size,
-                ty: ty,
+                ty,
             });
 
         } else if buffer_mode == TransformFeedbackMode::Separate {
@@ -641,10 +641,10 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
                 id: id as i32,
                 elements: vec![
                     TransformFeedbackVarying {
-                        name: name,
+                        name,
                         size: size as usize * ty.get_size_bytes(),
                         offset: 0,
-                        ty: ty,
+                        ty,
                     }
                 ],
                 stride: size as usize * ty.get_size_bytes(),
@@ -664,7 +664,7 @@ pub unsafe fn reflect_transform_feedback(ctxt: &mut CommandContext, program: Han
 ///
 /// - `program` must be a valid handle to a program.
 /// - The program **must** contain a geometry shader.
-pub unsafe fn reflect_geometry_output_type(ctxt: &mut CommandContext, program: Handle)
+pub unsafe fn reflect_geometry_output_type(ctxt: &mut CommandContext<'_>, program: Handle)
                                            -> OutputPrimitives
 {
     let mut value = 0;
@@ -695,7 +695,7 @@ pub unsafe fn reflect_geometry_output_type(ctxt: &mut CommandContext, program: H
 ///
 /// - `program` must be a valid handle to a program.
 /// - The program **must** contain a tessellation evaluation shader.
-pub unsafe fn reflect_tess_eval_output_type(ctxt: &mut CommandContext, program: Handle)
+pub unsafe fn reflect_tess_eval_output_type(ctxt: &mut CommandContext<'_>, program: Handle)
                                             -> OutputPrimitives
 {
     let mut value = 0;
@@ -721,7 +721,7 @@ pub unsafe fn reflect_tess_eval_output_type(ctxt: &mut CommandContext, program: 
 }
 
 /// Returns the list of shader storage blocks of a program.
-pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext, program: Handle)
+pub unsafe fn reflect_shader_storage_blocks(ctxt: &mut CommandContext<'_>, program: Handle)
     -> HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>>
 {
     if !(ctxt.version >= &Version(Api::Gl, 4, 3) || ctxt.version >= &Version(Api::GlEs, 3, 1) ||
@@ -859,7 +859,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
 
             // because of a bug in Rust's borrow checker, we have to loop twice instead of just
             // call `if let Some() { } else { }`
-            let existing = members.iter_mut().find(|m| m.0 == current_component).is_some();
+            let existing = members.iter_mut().any(|m| m.0 == current_component);
             if existing {
                 let member = &mut members.iter_mut().find(|m| m.0 == current_component)
                                          .unwrap().1;
@@ -922,7 +922,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                 _ => {
                     *member = BlockLayout::BasicType {
                         offset_in_buffer: offset,
-                        ty: ty,
+                        ty,
                     };
                 }
             }
@@ -1189,7 +1189,7 @@ fn get_shader_stages(has_geometry_shader: bool,
 }
 
 /// Returns the data associated with a programs subroutines.
-pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle,
+pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext<'_>, program: Handle,
                                       has_geometry_shader: bool,
                                       has_tessellation_control_shader: bool,
                                       has_tessellation_evaluation_shader: bool)
@@ -1284,15 +1284,15 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext, program: Handle
 
             let subroutine_uniform = SubroutineUniform {
                 index: i as u32,
-                location: location,
-                size: size,
-                compatible_subroutines: compatible_subroutines,
+                location,
+                size,
+                compatible_subroutines,
             };
             subroutine_uniforms.insert((uniform_name, *stage), subroutine_uniform);
         }
     }
     SubroutineData {
-        location_counts: location_counts,
-        subroutine_uniforms: subroutine_uniforms
+        location_counts,
+        subroutine_uniforms
     }
 }

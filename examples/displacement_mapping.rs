@@ -1,4 +1,3 @@
-extern crate image;
 #[macro_use]
 extern crate glium;
 

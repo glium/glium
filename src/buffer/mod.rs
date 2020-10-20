@@ -66,7 +66,7 @@ pub use self::view::BufferAny as BufferViewAny;
 #[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::BufferAnySlice as BufferViewAnySlice;
 
-use gl;
+use crate::gl;
 use std::error::Error;
 use std::fmt;
 use std::mem;
@@ -82,7 +82,7 @@ pub unsafe trait Content {
     type Owned;
 
     /// Prepares an output buffer, then turns this buffer into an `Owned`.
-    fn read<F, E>(size: usize, F) -> Result<Self::Owned, E>
+    fn read<F, E>(size: usize, _: F) -> Result<Self::Owned, E>
                   where F: FnOnce(&mut Self) -> Result<(), E>;
 
     /// Returns the size of each element.
@@ -95,7 +95,7 @@ pub unsafe trait Content {
     fn ref_from_ptr<'a>(ptr: *mut (), size: usize) -> Option<*mut Self>;
 
     /// Returns true if the size is suitable to store a type like this.
-    fn is_size_suitable(usize) -> bool;
+    fn is_size_suitable(_: usize) -> bool;
 }
 
 unsafe impl<T> Content for T where T: Copy {
@@ -191,7 +191,7 @@ pub enum BufferCreationError {
 }
 
 impl fmt::Display for BufferCreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         let desc = match self {
             BufferCreationError::OutOfMemory => "Not enough memory to create the buffer",
             BufferCreationError::BufferTypeNotSupported => "This type of buffer is not supported",

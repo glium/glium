@@ -24,6 +24,7 @@ readme = "README.md"
 license = "Apache-2.0"
 build = "build/main.rs"
 exclude = ["doc", ".travis.yml", "circle.yml"]
+edition = "2018"
 
 [badges]
 travis-ci = { repository = "glium/glium" }

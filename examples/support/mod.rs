@@ -1,7 +1,4 @@
 #![allow(dead_code)]
-
-extern crate obj;
-
 use std::time::{Duration, Instant};
 use glium::{self, Display};
 use glium::vertex::VertexBufferAny;
@@ -15,7 +12,7 @@ pub enum Action {
     Continue,
 }
 
-pub fn start_loop<F>(event_loop: EventLoop<()>, mut callback: F)->! where F: 'static + FnMut(&Vec<Event<()>>) -> Action {
+pub fn start_loop<F>(event_loop: EventLoop<()>, mut callback: F)->! where F: 'static + FnMut(&Vec<Event<'_, ()>>) -> Action {
     let mut events_buffer = Vec::new();
     let mut next_frame_time = Instant::now();
     event_loop.run(move |event, _, control_flow| {
@@ -87,9 +84,9 @@ pub fn load_wavefront(display: &Display, data: &[u8]) -> VertexBufferAny {
                         let normal = normal.unwrap_or([0.0, 0.0, 0.0]);
 
                         vertex_data.push(Vertex {
-                            position: position,
-                            normal: normal,
-                            texture: texture,
+                            position,
+                            normal,
+                            texture,
                         })
                     }
                 },

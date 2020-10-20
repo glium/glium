@@ -1,8 +1,5 @@
-extern crate rand;
-
 #[macro_use]
 extern crate glium;
-extern crate image;
 
 use std::io::Cursor;
 #[allow(unused_imports)]

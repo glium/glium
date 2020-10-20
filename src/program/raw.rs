@@ -1,13 +1,13 @@
-use gl;
+use crate::gl;
 
-use context::CommandContext;
-use version::Version;
-use version::Api;
+use crate::context::CommandContext;
+use crate::version::Version;
+use crate::version::Api;
 
-use backend::Facade;
-use context::Context;
-use ContextExt;
-use UniformsExt;
+use crate::backend::Facade;
+use crate::context::Context;
+use crate::ContextExt;
+use crate::UniformsExt;
 
 use std::{ffi, fmt};
 use std::collections::hash_map::{self, HashMap};
@@ -18,37 +18,37 @@ use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
-use DrawError;
-use GlObject;
-use ProgramExt;
-use Handle;
-use RawUniformValue;
+use crate::DrawError;
+use crate::GlObject;
+use crate::ProgramExt;
+use crate::Handle;
+use crate::RawUniformValue;
 
-use QueryExt;
-use draw_parameters::TimeElapsedQuery;
+use crate::QueryExt;
+use crate::draw_parameters::TimeElapsedQuery;
 
-use buffer::BufferSlice;
-use BufferExt;
-use BufferSliceExt;
+use crate::buffer::BufferSlice;
+use crate::BufferExt;
+use crate::BufferSliceExt;
 
-use program::{ProgramCreationError, Binary, GetBinaryError};
-use program::uniforms_storage::UniformsStorage;
+use crate::program::{ProgramCreationError, Binary, GetBinaryError};
+use crate::program::uniforms_storage::UniformsStorage;
 
-use program::compute::ComputeCommand;
-use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
-use program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
-use program::reflection::{SubroutineData, ShaderStage};
-use program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
-use program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
-use program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
-use program::reflection::{reflect_subroutine_data};
-use program::shader::Shader;
-use program::binary_header::{attach_glium_header, process_glium_header};
+use crate::program::compute::ComputeCommand;
+use crate::program::reflection::{Uniform, UniformBlock, OutputPrimitives};
+use crate::program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
+use crate::program::reflection::{SubroutineData, ShaderStage};
+use crate::program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
+use crate::program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
+use crate::program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
+use crate::program::reflection::{reflect_subroutine_data};
+use crate::program::shader::Shader;
+use crate::program::binary_header::{attach_glium_header, process_glium_header};
 
-use uniforms::Uniforms;
+use crate::uniforms::Uniforms;
 
-use vertex::VertexFormat;
-use vertex_array_object::VertexAttributesSystem;
+use crate::vertex::VertexFormat;
+use crate::vertex_array_object::VertexAttributesSystem;
 
 /// A combination of shaders linked together.
 pub struct RawProgram {
@@ -185,20 +185,20 @@ impl RawProgram {
 
         Ok(RawProgram {
             context: facade.get_context().clone(),
-            id: id,
-            uniforms: uniforms,
+            id,
+            uniforms,
             uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
-            subroutine_data: subroutine_data,
-            attributes: attributes,
+            subroutine_data,
+            attributes,
             frag_data_locations: RefCell::new(HashMap::with_hasher(Default::default())),
-            tf_buffers: tf_buffers,
-            ssbos: ssbos,
-            atomic_counters: atomic_counters,
-            output_primitives: output_primitives,
-            has_geometry_shader: has_geometry_shader,
-            has_tessellation_control_shader: has_tessellation_control_shader,
-            has_tessellation_evaluation_shader: has_tessellation_evaluation_shader,
+            tf_buffers,
+            ssbos,
+            atomic_counters,
+            output_primitives,
+            has_geometry_shader,
+            has_tessellation_control_shader,
+            has_tessellation_evaluation_shader,
         })
     }
 
@@ -257,20 +257,20 @@ impl RawProgram {
 
         Ok(RawProgram {
             context: facade.get_context().clone(),
-            id: id,
-            uniforms: uniforms,
+            id,
+            uniforms,
             uniform_values: UniformsStorage::new(),
             uniform_blocks: blocks,
-            subroutine_data: subroutine_data,
-            attributes: attributes,
+            subroutine_data,
+            attributes,
             frag_data_locations: RefCell::new(HashMap::with_hasher(Default::default())),
-            tf_buffers: tf_buffers,
-            ssbos: ssbos,
-            atomic_counters: atomic_counters,
-            output_primitives: output_primitives,
-            has_geometry_shader: has_geometry_shader,
-            has_tessellation_control_shader: has_tessellation_control_shader,
-            has_tessellation_evaluation_shader: has_tessellation_evaluation_shader,
+            tf_buffers,
+            ssbos,
+            atomic_counters,
+            output_primitives,
+            has_geometry_shader,
+            has_tessellation_control_shader,
+            has_tessellation_evaluation_shader,
         })
     }
 
@@ -306,7 +306,7 @@ impl RawProgram {
                 storage.set_len(buf_len as usize);
                 attach_glium_header(&self, &mut storage);
                 Ok(Binary {
-                    format: format,
+                    format,
                     content: storage,
                 })
 
@@ -330,7 +330,7 @@ impl RawProgram {
     pub fn get_frag_data_location(&self, name: &str) -> Option<u32> {
         // looking for a cached value
         if let Some(result) = self.frag_data_locations.borrow_mut().get(name) {
-            return result.clone();
+            return *result;
         }
 
         // querying opengl
@@ -378,7 +378,7 @@ impl RawProgram {
     /// }
     /// ```
     #[inline]
-    pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
+    pub fn uniforms(&self) -> hash_map::Iter<'_, String, Uniform> {
         self.uniforms.iter()
     }
 
@@ -492,7 +492,7 @@ impl RawProgram {
     /// }
     /// ```
     #[inline]
-    pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
+    pub fn attributes(&self) -> hash_map::Iter<'_, String, Attribute> {
         self.attributes.iter()
     }
 
@@ -577,7 +577,7 @@ impl RawProgram {
     /// The program *must* contain a compute shader.
     /// TODO: check inside the program if it has a compute shader instead of being unsafe
     pub unsafe fn dispatch_compute_indirect<U>(&self, uniforms: U,
-                                               buffer: BufferSlice<ComputeCommand>)
+                                               buffer: BufferSlice<'_, ComputeCommand>)
                                                -> Result<(), DrawError>      // TODO: other error?
                                                where U: Uniforms
     {
@@ -616,7 +616,7 @@ impl RawProgram {
 
 impl fmt::Debug for RawProgram {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         (format!("Program #{:?}", self.id)).fmt(formatter)
     }
 }
@@ -632,7 +632,7 @@ impl GlObject for RawProgram {
 
 impl ProgramExt for RawProgram {
     #[inline]
-    fn use_program(&self, ctxt: &mut CommandContext) {
+    fn use_program(&self, ctxt: &mut CommandContext<'_>) {
         unsafe {
             let program_id = self.get_id();
             if ctxt.state.program != program_id {
@@ -646,21 +646,21 @@ impl ProgramExt for RawProgram {
     }
 
     #[inline]
-    fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
+    fn set_uniform(&self, ctxt: &mut CommandContext<'_>, uniform_location: gl::types::GLint,
                    value: &RawUniformValue)
     {
         self.uniform_values.set_uniform_value(ctxt, self.id, uniform_location, value);
     }
 
     #[inline]
-    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
+    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext<'_>, block_location: gl::types::GLuint,
                                  value: gl::types::GLuint)
     {
         self.uniform_values.set_uniform_block_binding(ctxt, self.id, block_location, value);
     }
 
     #[inline]
-    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
+    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext<'_>,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint)
     {
@@ -668,7 +668,7 @@ impl ProgramExt for RawProgram {
     }
 
     #[inline]
-    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext<'_>,
                                          stage: ShaderStage,
                                          indices: &[gl::types::GLuint])
     {
@@ -740,7 +740,7 @@ impl Drop for RawProgram {
 }
 
 /// Builds an empty program from within the GL context.
-unsafe fn create_program(ctxt: &mut CommandContext) -> Handle {
+unsafe fn create_program(ctxt: &mut CommandContext<'_>) -> Handle {
     let id = if ctxt.version >= &Version(Api::Gl, 2, 0) ||
                 ctxt.version >= &Version(Api::GlEs, 2, 0)
     {
@@ -758,7 +758,7 @@ unsafe fn create_program(ctxt: &mut CommandContext) -> Handle {
     id
 }
 
-unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
+unsafe fn check_program_link_errors(ctxt: &mut CommandContext<'_>, id: Handle)
                                     -> Result<(), ProgramCreationError>
 {
     let mut link_success: gl::types::GLint = 0;
@@ -777,21 +777,18 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext, id: Handle)
     }
 
     if link_success == 0 {
-        use ProgramCreationError::LinkingError;
+        use crate::ProgramCreationError::LinkingError;
 
         match ctxt.gl.GetError() {
             gl::NO_ERROR => (),
             gl::INVALID_VALUE => {
-                return Err(LinkingError(format!("glLinkProgram triggered \
-                                                 GL_INVALID_VALUE")));
+                return Err(LinkingError("glLinkProgram triggered GL_INVALID_VALUE".to_string()));
             },
             gl::INVALID_OPERATION => {
-                return Err(LinkingError(format!("glLinkProgram triggered \
-                                                 GL_INVALID_OPERATION")));
+                return Err(LinkingError("glLinkProgram triggered GL_INVALID_OPERATION".to_string()));
             },
             _ => {
-                return Err(LinkingError(format!("glLinkProgram triggered an \
-                                                 unknown error")));
+                return Err(LinkingError("glLinkProgram triggered an unknown error".to_string()));
             }
         };
 

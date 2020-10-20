@@ -1,9 +1,9 @@
-use context::CommandContext;
-use version::Api;
-use version::Version;
+use crate::context::CommandContext;
+use crate::version::Api;
+use crate::version::Version;
 
-use DrawError;
-use gl;
+use crate::DrawError;
+use crate::gl;
 
 /// Represents the depth parameters of a draw command.
 #[derive(Debug, Copy, Clone)]
@@ -163,7 +163,7 @@ pub enum DepthClamp {
     ClampFar,
 }
 
-pub fn sync_depth(ctxt: &mut CommandContext, depth: &Depth) -> Result<(), DrawError> {
+pub fn sync_depth(ctxt: &mut CommandContext<'_>, depth: &Depth) -> Result<(), DrawError> {
     // depth clamp
     {
         let state = &mut *ctxt.state;
@@ -266,11 +266,9 @@ pub fn sync_depth(ctxt: &mut CommandContext, depth: &Depth) -> Result<(), DrawEr
         }
         return Ok(());
 
-    } else {
-        if !ctxt.state.enabled_depth_test {
-            unsafe { ctxt.gl.Enable(gl::DEPTH_TEST) };
-            ctxt.state.enabled_depth_test = true;
-        }
+    } else if !ctxt.state.enabled_depth_test {
+        unsafe { ctxt.gl.Enable(gl::DEPTH_TEST) };
+        ctxt.state.enabled_depth_test = true;
     }
 
     // depth test

@@ -1,6 +1,6 @@
-use gl;
-use context;
-use ToGlEnum;
+use crate::gl;
+use crate::context;
+use crate::ToGlEnum;
 
 /// Describes the parameters that must be used for the stencil operations when drawing.
 #[derive(Copy, Clone, Debug)]
@@ -220,7 +220,7 @@ impl ToGlEnum for StencilOperation {
     }
 }
 
-pub fn sync_stencil(ctxt: &mut context::CommandContext, params: &Stencil) {
+pub fn sync_stencil(ctxt: &mut context::CommandContext<'_>, params: &Stencil) {
     // checks if stencil operations can be disabled
     if params.test_clockwise == StencilTest::AlwaysPass &&
        params.test_counter_clockwise == StencilTest::AlwaysPass &&
@@ -231,7 +231,7 @@ pub fn sync_stencil(ctxt: &mut context::CommandContext, params: &Stencil) {
        params.pass_depth_fail_operation_counter_clockwise == StencilOperation::Keep &&
        params.depth_pass_operation_counter_clockwise == StencilOperation::Keep
     {
-        if ctxt.state.enabled_stencil_test != false {
+        if ctxt.state.enabled_stencil_test {
             unsafe { ctxt.gl.Disable(gl::STENCIL_TEST) };
             ctxt.state.enabled_stencil_test = false;
         }
@@ -242,7 +242,7 @@ pub fn sync_stencil(ctxt: &mut context::CommandContext, params: &Stencil) {
     // we are now in "stencil enabled land"
 
     // enabling if necessary
-    if ctxt.state.enabled_stencil_test != true {
+    if !ctxt.state.enabled_stencil_test {
         unsafe { ctxt.gl.Enable(gl::STENCIL_TEST) };
         ctxt.state.enabled_stencil_test = true;
     }

@@ -16,8 +16,6 @@ There are three concepts in play:
    means that you can direct pass the context.
 
 */
-extern crate glium;
-extern crate takeable_option;
 
 use takeable_option::Takeable;
 use glium::Surface;
@@ -92,7 +90,7 @@ fn main() {
         //
         // It is recommended to pass `true`, but you can pass `false` if you are sure that no
         // other OpenGL context will be made current in this thread.
-        let backend = Backend { gl_window: gl_window.clone() };
+        let backend = Backend { gl_window: gl_window };
         glium::backend::Context::new(backend, true, Default::default())
     }.unwrap();
 

@@ -12,22 +12,22 @@ use std::ops::{Deref, DerefMut};
 use std::fmt;
 use std::error::Error;
 
-use framebuffer::{ColorAttachment, ToColorAttachment};
-use framebuffer::{DepthAttachment, ToDepthAttachment};
-use framebuffer::{StencilAttachment, ToStencilAttachment};
-use framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
-use texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat, TextureKind};
+use crate::framebuffer::{ColorAttachment, ToColorAttachment};
+use crate::framebuffer::{DepthAttachment, ToDepthAttachment};
+use crate::framebuffer::{StencilAttachment, ToStencilAttachment};
+use crate::framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
+use crate::texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat, TextureKind};
 
-use image_format;
+use crate::image_format;
 
-use gl;
-use GlObject;
-use fbo::FramebuffersContainer;
-use backend::Facade;
-use context::Context;
-use ContextExt;
-use version::Version;
-use version::Api;
+use crate::gl;
+use crate::GlObject;
+use crate::fbo::FramebuffersContainer;
+use crate::backend::Facade;
+use crate::context::Context;
+use crate::ContextExt;
+use crate::version::Version;
+use crate::version::Api;
 
 /// Error while creating a render buffer.
 #[derive(Copy, Clone, Debug)]
@@ -37,7 +37,7 @@ pub enum CreationError {
 }
 
 impl fmt::Display for CreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::CreationError::*;
         let desc = match *self {
             FormatNotSupported => "The requested format is not supported",
@@ -392,11 +392,11 @@ impl RenderBufferAny {
 
             RenderBufferAny {
                 context: facade.get_context().clone(),
-                id: id,
-                width: width,
-                height: height,
-                samples: samples,
-                kind: kind,
+                id,
+                width,
+                height,
+                samples,
+                kind,
             }
         }
     }

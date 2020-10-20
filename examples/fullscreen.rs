@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate glium;
 
-extern crate image;
-
 use std::io::Cursor;
 
 use glium::Surface;

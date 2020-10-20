@@ -1,19 +1,19 @@
-use gl;
-use version::Version;
-use version::Api;
+use crate::gl;
+use crate::version::Version;
+use crate::version::Api;
 
-use CapabilitiesSource;
-use backend::Facade;
-use context::Context;
-use ContextExt;
+use crate::CapabilitiesSource;
+use crate::backend::Facade;
+use crate::context::Context;
+use crate::ContextExt;
 
 use std::{ffi, ptr};
 use std::rc::Rc;
 
-use GlObject;
-use Handle;
+use crate::GlObject;
+use crate::Handle;
 
-use program::{ProgramCreationError, ShaderType};
+use crate::program::{ProgramCreationError, ShaderType};
 
 /// A single, compiled but unlinked, shader.
 pub struct Shader {
@@ -133,7 +133,7 @@ pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, sourc
         if compilation_success == 1 {
             Ok(Shader {
                 context: facade.get_context().clone(),
-                id: id
+                id
             })
 
         } else {

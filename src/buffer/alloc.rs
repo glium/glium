@@ -1,24 +1,24 @@
-use backend::Facade;
-use context::CommandContext;
-use context::Context;
-use version::Version;
-use CapabilitiesSource;
-use ContextExt;
-use gl;
+use crate::backend::Facade;
+use crate::context::CommandContext;
+use crate::context::Context;
+use crate::version::Version;
+use crate::CapabilitiesSource;
+use crate::ContextExt;
+use crate::gl;
 use std::os::raw;
 use std::error::Error;
 use std::{fmt, mem, ptr};
 use std::cell::Cell;
 use std::rc::Rc;
 use std::ops::{Deref, DerefMut, Range};
-use GlObject;
-use TransformFeedbackSessionExt;
+use crate::GlObject;
+use crate::TransformFeedbackSessionExt;
 
-use buffer::{Content, BufferType, BufferMode, BufferCreationError};
-use vertex::TransformFeedbackSession;
-use vertex_array_object::VertexAttributesSystem;
+use crate::buffer::{Content, BufferType, BufferMode, BufferCreationError};
+use crate::vertex::TransformFeedbackSession;
+use crate::vertex_array_object::VertexAttributesSystem;
 
-use version::Api;
+use crate::version::Api;
 
 /// Error that can happen when reading from a buffer.
 #[derive(Debug, Copy, Clone)]
@@ -31,7 +31,7 @@ pub enum ReadError {
 }
 
 impl fmt::Display for ReadError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::ReadError::*;
         let desc = match *self {
             NotSupported => "The backend doesn't support reading from a buffer",
@@ -51,7 +51,7 @@ pub enum CopyError {
 }
 
 impl fmt::Display for CopyError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::CopyError::*;
         let desc = match *self {
             NotSupported => "The backend doesn't support copying between buffers",
@@ -114,12 +114,12 @@ impl Alloc {
 
         Ok(Alloc {
             context: facade.get_context().clone(),
-            id: id,
-            ty: ty,
-            size: size,
-            persistent_mapping: persistent_mapping,
-            immutable: immutable,
-            created_with_buffer_storage: created_with_buffer_storage,
+            id,
+            ty,
+            size,
+            persistent_mapping,
+            immutable,
+            created_with_buffer_storage,
             creation_mode: mode,
             mapped: Cell::new(false),
             latest_shader_write: Cell::new(0),
@@ -138,12 +138,12 @@ impl Alloc {
 
         Ok(Alloc {
             context: facade.get_context().clone(),
-            id: id,
-            ty: ty,
-            size: size,
-            persistent_mapping: persistent_mapping,
-            immutable: immutable,
-            created_with_buffer_storage: created_with_buffer_storage,
+            id,
+            ty,
+            size,
+            persistent_mapping,
+            immutable,
+            created_with_buffer_storage,
             creation_mode: mode,
             mapped: Cell::new(false),
             latest_shader_write: Cell::new(0),
@@ -177,7 +177,7 @@ impl Alloc {
 
     /// Asserts that the buffer is not mapped and available for operations.
     /// No-op for persistent mapping.
-    fn assert_unmapped(&self, ctxt: &mut CommandContext) {
+    fn assert_unmapped(&self, ctxt: &mut CommandContext<'_>) {
         if self.mapped.get() {
             unsafe { unmap_buffer(ctxt, self.id, self.ty) };
             self.mapped.set(false);
@@ -186,12 +186,12 @@ impl Alloc {
 
     /// Ensures that the buffer isn't used by the transform feedback process.
     #[inline]
-    fn assert_not_transform_feedback(&self, ctxt: &mut CommandContext) {
+    fn assert_not_transform_feedback(&self, ctxt: &mut CommandContext<'_>) {
         TransformFeedbackSession::ensure_buffer_out_of_transform_feedback(ctxt, self.id);
     }
 
     /// Calls `glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT)` if necessary.
-    fn barrier_for_buffer_update(&self, ctxt: &mut CommandContext) {
+    fn barrier_for_buffer_update(&self, ctxt: &mut CommandContext<'_>) {
         if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_buffer_update {
             unsafe { ctxt.gl.MemoryBarrier(gl::BUFFER_UPDATE_BARRIER_BIT); }
             ctxt.state.latest_memory_barrier_buffer_update = ctxt.state.next_draw_call_id;
@@ -199,7 +199,7 @@ impl Alloc {
     }
 
     /// Calls `glMemoryBarrier(GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT)` if necessary.
-    pub fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext) {
+    pub fn prepare_for_vertex_attrib_array(&self, ctxt: &mut CommandContext<'_>) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -210,7 +210,7 @@ impl Alloc {
     }
 
     /// Calls `glMemoryBarrier(ELEMENT_ARRAY_BARRIER_BIT)` if necessary.
-    pub fn prepare_for_element_array(&self, ctxt: &mut CommandContext) {
+    pub fn prepare_for_element_array(&self, ctxt: &mut CommandContext<'_>) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -222,7 +222,7 @@ impl Alloc {
     }
 
     /// Binds the buffer to `GL_ELEMENT_ARRAY_BUFFER` regardless of the current vertex array object.
-    pub fn bind_to_element_array(&self, ctxt: &mut CommandContext) {
+    pub fn bind_to_element_array(&self, ctxt: &mut CommandContext<'_>) {
         if ctxt.version >= &Version(Api::Gl, 1, 5) ||
            ctxt.version >= &Version(Api::GlEs, 2, 0)
         {
@@ -236,7 +236,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the `GL_PIXEL_PACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_pixel_pack(&self, ctxt: &mut CommandContext<'_>) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -250,13 +250,13 @@ impl Alloc {
 
     /// Makes sure that nothing is bound to `GL_PIXEL_PACK_BUFFER`.
     #[inline]
-    pub fn unbind_pixel_pack(ctxt: &mut CommandContext) {
+    pub fn unbind_pixel_pack(ctxt: &mut CommandContext<'_>) {
         unsafe { bind_buffer(ctxt, 0, BufferType::PixelPackBuffer); }
     }
 
     /// Makes sure that the buffer is bound to the `GL_PIXEL_UNPACK_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_pixel_unpack(&self, ctxt: &mut CommandContext<'_>) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -270,13 +270,13 @@ impl Alloc {
 
     /// Makes sure that nothing is bound to `GL_PIXEL_UNPACK_BUFFER`.
     #[inline]
-    pub fn unbind_pixel_unpack(ctxt: &mut CommandContext) {
+    pub fn unbind_pixel_unpack(ctxt: &mut CommandContext<'_>) {
         unsafe { bind_buffer(ctxt, 0, BufferType::PixelUnpackBuffer); }
     }
 
     /// Makes sure that the buffer is bound to the `GL_QUERY_BUFFER` and calls
     /// `glMemoryBarrier(GL_PIXEL_BUFFER_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_query(&self, ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_query(&self, ctxt: &mut CommandContext<'_>) {
         assert!(ctxt.version >= &Version(Api::Gl, 4, 4) ||
                 ctxt.extensions.gl_arb_query_buffer_object ||
                 ctxt.extensions.gl_amd_query_buffer_object);
@@ -294,13 +294,13 @@ impl Alloc {
 
     /// Makes sure that nothing is bound to `GL_QUERY_BUFFER`.
     #[inline]
-    pub fn unbind_query(ctxt: &mut CommandContext) {
+    pub fn unbind_query(ctxt: &mut CommandContext<'_>) {
         unsafe { bind_buffer(ctxt, 0, BufferType::QueryBuffer); }
     }
 
     /// Makes sure that the buffer is bound to the `GL_DRAW_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_draw_indirect(&self, ctxt: &mut CommandContext<'_>) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -314,7 +314,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the `GL_DISPATCH_INDIRECT_BUFFER` and calls
     /// `glMemoryBarrier(GL_COMMAND_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_dispatch_indirect(&self, ctxt: &mut CommandContext) {
+    pub fn prepare_and_bind_for_dispatch_indirect(&self, ctxt: &mut CommandContext<'_>) {
         self.assert_unmapped(ctxt);
         self.assert_not_transform_feedback(ctxt);
 
@@ -328,7 +328,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the indexed `GL_UNIFORM_BUFFER` point and calls
     /// `glMemoryBarrier(GL_UNIFORM_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+    pub fn prepare_and_bind_for_uniform(&self, ctxt: &mut CommandContext<'_>, index: gl::types::GLuint,
                                         range: Range<usize>)
     {
         self.assert_unmapped(ctxt);
@@ -344,7 +344,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the indexed `GL_SHARED_STORAGE_BUFFER` point and calls
     /// `glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+    pub fn prepare_and_bind_for_shared_storage(&self, ctxt: &mut CommandContext<'_>, index: gl::types::GLuint,
                                                range: Range<usize>)
     {
         self.assert_unmapped(ctxt);
@@ -362,7 +362,7 @@ impl Alloc {
 
     /// Makes sure that the buffer is bound to the indexed `GL_ATOMIC_COUNTER_BUFFER` point and calls
     /// `glMemoryBarrier(GL_ATOMIC_COUNTER_BARRIER_BIT)` if necessary.
-    pub fn prepare_and_bind_for_atomic_counter(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+    pub fn prepare_and_bind_for_atomic_counter(&self, ctxt: &mut CommandContext<'_>, index: gl::types::GLuint,
                                                range: Range<usize>)
     {
         self.assert_unmapped(ctxt);
@@ -381,7 +381,7 @@ impl Alloc {
     /// Binds the buffer to `GL_TRANSFORM_FEEDBACk_BUFFER` regardless of the current transform
     /// feedback object.
     #[inline]
-    pub fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext, index: gl::types::GLuint,
+    pub fn bind_to_transform_feedback(&self, ctxt: &mut CommandContext<'_>, index: gl::types::GLuint,
                                       range: Range<usize>)
     {
         self.indexed_bind(ctxt, BufferType::TransformFeedbackBuffer, index, range);
@@ -395,7 +395,7 @@ impl Alloc {
     ///
     /// Panics if the backend doesn't allow binding this buffer to the specified point.
     #[inline]
-    fn bind(&self, ctxt: &mut CommandContext, ty: BufferType) {
+    fn bind(&self, ctxt: &mut CommandContext<'_>, ty: BufferType) {
         self.assert_unmapped(ctxt);
         unsafe { bind_buffer(ctxt, self.id, ty); }
     }
@@ -411,7 +411,7 @@ impl Alloc {
     /// - Panics if the bind point is not an indexed bind point.
     /// - Panics if the bind point is over the maximum value.
     #[inline]
-    fn indexed_bind(&self, ctxt: &mut CommandContext, ty: BufferType,
+    fn indexed_bind(&self, ctxt: &mut CommandContext<'_>, ty: BufferType,
                     index: gl::types::GLuint, range: Range<usize>)
     {
         self.assert_unmapped(ctxt);
@@ -527,32 +527,30 @@ impl Alloc {
                                                          size as gl::types::GLsizeiptr) };
             }
 
-        } else if !self.created_with_buffer_storage {
-            if is_whole_buffer {
-                let flags = match self.creation_mode {
-                    BufferMode::Default | BufferMode::Immutable => gl::STATIC_DRAW,
-                    BufferMode::Persistent | BufferMode::Dynamic => gl::DYNAMIC_DRAW,
-                };
+        } else if !self.created_with_buffer_storage && is_whole_buffer {
+            let flags = match self.creation_mode {
+                BufferMode::Default | BufferMode::Immutable => gl::STATIC_DRAW,
+                BufferMode::Persistent | BufferMode::Dynamic => gl::DYNAMIC_DRAW,
+            };
 
-                if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0)
-                {
-                    unsafe {
-                        let bind = bind_buffer(&mut ctxt, self.id, self.ty);
-                        ctxt.gl.BufferData(bind, size as gl::types::GLsizeiptr,
-                                           ptr::null(), flags);
-                    }
-
-                } else if ctxt.extensions.gl_arb_vertex_buffer_object {
-                    unsafe {
-                        let bind = bind_buffer(&mut ctxt, self.id, self.ty);
-                        ctxt.gl.BufferDataARB(bind, size as gl::types::GLsizeiptr,
-                                              ptr::null(), flags);
-                    }
-
-                } else {
-                    unreachable!();
+            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
+                ctxt.version >= &Version(Api::GlEs, 2, 0)
+            {
+                unsafe {
+                    let bind = bind_buffer(&mut ctxt, self.id, self.ty);
+                    ctxt.gl.BufferData(bind, size as gl::types::GLsizeiptr,
+                                       ptr::null(), flags);
                 }
+
+            } else if ctxt.extensions.gl_arb_vertex_buffer_object {
+                unsafe {
+                    let bind = bind_buffer(&mut ctxt, self.id, self.ty);
+                    ctxt.gl.BufferDataARB(bind, size as gl::types::GLsizeiptr,
+                                          ptr::null(), flags);
+                }
+
+            } else {
+                unreachable!();
             }
         }
     }
@@ -587,21 +585,21 @@ impl Alloc {
     /// `false` for `write`, you **must not** write the returned buffer.
     ///
     unsafe fn map_shared<D: ?Sized>(&self, bytes_range: Range<usize>, read: bool, write: bool)
-                                    -> MappingImpl<D> where D: Content
+                                    -> MappingImpl<'_, D> where D: Content
     {
-        if let Some(existing_mapping) = self.persistent_mapping.clone() {
+        if let Some(existing_mapping) = self.persistent_mapping {
             // TODO: optimize so that it's not always necessary to make the context current
             let mut ctxt = self.context.make_current();
             self.barrier_for_buffer_update(&mut ctxt);
 
-            let data = (existing_mapping as *mut u8).offset(bytes_range.start as isize);
+            let data = (existing_mapping as *mut u8).add(bytes_range.start);
             let data = Content::ref_from_ptr(data as *mut (),
                                              bytes_range.end - bytes_range.start).unwrap();
 
             MappingImpl::PersistentMapping {
                 buffer: self,
                 offset_bytes: bytes_range.start,
-                data: data,
+                data,
                 needs_flushing: write,
             }
 
@@ -644,7 +642,7 @@ impl Alloc {
             MappingImpl::TemporaryBuffer {
                 original_buffer: self,
                 original_buffer_offset: bytes_range.start,
-                temporary_buffer: temporary_buffer,
+                temporary_buffer,
                 temporary_buffer_data: data,
                 needs_flushing: write,
             }
@@ -675,7 +673,7 @@ impl Alloc {
     /// `false` for `write`, you **must not** write the returned buffer.
     ///
     unsafe fn map_impl<D: ?Sized>(&mut self, bytes_range: Range<usize>, read: bool, write: bool)
-                                  -> MappingImpl<D> where D: Content
+                                  -> MappingImpl<'_, D> where D: Content
     {
         if self.persistent_mapping.is_some() || self.immutable {
             self.map_shared(bytes_range, read, write)
@@ -706,7 +704,7 @@ impl Alloc {
 
             MappingImpl::RegularMapping {
                 buffer: self,
-                data: data,
+                data,
                 needs_flushing: write,
             }
         }
@@ -725,7 +723,7 @@ impl Alloc {
     ///
     #[inline]
     pub unsafe fn map<D: ?Sized>(&mut self, bytes_range: Range<usize>)
-                                 -> Mapping<D> where D: Content
+                                 -> Mapping<'_, D> where D: Content
     {
         Mapping {
             mapping: self.map_impl(bytes_range, true, true)
@@ -745,7 +743,7 @@ impl Alloc {
     ///
     #[inline]
     pub unsafe fn map_read<D: ?Sized>(&mut self, bytes_range: Range<usize>)
-                                      -> ReadMapping<D> where D: Content
+                                      -> ReadMapping<'_, D> where D: Content
     {
         ReadMapping {
             mapping: self.map_impl(bytes_range, true, false)
@@ -765,7 +763,7 @@ impl Alloc {
     ///
     #[inline]
     pub unsafe fn map_write<D: ?Sized>(&mut self, bytes_range: Range<usize>)
-                                       -> WriteMapping<D> where D: Content
+                                       -> WriteMapping<'_, D> where D: Content
     {
         WriteMapping {
             mapping: self.map_impl(bytes_range, false, true)
@@ -864,7 +862,7 @@ impl Alloc {
 }
 
 impl fmt::Debug for Alloc {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(fmt, "Buffer #{} (size: {} bytes)", self.id, self.size)
     }
 }
@@ -1120,7 +1118,7 @@ pub fn is_buffer_read_supported<C: ?Sized>(ctxt: &C) -> bool where C: Capabiliti
 /// # Panic
 ///
 /// Panics if `mem::size_of_val(&data) != size`.
-unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, data: Option<&D>,
+unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext<'_>, size: usize, data: Option<&D>,
                                    ty: BufferType, mode: BufferMode)
                                    -> Result<(gl::types::GLuint, bool, bool, Option<*mut raw::c_void>),
                                              BufferCreationError>
@@ -1293,7 +1291,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
             };
 
             if ptr.is_null() {
-                let error = ::get_gl_error(ctxt);
+                let error = crate::get_gl_error(ctxt);
                 panic!("glMapBufferRange returned null (error: {:?})", error);
             }
 
@@ -1310,7 +1308,7 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext, size: usize, d
 }
 
 /// Returns true if a given buffer type is supported on a platform.
-fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
+fn is_buffer_type_supported(ctxt: &mut CommandContext<'_>, ty: BufferType) -> bool {
     match ty {
         // glium fails to initialize if they are not supported
         BufferType::ArrayBuffer | BufferType::ElementArrayBuffer => true,
@@ -1387,7 +1385,7 @@ fn is_buffer_type_supported(ctxt: &mut CommandContext, ty: BufferType) -> bool {
 /// ## Unsafety
 ///
 /// Assumes that the type of buffer is supported by the backend.
-unsafe fn bind_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType)
+unsafe fn bind_buffer(ctxt: &mut CommandContext<'_>, id: gl::types::GLuint, ty: BufferType)
                       -> gl::types::GLenum
 {
     macro_rules! check {
@@ -1478,7 +1476,7 @@ unsafe fn bind_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint, ty: Buff
 /// # Unsafety
 ///
 /// Assumes that the type of buffer is supported by the backend.
-unsafe fn indexed_bind_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
+unsafe fn indexed_bind_buffer(ctxt: &mut CommandContext<'_>, id: gl::types::GLuint, ty: BufferType,
                               index: gl::types::GLuint, range: Range<usize>)
 {
     let offset = range.start as gl::types::GLintptr;
@@ -1541,7 +1539,7 @@ unsafe fn indexed_bind_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint, 
 ///
 /// The buffer IDs must be valid. The offsets and size must be valid.
 ///
-unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
+unsafe fn copy_buffer(ctxt: &mut CommandContext<'_>, source: gl::types::GLuint,
                       source_offset: usize, dest: gl::types::GLuint, dest_offset: usize,
                       size: usize) -> Result<(), CopyError>
 {
@@ -1558,7 +1556,7 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
     } else if ctxt.version >= &Version(Api::Gl, 3, 1) || ctxt.version >= &Version(Api::GlEs, 3, 0)
            || ctxt.extensions.gl_arb_copy_buffer || ctxt.extensions.gl_nv_copy_buffer
     {
-        fn find_bind_point(ctxt: &mut CommandContext, id: gl::types::GLuint)
+        fn find_bind_point(ctxt: &mut CommandContext<'_>, id: gl::types::GLuint)
                            -> Option<gl::types::GLenum>
         {
             if ctxt.state.array_buffer_binding == id {
@@ -1620,7 +1618,7 @@ unsafe fn copy_buffer(ctxt: &mut CommandContext, source: gl::types::GLuint,
 }
 
 /// Destroys a buffer.
-unsafe fn destroy_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint) {
+unsafe fn destroy_buffer(ctxt: &mut CommandContext<'_>, id: gl::types::GLuint) {
     // FIXME: uncomment this and move it from Buffer's destructor
     //self.context.vertex_array_objects.purge_buffer(&mut ctxt, id);
 
@@ -1709,7 +1707,7 @@ unsafe fn destroy_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint) {
 }
 
 /// Flushes a range of a mapped buffer.
-unsafe fn flush_range(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
+unsafe fn flush_range(mut ctxt: &mut CommandContext<'_>, id: gl::types::GLuint, ty: BufferType,
                       range: Range<usize>)
 {
     if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access {
@@ -1736,7 +1734,7 @@ unsafe fn flush_range(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: 
 /// Maps a range of a buffer.
 ///
 /// *Warning*: always passes `GL_MAP_FLUSH_EXPLICIT_BIT`.
-unsafe fn map_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType,
+unsafe fn map_buffer(mut ctxt: &mut CommandContext<'_>, id: gl::types::GLuint, ty: BufferType,
                      range: Range<usize>, read: bool, write: bool) -> Option<*mut ()>
 {
     let flags = match (read, write) {
@@ -1770,7 +1768,7 @@ unsafe fn map_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: B
 /// # Safety
 ///
 /// Assumes that the buffer exists, that it is of the right type, and that it is already mapped.
-unsafe fn unmap_buffer(mut ctxt: &mut CommandContext, id: gl::types::GLuint, ty: BufferType) {
+unsafe fn unmap_buffer(mut ctxt: &mut CommandContext<'_>, id: gl::types::GLuint, ty: BufferType) {
     if ctxt.version >= &Version(Api::Gl, 4, 5) {
         ctxt.gl.UnmapNamedBuffer(id);
 
