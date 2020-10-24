@@ -1,12 +1,11 @@
 #[macro_use]
 extern crate glium;
-extern crate cgmath;
 
 use cgmath::SquareMatrix;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
 use std::time::Instant;
-use glutin::dpi::LogicalSize;
+use crate::glutin::dpi::LogicalSize;
 
 fn main() {
     let win_size = LogicalSize {
@@ -209,7 +208,7 @@ fn main() {
             let view_up: cgmath::Vector3<f32> = cgmath::Vector3::new(0.0, 1.0, 0.0);
             let depth_view_matrix = cgmath::Matrix4::look_at(light_loc.into(), view_center, view_up);
 
-            let mut draw_params: glium::draw_parameters::DrawParameters = Default::default();
+            let mut draw_params: glium::draw_parameters::DrawParameters<'_> = Default::default();
             draw_params.depth = glium::Depth {
                 test: glium::draw_parameters::DepthTest::IfLessOrEqual,
                 write: true,
@@ -259,7 +258,7 @@ fn main() {
             [0.5, 0.5, 0.5, 1.0],
         ].into();
 
-        let mut draw_params: glium::draw_parameters::DrawParameters = Default::default();
+        let mut draw_params: glium::draw_parameters::DrawParameters<'_> = Default::default();
         draw_params.depth = glium::Depth {
             test: glium::draw_parameters::DepthTest::IfLessOrEqual,
             write: true,

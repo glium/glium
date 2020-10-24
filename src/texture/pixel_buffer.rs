@@ -8,14 +8,14 @@ use std::borrow::Cow;
 use std::cell::Cell;
 use std::ops::{Deref, DerefMut};
 
-use backend::Facade;
+use crate::backend::Facade;
 
-use GlObject;
-use buffer::{ReadError, Buffer, BufferType, BufferMode};
-use gl;
+use crate::GlObject;
+use crate::buffer::{ReadError, Buffer, BufferType, BufferMode};
+use crate::gl;
 
-use texture::PixelValue;
-use texture::Texture2dDataSink;
+use crate::texture::PixelValue;
+use crate::texture::Texture2dDataSink;
 
 /// Buffer that stores the content of a texture.
 ///

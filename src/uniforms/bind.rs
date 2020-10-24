@@ -3,37 +3,37 @@
 Handles binding uniforms to the OpenGL state machine.
 
 */
-use gl;
+use crate::gl;
 
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
-use BufferExt;
-use BufferSliceExt;
-use DrawError;
-use ProgramExt;
-use UniformsExt;
-use RawUniformValue;
-use TextureExt;
+use crate::BufferExt;
+use crate::BufferSliceExt;
+use crate::DrawError;
+use crate::ProgramExt;
+use crate::UniformsExt;
+use crate::RawUniformValue;
+use crate::TextureExt;
 
-use uniforms::Uniforms;
-use uniforms::UniformValue;
-use uniforms::SamplerBehavior;
+use crate::uniforms::Uniforms;
+use crate::uniforms::UniformValue;
+use crate::uniforms::SamplerBehavior;
 
-use context::CommandContext;
-use buffer::Inserter;
+use crate::context::CommandContext;
+use crate::buffer::Inserter;
 
-use utils::bitsfield::Bitsfield;
+use crate::utils::bitsfield::Bitsfield;
 
-use program;
-use context;
-use version::Version;
-use version::Api;
+use crate::program;
+use crate::context;
+use crate::version::Version;
+use crate::version::Api;
 
 impl<U> UniformsExt for U where U: Uniforms {
-    fn bind_uniforms<'a, P>(&'a self, mut ctxt: &mut CommandContext, program: &P,
+    fn bind_uniforms<'a, P>(&'a self, mut ctxt: &mut CommandContext<'_>, program: &P,
                             fences: &mut Vec<Inserter<'a>>)
                             -> Result<(), DrawError>
                             where P: ProgramExt
@@ -69,7 +69,7 @@ impl<U> UniformsExt for U where U: Uniforms {
                     Ok(_) => (),
                     Err(e) => {
                         visiting_result = Err(e);
-                        return;
+                        
                     }
                 };
 
@@ -140,7 +140,7 @@ impl<U> UniformsExt for U where U: Uniforms {
     }
 }
 
-fn bind_subroutine_uniforms<P>(ctxt: &mut context::CommandContext, program: &P,
+fn bind_subroutine_uniforms<P>(ctxt: &mut context::CommandContext<'_>, program: &P,
                             subroutine_bindings: &HashMap<program::ShaderStage, Vec<(&program::SubroutineUniform, &str)>, BuildHasherDefault<FnvHasher>>)
                             -> Result<(), DrawError>
                             where P: ProgramExt
@@ -181,7 +181,7 @@ fn bind_subroutine_uniforms<P>(ctxt: &mut context::CommandContext, program: &P,
     Ok(())
 }
 
-fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
+fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext<'_>, value: &UniformValue<'a>,
                              block: &program::UniformBlock,
                              program: &P, buffer_bind_points: &mut Bitsfield, name: &str)
                              -> Result<Option<Inserter<'a>>, DrawError>
@@ -217,7 +217,7 @@ fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext, value: &Uniform
     }
 }
 
-fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
+fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext<'_>, value: &UniformValue<'a>,
                                     block: &program::UniformBlock,
                                     program: &P, buffer_bind_points: &mut Bitsfield, name: &str)
                                     -> Result<Option<Inserter<'a>>, DrawError>
@@ -253,7 +253,7 @@ fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext, value: &
     }
 }
 
-fn bind_atomic_counter<'a, P>(ctxt: &mut context::CommandContext, value: &UniformValue<'a>,
+fn bind_atomic_counter<'a, P>(ctxt: &mut context::CommandContext<'_>, value: &UniformValue<'a>,
                               block: &program::UniformBlock,
                               program: &P, name: &str)
                               -> Result<Option<Inserter<'a>>, DrawError>
@@ -284,8 +284,8 @@ fn bind_atomic_counter<'a, P>(ctxt: &mut context::CommandContext, value: &Unifor
     }
 }
 
-fn bind_uniform<P>(ctxt: &mut context::CommandContext,
-                   value: &UniformValue, program: &P, location: gl::types::GLint,
+fn bind_uniform<P>(ctxt: &mut context::CommandContext<'_>,
+                   value: &UniformValue<'_>, program: &P, location: gl::types::GLint,
                    texture_bind_points: &mut Bitsfield, name: &str)
                    -> Result<(), DrawError> where P: ProgramExt
 {
@@ -625,14 +625,14 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
     }
 }
 
-fn bind_texture_uniform<P, T>(ctxt: &mut context::CommandContext,
+fn bind_texture_uniform<P, T>(ctxt: &mut context::CommandContext<'_>,
                               texture: &T, sampler: Option<SamplerBehavior>,
                               location: gl::types::GLint, program: &P,
                               texture_bind_points: &mut Bitsfield)
                               -> Result<(), DrawError> where P: ProgramExt, T: TextureExt
 {
     let sampler = if let Some(sampler) = sampler {
-        Some(::sampler_object::get_sampler(ctxt, &sampler)?)
+        Some(crate::sampler_object::get_sampler(ctxt, &sampler)?)
     } else {
         None
     };

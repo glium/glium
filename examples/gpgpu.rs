@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
-extern crate rand;
+
 #[allow(unused_imports)]
 use glium::glutin;
-use glutin::dpi::PhysicalSize;
+use crate::glutin::dpi::PhysicalSize;
 
 fn main() {
     let event_loop = glium::glutin::event_loop::EventLoop::new();

@@ -1,14 +1,14 @@
-use context::CommandContext;
-use version::Version;
-use version::Api;
-use gl;
+use crate::context::CommandContext;
+use crate::version::Version;
+use crate::version::Api;
+use crate::gl;
 
 use std::fmt;
 use std::error::Error;
 
-use texture::any::TextureAny;
-use TextureExt;
-use GlObject;
+use crate::texture::any::TextureAny;
+use crate::TextureExt;
+use crate::GlObject;
 
 /// Error that can happen when retrieving the internal format of a texture.
 #[derive(Copy, Clone, Debug)]
@@ -18,7 +18,7 @@ pub enum GetFormatError {
 }
 
 impl fmt::Display for GetFormatError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::GetFormatError::*;
         let desc = match self {
             NotSupported => "The backend doesn't support retrieving the internal format",
@@ -141,7 +141,7 @@ impl InternalFormatType {
 /// Determines the format of a texture.
 ///
 /// A `TextureAny` is guaranteed to have the same format for each mipmap.
-pub fn get_format(ctxt: &mut CommandContext, texture: &TextureAny)
+pub fn get_format(ctxt: &mut CommandContext<'_>, texture: &TextureAny)
                   -> Result<InternalFormat, GetFormatError>
 {
     if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 3, 0) {

@@ -155,7 +155,7 @@ mod fxaa {
     }
 
     pub fn draw<T, F, R>(system: &FxaaSystem, target: &mut T, enabled: bool, mut draw: F)
-                         -> R where T: Surface, F: FnMut(&mut SimpleFrameBuffer) -> R
+                         -> R where T: Surface, F: FnMut(&mut SimpleFrameBuffer<'_>) -> R
     {
         let target_dimensions = target.get_dimensions();
 

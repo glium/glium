@@ -1,6 +1,5 @@
 #[macro_use]
 extern crate glium;
-extern crate image;
 
 use std::thread;
 
@@ -8,14 +7,11 @@ use std::thread;
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
-
 mod screenshot {
     use glium::Surface;
     use std::collections::VecDeque;
     use std::vec::Vec;
     use std::borrow::Cow;
-
-    use glium;
 
     // Container that holds image data as vector of (u8, u8, u8, u8).
     // This is used to take data from PixelBuffer and move it to another thread
@@ -27,11 +23,11 @@ mod screenshot {
     }
 
     impl glium::texture::Texture2dDataSink<(u8, u8, u8, u8)> for RGBAImageData {
-        fn from_raw(data: Cow<[(u8, u8, u8, u8)]>, width: u32, height: u32) -> Self {
+        fn from_raw(data: Cow<'_, [(u8, u8, u8, u8)]>, width: u32, height: u32) -> Self {
             RGBAImageData {
                 data: data.into_owned(),
-                width: width,
-                height: height,
+                width,
+                height,
             }
         }
     }
@@ -70,8 +66,8 @@ mod screenshot {
             let pixel_buffer = texture.read_to_pixel_buffer();
 
             AsyncScreenshotTask {
-                target_frame: target_frame,
-                pixel_buffer: pixel_buffer,
+                target_frame,
+                pixel_buffer,
             }
         }
 
@@ -104,7 +100,7 @@ mod screenshot {
     impl AsyncScreenshotTaker {
         pub fn new(screenshot_delay: u64) -> Self {
             AsyncScreenshotTaker {
-                screenshot_delay: screenshot_delay,
+                screenshot_delay,
                 frame: 0,
                 screenshot_tasks: VecDeque::new(),
             }
@@ -114,7 +110,7 @@ mod screenshot {
             self.frame += 1;
         }
 
-        pub fn pickup_screenshots(&mut self) -> ScreenshotIterator {
+        pub fn pickup_screenshots(&mut self) -> ScreenshotIterator<'_> {
             ScreenshotIterator(self)
         }
 

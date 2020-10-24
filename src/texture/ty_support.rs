@@ -1,8 +1,8 @@
 //! Various functions to detect whether texture types are supported.
 
-use CapabilitiesSource;
-use version::Api;
-use version::Version;
+use crate::CapabilitiesSource;
+use crate::version::Api;
+use crate::version::Version;
 
 /// Returns true is one-dimensional textures are supported.
 #[inline]

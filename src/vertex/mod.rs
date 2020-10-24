@@ -141,8 +141,8 @@ pub use self::buffer::CreationError as BufferCreationError;
 pub use self::format::{AttributeType, VertexFormat};
 pub use self::transform_feedback::{is_transform_feedback_supported, TransformFeedbackSession};
 
-use buffer::BufferAnySlice;
-use CapabilitiesSource;
+use crate::buffer::BufferAnySlice;
+use crate::CapabilitiesSource;
 
 mod buffer;
 mod format;

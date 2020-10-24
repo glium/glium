@@ -16,15 +16,15 @@ use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;
 
-use CapabilitiesSource;
-use SwapBuffersError;
+use crate::CapabilitiesSource;
+use crate::SwapBuffersError;
 
-use context::Capabilities;
-use context::ExtensionsList;
-use version::Version;
+use crate::context::Capabilities;
+use crate::context::ExtensionsList;
+use crate::version::Version;
 
-pub use context::Context;
-pub use context::ReleaseBehavior;
+pub use crate::context::Context;
+pub use crate::context::ReleaseBehavior;
 
 #[cfg(feature = "glutin")]
 pub mod glutin;

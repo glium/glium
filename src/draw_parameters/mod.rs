@@ -61,20 +61,20 @@
 //!
 //! For the same reasons, as soon as you call `is_ready` on a query it will stop being usable.
 
-use gl;
-use context;
-use context::Context;
-use version::Version;
-use version::Api;
+use crate::gl;
+use crate::context;
+use crate::context::Context;
+use crate::version::Version;
+use crate::version::Api;
 
-use index::PrimitiveType;
+use crate::index::PrimitiveType;
 
-use QueryExt;
-use CapabilitiesSource;
-use DrawError;
-use Rect;
-use ToGlEnum;
-use vertex::TransformFeedbackSession;
+use crate::QueryExt;
+use crate::CapabilitiesSource;
+use crate::DrawError;
+use crate::Rect;
+use crate::ToGlEnum;
+use crate::vertex::TransformFeedbackSession;
 
 use std::ops::Range;
 
@@ -496,7 +496,7 @@ impl<'a> Default for DrawParameters<'a> {
 }
 
 /// DEPRECATED. Checks parameters and returns an error if something is wrong.
-pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawError> {
+pub fn validate(context: &Context, params: &DrawParameters<'_>) -> Result<(), DrawError> {
     if params.depth.range.0 < 0.0 || params.depth.range.0 > 1.0 ||
        params.depth.range.1 < 0.0 || params.depth.range.1 > 1.0
     {
@@ -513,7 +513,7 @@ pub fn validate(context: &Context, params: &DrawParameters) -> Result<(), DrawEr
 }
 
 #[doc(hidden)]
-pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters,
+pub fn sync(ctxt: &mut context::CommandContext<'_>, draw_parameters: &DrawParameters<'_>,
             dimensions: (u32, u32), primitives_types: PrimitiveType) -> Result<(), DrawError>
 {
     depth::sync_depth(ctxt, &draw_parameters.depth)?;
@@ -543,7 +543,7 @@ pub fn sync(ctxt: &mut context::CommandContext, draw_parameters: &DrawParameters
     Ok(())
 }
 
-fn sync_color_mask(ctxt: &mut context::CommandContext, mask: (bool, bool, bool, bool)) {
+fn sync_color_mask(ctxt: &mut context::CommandContext<'_>, mask: (bool, bool, bool, bool)) {
     let mask = (
         if mask.0 { 1 } else { 0 },
         if mask.1 { 1 } else { 0 },
@@ -560,7 +560,7 @@ fn sync_color_mask(ctxt: &mut context::CommandContext, mask: (bool, bool, bool, 
     }
 }
 
-fn sync_line_width(ctxt: &mut context::CommandContext, line_width: Option<f32>) {
+fn sync_line_width(ctxt: &mut context::CommandContext<'_>, line_width: Option<f32>) {
     if let Some(line_width) = line_width {
         if ctxt.state.line_width != line_width {
             unsafe {
@@ -571,7 +571,7 @@ fn sync_line_width(ctxt: &mut context::CommandContext, line_width: Option<f32>) 
     }
 }
 
-fn sync_point_size(ctxt: &mut context::CommandContext, point_size: Option<f32>) {
+fn sync_point_size(ctxt: &mut context::CommandContext<'_>, point_size: Option<f32>) {
     if let Some(point_size) = point_size {
         if ctxt.state.point_size != point_size {
             unsafe {
@@ -582,7 +582,7 @@ fn sync_point_size(ctxt: &mut context::CommandContext, point_size: Option<f32>) 
     }
 }
 
-fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: BackfaceCullingMode,
+fn sync_polygon_mode(ctxt: &mut context::CommandContext<'_>, backface_culling: BackfaceCullingMode,
                      polygon_mode: PolygonMode)
 {
     // back-face culling
@@ -627,7 +627,7 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext, backface_culling: Backf
     }
 }
 
-fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitmask: u32)
+fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext<'_>, clip_planes_bitmask: u32)
                             -> Result<(), DrawError> {
     unsafe {
         let mut max_clip_planes: gl::types::GLint = 0;
@@ -641,11 +641,9 @@ fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitm
                     } else {
                         return Err(DrawError::ClipPlaneIndexOutOfBounds);
                     }
-                } else {
-                    if i < max_clip_planes {
-                        ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
-                        ctxt.state.enabled_clip_planes &= !(1 << i);
-                    }
+                } else if i < max_clip_planes {
+                    ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
+                    ctxt.state.enabled_clip_planes &= !(1 << i);
                 }
             }
         }
@@ -653,7 +651,7 @@ fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext, clip_planes_bitm
     }
 }
 
-fn sync_multisampling(ctxt: &mut context::CommandContext, multisampling: bool) {
+fn sync_multisampling(ctxt: &mut context::CommandContext<'_>, multisampling: bool) {
     if ctxt.state.enabled_multisample != multisampling {
         unsafe {
             if multisampling {
@@ -667,7 +665,7 @@ fn sync_multisampling(ctxt: &mut context::CommandContext, multisampling: bool) {
     }
 }
 
-fn sync_dithering(ctxt: &mut context::CommandContext, dithering: bool) {
+fn sync_dithering(ctxt: &mut context::CommandContext<'_>, dithering: bool) {
     if ctxt.state.enabled_dither != dithering {
         unsafe {
             if dithering {
@@ -681,7 +679,7 @@ fn sync_dithering(ctxt: &mut context::CommandContext, dithering: bool) {
     }
 }
 
-fn sync_viewport_scissor(ctxt: &mut context::CommandContext, viewport: Option<Rect>,
+fn sync_viewport_scissor(ctxt: &mut context::CommandContext<'_>, viewport: Option<Rect>,
                          scissor: Option<Rect>, surface_dimensions: (u32, u32))
 {
     // viewport
@@ -742,7 +740,7 @@ fn sync_viewport_scissor(ctxt: &mut context::CommandContext, viewport: Option<Re
     }
 }
 
-fn sync_rasterizer_discard(ctxt: &mut context::CommandContext, draw_primitives: bool)
+fn sync_rasterizer_discard(ctxt: &mut context::CommandContext<'_>, draw_primitives: bool)
                            -> Result<(), DrawError>
 {
     if ctxt.state.enabled_rasterizer_discard == draw_primitives {
@@ -772,8 +770,8 @@ fn sync_rasterizer_discard(ctxt: &mut context::CommandContext, draw_primitives: 
     Ok(())
 }
 
-fn sync_queries(ctxt: &mut context::CommandContext,
-                samples_passed_query: Option<SamplesQueryParam>,
+fn sync_queries(ctxt: &mut context::CommandContext<'_>,
+                samples_passed_query: Option<SamplesQueryParam<'_>>,
                 time_elapsed_query: Option<&TimeElapsedQuery>,
                 primitives_generated_query: Option<&PrimitivesGeneratedQuery>,
                 transform_feedback_primitives_written_query:
@@ -809,8 +807,8 @@ fn sync_queries(ctxt: &mut context::CommandContext,
     Ok(())
 }
 
-fn sync_conditional_render(ctxt: &mut context::CommandContext,
-                           condition: Option<ConditionalRendering>)
+fn sync_conditional_render(ctxt: &mut context::CommandContext<'_>,
+                           condition: Option<ConditionalRendering<'_>>)
 {
     if let Some(ConditionalRendering { query, wait, per_region }) = condition {
         match query {
@@ -827,7 +825,7 @@ fn sync_conditional_render(ctxt: &mut context::CommandContext,
     }
 }
 
-fn sync_smooth(ctxt: &mut context::CommandContext,
+fn sync_smooth(ctxt: &mut context::CommandContext<'_>,
                smooth: Option<Smooth>,
                primitive_type: PrimitiveType) -> Result<(), DrawError> {
 
@@ -901,7 +899,7 @@ fn sync_smooth(ctxt: &mut context::CommandContext,
     Ok(())
 }
 
-fn sync_provoking_vertex(ctxt: &mut context::CommandContext, value: ProvokingVertex)
+fn sync_provoking_vertex(ctxt: &mut context::CommandContext<'_>, value: ProvokingVertex)
                          -> Result<(), DrawError>
 {
     let value = match value {
@@ -928,7 +926,7 @@ fn sync_provoking_vertex(ctxt: &mut context::CommandContext, value: ProvokingVer
     Ok(())
 }
 
-fn sync_primitive_bounding_box(ctxt: &mut context::CommandContext,
+fn sync_primitive_bounding_box(ctxt: &mut context::CommandContext<'_>,
                                bb: &(Range<f32>, Range<f32>, Range<f32>, Range<f32>))
 {
     let value = (bb.0.start, bb.1.start, bb.2.start, bb.3.start,
@@ -960,7 +958,7 @@ fn sync_primitive_bounding_box(ctxt: &mut context::CommandContext,
     }
 }
 
-fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
+fn sync_primitive_restart_index(ctxt: &mut context::CommandContext<'_>,
                                 enabled: bool)
                                 -> Result<(), DrawError>
 {
@@ -978,17 +976,15 @@ fn sync_primitive_restart_index(ctxt: &mut context::CommandContext,
                 ctxt.state.enabled_primitive_fixed_restart = false;
             }
         }
-    } else {
-        if enabled {
-            return Err(DrawError::FixedIndexRestartingNotSupported);
-        }
+    } else if enabled {
+        return Err(DrawError::FixedIndexRestartingNotSupported);
     }
 
 
     Ok(())
 }
 
-fn set_flag_enabled(ctxt: &mut context::CommandContext, cap: gl::types::GLenum, enabled: bool) {
+fn set_flag_enabled(ctxt: &mut context::CommandContext<'_>, cap: gl::types::GLenum, enabled: bool) {
     if enabled {
         unsafe { ctxt.gl.Enable(cap); }
     } else {
@@ -996,7 +992,7 @@ fn set_flag_enabled(ctxt: &mut context::CommandContext, cap: gl::types::GLenum, 
     }
 }
 
-fn sync_polygon_offset(ctxt: &mut context::CommandContext, offset: PolygonOffset) {
+fn sync_polygon_offset(ctxt: &mut context::CommandContext<'_>, offset: PolygonOffset) {
     let (factor, units) = ctxt.state.polygon_offset;
 
     if ctxt.state.polygon_offset != (offset.factor, offset.units) {

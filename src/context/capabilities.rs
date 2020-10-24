@@ -1,6 +1,6 @@
-use context::ExtensionsList;
-use version::Version;
-use version::Api;
+use crate::context::ExtensionsList;
+use crate::version::Version;
+use crate::version::Api;
 
 use std::cmp;
 use std::collections::HashMap;
@@ -9,11 +9,11 @@ use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
-use gl;
-use ToGlEnum;
+use crate::gl;
+use crate::ToGlEnum;
 
-use CapabilitiesSource;
-use image_format::TextureFormat;
+use crate::CapabilitiesSource;
+use crate::image_format::TextureFormat;
 
 /// Describes the OpenGL context profile.
 #[derive(Debug, Copy, Clone)]
@@ -225,9 +225,9 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             }
         },
 
-        debug: debug,
+        debug,
 
-        forward_compatible: forward_compatible,
+        forward_compatible,
 
         robustness: if version >= &Version(Api::Gl, 4, 5) || version >= &Version(Api::GlEs, 3, 2) ||
                        (version >= &Version(Api::Gl, 3, 0) && extensions.gl_arb_robustness)
@@ -590,7 +590,7 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             }
         },
 
-        renderer: renderer,
+        renderer,
     }
 }
 
@@ -698,10 +698,8 @@ pub fn get_internal_formats(gl: &gl::Gl, version: &Version, extensions: &Extensi
             if !format.is_supported_for_renderbuffers(&dummy) {
                 return None;
             }
-        } else {
-            if !format.is_supported_for_textures(&dummy) {
-                return None;
-            }
+        } else if !format.is_supported_for_textures(&dummy) {
+            return None;
         }
 
         let infos = get_internal_format(gl, version, extensions, format, renderbuffer);

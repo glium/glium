@@ -1,5 +1,3 @@
-extern crate glutin;
-
 pub struct CameraState {
     aspect_ratio: f32,
     position: (f32, f32, f32),
@@ -150,7 +148,7 @@ impl CameraState {
         }
     }
 
-    pub fn process_input(&mut self, event: &glutin::event::WindowEvent) {
+    pub fn process_input(&mut self, event: &glutin::event::WindowEvent<'_>) {
         let input = match *event {
             glutin::event::WindowEvent::KeyboardInput { input, .. } => input,
             _ => return,

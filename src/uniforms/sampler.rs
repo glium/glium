@@ -1,5 +1,5 @@
-use ToGlEnum;
-use gl;
+use crate::ToGlEnum;
+use crate::gl;
 
 /// Function to use for out-of-bounds samples.
 ///
@@ -142,7 +142,7 @@ impl ToGlEnum for DepthTextureComparison {
 
 /// A sampler.
 #[derive(Debug, Hash, PartialEq, Eq)]
-pub struct Sampler<'t, T: 't>(pub &'t T, pub SamplerBehavior);
+pub struct Sampler<'t, T>(pub &'t T, pub SamplerBehavior);
 
 impl<'t, T: 't> Sampler<'t, T> {
     /// Builds a new `Sampler` with default parameters.

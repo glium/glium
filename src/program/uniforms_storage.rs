@@ -1,17 +1,17 @@
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
-use RawUniformValue;
+use crate::RawUniformValue;
 
 use smallvec::SmallVec;
 use fnv::FnvHasher;
 
-use gl;
-use Handle;
-use context::CommandContext;
-use version::Version;
-use version::Api;
-use program::reflection::ShaderStage;
+use crate::gl;
+use crate::Handle;
+use crate::context::CommandContext;
+use crate::version::Version;
+use crate::version::Api;
+use crate::program::reflection::ShaderStage;
 
 pub struct UniformsStorage {
     values: RefCell<HashMap<gl::types::GLint, Option<RawUniformValue>,
@@ -36,7 +36,7 @@ impl UniformsStorage {
 
     /// Compares `value` with the value stored in this object. If the values differ, updates
     /// the storage and calls `glUniform`.
-    pub fn set_uniform_value(&self, ctxt: &mut CommandContext, program: Handle,
+    pub fn set_uniform_value(&self, ctxt: &mut CommandContext<'_>, program: Handle,
                              location: gl::types::GLint, value: &RawUniformValue)
     {
         let mut values = self.values.borrow_mut();
@@ -314,7 +314,7 @@ impl UniformsStorage {
 
     /// Compares `value` with the value stored in this object. If the values differ, updates
     /// the storage and calls `glUniformBlockBinding`.
-    pub fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, program: Handle,
+    pub fn set_uniform_block_binding(&self, ctxt: &mut CommandContext<'_>, program: Handle,
                                      location: gl::types::GLuint, value: gl::types::GLuint)
     {
         let mut blocks = self.uniform_blocks.borrow_mut();
@@ -345,7 +345,7 @@ impl UniformsStorage {
 
     /// Compares `value` with the value stored in this object. If the values differ, updates
     /// the storage and calls `glShaderStorageBlockBinding`.
-    pub fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext, program: Handle,
+    pub fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext<'_>, program: Handle,
                                             location: gl::types::GLuint, value: gl::types::GLuint)
     {
         let mut blocks = self.shader_storage_blocks.borrow_mut();
@@ -376,7 +376,7 @@ impl UniformsStorage {
 
     /// Compares `indices` to the value stored in this object. If the values differ,
     /// updates the programs subroutine uniform bindings.
-    pub fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+    pub fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext<'_>,
                                          program: Handle,
                                          stage: ShaderStage,
                                          indices: &[gl::types::GLuint])
@@ -389,7 +389,7 @@ impl UniformsStorage {
         }
         // TODO: don't assume that, instead use DSA if the program is not current
         assert!(ctxt.state.program == program);
-        subroutine_uniforms.insert(stage, indices.iter().cloned().collect());
+        subroutine_uniforms.insert(stage, indices.to_vec());
         unsafe {
             ctxt.gl.UniformSubroutinesuiv(stage.to_gl_enum(), indices.len() as gl::types::GLsizei, indices.as_ptr() as *const _);
         }

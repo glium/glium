@@ -1,9 +1,9 @@
-use context::CommandContext;
-use version::Api;
-use version::Version;
+use crate::context::CommandContext;
+use crate::version::Api;
+use crate::version::Version;
 
-use DrawError;
-use gl;
+use crate::DrawError;
+use crate::gl;
 
 /// Blend effect that the GPU will use for blending.
 ///
@@ -202,9 +202,9 @@ impl LinearBlendingFactor {
     }
 }
 
-pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), DrawError> {
+pub fn sync_blending(ctxt: &mut CommandContext<'_>, blend: Blend) -> Result<(), DrawError> {
     #[inline(always)]
-    fn blend_eq(ctxt: &mut CommandContext, blending_function: BlendingFunction)
+    fn blend_eq(ctxt: &mut CommandContext<'_>, blending_function: BlendingFunction)
                 -> Result<gl::types::GLenum, DrawError>
     {
         match blending_function {
@@ -281,7 +281,7 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
             .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
 
         // Updating the blending color if necessary.
-        if color_factor_src == LinearBlendingFactor::ConstantColor ||
+        if (color_factor_src == LinearBlendingFactor::ConstantColor ||
            color_factor_src == LinearBlendingFactor::OneMinusConstantColor ||
            color_factor_dst == LinearBlendingFactor::ConstantColor ||
            color_factor_dst == LinearBlendingFactor::OneMinusConstantColor ||
@@ -296,13 +296,10 @@ pub fn sync_blending(ctxt: &mut CommandContext, blend: Blend) -> Result<(), Draw
            alpha_factor_src == LinearBlendingFactor::ConstantAlpha ||
            alpha_factor_src == LinearBlendingFactor::OneMinusConstantAlpha ||
            alpha_factor_dst == LinearBlendingFactor::ConstantAlpha ||
-           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha
-        {
-            if ctxt.state.blend_color != blend.constant_value {
-                let (r, g, b, a) = blend.constant_value;
-                unsafe { ctxt.gl.BlendColor(r, g, b, a); }
-                ctxt.state.blend_color = blend.constant_value;
-            }
+           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha) && ctxt.state.blend_color != blend.constant_value {
+            let (r, g, b, a) = blend.constant_value;
+            unsafe { ctxt.gl.BlendColor(r, g, b, a); }
+            ctxt.state.blend_color = blend.constant_value;
         }
 
         // Updating the blending function if necessary.

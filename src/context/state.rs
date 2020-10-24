@@ -1,5 +1,5 @@
-use Handle;
-use gl;
+use crate::Handle;
+use crate::gl;
 use smallvec::SmallVec;
 
 /// Represents the current OpenGL state.

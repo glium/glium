@@ -1,33 +1,33 @@
 use std::ptr;
 
-use BufferExt;
-use BufferSliceExt;
-use ProgramExt;
-use DrawError;
-use UniformsExt;
+use crate::BufferExt;
+use crate::BufferSliceExt;
+use crate::ProgramExt;
+use crate::DrawError;
+use crate::UniformsExt;
 
-use context::Context;
-use ContextExt;
-use TransformFeedbackSessionExt;
+use crate::context::Context;
+use crate::ContextExt;
+use crate::TransformFeedbackSessionExt;
 
-use fbo::{self, ValidatedAttachments};
+use crate::fbo::{self, ValidatedAttachments};
 
-use uniforms::Uniforms;
-use {Program, ToGlEnum};
-use index::{self, IndicesSource};
-use vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
-use vertex_array_object::VertexAttributesSystem;
+use crate::uniforms::Uniforms;
+use crate::{Program, ToGlEnum};
+use crate::index::{self, IndicesSource};
+use crate::vertex::{MultiVerticesSource, VerticesSource, TransformFeedbackSession};
+use crate::vertex_array_object::VertexAttributesSystem;
 
-use draw_parameters::DrawParameters;
+use crate::draw_parameters::DrawParameters;
 
-use {gl, context, draw_parameters};
-use version::Version;
-use version::Api;
+use crate::{gl, context, draw_parameters};
+use crate::version::Version;
+use crate::version::Api;
 
 /// Draws everything.
-pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachments>,
-                      vertex_buffers: V, indices: IndicesSource,
-                      program: &Program, uniforms: &U, draw_parameters: &DrawParameters,
+pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachments<'_>>,
+                      vertex_buffers: V, indices: IndicesSource<'_>,
+                      program: &Program, uniforms: &U, draw_parameters: &DrawParameters<'_>,
                       dimensions: (u32, u32)) -> Result<(), DrawError>
                       where U: Uniforms, V: MultiVerticesSource<'a>
 {
@@ -186,7 +186,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         match &indices {
             &IndicesSource::IndexBuffer { ref buffer, data_type, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
-                let ptr = unsafe { ptr.offset(buffer.get_offset_bytes() as isize) };
+                let ptr = unsafe { ptr.add(buffer.get_offset_bytes()) };
 
                 if let Some(fence) = buffer.add_fence() {
                     fences.push(fence);
@@ -230,43 +230,41 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                                                           instances_count as gl::types::GLsizei);
                         }
 
-                    } else {
-                        if base_vertex != 0 {
-                            if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-                               ctxt.version >= &Version(Api::GlEs, 3, 2) ||
-                               ctxt.extensions.gl_arb_draw_elements_base_vertex
-                            {
-                                ctxt.gl.DrawElementsBaseVertex(primitives.to_glenum(),
-                                                               buffer.get_elements_count() as
-                                                               gl::types::GLsizei,
-                                                               data_type.to_glenum(),
-                                                               ptr as *const _,
-                                                               base_vertex);
+                    } else if base_vertex != 0 {
+                        if ctxt.version >= &Version(Api::Gl, 3, 2) ||
+                           ctxt.version >= &Version(Api::GlEs, 3, 2) ||
+                           ctxt.extensions.gl_arb_draw_elements_base_vertex
+                        {
+                            ctxt.gl.DrawElementsBaseVertex(primitives.to_glenum(),
+                                                           buffer.get_elements_count() as
+                                                           gl::types::GLsizei,
+                                                           data_type.to_glenum(),
+                                                           ptr as *const _,
+                                                           base_vertex);
 
-                            } else if ctxt.extensions.gl_oes_draw_elements_base_vertex {
-                                ctxt.gl.DrawElementsBaseVertexOES(primitives.to_glenum(),
-                                                                  buffer.get_elements_count() as
-                                                                  gl::types::GLsizei,
-                                                                  data_type.to_glenum(),
-                                                                  ptr as *const _,
-                                                                  base_vertex);
-                            } else {
-                                unreachable!();
-                            }
-
+                        } else if ctxt.extensions.gl_oes_draw_elements_base_vertex {
+                            ctxt.gl.DrawElementsBaseVertexOES(primitives.to_glenum(),
+                                                              buffer.get_elements_count() as
+                                                              gl::types::GLsizei,
+                                                              data_type.to_glenum(),
+                                                              ptr as *const _,
+                                                              base_vertex);
                         } else {
-                            ctxt.gl.DrawElements(primitives.to_glenum(),
-                                                 buffer.get_elements_count() as gl::types::GLsizei,
-                                                 data_type.to_glenum(),
-                                                 ptr as *const _);
+                            unreachable!();
                         }
+
+                    } else {
+                        ctxt.gl.DrawElements(primitives.to_glenum(),
+                                             buffer.get_elements_count() as gl::types::GLsizei,
+                                             data_type.to_glenum(),
+                                             ptr as *const _);
                     }
                 }
             },
 
             &IndicesSource::MultidrawArray { ref buffer, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
-                let ptr = unsafe { ptr.offset(buffer.get_offset_bytes() as isize) };
+                let ptr = unsafe { ptr.add(buffer.get_offset_bytes()) };
 
                 debug_assert_eq!(base_vertex, 0);       // enforced earlier in this function
 
@@ -284,7 +282,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
 
             &IndicesSource::MultidrawElement { ref commands, ref indices, data_type, primitives } => {
                 let cmd_ptr: *const u8 = ptr::null_mut();
-                let cmd_ptr = unsafe { cmd_ptr.offset(commands.get_offset_bytes() as isize) };
+                let cmd_ptr = unsafe { cmd_ptr.add(commands.get_offset_bytes()) };
 
                 if let Some(fence) = commands.add_fence() {
                     fences.push(fence);
@@ -334,7 +332,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
     Ok(())
 }
 
-unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext, vertices_per_patch: Option<u16>) {
+unsafe fn sync_vertices_per_patch(ctxt: &mut context::CommandContext<'_>, vertices_per_patch: Option<u16>) {
     if let Some(vertices_per_patch) = vertices_per_patch {
         let vertices_per_patch = vertices_per_patch as gl::types::GLint;
         if ctxt.state.patch_patch_vertices != vertices_per_patch {

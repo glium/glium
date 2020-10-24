@@ -1,11 +1,11 @@
-use context::CommandContext;
-use version::Api;
-use version::Version;
-use gl;
+use crate::context::CommandContext;
+use crate::version::Api;
+use crate::version::Version;
+use crate::gl;
 
-use backend::Facade;
-use context::Context;
-use ContextExt;
+use crate::backend::Facade;
+use crate::context::Context;
+use crate::ContextExt;
 use std::rc::Rc;
 
 use std::thread;
@@ -100,7 +100,7 @@ impl Drop for LinearSyncFence {
     }
 }
 
-pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext)
+pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext<'_>)
                                     -> Result<LinearSyncFence, SyncNotSupportedError>
 {
     if ctxt.version >= &Version(Api::Gl, 3, 2) ||
@@ -123,7 +123,7 @@ pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext)
 /// Waits for this fence and destroys it, from within the commands context.
 #[inline]
 pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
-                                              ctxt: &mut CommandContext)
+                                              ctxt: &mut CommandContext<'_>)
 {
     let fence = fence.id.take().unwrap();
     client_wait(ctxt, fence);
@@ -132,7 +132,7 @@ pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
 
 /// Destroys a fence, from within the commands context.
 #[inline]
-pub unsafe fn destroy_linear_sync_fence(ctxt: &mut CommandContext, mut fence: LinearSyncFence) {
+pub unsafe fn destroy_linear_sync_fence(ctxt: &mut CommandContext<'_>, mut fence: LinearSyncFence) {
     let fence = fence.id.take().unwrap();
     delete_fence(ctxt, fence);
 }
@@ -145,7 +145,7 @@ pub unsafe fn destroy_linear_sync_fence(ctxt: &mut CommandContext, mut fence: Li
 ///
 /// The fence object must exist.
 ///
-unsafe fn client_wait(ctxt: &mut CommandContext, fence: gl::types::GLsync) -> gl::types::GLenum {
+unsafe fn client_wait(ctxt: &mut CommandContext<'_>, fence: gl::types::GLsync) -> gl::types::GLenum {
     // trying without flushing first
     let result = if ctxt.version >= &Version(Api::Gl, 3, 2) ||
                     ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
@@ -187,7 +187,7 @@ unsafe fn client_wait(ctxt: &mut CommandContext, fence: gl::types::GLsync) -> gl
 /// The fence object must exist.
 ///
 #[inline]
-unsafe fn delete_fence(ctxt: &mut CommandContext, fence: gl::types::GLsync) {
+unsafe fn delete_fence(ctxt: &mut CommandContext<'_>, fence: gl::types::GLsync) {
     if ctxt.version >= &Version(Api::Gl, 3, 2) ||
        ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
     {

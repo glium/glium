@@ -1,11 +1,11 @@
-use gl;
+use crate::gl;
 
-use context::CommandContext;
-use version::Version;
-use version::Api;
+use crate::context::CommandContext;
+use crate::version::Version;
+use crate::version::Api;
 
-use backend::Facade;
-use CapabilitiesSource;
+use crate::backend::Facade;
+use crate::CapabilitiesSource;
 
 use std::fmt;
 use std::collections::hash_map::{self, HashMap};
@@ -13,22 +13,22 @@ use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
-use GlObject;
-use ProgramExt;
-use Handle;
-use RawUniformValue;
+use crate::GlObject;
+use crate::ProgramExt;
+use crate::Handle;
+use crate::RawUniformValue;
 
-use program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, ShaderType, Binary};
-use program::GetBinaryError;
+use crate::program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, ShaderType, Binary};
+use crate::program::GetBinaryError;
 
-use program::reflection::{Uniform, UniformBlock, OutputPrimitives};
-use program::reflection::{Attribute, TransformFeedbackBuffer};
-use program::reflection::{SubroutineData, ShaderStage, SubroutineUniform};
-use program::shader::build_shader;
+use crate::program::reflection::{Uniform, UniformBlock, OutputPrimitives};
+use crate::program::reflection::{Attribute, TransformFeedbackBuffer};
+use crate::program::reflection::{SubroutineData, ShaderStage, SubroutineUniform};
+use crate::program::shader::build_shader;
 
-use program::raw::RawProgram;
+use crate::program::raw::RawProgram;
 
-use vertex::VertexFormat;
+use crate::vertex::VertexFormat;
 
 /// A combination of shaders linked together.
 pub struct Program {
@@ -111,9 +111,9 @@ impl Program {
             },
         };
         Ok(Program {
-            raw: raw,
-            outputs_srgb: outputs_srgb,
-            uses_point_size: uses_point_size,
+            raw,
+            outputs_srgb,
+            uses_point_size,
         })
     }
 
@@ -142,9 +142,9 @@ impl Program {
                               -> Result<Program, ProgramCreationError> where F: Facade
     {
         Program::new(facade, ProgramCreationInput::SourceCode {
-            vertex_shader: vertex_shader,
-            fragment_shader: fragment_shader,
-            geometry_shader: geometry_shader,
+            vertex_shader,
+            fragment_shader,
+            geometry_shader,
             tessellation_control_shader: None,
             tessellation_evaluation_shader: None,
             transform_feedback_varyings: None,
@@ -195,7 +195,7 @@ impl Program {
     /// }
     /// ```
     #[inline]
-    pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
+    pub fn uniforms(&self) -> hash_map::Iter<'_, String, Uniform> {
         self.raw.uniforms()
     }
 
@@ -281,7 +281,7 @@ impl Program {
     /// }
     /// ```
     #[inline]
-    pub fn attributes(&self) -> hash_map::Iter<String, Attribute> {
+    pub fn attributes(&self) -> hash_map::Iter<'_, String, Attribute> {
         self.raw.attributes()
     }
 
@@ -353,7 +353,7 @@ impl Program {
 
 impl fmt::Debug for Program {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(formatter, "{:?}", self.raw)
     }
 }
@@ -368,7 +368,7 @@ impl GlObject for Program {
 }
 
 impl ProgramExt for Program {
-    fn use_program(&self, ctxt: &mut CommandContext) {
+    fn use_program(&self, ctxt: &mut CommandContext<'_>) {
         // compatibility was checked at program creation
         if self.uses_point_size && !ctxt.state.enabled_program_point_size {
             unsafe { ctxt.gl.Enable(gl::PROGRAM_POINT_SIZE); }
@@ -376,17 +376,14 @@ impl ProgramExt for Program {
             unsafe { ctxt.gl.Disable(gl::PROGRAM_POINT_SIZE); }
         }
 
-        if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
-           ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control
-        {
-            if ctxt.state.enabled_framebuffer_srgb == self.outputs_srgb {
-                ctxt.state.enabled_framebuffer_srgb = !self.outputs_srgb;
+        if (ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
+           ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control) && ctxt.state.enabled_framebuffer_srgb == self.outputs_srgb {
+            ctxt.state.enabled_framebuffer_srgb = !self.outputs_srgb;
 
-                if self.outputs_srgb {
-                    unsafe { ctxt.gl.Disable(gl::FRAMEBUFFER_SRGB) };
-                } else {
-                    unsafe { ctxt.gl.Enable(gl::FRAMEBUFFER_SRGB) };
-                }
+            if self.outputs_srgb {
+                unsafe { ctxt.gl.Disable(gl::FRAMEBUFFER_SRGB) };
+            } else {
+                unsafe { ctxt.gl.Enable(gl::FRAMEBUFFER_SRGB) };
             }
         }
 
@@ -394,21 +391,21 @@ impl ProgramExt for Program {
     }
 
     #[inline]
-    fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
+    fn set_uniform(&self, ctxt: &mut CommandContext<'_>, uniform_location: gl::types::GLint,
                    value: &RawUniformValue)
     {
         self.raw.set_uniform(ctxt, uniform_location, value)
     }
 
     #[inline]
-    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
+    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext<'_>, block_location: gl::types::GLuint,
                                  value: gl::types::GLuint)
     {
         self.raw.set_uniform_block_binding(ctxt, block_location, value)
     }
 
     #[inline]
-    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
+    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext<'_>,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint)
     {
@@ -416,7 +413,7 @@ impl ProgramExt for Program {
     }
 
     #[inline]
-    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext<'_>,
                                          stage: ShaderStage,
                                          indices: &[gl::types::GLuint])
     {

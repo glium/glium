@@ -5,18 +5,18 @@ use std::mem;
 
 use smallvec::SmallVec;
 
-use Handle;
-use buffer::BufferAnySlice;
-use program::Program;
-use vertex::AttributeType;
-use vertex::VertexFormat;
-use GlObject;
-use BufferExt;
+use crate::Handle;
+use crate::buffer::BufferAnySlice;
+use crate::program::Program;
+use crate::vertex::AttributeType;
+use crate::vertex::VertexFormat;
+use crate::GlObject;
+use crate::BufferExt;
 
-use gl;
-use context::CommandContext;
-use version::Api;
-use version::Version;
+use crate::gl;
+use crate::context::CommandContext;
+use crate::version::Api;
+use crate::version::Version;
 
 /// Stores and handles vertex attributes.
 pub struct VertexAttributesSystem {
@@ -26,7 +26,7 @@ pub struct VertexAttributesSystem {
 }
 
 /// Object allowing one to bind vertex attributes to the current context.
-pub struct Binder<'a, 'b, 'c: 'b> {
+pub struct Binder<'a, 'b, 'c> {
     context: &'b mut CommandContext<'c>,
     program: &'a Program,
     element_array_buffer: Option<BufferAnySlice<'a>>,
@@ -58,31 +58,31 @@ impl VertexAttributesSystem {
 
         Binder {
             context: ctxt,
-            program: program,
+            program,
             element_array_buffer: indices,
             vertex_buffers: SmallVec::new(),
-            base_vertex: base_vertex,
+            base_vertex,
         }
     }
 
     /// This function *must* be called whenever you destroy a buffer so that the system can
     /// purge its VAOs cache.
     #[inline]
-    pub fn purge_buffer(ctxt: &mut CommandContext, id: gl::types::GLuint) {
+    pub fn purge_buffer(ctxt: &mut CommandContext<'_>, id: gl::types::GLuint) {
         VertexAttributesSystem::purge_if(ctxt, |&(ref buffers, _)| {
-            buffers.iter().find(|&&(b, _)| b == id).is_some()
+            buffers.iter().any(|&(b, _)| b == id)
         })
     }
 
     /// This function *must* be called whenever you destroy a program so that the system can
     /// purge its VAOs cache.
     #[inline]
-    pub fn purge_program(ctxt: &mut CommandContext, program: Handle) {
+    pub fn purge_program(ctxt: &mut CommandContext<'_>, program: Handle) {
         VertexAttributesSystem::purge_if(ctxt, |&(_, p)| p == program)
     }
 
     /// Purges the VAOs cache.
-    pub fn purge_all(ctxt: &mut CommandContext) {
+    pub fn purge_all(ctxt: &mut CommandContext<'_>) {
         let vaos = mem::replace(&mut *ctxt.vertex_array_objects.vaos.borrow_mut(),
                                 HashMap::with_hasher(Default::default()));
 
@@ -93,7 +93,7 @@ impl VertexAttributesSystem {
 
     /// Purges the VAOs cache. Contrary to `purge_all`, this function expects the system to be
     /// destroyed soon.
-    pub fn cleanup(ctxt: &mut CommandContext) {
+    pub fn cleanup(ctxt: &mut CommandContext<'_>) {
         let vaos = mem::replace(&mut *ctxt.vertex_array_objects.vaos.borrow_mut(),
                                 HashMap::with_hasher(Default::default()));
 
@@ -103,7 +103,7 @@ impl VertexAttributesSystem {
     }
 
     /// Tells the VAOs system that the currently bound element array buffer will change.
-    pub fn hijack_current_element_array_buffer(ctxt: &mut CommandContext) {
+    pub fn hijack_current_element_array_buffer(ctxt: &mut CommandContext<'_>) {
         let vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
 
         for (_, vao) in vaos.iter() {
@@ -115,7 +115,7 @@ impl VertexAttributesSystem {
     }
 
     /// Purges VAOs that match a certain condition.
-    fn purge_if<F>(ctxt: &mut CommandContext, mut condition: F)
+    fn purge_if<F>(ctxt: &mut CommandContext<'_>, mut condition: F)
                    where F: FnMut(&(Vec<(gl::types::GLuint, usize)>, Handle)) -> bool
     {
         let mut vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
@@ -142,7 +142,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     /// - `first`: Offset of the first element of the buffer in number of elements.
     /// - `divisor`: If `Some`, use this value for `glVertexAttribDivisor` (instancing-related).
     #[inline]
-    pub fn add(mut self, buffer: &BufferAnySlice, bindings: &VertexFormat, divisor: Option<u32>)
+    pub fn add(mut self, buffer: &BufferAnySlice<'_>, bindings: &VertexFormat, divisor: Option<u32>)
                -> Binder<'a, 'b, 'c>
     {
         let offset = buffer.get_offset_bytes();
@@ -189,7 +189,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
                                                               .map(|&(v, _, o, s, _)| (v, o))
                                                               .collect();
             buffers_list.push((self.element_array_buffer.map(|b| b.get_id()).unwrap_or(0), 0));
-            buffers_list.sort();
+            buffers_list.sort_unstable();
 
             let program_id = self.program.get_id();
 
@@ -253,9 +253,9 @@ impl VertexArrayObject {
     ///
     /// The vertex buffer, index buffer and program must not outlive the
     /// VAO, and the VB & program attributes must not change.
-    unsafe fn new(mut ctxt: &mut CommandContext,
+    unsafe fn new(mut ctxt: &mut CommandContext<'_>,
                   vertex_buffers: &[(gl::types::GLuint, VertexFormat, usize, usize, Option<u32>)],
-                  index_buffer: Option<BufferAnySlice>, program: &Program) -> VertexArrayObject
+                  index_buffer: Option<BufferAnySlice<'_>>, program: &Program) -> VertexArrayObject
     {
         // checking the attributes types
         for &(_, ref bindings, _, _, _) in vertex_buffers {
@@ -278,7 +278,7 @@ impl VertexArrayObject {
         for (&ref name, _) in program.attributes() {
             let mut found = false;
             for &(_, ref bindings, _, _, _) in vertex_buffers {
-                if bindings.iter().find(|&&(ref n, _, _, _)| n == name).is_some() {
+                if bindings.iter().any(|&(ref n, _, _, _)| n == name) {
                     found = true;
                     break;
                 }
@@ -322,7 +322,7 @@ impl VertexArrayObject {
         }
 
         VertexArrayObject {
-            id: id,
+            id,
             destroyed: false,
             element_array_buffer: index_buffer.map(|b| b.get_id()).unwrap_or(0),
             element_array_buffer_hijacked: Cell::new(false),
@@ -330,7 +330,7 @@ impl VertexArrayObject {
     }
 
     /// Sets this VAO as the current VAO.
-    fn bind(&self, ctxt: &mut CommandContext) {
+    fn bind(&self, ctxt: &mut CommandContext<'_>) {
         unsafe {
             bind_vao(ctxt, self.id);
 
@@ -353,7 +353,7 @@ impl VertexArrayObject {
 
     /// Must be called to destroy the VAO (otherwise its destructor will panic as a safety
     /// measure).
-    fn destroy(mut self, ctxt: &mut CommandContext) {
+    fn destroy(mut self, ctxt: &mut CommandContext<'_>) {
         self.destroyed = true;
 
         // unbinding
@@ -480,7 +480,7 @@ fn vertex_binding_type_to_gl(ty: AttributeType) -> (gl::types::GLenum, gl::types
 /// ## Panic
 ///
 /// Panics if the backend doesn't support vertex array objects.
-fn bind_vao(ctxt: &mut CommandContext, vao_id: gl::types::GLuint) {
+fn bind_vao(ctxt: &mut CommandContext<'_>, vao_id: gl::types::GLuint) {
     if ctxt.state.vertex_array != vao_id {
         if ctxt.version >= &Version(Api::Gl, 3, 0) ||
             ctxt.version >= &Version(Api::GlEs, 3, 0) ||
@@ -500,7 +500,7 @@ fn bind_vao(ctxt: &mut CommandContext, vao_id: gl::types::GLuint) {
 }
 
 /// Binds an individual attribute to the current VAO.
-unsafe fn bind_attribute(ctxt: &mut CommandContext, program: &Program,
+unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
                          vertex_buffer: gl::types::GLuint, bindings: &VertexFormat,
                          buffer_offset: usize, stride: usize, divisor: Option<u32>)
 {
