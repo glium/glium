@@ -26,12 +26,12 @@
 
 ## Version 0.24.0 (2019-04-08)
 
- - Updated glutin to version 0.20. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0200-2019-03-09).
+ - Updated glutin to version 0.20. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0200-2019-03-09).
  - Depth comparison and shadow mapping ([#1679](https://github.com/glium/glium/pull/1679)).
 
 ## Version 0.23.0 (2018-12-05)
 
- - Updated glutin to version 0.19. See the glutin release notes [here](https://github.com/tomaka/glutin/blob/master/CHANGELOG.md#version-0190-2018-11-09).
+ - Updated glutin to version 0.19. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0190-2018-11-09).
 
 ## Version 0.22.0 (2018-07-02)
 
@@ -55,7 +55,7 @@
 
 ## Version 0.19.0 (2017-12-11)
 
- - Updated glutin to version 0.11. Notably includes the [winit 0.9 update](https://github.com/tomaka/winit/blob/master/CHANGELOG.md#version-090-2017-12-01).
+ - Updated glutin to version 0.11. Notably includes the [winit 0.9 update](https://github.com/rust-windowing/winit/blob/master/CHANGELOG.md#version-090-2017-12-01).
  - Updated gl_generator to 0.7 (internal dependency).
 
 ## Version 0.18.1 (2017-11-05)
