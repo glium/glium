@@ -51,7 +51,7 @@ Loading the texture is done like we have already done before:
 
 ```rust
 let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-diffuse.jpg")[..]),
-                        image::JPEG).unwrap().to_rgba();
+                        image::JPEG).unwrap().to_rgba8();
 let image_dimensions = image.dimensions();
 let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
 let diffuse_texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
@@ -135,7 +135,7 @@ Let's start with the beginning. We load the normal map into a texture:
 
 ```rust
 let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-normal.png")[..]),
-                        image::PNG).unwrap().to_rgba();
+                        image::PNG).unwrap().to_rgba8();
 let image_dimensions = image.dimensions();
 let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
 let normal_map = glium::texture::Texture2d::new(&display, image).unwrap();
