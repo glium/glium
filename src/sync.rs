@@ -22,11 +22,12 @@ pub struct SyncNotSupportedError;
 /// ## Example
 ///
 /// ```no_run
-/// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+/// # fn example(display: glium::Display) {
 /// # fn do_something<T>(_: &T) {}
 /// let fence = glium::SyncFence::new(&display).unwrap();
 /// do_something(&display);
 /// fence.wait();   // blocks until the previous operations have finished
+/// # }
 /// ```
 pub struct SyncFence {
     context: Rc<Context>,

@@ -508,10 +508,7 @@ impl Context {
     /// ## Example
     ///
     /// ```no_run
-    /// # extern crate glium;
-    /// # extern crate glutin;
-    /// # fn main() {
-    /// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+    /// # fn example(display: glium::Display) {
     /// let pixels: Result<Vec<Vec<(u8, u8, u8, u8)>>, _> = display.read_front_buffer();
     /// # }
     /// ```

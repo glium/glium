@@ -57,14 +57,10 @@ use crate::gl;
 /// # Example
 ///
 /// ```no_run
-/// # #[macro_use]
-/// # extern crate glium;
+/// # use glium::{implement_vertex, uniform};
 /// # use glium::Surface;
-/// # fn main() {
-/// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-/// # let program: glium::Program = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-/// # let vb: glium::vertex::VertexBufferAny = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-/// # let ib: glium::index::IndexBuffer<u16> = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+/// # fn example(display: glium::Display, program: glium::Program,
+/// #            vb: glium::vertex::VertexBufferAny, ib: glium::index::IndexBuffer<u16>) {
 /// #[derive(Copy, Clone, Debug, PartialEq)]
 /// struct Vertex {
 ///     output_val: (f32, f32),
