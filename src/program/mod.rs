@@ -285,29 +285,103 @@ pub enum ProgramCreationInput<'a> {
         uses_point_size: bool,
     },
 
-    /// Use a SPIR-V binary. `vertex_shader` and `fragment_shader` can refer to entry points in the same binary.
-    SpirV {
-        /// The vertex shader.
-        vertex_shader: SpirV<'a>,
+    /// Use a SPIR-V binary.
+    SpirV(SpirvProgram<'a>),
+}
 
-        /// The fragment shader.
-        fragment_shader: SpirV<'a>,
+/// Represents a SPIR-V program. The shaders can refer to entry points in the same binary.
+#[derive(Clone)]
+pub struct SpirvProgram<'a> {
+    /// The vertex shader.
+    pub vertex_shader: SpirvEntryPoint<'a>,
 
-        /// See `SourceCode::outputs_srgb`.
-        outputs_srgb: bool,
+    /// The fragment shader.
+    pub fragment_shader: SpirvEntryPoint<'a>,
 
-        /// Whether the shader uses point size.
-        uses_point_size: bool,
+    /// Optional tessellation control shader.
+    pub tessellation_control_shader: Option<SpirvEntryPoint<'a>>,
+
+    /// Optional tessellation evaluation shader.
+    pub tessellation_evaluation_shader: Option<SpirvEntryPoint<'a>>,
+
+    /// Optional geometry shader.
+    pub geometry_shader: Option<SpirvEntryPoint<'a>>,
+
+    /// The list of variables and mode to use for transform feedback.
+    ///
+    /// The information specified here will be passed to the OpenGL linker. If you pass
+    /// `None`, then you won't be able to use transform feedback.
+    pub transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
+
+    /// See `SourceCode::outputs_srgb`.
+    pub outputs_srgb: bool,
+
+    /// Whether the shader uses point size.
+    pub uses_point_size: bool,
+}
+
+impl<'a> SpirvProgram<'a> {
+    /// Create new `SpirvProgram` from vertex and fragment shaders.
+    pub fn from_vs_and_fs(
+        vertex_shader: SpirvEntryPoint<'a>,
+        fragment_shader: SpirvEntryPoint<'a>,
+    ) -> Self {
+        Self {
+            vertex_shader,
+            fragment_shader,
+            tessellation_control_shader: Default::default(),
+            tessellation_evaluation_shader: Default::default(),
+            geometry_shader: Default::default(),
+            transform_feedback_varyings: Default::default(),
+            outputs_srgb: Default::default(),
+            uses_point_size: Default::default(),
+        }
+    }
+
+    /// Builder method to set `tessellation_control_shader`.
+    pub fn tessellation_control_shader(mut self, tessellation_control_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+        self.tessellation_control_shader = tessellation_control_shader;
+        self
+    }
+
+    /// Builder method to set `tessellation_evaluation_shader`.
+    pub fn tessellation_evaluation_shader(mut self, tessellation_evaluation_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+        self.tessellation_evaluation_shader = tessellation_evaluation_shader;
+        self
+    }
+
+    /// Builder method to set `geometry_shader`.
+    pub fn geometry_shader(mut self, geometry_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+        self.geometry_shader = geometry_shader;
+        self
+    }
+
+    /// Builder method to set `transform_feedback_varyings`.
+    pub fn transform_feedback_varyings(mut self, transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>) -> Self {
+        self.transform_feedback_varyings = transform_feedback_varyings;
+        self
+    }
+
+    /// Builder method to set `outputs_srgb`.
+    pub fn outputs_srgb(mut self, outputs_srgb: bool) -> Self {
+        self.outputs_srgb = outputs_srgb;
+        self
+    }
+
+    /// Builder method to set `uses_point_size`.
+    pub fn uses_point_size(mut self, uses_point_size: bool) -> Self {
+        self.uses_point_size = uses_point_size;
+        self
     }
 }
 
-/// Represents the binary SPIR-V module.
+/// Represents an entry point of a binary SPIR-V module.
 #[derive(Copy, Clone)]
-pub struct SpirV<'a> {
-    /// The binary data.
-    pub data: &'a [u8],
+pub struct SpirvEntryPoint<'a> {
+    /// The binary module data.
+    pub binary: &'a [u8],
 
-    /// The entry point to use. Usually "main".
+    /// The entry point to use, e.g. "main".
     pub entry_point: &'a str,
 }
 

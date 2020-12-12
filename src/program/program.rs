@@ -18,7 +18,7 @@ use crate::ProgramExt;
 use crate::Handle;
 use crate::RawUniformValue;
 
-use crate::program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, ShaderType, Binary};
+use crate::program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, ShaderType, Binary, SpirvProgram};
 use crate::program::GetBinaryError;
 
 use crate::program::reflection::{Uniform, UniformBlock, OutputPrimitives};
@@ -110,22 +110,56 @@ impl Program {
                 (RawProgram::from_binary(facade, data)?, outputs_srgb, uses_point_size)
             },
 
-            ProgramCreationInput::SpirV { vertex_shader, fragment_shader, outputs_srgb, uses_point_size } => {
+            ProgramCreationInput::SpirV(SpirvProgram { vertex_shader, tessellation_control_shader,
+                                               tessellation_evaluation_shader, geometry_shader,
+                                               fragment_shader, transform_feedback_varyings,
+                                               outputs_srgb, uses_point_size }) =>
+            {
+                let mut has_geometry_shader = false;
+                let mut has_tessellation_control_shader = false;
+                let mut has_tessellation_evaluation_shader = false;
+
+                let mut shaders = vec![
+                    (vertex_shader, ShaderType::Vertex),
+                    (fragment_shader, ShaderType::Fragment)
+                ];
+
+                if let Some(gs) = geometry_shader {
+                    shaders.push((gs, ShaderType::Geometry));
+                    has_geometry_shader = true;
+                }
+
+                if let Some(ts) = tessellation_control_shader {
+                    shaders.push((ts, ShaderType::TesselationControl));
+                    has_tessellation_control_shader = true;
+                }
+
+                if let Some(ts) = tessellation_evaluation_shader {
+                    shaders.push((ts, ShaderType::TesselationEvaluation));
+                    has_tessellation_evaluation_shader = true;
+                }
+
+                // TODO: move somewhere else
+                if transform_feedback_varyings.is_some() &&
+                    !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) &&
+                    !facade.get_context().get_extensions().gl_ext_transform_feedback
+                {
+                    return Err(ProgramCreationError::TransformFeedbackNotSupported);
+                }
+
                 if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
-                let has_geometry_shader = false;
-                let has_tessellation_control_shader = false;
-                let has_tessellation_evaluation_shader = false;
-                let transform_feedback_varyings = None;
-
                 let _lock = COMPILER_GLOBAL_LOCK.lock();
 
-                let shaders_store = [
-                    build_spirv_shader(facade, ShaderType::Vertex.to_opengl_type(), &vertex_shader)?,
-                    build_spirv_shader(facade, ShaderType::Fragment.to_opengl_type(), &fragment_shader)?,
-                ];
+                let shaders_store = {
+                    let mut shaders_store = Vec::new();
+                    for (src, ty) in shaders.into_iter() {
+                        shaders_store.push(build_spirv_shader(facade, ty.to_opengl_type(), &src)?);
+                    }
+                    shaders_store
+                };
 
                 (RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
                                                has_tessellation_control_shader, has_tessellation_evaluation_shader,

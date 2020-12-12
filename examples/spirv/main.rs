@@ -7,7 +7,7 @@ extern crate glium;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
-use glium::program::SpirV;
+use glium::program::{ProgramCreationInput, SpirvProgram, SpirvEntryPoint};
 
 fn main() {
     // building the display, ie. the main object
@@ -34,14 +34,11 @@ fn main() {
                                                &[0u8, 1, 2]).unwrap();
 
     // loading SPIR-V module that contains fragment and vertex shader entry points both called "main"
-    let spirv = SpirV { data: include_bytes!("shader.spv"), entry_point: "main" };
-    let program = glium::Program::new(&display,
-        glium::program::ProgramCreationInput::SpirV {
-            vertex_shader: spirv,
-            fragment_shader: spirv,
-            outputs_srgb: false,
-            uses_point_size: false,
-        }).unwrap();
+    let spirv = SpirvEntryPoint { binary: include_bytes!("shader.spv"), entry_point: "main" };
+    let program = glium::Program::new(
+        &display,
+        ProgramCreationInput::SpirV(SpirvProgram::from_vs_and_fs(spirv, spirv))
+    ).unwrap();
 
     // drawing once
 
