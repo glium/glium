@@ -18,19 +18,9 @@ fn main() {
 }
 
 fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
-    let gl_registry_4_6 = Registry::new(
+    let gl_registry = Registry::new(
         Api::Gl,
         (4, 6),
-        Profile::Compatibility,
-        Fallbacks::None,
-        vec![
-            "GL_ARB_gl_spirv",
-        ],
-    );
-
-    let gl_registry_4_5 = Registry::new(
-        Api::Gl,
-        (4, 5),
         Profile::Compatibility,
         Fallbacks::None,
         vec![
@@ -50,6 +40,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_ARB_ES3_2_compatibility",
             "GL_ARB_framebuffer_sRGB",
             "GL_ARB_geometry_shader4",
+            "GL_ARB_gl_spirv",
             "GL_ARB_gpu_shader_fp64",
             "GL_ARB_gpu_shader_int64",
             "GL_ARB_invalidate_subdata",
@@ -128,7 +119,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
         ],
     );
 
-    (gl_registry_4_6 + gl_registry_4_5 + gles_registry)
+    (gl_registry + gles_registry)
         .write_bindings(gl_generator::StructGenerator, dest)
         .unwrap();
 }
