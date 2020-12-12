@@ -16,11 +16,11 @@ use crate::ProgramExt;
 use crate::Handle;
 use crate::RawUniformValue;
 
-use crate::program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, GetBinaryError};
+use crate::program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, GetBinaryError, SpirvEntryPoint};
 
 use crate::program::reflection::{Uniform, UniformBlock};
 use crate::program::reflection::{ShaderStage, SubroutineData};
-use crate::program::shader::{build_shader, check_shader_type_compatibility};
+use crate::program::shader::{build_shader, build_spirv_shader, check_shader_type_compatibility};
 
 use crate::program::raw::RawProgram;
 
@@ -47,6 +47,20 @@ impl ComputeShader {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
 
         let shader = build_shader(facade, gl::COMPUTE_SHADER, src)?;
+
+        Ok(ComputeShader {
+            raw: RawProgram::from_shaders(facade, &[shader], false, false, false, None)?
+        })
+    }
+
+    /// Builds a new compute shader from SPIR-V module.
+    #[inline]
+    pub fn from_spirv<F: ?Sized>(facade: &F, spirv: &SpirvEntryPoint) -> Result<ComputeShader, ProgramCreationError>
+                          where F: Facade
+    {
+        let _lock = COMPILER_GLOBAL_LOCK.lock();
+
+        let shader = build_spirv_shader(facade, gl::COMPUTE_SHADER, spirv)?;
 
         Ok(ComputeShader {
             raw: RawProgram::from_shaders(facade, &[shader], false, false, false, None)?
