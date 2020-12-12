@@ -62,7 +62,7 @@ lazy_static! {
     static ref COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
 }
 
-/// Used in ProgramCreationError::CompilationError to explain which shader stage failed compilation 
+/// Used in ProgramCreationError::CompilationError to explain which shader stage failed compilation
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ShaderType {
     /// Vertex shader, maps to gl::VERTEX_SHADER
@@ -277,6 +277,21 @@ pub enum ProgramCreationInput<'a> {
     Binary {
         /// The data.
         data: Binary,
+
+        /// See `SourceCode::outputs_srgb`.
+        outputs_srgb: bool,
+
+        /// Whether the shader uses point size.
+        uses_point_size: bool,
+    },
+
+    /// Use a SPIR-V binary.
+    SpirV {
+        /// Source code of the vertex shader.
+        vertex_shader: &'a str,
+
+        /// The fragment shader as SPIR-V binary.
+        fragment_shader: Vec<u8>,
 
         /// See `SourceCode::outputs_srgb`.
         outputs_srgb: bool,

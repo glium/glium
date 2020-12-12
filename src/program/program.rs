@@ -24,7 +24,7 @@ use crate::program::GetBinaryError;
 use crate::program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use crate::program::reflection::{Attribute, TransformFeedbackBuffer};
 use crate::program::reflection::{SubroutineData, ShaderStage, SubroutineUniform};
-use crate::program::shader::build_shader;
+use crate::program::shader::{build_shader, build_spirv_shader};
 
 use crate::program::raw::RawProgram;
 
@@ -109,6 +109,29 @@ impl Program {
 
                 (RawProgram::from_binary(facade, data)?, outputs_srgb, uses_point_size)
             },
+
+            ProgramCreationInput::SpirV { vertex_shader, fragment_shader, outputs_srgb, uses_point_size } => {
+                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                    return Err(ProgramCreationError::PointSizeNotSupported);
+                }
+
+                let has_geometry_shader = false;
+                let has_tessellation_control_shader = false;
+                let has_tessellation_evaluation_shader = false;
+                let transform_feedback_varyings = None;
+
+                let _lock = COMPILER_GLOBAL_LOCK.lock();
+
+                let shaders_store = [
+                    build_shader(facade, ShaderType::Vertex.to_opengl_type(), vertex_shader)?,
+                    build_spirv_shader(facade, ShaderType::Fragment.to_opengl_type(), &fragment_shader)?,
+                ];
+
+                (RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
+                                               has_tessellation_control_shader, has_tessellation_evaluation_shader,
+                                               transform_feedback_varyings)?,
+                 outputs_srgb, uses_point_size)
+            }
         };
         Ok(Program {
             raw,

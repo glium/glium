@@ -18,7 +18,17 @@ fn main() {
 }
 
 fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
-    let gl_registry = Registry::new(
+    let gl_registry_4_6 = Registry::new(
+        Api::Gl,
+        (4, 6),
+        Profile::Compatibility,
+        Fallbacks::None,
+        vec![
+            "GL_ARB_gl_spirv",
+        ],
+    );
+
+    let gl_registry_4_5 = Registry::new(
         Api::Gl,
         (4, 5),
         Profile::Compatibility,
@@ -118,7 +128,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
         ],
     );
 
-    (gl_registry + gles_registry)
+    (gl_registry_4_6 + gl_registry_4_5 + gles_registry)
         .write_bindings(gl_generator::StructGenerator, dest)
         .unwrap();
 }
