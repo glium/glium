@@ -38,9 +38,17 @@ ProgramCreationInput::SpirV {
 
 Note: It's not a problem that both entry points are named `main`, since they are distinguished by their shader type:
 ```sh
-spirv-dis shader.spv | grep OpEntryPoint
-               OpEntryPoint Vertex %main "main" %uv %gl_VertexID %_ %gl_InstanceID
-               OpEntryPoint Fragment %main_0 "main" %gl_FragCoord %color
+$ spirv-cross shader.spv --reflect | jq .entryPoints
+[
+  {
+    "name": "main",
+    "mode": "vert"
+  },
+  {
+    "name": "main",
+    "mode": "frag"
+  }
+]
 ```
 
 But we could also rename the entry points:
