@@ -186,15 +186,6 @@ pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, sourc
 pub fn build_spirv_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, binary: &[u8])
                        -> Result<Shader, ProgramCreationError> where F: Facade
 {
-    fn words_from_bytes(buf: &[u8]) -> &[u32] {
-        unsafe {
-            std::slice::from_raw_parts(
-                buf.as_ptr() as *const u32,
-                buf.len() / std::mem::size_of::<u32>(),
-            )
-        }
-    }
-
     unsafe {
         let mut ctxt = facade.get_context().make_current();
 
@@ -205,8 +196,6 @@ pub fn build_spirv_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum,
         if !check_shader_type_compatibility(&mut ctxt, shader_type) {
             return Err(ProgramCreationError::ShaderTypeNotSupported);
         }
-
-        let binary = words_from_bytes(binary);
 
         let id = if ctxt.version >= &Version(Api::Gl, 4, 6) || ctxt.extensions.gl_arb_gl_spirv {
             Handle::Id(ctxt.gl.CreateShader(shader_type))
