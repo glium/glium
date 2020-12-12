@@ -288,10 +288,10 @@ pub enum ProgramCreationInput<'a> {
     /// Use a SPIR-V binary.
     SpirV {
         /// Source code of the vertex shader.
-        vertex_shader: &'a str,
+        vertex_shader: &'a [u8],
 
         /// The fragment shader as SPIR-V binary.
-        fragment_shader: Vec<u8>,
+        fragment_shader: &'a [u8],
 
         /// See `SourceCode::outputs_srgb`.
         outputs_srgb: bool,

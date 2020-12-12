@@ -123,8 +123,8 @@ impl Program {
                 let _lock = COMPILER_GLOBAL_LOCK.lock();
 
                 let shaders_store = [
-                    build_shader(facade, ShaderType::Vertex.to_opengl_type(), vertex_shader)?,
-                    build_spirv_shader(facade, ShaderType::Fragment.to_opengl_type(), &fragment_shader)?,
+                    build_spirv_shader(facade, ShaderType::Vertex.to_opengl_type(), vertex_shader)?,
+                    build_spirv_shader(facade, ShaderType::Fragment.to_opengl_type(), fragment_shader)?,
                 ];
 
                 (RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,

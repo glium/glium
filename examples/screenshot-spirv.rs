@@ -31,8 +31,8 @@ fn main() {
     // loading SPIR-V fragment shader with GLSL vertex shader and linking them together
     let program = glium::Program::new(&display,
         glium::program::ProgramCreationInput::SpirV {
-            vertex_shader: include_str!("spirv/shader.vert"),
-            fragment_shader: include_bytes!("spirv/frag.spv").to_vec(),
+            vertex_shader: include_bytes!("spirv/vert.spv"),
+            fragment_shader: include_bytes!("spirv/frag.spv"),
             outputs_srgb: true,
             uses_point_size: false,
         }).unwrap();
