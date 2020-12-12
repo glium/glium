@@ -285,13 +285,13 @@ pub enum ProgramCreationInput<'a> {
         uses_point_size: bool,
     },
 
-    /// Use a SPIR-V binary.
+    /// Use a SPIR-V binary. `vertex_shader` and `fragment_shader` can refer to entry points in the same binary.
     SpirV {
-        /// Source code of the vertex shader.
-        vertex_shader: &'a [u8],
+        /// The vertex shader.
+        vertex_shader: SpirV<'a>,
 
-        /// The fragment shader as SPIR-V binary.
-        fragment_shader: &'a [u8],
+        /// The fragment shader.
+        fragment_shader: SpirV<'a>,
 
         /// See `SourceCode::outputs_srgb`.
         outputs_srgb: bool,
@@ -299,6 +299,16 @@ pub enum ProgramCreationInput<'a> {
         /// Whether the shader uses point size.
         uses_point_size: bool,
     }
+}
+
+/// Represents the binary SPIR-V module.
+#[derive(Copy, Clone)]
+pub struct SpirV<'a> {
+    /// The binary data.
+    pub data: &'a [u8],
+
+    /// The entry point to use. Usually "main".
+    pub entry_point: &'a str,
 }
 
 /// Represents the source code of a program.

@@ -13,7 +13,7 @@ use std::rc::Rc;
 use crate::GlObject;
 use crate::Handle;
 
-use crate::program::{ProgramCreationError, ShaderType};
+use crate::program::{ProgramCreationError, ShaderType, SpirV};
 
 /// A single, compiled but unlinked, shader.
 pub struct Shader {
@@ -183,7 +183,7 @@ pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, sourc
 }
 
 /// Builds an individual shader from a SPIR-V binary.
-pub fn build_spirv_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, binary: &[u8])
+pub fn build_spirv_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, spirv: &SpirV)
                        -> Result<Shader, ProgramCreationError> where F: Facade
 {
     unsafe {
@@ -207,6 +207,9 @@ pub fn build_spirv_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum,
             return Err(ProgramCreationError::ShaderTypeNotSupported);
         }
 
+        let binary = &spirv.data;
+        let entry_point = ffi::CString::new(spirv.entry_point.as_bytes()).unwrap();
+
         const GL_SHADER_BINARY_FORMAT_SPIR_V_ARB: gl::types::GLenum = 0x9551;
         match id {
             Handle::Id(id) => {
@@ -223,7 +226,6 @@ pub fn build_spirv_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum,
         {
             ctxt.report_debug_output_errors.set(false);
 
-            let entry_point = b"main\0";
             match id {
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 4, 6));

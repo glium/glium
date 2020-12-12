@@ -1,9 +1,13 @@
+// This example demonstrates SPIR-V shader loading.
+// It's based on the screenshot example but uses an empty vertex buffer.
+
 #[macro_use]
 extern crate glium;
 
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
+use glium::program::SpirV;
 
 fn main() {
     // building the display, ie. the main object
@@ -13,6 +17,7 @@ fn main() {
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building the vertex buffer with no vertices
+    // https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers/
     let vertex_buffer = {
         #[derive(Copy, Clone)]
         struct Vertex {
@@ -28,12 +33,13 @@ fn main() {
     let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
                                                &[0u8, 1, 2]).unwrap();
 
-    // loading SPIR-V fragment shader with GLSL vertex shader and linking them together
+    // loading SPIR-V module that contains fragment and vertex shader entry points both called "main"
+    let spirv = SpirV { data: include_bytes!("shader.spv"), entry_point: "main" };
     let program = glium::Program::new(&display,
         glium::program::ProgramCreationInput::SpirV {
-            vertex_shader: include_bytes!("spirv/vert.spv"),
-            fragment_shader: include_bytes!("spirv/frag.spv"),
-            outputs_srgb: true,
+            vertex_shader: spirv,
+            fragment_shader: spirv,
+            outputs_srgb: false,
             uses_point_size: false,
         }).unwrap();
 
