@@ -9,13 +9,10 @@ the `#[uniforms]` attribute on it. See the `glium_macros` crate for more infos.
 The second way is to use the `uniform!` macro provided by glium:
 
 ```no_run
-#[macro_use]
-extern crate glium;
-
-# fn main() {
-# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-# let tex: f32 = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-# let matrix: f32 = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# use glium::uniform;
+# fn example(display: glium::Display) {
+# let tex: f32 = 0.0;
+# let matrix: f32 = 0.0;
 let uniforms = uniform! {
     texture: tex,
     matrix: matrix
@@ -30,12 +27,8 @@ In both situations, each field must implement the `UniformValue` trait.
 In order to customize the way a texture is being sampled, you must use a `Sampler`.
 
 ```no_run
-#[macro_use]
-extern crate glium;
-
-# fn main() {
-# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-# let texture: glium::texture::Texture2d = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# use glium::uniform;
+# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
 let uniforms = uniform! {
     texture: glium::uniforms::Sampler::new(&texture)
                         .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
@@ -50,12 +43,8 @@ upload the content of this block in the video memory thanks to a `UniformBuffer`
 can link the buffer to the name of the block, just like any other uniform.
 
 ```no_run
-#[macro_use]
-extern crate glium;
-# fn main() {
-# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-# let texture: glium::texture::Texture2d = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-
+# use glium::uniform;
+# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
 let program = glium::Program::from_source(&display,
     "
         #version 110
@@ -96,12 +85,8 @@ than using multiple programs that are switched during execution.
 A subroutine uniform is unique per shader stage, and not per program.
 
 ```no_run
-#[macro_use]
-extern crate glium;
-# fn main() {
-# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-# let texture: glium::texture::Texture2d = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-
+# use glium::uniform;
+# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
 let program = glium::Program::from_source(&display,
     "
         #version 150

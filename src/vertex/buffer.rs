@@ -108,7 +108,6 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// ```no_run
     /// # #[macro_use]
     /// # extern crate glium;
-    /// # extern crate glutin;
     /// # fn main() {
     /// #[derive(Copy, Clone)]
     /// struct Vertex {
@@ -118,11 +117,12 @@ impl<T> VertexBuffer<T> where T: Vertex {
     ///
     /// implement_vertex!(Vertex, position, texcoords);
     ///
-    /// # let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+    /// # fn example(display: glium::Display) {
     /// let vertex_buffer = glium::VertexBuffer::new(&display, &[
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },
     /// ]);
+    /// # }
     /// # }
     /// ```
     ///
@@ -233,9 +233,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// # Example
     ///
     /// ```no_run
-    /// # extern crate glium;
-    /// # extern crate glutin;
-    /// # fn main() {
+    /// # fn example(display: glium::Display) {
     /// use std::borrow::Cow;
     ///
     /// let bindings = Cow::Owned(vec![(
@@ -249,7 +247,6 @@ impl<T> VertexBuffer<T> where T: Copy {
     ///     ),
     /// ]);
     ///
-    /// # let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
     /// let data = vec![
     ///     1.0, -0.3, 409.0,
     ///     -0.4, 2.8, 715.0f32

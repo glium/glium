@@ -440,9 +440,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                                 ///
                                 /// ```no_run
                                 /// # #[macro_use] extern crate glium;
-                                /// # fn main() {{
-                                /// # let texture: glium::texture::Texture2d = unsafe {{
-                                /// # ::std::mem::MaybeUninit::uninit().assume_init() }};
+                                /// # fn example(texture: glium::texture::Texture2d) {{
                                 /// let uniforms = uniform! {{
                                 ///     color_texture: texture.sampled().magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
                                 /// }};

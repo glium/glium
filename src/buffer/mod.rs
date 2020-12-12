@@ -25,10 +25,10 @@
 //! `implement_buffer_content!` macro on them. You must then use the `empty_unsized` constructor.
 //!
 //! ```no_run
-//! # #[macro_use] extern crate glium; fn main() {
+//! # #[macro_use] extern crate glium;
+//! # fn example(display: glium::Display) {
 //! # use std::mem;
 //! # use glium::buffer::{BufferType, BufferMode};
-//! # let display: glium::Display = unsafe { mem::MaybeUninit::uninit().assume_init() };
 //! struct Data {
 //!     data: [f32],        // `[f32]` is unsized, therefore `Data` is unsized too
 //! }

@@ -427,11 +427,9 @@ macro_rules! implement_uniform_block {
 ///
 /// ## Example
 ///
-/// ```ignore       // TODO: no_run instead
-/// # #[macro_use]
-/// # extern crate glium;
-/// # fn main() {
-/// # let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+/// ```no_run
+/// use glium::program;
+/// # fn example(display: glium::Display) {
 /// let program = program!(&display,
 ///     300 => {
 ///         vertex: r#"

@@ -17,9 +17,9 @@ Bindless textures are a very recent feature that is supported only by recent har
 drivers. `resident` will return an `Err` if this feature is not supported.
 
 ```no_run
-# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-# let texture: glium::texture::Texture2d = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
 let texture = texture.resident().unwrap();
+# }
 ```
 
 In a real application, you will likely manage a `Vec<ResidentTexture>`.
@@ -42,12 +42,12 @@ struct UniformBuffer<'a> {
 
 implement_uniform_block!(UniformBuffer<'a>, texture, some_value);
 
-# let display: glium::Display = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
-# let texture: glium::texture::bindless::ResidentTexture = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+# fn example(display: glium::Display, texture: glium::texture::bindless::ResidentTexture) {
 let uniform_buffer = glium::uniforms::UniformBuffer::new(&display, UniformBuffer {
     texture: glium::texture::TextureHandle::new(&texture, &Default::default()),
     some_value: 5.0,
 });
+# }
 # }
 ```
 

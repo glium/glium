@@ -5,19 +5,18 @@ In order to draw on a texture, use a `SimpleFrameBuffer`. This framebuffer is co
 shaders that write to `gl_FragColor`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
-# let texture: glium::texture::Texture2d = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
 let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
 // framebuffer.draw(...);    // draws over `texture`
+# }
 ```
 
 If, however, your shader wants to write to multiple color buffers at once, you must use
 a `MultiOutputFrameBuffer`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
-# let texture1: glium::texture::Texture2d = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
-# let texture2: glium::texture::Texture2d = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+# use glium::texture::Texture2d;
+# fn example(display: glium::Display, texture1: Texture2d, texture2: Texture2d) {
 let output = [ ("output1", &texture1), ("output2", &texture2) ];
 let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, output.iter().cloned());
 // framebuffer.draw(...);
@@ -31,6 +30,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 //         output1 = vec4(0.0, 0.0, 0.5, 1.0);
 //         output2 = vec4(1.0, 0.7, 1.0, 1.0);
 //     }
+# }
 ```
 
 **Note**: depth-stencil attachments are not yet implemented.

@@ -20,26 +20,28 @@
 //! `SamplesPassedQuery` allows you to know the number of samples that have been drawn.
 //!
 //! ```no_run
-//! # let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
+//! # fn example(display: glium::Display) {
 //! let query = glium::draw_parameters::SamplesPassedQuery::new(&display).unwrap();
 //! let params = glium::DrawParameters {
 //!     samples_passed_query: Some((&query).into()),
 //!     .. Default::default()
 //! };
+//! # }
 //! ```
 //!
 //! After drawing with these parameters, you can retrieve the value inside the query:
 //!
 //! ```no_run
-//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+//! # fn example(query: glium::draw_parameters::SamplesPassedQuery) {
 //! let value = query.get();
+//! # }
 //! ```
 //!
 //! This operation will consume the query and block until the GPU has finished drawing. Instead,
 //! you can also use the query as a condition for drawing:
 //!
 //! ```no_run
-//! # let query: glium::draw_parameters::SamplesPassedQuery = unsafe { std::mem::MaybeUninit::uninit().assume_init() };
+//! # fn example(query: glium::draw_parameters::SamplesPassedQuery) {
 //! let params = glium::DrawParameters {
 //!     condition: Some(glium::draw_parameters::ConditionalRendering {
 //!         query: (&query).into(),
@@ -48,6 +50,7 @@
 //!     }),
 //!     .. Default::default()
 //! };
+//! # }
 //! ```
 //!
 //! If you use conditional rendering, glium will submit the draw command but the GPU will execute
