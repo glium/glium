@@ -12,12 +12,10 @@ glslangValidator -G shader.frag -o frag.spv
 
 Then we can load them in Glium using:
 ```rust
-ProgramCreationInput::SpirV {
-    vertex_shader: SpirV { data: include_bytes!("vert.spv"), entry_point: "main" },
-    fragment_shader: SpirV { data: include_bytes!("frag.spv"), entry_point: "main" },
-    outputs_srgb: false,
-    uses_point_size: false,
-}
+ProgramCreationInput::SpirV(SpirvProgram::from_vs_and_fs(
+    SpirvEntryPoint { data: include_bytes!("vert.spv"), entry_point: "main" },
+    SpirvEntryPoint { data: include_bytes!("frag.spv"), entry_point: "main" },
+))
 ```
 
 But SPIR-V also allows having multiple entry points in the same module.
@@ -27,13 +25,11 @@ spirv-link vert.spv frag.spv -o shader.spv
 ```
 And then we load them from the same `.spv` file:
 ```rust
-let spirv = SpirV { data: include_bytes!("shader.spv"), entry_point: "main" };
-ProgramCreationInput::SpirV {
-    vertex_shader: spirv,
-    fragment_shader: spirv,
-    outputs_srgb: false,
-    uses_point_size: false,
-}
+let spirv = SpirvEntryPoint { data: include_bytes!("shader.spv"), entry_point: "main" };
+let program = glium::Program::new(
+    &display,
+    ProgramCreationInput::SpirV(SpirvProgram::from_vs_and_fs(spirv, spirv)),
+).unwrap();
 ```
 
 Note: It's not a problem that both entry points are named `main`, since they are distinguished by their shader type:
@@ -61,10 +57,8 @@ spirv-link vert.spv frag.spv -o shader.spv
 Then we would load it like this:
 ```rust
 let data = include_bytes!("shader.spv");
-ProgramCreationInput::SpirV {
-    vertex_shader: SpirV { data, entry_point: "main_vs" },
-    fragment_shader: SpirV { data, entry_point: "main_fs" },
-    outputs_srgb: false,
-    uses_point_size: false,
-}
+ProgramCreationInput::SpirV(SpirvProgram::from_vs_and_fs(
+    SpirvEntryPoint { data, entry_point: "main_vs" },
+    SpirvEntryPoint { data, entry_point: "main_fs" },
+))
 ```
