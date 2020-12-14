@@ -346,7 +346,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext<'_>, program: Handle)
                                                 &mut attr_name_len_max);
             }
         };
-        //let's not trust the driver too much, and clamp the max_len to [63, 2047]
+        // let's not trust the driver too much, and clamp the max_len to [63, 2047]
         attr_name_len_max = cmp::min(cmp::max(attr_name_len_max, 63), 2047);
 
         (active_attributes, attr_name_len_max)
@@ -395,10 +395,10 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext<'_>, program: Handle)
         }
 
         if attr_name.is_empty() {
-            //Some spirv compilers add an empty attribute to shaders. Most drivers
-            //don't expose this attribute, but some do.
-            //Since we can't do anything with empty attribute names, we simply skip
-            //them in this reflection code.
+            // Some spirv compilers add an empty attribute to shaders. Most drivers
+            // don't expose this attribute, but some do.
+            // Since we can't do anything with empty attribute names, we simply skip
+            // them in this reflection code.
             continue;
         }
 
