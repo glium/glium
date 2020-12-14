@@ -326,22 +326,26 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext<'_>, program: Handle)
 pub unsafe fn reflect_attributes(ctxt: &mut CommandContext<'_>, program: Handle)
                                  -> HashMap<String, Attribute, BuildHasherDefault<FnvHasher>>
 {
-    // number of active attributes
-    let active_attributes = {
+    // number of active attributes, and the max length of the attribute names
+    let (active_attributes, attr_name_len_max) = {
         let mut active_attributes: gl::types::GLint = 0;
+        let mut attr_name_len_max: gl::types::GLint = 0;
         match program {
             Handle::Id(program) => {
                 assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                         ctxt.version >= &Version(Api::GlEs, 2, 0));
                 ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTES, &mut active_attributes);
+                ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATTRIBUTE_MAX_LENGTH, &mut attr_name_len_max);
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_vertex_shader);
                 ctxt.gl.GetObjectParameterivARB(program, gl::OBJECT_ACTIVE_ATTRIBUTES_ARB,
                                                 &mut active_attributes);
+                ctxt.gl.GetObjectParameterivARB(program, gl::OBJECT_ACTIVE_ATTRIBUTE_MAX_LENGTH_ARB,
+                                                &mut attr_name_len_max);
             }
         };
-        active_attributes
+        (active_attributes, attr_name_len_max)
     };
 
     // the result of this function
@@ -349,8 +353,8 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext<'_>, program: Handle)
     attributes.reserve(active_attributes as usize);
 
     for attribute_id in 0 .. active_attributes {
-        let mut attr_name_tmp: Vec<u8> = Vec::with_capacity(64);
-        let mut attr_name_tmp_len = 63;
+        let mut attr_name_tmp: Vec<u8> = Vec::with_capacity((attr_name_len_max + 1) as usize); //+1 for the nul-byte
+        let mut attr_name_len = 0;
 
         let mut data_type: gl::types::GLenum = 0;
         let mut data_size: gl::types::GLint = 0;
@@ -359,25 +363,35 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext<'_>, program: Handle)
             Handle::Id(program) => {
                 assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
                         ctxt.version >= &Version(Api::GlEs, 2, 0));
-                ctxt.gl.GetActiveAttrib(program, attribute_id as gl::types::GLuint,
-                                        attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
-                                        &mut data_type, attr_name_tmp.as_mut_ptr()
-                                          as *mut gl::types::GLchar);
+                ctxt.gl.GetActiveAttrib(program,
+                                        attribute_id as gl::types::GLuint,
+                                        attr_name_len_max,
+                                        &mut attr_name_len,
+                                        &mut data_size,
+                                        &mut data_type,
+                                        attr_name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
             },
             Handle::Handle(program) => {
                 assert!(ctxt.extensions.gl_arb_vertex_shader);
-                ctxt.gl.GetActiveAttribARB(program, attribute_id as gl::types::GLuint,
-                                           attr_name_tmp_len, &mut attr_name_tmp_len, &mut data_size,
-                                           &mut data_type, attr_name_tmp.as_mut_ptr()
-                                             as *mut gl::types::GLchar);
+                ctxt.gl.GetActiveAttribARB(program,
+                                           attribute_id as gl::types::GLuint,
+                                           attr_name_len_max,
+                                           &mut attr_name_len,
+                                           &mut data_size,
+                                           &mut data_type,
+                                           attr_name_tmp.as_mut_ptr() as *mut gl::types::GLchar);
             }
         };
 
-        attr_name_tmp.set_len(attr_name_tmp_len as usize);
+        attr_name_tmp.set_len(attr_name_len as usize);
 
         let attr_name = String::from_utf8(attr_name_tmp).unwrap();
         if attr_name.starts_with("gl_") {   // ignoring everything built-in
             continue;
+        }
+
+        if attr_name.is_empty() {
+            continue;   //TODO what do we really want to do here, return an error?
         }
 
         let location = match program {
