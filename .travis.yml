@@ -44,13 +44,13 @@ after_success:
     - |
         [ $TRAVIS_BRANCH = master ] &&
         [ $TRAVIS_PULL_REQUEST = false ] &&
-        [ $TRAVIS_RUST_VERSION = nightly ] &&
-        cargo doc -j 1 --features "glutin cgmath nalgebra" &&
+        cargo install ghp &&
+        export PATH=/home/travis/.cargo/bin:$PATH &&
+        cargo doc &&
         npm install gitbook-cli -g &&
         gitbook build ./book &&
         mv ./book/_book ./target/doc/book &&
-        git clone https://github.com/davisp/ghp-import &&
-        ./ghp-import/ghp-import target/doc &&
+        ghp target/doc &&
         git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
     - |
         [ $TRAVIS_BRANCH = master ] &&
