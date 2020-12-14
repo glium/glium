@@ -1,5 +1,6 @@
 use crate::gl;
 
+use std::cmp;
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
 use std::ffi;
@@ -345,7 +346,7 @@ pub unsafe fn reflect_attributes(ctxt: &mut CommandContext<'_>, program: Handle)
                                                 &mut attr_name_len_max);
             }
         };
-        (active_attributes, attr_name_len_max)
+        (active_attributes, cmp::min(cmp::max(attr_name_len_max, 63), 2047))
     };
 
     // the result of this function
