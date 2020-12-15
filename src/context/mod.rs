@@ -221,11 +221,11 @@ impl Context {
             let mut ctxt = context.make_current();
             if crate::get_gl_error(&mut ctxt).is_some() {
                 println!("glium has triggered an OpenGL error during initialization. Please report \
-                          this error: https://github.com/tomaka/glium/issues");
+                          this error: https://github.com/glium/glium/issues");
             }
             /*assert!(::get_gl_error(&mut ctxt).is_none(),
                     "glium has triggered an OpenGL error during initialization. Please report \
-                     this error: https://github.com/tomaka/glium/issues");*/
+                     this error: https://github.com/glium/glium/issues");*/
             if ctxt.version >= &Version(Api::Gl, 3, 2) && ctxt.extensions.gl_arb_seamless_cube_map {
                 ctxt.gl.Enable(gl::TEXTURE_CUBE_MAP_SEAMLESS);
             }
@@ -839,7 +839,7 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
 
     if report_debug_output_errors {
         print!("Debug message with high or medium severity: `{}`.\n\
-                Please report this error: https://github.com/tomaka/glium/issues\n\
+                Please report this error: https://github.com/glium/glium/issues\n\
                 Backtrace:",
                 message);
 
