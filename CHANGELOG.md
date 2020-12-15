@@ -1,5 +1,14 @@
 # Change Log
 
+## Version 0.29.0 (2020-12-15)
+
+- Updated glutin to version 0.26.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0260-2020-12-10).
+- Updated memoffset to 0.6.
+- Added support for `glPolygonOffset`.
+- Added support for loading SPIR-V shaders.
+- Switched to edition 2018.
+- Switched from Travis CI to Github Actions
+
 ## Version 0.28.0 (2020-10-03)
 
 - Updated glutin to version 0.25.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0250-2020-10-02).
