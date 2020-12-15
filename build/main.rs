@@ -20,7 +20,7 @@ fn main() {
 fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
     let gl_registry = Registry::new(
         Api::Gl,
-        (4, 5),
+        (4, 6),
         Profile::Compatibility,
         Fallbacks::None,
         vec![
@@ -40,6 +40,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_ARB_ES3_2_compatibility",
             "GL_ARB_framebuffer_sRGB",
             "GL_ARB_geometry_shader4",
+            "GL_ARB_gl_spirv",
             "GL_ARB_gpu_shader_fp64",
             "GL_ARB_gpu_shader_int64",
             "GL_ARB_invalidate_subdata",
