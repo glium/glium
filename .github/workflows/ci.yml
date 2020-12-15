@@ -23,17 +23,12 @@ jobs:
       env:
         RUSTFLAGS: -D warnings
       run: |
-        cargo check --all
-    - name: Run the tests
+        cargo check --all --all-targets
+    - name: Compile the tests
       env:
         RUSTFLAGS: -D warnings
       run: |
-         cargo test --all
-    - name: Run the tests with x509-parser enabled
-      env:
-        RUSTFLAGS: -D warnings
-      run: |
-         cargo test --verbose --features x509-parser
+         cargo test --all --all-targets --no-run
     - name: Run cargo doc
       run: |
         cargo doc --all --all-features
