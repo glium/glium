@@ -329,12 +329,12 @@ impl<'a> SpirvProgram<'a> {
         Self {
             vertex_shader,
             fragment_shader,
-            tessellation_control_shader: Default::default(),
-            tessellation_evaluation_shader: Default::default(),
-            geometry_shader: Default::default(),
-            transform_feedback_varyings: Default::default(),
-            outputs_srgb: Default::default(),
-            uses_point_size: Default::default(),
+            tessellation_control_shader: None,
+            tessellation_evaluation_shader: None,
+            geometry_shader: None,
+            transform_feedback_varyings: None,
+            outputs_srgb: false,
+            uses_point_size: false,
         }
     }
 
