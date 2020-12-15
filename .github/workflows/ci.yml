@@ -7,7 +7,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macOS-latest, ubuntu-latest]
+        os: [macOS-latest, windows-latest, ubuntu-latest]
         toolchain: [stable, beta, nightly]
 
     runs-on: ${{ matrix.os }}
