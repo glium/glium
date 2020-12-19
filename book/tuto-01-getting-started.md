@@ -116,6 +116,7 @@ Here is our full `main` function after this step:
 
 ```rust
 extern crate glium;
+use glium::Surface;
 
 fn main() {
     use glium::{glutin, Surface};
