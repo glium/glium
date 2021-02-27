@@ -206,7 +206,7 @@ fn main() {
             let depth_projection_matrix: cgmath::Matrix4<f32> = cgmath::ortho(-w, w, -w, w, -10.0, 20.0);
             let view_center: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 0.0, 0.0);
             let view_up: cgmath::Vector3<f32> = cgmath::Vector3::new(0.0, 1.0, 0.0);
-            let depth_view_matrix = cgmath::Matrix4::look_at(light_loc.into(), view_center, view_up);
+            let depth_view_matrix = cgmath::Matrix4::look_at_rh(light_loc.into(), view_center, view_up);
 
             let mut draw_params: glium::draw_parameters::DrawParameters<'_> = Default::default();
             draw_params.depth = glium::Depth {
@@ -249,7 +249,7 @@ fn main() {
         let view_eye: cgmath::Point3<f32> = cgmath::Point3::new(camera_x as f32, 2.0, camera_z as f32);
         let view_center: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 0.0, 0.0);
         let view_up: cgmath::Vector3<f32> = cgmath::Vector3::new(0.0, 1.0, 0.0);
-        let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at(view_eye, view_center, view_up);
+        let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at_rh(view_eye, view_center, view_up);
 
         let bias_matrix: cgmath::Matrix4<f32> = [
             [0.5, 0.0, 0.0, 0.0],

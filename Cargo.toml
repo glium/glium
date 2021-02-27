@@ -52,9 +52,9 @@ gl_generator = "0.14"
 
 [dev-dependencies]
 rental = "0.5.4"
-cgmath = "0.17"
+cgmath = "0.18"
 genmesh = "0.6"
 image = "0.23"
 obj = { version = "0.10", features = ["genmesh"] }
-rand = "0.7"
+rand = "0.8"
 libc = "0.2.62"
