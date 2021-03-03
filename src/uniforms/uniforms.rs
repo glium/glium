@@ -11,6 +11,7 @@ impl Uniforms for EmptyUniforms {
 }
 
 /// Stores uniforms.
+#[derive(Copy, Clone)]
 pub struct UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
     name: &'n str,
     value: T,
