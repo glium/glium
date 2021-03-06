@@ -69,7 +69,7 @@ macro_rules! uniform {
     };
 
     ($($field:ident: $value:expr),*,) => {
-        uniform!($($field: $value),*)
+        $crate::uniform!($($field: $value),*)
     };
 }
 
