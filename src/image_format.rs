@@ -5,19 +5,19 @@ This private module handles the various image formats in OpenGL.
 use std::fmt;
 use std::error::Error;
 
-use gl;
-use context::Context;
+use crate::gl;
+use crate::context::Context;
 
-use CapabilitiesSource;
-use ToGlEnum;
-use version::{Api, Version};
+use crate::CapabilitiesSource;
+use crate::ToGlEnum;
+use crate::version::{Api, Version};
 
 /// Error that is returned if the format is not supported by OpenGL.
 #[derive(Copy, Clone, Debug)]
 pub struct FormatNotSupportedError;
 
 impl fmt::Display for FormatNotSupportedError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(fmt, "Format is not supported by OpenGL")
     }
 }

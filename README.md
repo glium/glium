@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/glium/glium.svg?branch=master)](https://travis-ci.org/glium/glium)
 [![Coverage Status](https://coveralls.io/repos/tomaka/glium/badge.svg?branch=master&service=github)](https://coveralls.io/github/tomaka/glium?branch=master)
 
-[![crates.io page](http://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
+[![crates.io page](https://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
 
 ## Note to current and future Glium users:
 
@@ -30,7 +30,7 @@ Its objectives:
  - Avoid all OpenGL errors beforehand.
  - Produce optimized OpenGL function calls, and allow the user to easily use modern OpenGL techniques.
 
-## [Link to the documentation](http://docs.rs/glium)
+## [Link to the documentation](https://docs.rs/glium)
 
 If you have some knowledge of OpenGL, the documentation and the examples should get you easily started.
 

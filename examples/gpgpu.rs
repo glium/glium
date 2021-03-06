@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
-extern crate rand;
+
 #[allow(unused_imports)]
 use glium::glutin;
-use glutin::dpi::PhysicalSize;
+use crate::glutin::dpi::PhysicalSize;
 
 fn main() {
     let event_loop = glium::glutin::event_loop::EventLoop::new();
@@ -43,7 +43,7 @@ fn main() {
     struct Data {
         power: f32,
         _padding: [f32; 3],
-        values: [[f32;4]; NUM_VALUES],
+        values: [[f32; 4]; NUM_VALUES / 4],
     }
 
     implement_uniform_block!(Data, power, values);
@@ -59,7 +59,7 @@ fn main() {
         }
     }
 
-    program.execute(uniform! { MyBlock: &*buffer }, 4096, 1, 1);
+    program.execute(uniform! { MyBlock: &*buffer }, NUM_VALUES as u32 / 4, 1, 1);
 
     {
         let mapping = buffer.map();

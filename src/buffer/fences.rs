@@ -7,8 +7,8 @@ use smallvec::SmallVec;
 use std::cell::RefCell;
 use std::ops::Range;
 
-use context::CommandContext;
-use sync::{self, LinearSyncFence};
+use crate::context::CommandContext;
+use crate::sync::{self, LinearSyncFence};
 
 /// Contains a list of fences.
 pub struct Fences {
@@ -25,15 +25,15 @@ impl Fences {
 
     /// Creates an `Inserter` that allows inserting a fence in the list for the given range.
     #[inline]
-    pub fn inserter(&self, range: Range<usize>) -> Inserter {
+    pub fn inserter(&self, range: Range<usize>) -> Inserter<'_> {
         Inserter {
             fences: self,
-            range: range,
+            range,
         }
     }
 
     /// Waits until the given range is accessible.
-    pub fn wait(&self, ctxt: &mut CommandContext, range: Range<usize>) {
+    pub fn wait(&self, ctxt: &mut CommandContext<'_>, range: Range<usize>) {
         let mut existing_fences = self.fences.borrow_mut();
         let mut new_fences = SmallVec::new();
 
@@ -51,7 +51,7 @@ impl Fences {
     }
 
     /// Cleans up all fences in the container. Must be called or you'll get a panic.
-    pub fn clean(&mut self, ctxt: &mut CommandContext) {
+    pub fn clean(&mut self, ctxt: &mut CommandContext<'_>) {
         let mut fences = self.fences.borrow_mut();
         for (_, sync) in fences.drain(..) {
             unsafe { sync::destroy_linear_sync_fence(ctxt, sync) };
@@ -67,7 +67,7 @@ pub struct Inserter<'a> {
 
 impl<'a> Inserter<'a> {
     /// Inserts a new fence.
-    pub fn insert(self, ctxt: &mut CommandContext) {
+    pub fn insert(self, ctxt: &mut CommandContext<'_>) {
         let mut new_fences = SmallVec::new();
 
         let mut written = false;

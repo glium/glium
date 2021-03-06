@@ -1,5 +1,3 @@
-extern crate glium;
-
 fn main() {
     #[allow(unused_imports)]
     use glium::{glutin, Surface};

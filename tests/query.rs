@@ -300,7 +300,7 @@ fn query_to_buffer() {
     let mut buffer = glium::buffer::BufferView::empty(&display,
                                                       glium::buffer::BufferType::ArrayBuffer,
                                                       glium::buffer::BufferMode::Default).unwrap();
-    if let Err(_) = query.to_buffer_u32(buffer.as_slice()) {
+    if query.to_buffer_u32(buffer.as_slice()).is_err() {
         return;
     }
 

@@ -1,18 +1,18 @@
-use BlitTarget;
-use Rect;
+use crate::BlitTarget;
+use crate::Rect;
 
-use context::Context;
-use ContextExt;
+use crate::context::Context;
+use crate::ContextExt;
 
-use fbo::FramebuffersContainer;
-use fbo::ValidatedAttachments;
+use crate::fbo::FramebuffersContainer;
+use crate::fbo::ValidatedAttachments;
 
-use gl;
-use version::Version;
-use version::Api;
+use crate::gl;
+use crate::version::Version;
+use crate::version::Api;
 
-pub fn blit(context: &Context, source: Option<&ValidatedAttachments>,
-            target: Option<&ValidatedAttachments>, mask: gl::types::GLbitfield,
+pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
+            target: Option<&ValidatedAttachments<'_>>, mask: gl::types::GLbitfield,
             src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
 {
     unsafe {

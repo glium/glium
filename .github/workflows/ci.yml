@@ -1,0 +1,34 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        os: [macOS-latest, windows-latest, ubuntu-latest]
+        toolchain: [stable, beta, nightly]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        override: true
+    - name: Run cargo check --all
+      env:
+        RUSTFLAGS: -D warnings
+      run: |
+        cargo check --all --all-targets
+    - name: Compile the tests
+      env:
+        RUSTFLAGS: -D warnings
+      run: |
+         cargo test --all --all-targets --no-run
+    - name: Run cargo doc
+      run: |
+        cargo doc --all --all-features

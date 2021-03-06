@@ -1,4 +1,4 @@
-use uniforms::{Uniforms, UniformValue, AsUniformValue};
+use crate::uniforms::{Uniforms, UniformValue, AsUniformValue};
 
 /// Object that can be used when you don't have any uniforms.
 #[derive(Debug, Copy, Clone)]
@@ -25,8 +25,8 @@ impl<'n, T> UniformsStorage<'n, T, EmptyUniforms> where T: AsUniformValue {
                -> UniformsStorage<'n, T, EmptyUniforms>
     {
         UniformsStorage {
-            name: name,
-            value: value,
+            name,
+            value,
             rest: EmptyUniforms,
         }
     }
@@ -40,8 +40,8 @@ impl<'n, T, R> UniformsStorage<'n, T, R> where T: AsUniformValue, R: Uniforms {
                   where U: AsUniformValue
     {
         UniformsStorage {
-            name: name,
-            value: value,
+            name,
+            value,
             rest: self,
         }
     }

@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate glium;
 
-extern crate image;
-
 use std::io::Cursor;
 
 use glium::Surface;
@@ -22,7 +20,7 @@ fn main() {
 
     // building a texture with "OpenGL" drawn on it
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-                            image::ImageFormat::Png).unwrap().to_rgba();
+                            image::ImageFormat::Png).unwrap().to_rgba8();
     let image_dimensions = image.dimensions();
     let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedTexture2d::new(&display, image).unwrap();
@@ -128,7 +126,7 @@ fn main() {
                 fullscreen = false;
             } else {
                 let monitor_handle = display.gl_window().window().available_monitors().next().unwrap();
-                let fs = Fullscreen::Borderless(monitor_handle);
+                let fs = Fullscreen::Borderless(Some(monitor_handle));
                 display.gl_window().window().set_fullscreen(Some(fs));
 
                 fullscreen = true;

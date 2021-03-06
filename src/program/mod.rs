@@ -3,11 +3,11 @@
 use std::fmt;
 use std::error::Error;
 use std::sync::Mutex;
-use CapabilitiesSource;
+use crate::CapabilitiesSource;
 
-use gl;
-use version::Api;
-use version::Version;
+use crate::gl;
+use crate::version::Api;
+use crate::version::Version;
 
 pub use self::compute::{ComputeShader, ComputeCommand};
 pub use self::program::Program;
@@ -62,7 +62,7 @@ lazy_static! {
     static ref COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
 }
 
-/// Used in ProgramCreationError::CompilationError to explain which shader stage failed compilation 
+/// Used in ProgramCreationError::CompilationError to explain which shader stage failed compilation
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ShaderType {
     /// Vertex shader, maps to gl::VERTEX_SHADER
@@ -138,7 +138,7 @@ pub enum ProgramCreationError {
 }
 
 impl fmt::Display for ProgramCreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         use self::ProgramCreationError::*;
         let desc = match *self {
             CompilationError(_,typ) => {
@@ -189,7 +189,7 @@ pub enum ProgramChooserCreationError {
 
 impl fmt::Display for ProgramChooserCreationError {
     #[inline]
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         use self::ProgramChooserCreationError::*;
         match *self {
             ProgramCreationError(ref err) => write!(fmt, "{}", err),
@@ -225,7 +225,7 @@ pub enum GetBinaryError {
 }
 
 impl fmt::Display for GetBinaryError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::GetBinaryError::*;
         let desc = match *self {
             NotSupported => "The backend doesn't support binary",
@@ -283,7 +283,106 @@ pub enum ProgramCreationInput<'a> {
 
         /// Whether the shader uses point size.
         uses_point_size: bool,
+    },
+
+    /// Use a SPIR-V binary.
+    SpirV(SpirvProgram<'a>),
+}
+
+/// Represents a SPIR-V program. The shaders can refer to entry points in the same binary.
+#[derive(Clone)]
+pub struct SpirvProgram<'a> {
+    /// The vertex shader.
+    pub vertex_shader: SpirvEntryPoint<'a>,
+
+    /// The fragment shader.
+    pub fragment_shader: SpirvEntryPoint<'a>,
+
+    /// Optional tessellation control shader.
+    pub tessellation_control_shader: Option<SpirvEntryPoint<'a>>,
+
+    /// Optional tessellation evaluation shader.
+    pub tessellation_evaluation_shader: Option<SpirvEntryPoint<'a>>,
+
+    /// Optional geometry shader.
+    pub geometry_shader: Option<SpirvEntryPoint<'a>>,
+
+    /// The list of variables and mode to use for transform feedback.
+    ///
+    /// The information specified here will be passed to the OpenGL linker. If you pass
+    /// `None`, then you won't be able to use transform feedback.
+    pub transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
+
+    /// See `SourceCode::outputs_srgb`.
+    pub outputs_srgb: bool,
+
+    /// Whether the shader uses point size.
+    pub uses_point_size: bool,
+}
+
+impl<'a> SpirvProgram<'a> {
+    /// Create new `SpirvProgram` from vertex and fragment shaders.
+    pub fn from_vs_and_fs(
+        vertex_shader: SpirvEntryPoint<'a>,
+        fragment_shader: SpirvEntryPoint<'a>,
+    ) -> Self {
+        Self {
+            vertex_shader,
+            fragment_shader,
+            tessellation_control_shader: None,
+            tessellation_evaluation_shader: None,
+            geometry_shader: None,
+            transform_feedback_varyings: None,
+            outputs_srgb: false,
+            uses_point_size: false,
+        }
     }
+
+    /// Builder method to set `tessellation_control_shader`.
+    pub fn tessellation_control_shader(mut self, tessellation_control_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+        self.tessellation_control_shader = tessellation_control_shader;
+        self
+    }
+
+    /// Builder method to set `tessellation_evaluation_shader`.
+    pub fn tessellation_evaluation_shader(mut self, tessellation_evaluation_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+        self.tessellation_evaluation_shader = tessellation_evaluation_shader;
+        self
+    }
+
+    /// Builder method to set `geometry_shader`.
+    pub fn geometry_shader(mut self, geometry_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+        self.geometry_shader = geometry_shader;
+        self
+    }
+
+    /// Builder method to set `transform_feedback_varyings`.
+    pub fn transform_feedback_varyings(mut self, transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>) -> Self {
+        self.transform_feedback_varyings = transform_feedback_varyings;
+        self
+    }
+
+    /// Builder method to set `outputs_srgb`.
+    pub fn outputs_srgb(mut self, outputs_srgb: bool) -> Self {
+        self.outputs_srgb = outputs_srgb;
+        self
+    }
+
+    /// Builder method to set `uses_point_size`.
+    pub fn uses_point_size(mut self, uses_point_size: bool) -> Self {
+        self.uses_point_size = uses_point_size;
+        self
+    }
+}
+
+/// Represents an entry point of a binary SPIR-V module.
+#[derive(Copy, Clone)]
+pub struct SpirvEntryPoint<'a> {
+    /// The binary module data.
+    pub binary: &'a [u8],
+
+    /// The entry point to use, e.g. "main".
+    pub entry_point: &'a str,
 }
 
 /// Represents the source code of a program.
@@ -311,11 +410,11 @@ impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
                          tessellation_control_shader, tessellation_evaluation_shader } = code;
 
         ProgramCreationInput::SourceCode {
-            vertex_shader: vertex_shader,
-            tessellation_control_shader: tessellation_control_shader,
-            tessellation_evaluation_shader: tessellation_evaluation_shader,
-            geometry_shader: geometry_shader,
-            fragment_shader: fragment_shader,
+            vertex_shader,
+            tessellation_control_shader,
+            tessellation_evaluation_shader,
+            geometry_shader,
+            fragment_shader,
             transform_feedback_varyings: None,
             outputs_srgb: false,
             uses_point_size: false,

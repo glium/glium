@@ -1,7 +1,7 @@
-use gl;
+use crate::gl;
 
-use context::CommandContext;
-use backend::Facade;
+use crate::context::CommandContext;
+use crate::backend::Facade;
 
 use std::fmt;
 use std::collections::hash_map::{self, HashMap};
@@ -10,22 +10,22 @@ use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
-use CapabilitiesSource;
-use GlObject;
-use ProgramExt;
-use Handle;
-use RawUniformValue;
+use crate::CapabilitiesSource;
+use crate::GlObject;
+use crate::ProgramExt;
+use crate::Handle;
+use crate::RawUniformValue;
 
-use program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, GetBinaryError};
+use crate::program::{COMPILER_GLOBAL_LOCK, ProgramCreationError, Binary, GetBinaryError, SpirvEntryPoint};
 
-use program::reflection::{Uniform, UniformBlock};
-use program::reflection::{ShaderStage, SubroutineData};
-use program::shader::{build_shader, check_shader_type_compatibility};
+use crate::program::reflection::{Uniform, UniformBlock};
+use crate::program::reflection::{ShaderStage, SubroutineData};
+use crate::program::shader::{build_shader, build_spirv_shader, check_shader_type_compatibility};
 
-use program::raw::RawProgram;
+use crate::program::raw::RawProgram;
 
-use buffer::BufferSlice;
-use uniforms::Uniforms;
+use crate::buffer::BufferSlice;
+use crate::uniforms::Uniforms;
 
 /// A combination of compute shaders linked together.
 pub struct ComputeShader {
@@ -47,6 +47,20 @@ impl ComputeShader {
         let _lock = COMPILER_GLOBAL_LOCK.lock();
 
         let shader = build_shader(facade, gl::COMPUTE_SHADER, src)?;
+
+        Ok(ComputeShader {
+            raw: RawProgram::from_shaders(facade, &[shader], false, false, false, None)?
+        })
+    }
+
+    /// Builds a new compute shader from SPIR-V module.
+    #[inline]
+    pub fn from_spirv<F: ?Sized>(facade: &F, spirv: &SpirvEntryPoint) -> Result<ComputeShader, ProgramCreationError>
+                          where F: Facade
+    {
+        let _lock = COMPILER_GLOBAL_LOCK.lock();
+
+        let shader = build_spirv_shader(facade, gl::COMPUTE_SHADER, spirv)?;
 
         Ok(ComputeShader {
             raw: RawProgram::from_shaders(facade, &[shader], false, false, false, None)?
@@ -79,7 +93,7 @@ impl ComputeShader {
     ///
     /// This is similar to `execute`, except that the parameters are stored in a buffer.
     #[inline]
-    pub fn execute_indirect<U>(&self, uniforms: U, buffer: BufferSlice<ComputeCommand>)
+    pub fn execute_indirect<U>(&self, uniforms: U, buffer: BufferSlice<'_, ComputeCommand>)
                                where U: Uniforms
     {
         unsafe { self.raw.dispatch_compute_indirect(uniforms, buffer) }.unwrap();       // FIXME: return error
@@ -105,13 +119,14 @@ impl ComputeShader {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # fn example(program: glium::Program) {
     /// for (name, uniform) in program.uniforms() {
     ///     println!("Name: {} - Type: {:?}", name, uniform.ty);
     /// }
+    /// # }
     /// ```
     #[inline]
-    pub fn uniforms(&self) -> hash_map::Iter<String, Uniform> {
+    pub fn uniforms(&self) -> hash_map::Iter<'_, String, Uniform> {
         self.raw.uniforms()
     }
 
@@ -120,10 +135,11 @@ impl ComputeShader {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// # fn example(program: glium::Program) {
     /// for (name, uniform) in program.get_uniform_blocks() {
     ///     println!("Name: {}", name);
     /// }
+    /// # }
     /// ```
     #[inline]
     pub fn get_uniform_blocks(&self)
@@ -136,10 +152,11 @@ impl ComputeShader {
     /// ## Example
     ///
     /// ```no_run
-    /// # let program: glium::Program = unsafe { std::mem::uninitialized() };
+    /// fn example(program: glium::Program) {
     /// for (name, uniform) in program.get_shader_storage_blocks() {
     ///     println!("Name: {}", name);
     /// }
+    /// # }
     /// ```
     #[inline]
     pub fn get_shader_storage_blocks(&self)
@@ -150,7 +167,7 @@ impl ComputeShader {
 
 impl fmt::Debug for ComputeShader {
     #[inline]
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(formatter, "{:?}", self.raw)
     }
 }
@@ -166,26 +183,26 @@ impl GlObject for ComputeShader {
 
 impl ProgramExt for ComputeShader {
     #[inline]
-    fn use_program(&self, ctxt: &mut CommandContext) {
+    fn use_program(&self, ctxt: &mut CommandContext<'_>) {
         self.raw.use_program(ctxt)
     }
 
     #[inline]
-    fn set_uniform(&self, ctxt: &mut CommandContext, uniform_location: gl::types::GLint,
+    fn set_uniform(&self, ctxt: &mut CommandContext<'_>, uniform_location: gl::types::GLint,
                    value: &RawUniformValue)
     {
         self.raw.set_uniform(ctxt, uniform_location, value)
     }
 
     #[inline]
-    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext, block_location: gl::types::GLuint,
+    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext<'_>, block_location: gl::types::GLuint,
                                  value: gl::types::GLuint)
     {
         self.raw.set_uniform_block_binding(ctxt, block_location, value)
     }
 
     #[inline]
-    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext,
+    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext<'_>,
                                         block_location: gl::types::GLuint,
                                         value: gl::types::GLuint)
     {
@@ -193,7 +210,7 @@ impl ProgramExt for ComputeShader {
     }
 
     #[inline]
-    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext,
+    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext<'_>,
                                          stage: ShaderStage,
                                          indices: &[gl::types::GLuint])
     {
@@ -214,6 +231,12 @@ impl ProgramExt for ComputeShader {
     fn get_shader_storage_blocks(&self)
                                  -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_shader_storage_blocks()
+    }
+
+    #[inline]
+    fn get_atomic_counters(&self)
+                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+        self.raw.get_atomic_counters()
     }
 
     #[inline]

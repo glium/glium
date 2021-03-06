@@ -1,18 +1,18 @@
 use std::error::Error;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
-use utils::range::RangeArgument;
+use crate::utils::range::RangeArgument;
 
-use buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
-use vertex::{Vertex, VerticesSource, PerInstance};
-use vertex::format::VertexFormat;
+use crate::buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
+use crate::vertex::{Vertex, VerticesSource, PerInstance};
+use crate::vertex::format::VertexFormat;
 
-use gl;
-use GlObject;
+use crate::gl;
+use crate::GlObject;
 
-use backend::Facade;
-use version::{Api, Version};
-use CapabilitiesSource;
+use crate::backend::Facade;
+use crate::version::{Api, Version};
+use crate::CapabilitiesSource;
 
 /// Error that can happen when creating a vertex buffer.
 #[derive(Copy, Clone, Debug)]
@@ -34,7 +34,7 @@ impl From<BufferCreationError> for CreationError {
 }
 
 impl fmt::Display for CreationError {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::CreationError::*;
         let desc = match self {
             FormatNotSupported => "The vertex format is not supported by the backend",
@@ -71,7 +71,7 @@ pub struct VertexBuffer<T> where T: Copy {
 }
 
 /// Represents a slice of a `VertexBuffer`.
-pub struct VertexBufferSlice<'b, T: 'b> where T: Copy {
+pub struct VertexBufferSlice<'b, T> where T: Copy {
     buffer: BufferSlice<'b, [T]>,
     bindings: &'b VertexFormat,
 }
@@ -85,7 +85,7 @@ impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     /// The attributes are still passed to the vertex shader, but each entry is passed
     /// for each different instance.
     #[inline]
-    pub fn per_instance(&'b self) -> Result<PerInstance, InstancingNotSupported> {
+    pub fn per_instance(&'b self) -> Result<PerInstance<'_>, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
             !self.get_context().get_extensions().gl_arb_instanced_arrays
@@ -108,7 +108,6 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// ```no_run
     /// # #[macro_use]
     /// # extern crate glium;
-    /// # extern crate glutin;
     /// # fn main() {
     /// #[derive(Copy, Clone)]
     /// struct Vertex {
@@ -118,11 +117,12 @@ impl<T> VertexBuffer<T> where T: Vertex {
     ///
     /// implement_vertex!(Vertex, position, texcoords);
     ///
-    /// # let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+    /// # fn example(display: glium::Display) {
     /// let vertex_buffer = glium::VertexBuffer::new(&display, &[
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },
     /// ]);
+    /// # }
     /// # }
     /// ```
     ///
@@ -233,9 +233,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// # Example
     ///
     /// ```no_run
-    /// # extern crate glium;
-    /// # extern crate glutin;
-    /// # fn main() {
+    /// # fn example(display: glium::Display) {
     /// use std::borrow::Cow;
     ///
     /// let bindings = Cow::Owned(vec![(
@@ -249,7 +247,6 @@ impl<T> VertexBuffer<T> where T: Copy {
     ///     ),
     /// ]);
     ///
-    /// # let display: glium::Display = unsafe { ::std::mem::MaybeUninit::uninit().assume_init() };
     /// let data = vec![
     ///     1.0, -0.3, 409.0,
     ///     -0.4, 2.8, 715.0f32
@@ -272,7 +269,7 @@ impl<T> VertexBuffer<T> where T: Copy {
         Ok(VertexBuffer {
             buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
                                          BufferMode::Default)?,
-            bindings: bindings,
+            bindings,
         })
     }
 
@@ -288,7 +285,7 @@ impl<T> VertexBuffer<T> where T: Copy {
         Ok(VertexBuffer {
             buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
                                          BufferMode::Dynamic)?,
-            bindings: bindings,
+            bindings,
         })
     }
 
@@ -296,7 +293,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     ///
     /// Returns `None` if the slice is out of range.
     #[inline]
-    pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<VertexBufferSlice<T>> {
+    pub fn slice<R: RangeArgument<usize>>(&self, range: R) -> Option<VertexBufferSlice<'_, T>> {
         let slice = match self.buffer.slice(range) {
             None => return None,
             Some(s) => s
@@ -321,7 +318,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// geometry for each element in this buffer. The attributes are still passed to the
     /// vertex shader, but each entry is passed for each different instance.
     #[inline]
-    pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
+    pub fn per_instance(&self) -> Result<PerInstance<'_>, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
             !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays
@@ -357,8 +354,8 @@ impl<T> From<Buffer<[T]>> for VertexBuffer<T> where T: Vertex + Copy {
         let bindings = <T as Vertex>::build_bindings();
 
         VertexBuffer {
-            buffer: buffer,
-            bindings: bindings,
+            buffer,
+            bindings,
         }
     }
 }
@@ -477,7 +474,7 @@ impl VertexBufferAny {
     /// geometry for each element in this buffer. The attributes are still passed to the
     /// vertex shader, but each entry is passed for each different instance.
     #[inline]
-    pub fn per_instance(&self) -> Result<PerInstance, InstancingNotSupported> {
+    pub fn per_instance(&self) -> Result<PerInstance<'_>, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.buffer.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
             !self.buffer.get_context().get_extensions().gl_arb_instanced_arrays

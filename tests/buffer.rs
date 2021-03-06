@@ -935,7 +935,7 @@ fn copy_to() {
                                               BufferMode::Persistent);
     let buf2 = if let Ok(buf) = buf2 { buf } else { return };
 
-    if let Err(_) = buf1.copy_to(buf2.as_slice()) {
+    if buf1.copy_to(buf2.as_slice()).is_err() {
         return;
     }
 
@@ -963,7 +963,7 @@ fn copy_to_slice() {
                                                       BufferMode::Persistent);
     let buf2 = if let Ok(buf) = buf2 { buf } else { return };
 
-    if let Err(_) = buf1.copy_to(buf2.slice(1 .. 3).unwrap()) {
+    if buf1.copy_to(buf2.slice(1 .. 3).unwrap()).is_err() {
         return;
     }
 

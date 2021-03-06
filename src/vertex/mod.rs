@@ -32,7 +32,7 @@ Once you have a struct that implements the `Vertex` trait, you can build an arra
 upload it to the video memory by creating a `VertexBuffer`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
+# fn example(display: glium::Display) {
 # #[derive(Copy, Clone)]
 # struct MyVertex {
 #     position: [f32; 3],
@@ -57,6 +57,7 @@ let data = &[
 ];
 
 let vertex_buffer = glium::vertex::VertexBuffer::new(&display, data);
+# }
 ```
 
 ## Drawing
@@ -74,17 +75,10 @@ Each source can be:
 
 ```no_run
 # use glium::Surface;
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-# #[derive(Copy, Clone)]
-# struct MyVertex { position: [f32; 3], texcoords: [f32; 2], }
-# impl glium::vertex::Vertex for MyVertex {
-#     fn build_bindings() -> glium::vertex::VertexFormat { unimplemented!() }
-# }
-# let program: glium::program::Program = unsafe { ::std::mem::uninitialized() };
+# fn example<V: glium::vertex::Vertex>(display: glium::Display, program: glium::program::Program,
+#            vertex_buffer: glium::vertex::VertexBuffer<V>, vertex_buffer2: glium::vertex::VertexBuffer<V>) {
 # let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 # let uniforms = glium::uniforms::EmptyUniforms;
-# let vertex_buffer: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::uninitialized() };
-# let vertex_buffer2: glium::vertex::VertexBuffer<MyVertex> = unsafe { ::std::mem::uninitialized() };
 # let mut frame = display.draw();
 // drawing with a single vertex buffer
 frame.draw(&vertex_buffer, &indices, &program, &uniforms, &Default::default()).unwrap();
@@ -112,6 +106,7 @@ frame.draw((&vertex_buffer, vertex_buffer2.per_instance().unwrap()), &indices,
 // instancing without any per-instance attribute
 frame.draw((&vertex_buffer, glium::vertex::EmptyInstanceAttributes { len: 36 }), &indices,
            &program, &uniforms, &Default::default()).unwrap();
+# }
 ```
 
 Note that if you use `index::EmptyIndices` as indices the length of all vertex sources must
@@ -141,8 +136,8 @@ pub use self::buffer::CreationError as BufferCreationError;
 pub use self::format::{AttributeType, VertexFormat};
 pub use self::transform_feedback::{is_transform_feedback_supported, TransformFeedbackSession};
 
-use buffer::BufferAnySlice;
-use CapabilitiesSource;
+use crate::buffer::BufferAnySlice;
+use crate::CapabilitiesSource;
 
 mod buffer;
 mod format;

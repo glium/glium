@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate glium;
-extern crate cgmath;
-extern crate image;
 #[macro_use]
 extern crate rental;
 
@@ -41,7 +39,7 @@ fn main() {
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-        image::ImageFormat::Png).unwrap().to_rgba();
+        image::ImageFormat::Png).unwrap().to_rgba8();
     let image_dimensions = image.dimensions();
     let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::Texture2d::new(&display, image).unwrap();
@@ -308,7 +306,7 @@ fn main() {
     let view_eye: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 2.0, -2.0);
     let view_center: cgmath::Point3<f32> = cgmath::Point3::new(0.0, 0.0, 0.0);
     let view_up: cgmath::Vector3<f32> = cgmath::Vector3::new(0.0, 1.0, 0.0);
-    let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at(view_eye, view_center, view_up);
+    let view_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::look_at_rh(view_eye, view_center, view_up);
     let model_matrix: cgmath::Matrix4<f32> = cgmath::Matrix4::identity();
 
     let lights = [

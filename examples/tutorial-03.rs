@@ -52,9 +52,6 @@ fn main() {
 
     let mut t: f32 = -0.5;
     event_loop.run(move |event, _, control_flow| {
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
         match event {
             glutin::event::Event::WindowEvent { event, .. } => match event {
@@ -71,6 +68,10 @@ fn main() {
             },
             _ => return,
         }
+
+        let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
         // we update `t`
         t += 0.0002;

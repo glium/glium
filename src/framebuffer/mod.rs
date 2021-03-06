@@ -5,19 +5,18 @@ In order to draw on a texture, use a `SimpleFrameBuffer`. This framebuffer is co
 shaders that write to `gl_FragColor`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-# let texture: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
+# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
 let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
 // framebuffer.draw(...);    // draws over `texture`
+# }
 ```
 
 If, however, your shader wants to write to multiple color buffers at once, you must use
 a `MultiOutputFrameBuffer`.
 
 ```no_run
-# let display: glium::Display = unsafe { ::std::mem::uninitialized() };
-# let texture1: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
-# let texture2: glium::texture::Texture2d = unsafe { ::std::mem::uninitialized() };
+# use glium::texture::Texture2d;
+# fn example(display: glium::Display, texture1: Texture2d, texture2: Texture2d) {
 let output = [ ("output1", &texture1), ("output2", &texture2) ];
 let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, output.iter().cloned());
 // framebuffer.draw(...);
@@ -31,6 +30,7 @@ let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, outp
 //         output1 = vec4(0.0, 0.0, 0.5, 1.0);
 //         output2 = vec4(1.0, 0.7, 1.0, 1.0);
 //     }
+# }
 ```
 
 **Note**: depth-stencil attachments are not yet implemented.
@@ -69,33 +69,33 @@ Not yet supported
 use std::rc::Rc;
 use smallvec::SmallVec;
 
-use texture::TextureAnyImage;
+use crate::texture::TextureAnyImage;
 
-use backend::Facade;
-use context::Context;
-use CapabilitiesSource;
-use version::Version;
-use version::Api;
+use crate::backend::Facade;
+use crate::context::Context;
+use crate::CapabilitiesSource;
+use crate::version::Version;
+use crate::version::Api;
 
-use FboAttachments;
-use Rect;
-use BlitTarget;
-use ContextExt;
-use ToGlEnum;
-use ops;
-use uniforms;
+use crate::FboAttachments;
+use crate::Rect;
+use crate::BlitTarget;
+use crate::ContextExt;
+use crate::ToGlEnum;
+use crate::ops;
+use crate::uniforms;
 
-use {Program, Surface};
-use DrawError;
+use crate::{Program, Surface};
+use crate::DrawError;
 
-use {fbo, gl};
+use crate::{fbo, gl};
 
 pub use self::default_fb::{DefaultFramebufferAttachment, DefaultFramebuffer};
 pub use self::render_buffer::{RenderBuffer, RenderBufferAny, DepthRenderBuffer};
 pub use self::render_buffer::{StencilRenderBuffer, DepthStencilRenderBuffer};
 pub use self::render_buffer::CreationError as RenderBufferCreationError;
-pub use fbo::is_dimensions_mismatch_supported;
-pub use fbo::ValidationError;
+pub use crate::fbo::is_dimensions_mismatch_supported;
+pub use crate::fbo::ValidationError;
 
 mod default_fb;
 mod render_buffer;
@@ -259,7 +259,7 @@ impl<'a> SimpleFrameBuffer<'a> {
 
         Ok(SimpleFrameBuffer {
             context: facade.get_context().clone(),
-            attachments: attachments,
+            attachments,
         })
     }
 }
@@ -287,10 +287,10 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
         self.attachments.get_stencil_buffer_bits()
     }
 
-    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
-        V: ::vertex::MultiVerticesSource<'v>
+    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &crate::Program,
+        uniforms: &U, draw_parameters: &crate::DrawParameters<'_>) -> Result<(), DrawError>
+        where I: Into<crate::index::IndicesSource<'b>>, U: crate::uniforms::Uniforms,
+        V: crate::vertex::MultiVerticesSource<'v>
     {
         if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
                         draw_parameters.depth.write)
@@ -331,7 +331,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
+    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>,
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
@@ -340,7 +340,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
+    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>,
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
@@ -351,7 +351,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
 
 impl<'a> FboAttachments for SimpleFrameBuffer<'a> {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
+    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
         Some(&self.attachments)
     }
 }
@@ -506,13 +506,13 @@ impl<'a> MultiOutputFrameBuffer<'a> {
 
         Ok(MultiOutputFrameBuffer {
             context: facade.get_context().clone(),
-            example_attachments: example_attachments,
+            example_attachments,
             color_attachments: color,
-            depth_stencil_attachments: depth_stencil_attachments,
+            depth_stencil_attachments,
         })
     }
 
-    fn build_attachments(&self, program: &Program) -> fbo::ValidatedAttachments {
+    fn build_attachments(&self, program: &Program) -> fbo::ValidatedAttachments<'_> {
         let mut colors = SmallVec::new();
 
         for &(ref name, attachment) in self.color_attachments.iter() {
@@ -525,7 +525,7 @@ impl<'a> MultiOutputFrameBuffer<'a> {
         }
 
         fbo::FramebufferAttachments::Regular(fbo::FramebufferSpecificAttachments {
-            colors: colors,
+            colors,
             depth_stencil: self.depth_stencil_attachments,
         }).validate(&self.context).unwrap()
     }
@@ -555,10 +555,10 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
         self.example_attachments.get_stencil_buffer_bits()
     }
 
-    fn draw<'i, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: Into<::index::IndicesSource<'i>>,
-        U: ::uniforms::Uniforms, V: ::vertex::MultiVerticesSource<'v>
+    fn draw<'i, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &crate::Program,
+        uniforms: &U, draw_parameters: &crate::DrawParameters<'_>) -> Result<(), DrawError>
+        where I: Into<crate::index::IndicesSource<'i>>,
+        U: crate::uniforms::Uniforms, V: crate::vertex::MultiVerticesSource<'v>
     {
         if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
                 draw_parameters.depth.write)
@@ -599,7 +599,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
+    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>,
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
@@ -608,7 +608,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
+    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>,
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
@@ -619,7 +619,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
 
 impl<'a> FboAttachments for MultiOutputFrameBuffer<'a> {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
+    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
         unimplemented!();
     }
 }
@@ -685,18 +685,18 @@ impl<'a> EmptyFrameBuffer {
         let context = facade.get_context();
 
         let attachments = fbo::FramebufferAttachments::Empty {
-            width: width,
-            height: height,
-            layers: layers,
-            samples: samples,
-            fixed_samples: fixed_samples,
+            width,
+            height,
+            layers,
+            samples,
+            fixed_samples,
         };
 
         let attachments = attachments.validate(context)?;
 
         Ok(EmptyFrameBuffer {
             context: context.clone(),
-            attachments: attachments,
+            attachments,
         })
     }
 }
@@ -724,10 +724,10 @@ impl Surface for EmptyFrameBuffer {
         None
     }
 
-    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &::Program,
-        uniforms: &U, draw_parameters: &::DrawParameters) -> Result<(), DrawError>
-        where I: Into<::index::IndicesSource<'b>>, U: ::uniforms::Uniforms,
-        V: ::vertex::MultiVerticesSource<'v>
+    fn draw<'b, 'v, V, I, U>(&mut self, vb: V, ib: I, program: &crate::Program,
+        uniforms: &U, draw_parameters: &crate::DrawParameters<'_>) -> Result<(), DrawError>
+        where I: Into<crate::index::IndicesSource<'b>>, U: crate::uniforms::Uniforms,
+        V: crate::vertex::MultiVerticesSource<'v>
     {
         if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
                         draw_parameters.depth.write)
@@ -768,7 +768,7 @@ impl Surface for EmptyFrameBuffer {
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer,
+    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>,
                                     source_rect: &Rect, target_rect: &BlitTarget,
                                     filter: uniforms::MagnifySamplerFilter)
     {
@@ -777,7 +777,7 @@ impl Surface for EmptyFrameBuffer {
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer,
+    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>,
                                          source_rect: &Rect, target_rect: &BlitTarget,
                                          filter: uniforms::MagnifySamplerFilter)
     {
@@ -788,7 +788,7 @@ impl Surface for EmptyFrameBuffer {
 
 impl FboAttachments for EmptyFrameBuffer {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments> {
+    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
         Some(&self.attachments)
     }
 }

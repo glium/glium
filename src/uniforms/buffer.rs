@@ -1,14 +1,14 @@
-use buffer::{Content, Buffer, BufferAny, BufferType, BufferMode, BufferCreationError};
-use buffer::{BufferSlice, BufferMutSlice};
-use uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
-use program;
+use crate::buffer::{Content, Buffer, BufferAny, BufferType, BufferMode, BufferCreationError};
+use crate::buffer::{BufferSlice, BufferMutSlice};
+use crate::uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
+use crate::program;
 
-use gl;
-use GlObject;
+use crate::gl;
+use crate::GlObject;
 
 use std::ops::{Deref, DerefMut};
 
-use backend::Facade;
+use crate::backend::Facade;
 
 /// Buffer that contains a uniform block.
 ///
@@ -85,7 +85,7 @@ impl<T> UniformBuffer<T> where T: Copy {
         let buffer = Buffer::new(facade, &data, BufferType::UniformBuffer, mode)?;
 
         Ok(UniformBuffer {
-            buffer: buffer,
+            buffer,
         })
     }
 
@@ -126,7 +126,7 @@ impl<T> UniformBuffer<T> where T: Copy {
         let buffer = Buffer::empty(facade, BufferType::UniformBuffer, mode)?;
 
         Ok(UniformBuffer {
-            buffer: buffer,
+            buffer,
         })
     }
 }
@@ -196,7 +196,7 @@ impl<T: ?Sized> UniformBuffer<T> where T: Content {
         let buffer = Buffer::empty_unsized(facade, BufferType::UniformBuffer, size, mode)?;
 
         Ok(UniformBuffer {
-            buffer: buffer,
+            buffer,
         })
     }
 }
@@ -233,7 +233,7 @@ impl<'a, T: ?Sized> From<&'a mut UniformBuffer<T>> for BufferMutSlice<'a, T> whe
 
 impl<'a, T: ?Sized> AsUniformValue for &'a UniformBuffer<T> where T: UniformBlock + Content {
     #[inline]
-    fn as_uniform_value(&self) -> UniformValue {
+    fn as_uniform_value(&self) -> UniformValue<'_> {
         #[inline]
         fn f<T: ?Sized>(block: &program::UniformBlock)
                         -> Result<(), LayoutMismatchError> where T: UniformBlock + Content

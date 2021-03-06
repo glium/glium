@@ -3,15 +3,15 @@
 
 */
 
-use backend::Facade;
-use context::Context;
-use ContextExt;
-use version::Api;
-use version::Version;
-use gl;
+use crate::backend::Facade;
+use crate::context::Context;
+use crate::ContextExt;
+use crate::version::Api;
+use crate::version::Version;
+use crate::gl;
 use std::rc::Rc;
 
-pub use context::DebugCallbackBehavior;
+pub use crate::context::DebugCallbackBehavior;
 
 /// Represents a callback that can be used for the debug output feature of OpenGL.
 ///
@@ -101,7 +101,7 @@ pub enum MessageType {
 /// ## Example
 ///
 /// ```no_run
-/// # let display: glium::Display = unsafe { std::mem::uninitialized() };
+/// # fn example(display: glium::Display) {
 /// let before = glium::debug::TimestampQuery::new(&display);
 /// // do some stuff here
 /// let after = glium::debug::TimestampQuery::new(&display);
@@ -113,6 +113,7 @@ pub enum MessageType {
 ///     },
 ///     _ => ()
 /// }
+/// # }
 /// ```
 ///
 pub struct TimestampQuery {

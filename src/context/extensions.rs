@@ -1,7 +1,7 @@
 use std::ffi::CStr;
-use version::Version;
-use version::Api;
-use gl;
+use crate::version::Version;
+use crate::version::Api;
+use crate::gl;
 
 macro_rules! extensions {
     ($($string:expr => $field:ident,)+) => {
@@ -75,6 +75,7 @@ extensions! {
     "GL_ARB_framebuffer_sRGB" => gl_arb_framebuffer_srgb,
     "GL_ARB_geometry_shader4" => gl_arb_geometry_shader4,
     "GL_ARB_get_program_binary" => gl_arb_get_programy_binary,
+    "GL_ARB_gl_spirv" => gl_arb_gl_spirv,
     "GL_ARB_gpu_shader_fp64" => gl_arb_gpu_shader_fp64,
     "GL_ARB_gpu_shader_int64" => gl_arb_gpu_shader_int64,
     "GL_ARB_instanced_arrays" => gl_arb_instanced_arrays,
@@ -91,6 +92,7 @@ extensions! {
     "GL_ARB_robustness" => gl_arb_robustness,
     "GL_ARB_robust_buffer_access_behavior" => gl_arb_robust_buffer_access_behavior,
     "GL_ARB_sampler_objects" => gl_arb_sampler_objects,
+    "GL_ARB_seamless_cube_map" => gl_arb_seamless_cube_map,
     "GL_ARB_shader_atomic_counters" => gl_arb_shader_atomic_counters,
     "GL_ARB_shader_image_load_store" => gl_arb_shader_image_load_store,
     "GL_ARB_shader_objects" => gl_arb_shader_objects,

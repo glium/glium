@@ -1,10 +1,10 @@
 use std::borrow::Cow;
 use std::mem;
 
-use vertex::Attribute;
-use version::Api;
-use version::Version;
-use CapabilitiesSource;
+use crate::vertex::Attribute;
+use crate::version::Api;
+use crate::version::Version;
+use crate::CapabilitiesSource;
 
 #[cfg(feature = "cgmath")]
 use cgmath;

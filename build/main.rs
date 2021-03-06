@@ -1,5 +1,3 @@
-extern crate gl_generator;
-
 use gl_generator::{Registry, Api, Profile, Fallbacks};
 use std::env;
 use std::fs::File;
@@ -22,7 +20,7 @@ fn main() {
 fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
     let gl_registry = Registry::new(
         Api::Gl,
-        (4, 5),
+        (4, 6),
         Profile::Compatibility,
         Fallbacks::None,
         vec![
@@ -42,6 +40,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_ARB_ES3_2_compatibility",
             "GL_ARB_framebuffer_sRGB",
             "GL_ARB_geometry_shader4",
+            "GL_ARB_gl_spirv",
             "GL_ARB_gpu_shader_fp64",
             "GL_ARB_gpu_shader_int64",
             "GL_ARB_invalidate_subdata",
@@ -49,6 +48,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_ARB_occlusion_query",
             "GL_ARB_pixel_buffer_object",
             "GL_ARB_robustness",
+            "GL_ARB_seamless_cube_map",
             "GL_ARB_shader_image_load_store",
             "GL_ARB_shader_objects",
             "GL_ARB_texture_buffer_object",

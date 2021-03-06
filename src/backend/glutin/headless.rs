@@ -1,9 +1,9 @@
 //! Backend implementation for a glutin headless renderer.
 
-use {Frame, IncompatibleOpenGl, SwapBuffersError};
-use debug;
-use context;
-use backend::{self, Backend};
+use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
+use crate::debug;
+use crate::context;
+use crate::backend::{self, Backend};
 use std::rc::Rc;
 use std::cell::RefCell;
 use std::ops::Deref;
@@ -117,7 +117,7 @@ impl Headless {
         let glutin_context = Rc::new(RefCell::new(Takeable::new(context)));
         let glutin_backend = GlutinBackend(glutin_context.clone());
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
-        Ok(Headless { context: context, glutin: glutin_context })
+        Ok(Headless { context, glutin: glutin_context })
     }
 
     /// Start drawing on the backbuffer.

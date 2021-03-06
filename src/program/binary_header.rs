@@ -1,4 +1,4 @@
-use program::raw::RawProgram;
+use crate::program::raw::RawProgram;
 
 
 const MASK_HAS_TESS_EVAL: u8 = 0b00000001;
@@ -9,13 +9,13 @@ const MASK_HAS_GEOMETRY: u8 = 0b00000100;
 pub fn attach_glium_header(raw: &RawProgram, data: &mut Vec<u8>) {
     let mut header_byte = 0u8;
     if raw.has_tessellation_evaluation_shader() {
-        header_byte = header_byte ^ MASK_HAS_TESS_EVAL;
+        header_byte ^= MASK_HAS_TESS_EVAL;
     }
     if raw.has_tessellation_control_shader() {
-        header_byte = header_byte ^ MASK_HAS_TESS_CONTROL;
+        header_byte ^= MASK_HAS_TESS_CONTROL;
     }
     if raw.has_geometry_shader() {
-        header_byte = header_byte ^ MASK_HAS_GEOMETRY;
+        header_byte ^= MASK_HAS_GEOMETRY;
     }
     // TODO kind of inefficient.
     data.reserve(1);
