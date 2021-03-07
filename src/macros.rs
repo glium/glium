@@ -39,8 +39,7 @@ macro_rules! assert_no_gl_error {
 /// ## Example
 ///
 /// ```rust
-/// # #[macro_use]
-/// # extern crate glium;
+/// # use glium::uniform;
 /// # fn main() {
 /// let uniforms = uniform! {
 ///     color: [1.0, 1.0, 0.0, 1.0],
@@ -84,8 +83,7 @@ macro_rules! uniform {
 /// ## Example
 ///
 /// ```
-/// # #[macro_use]
-/// # extern crate glium;
+/// # use glium::implement_vertex;
 /// # fn main() {
 /// #[derive(Copy, Clone)]
 /// struct Vertex {
@@ -172,7 +170,7 @@ macro_rules! implement_vertex {
     };
 
     ($struct_name:ident, $($field_name:ident),+,) => (
-        implement_vertex!($struct_name, $($field_name),+);
+        $crate::implement_vertex!($struct_name, $($field_name),+);
     );
 }
 
@@ -185,8 +183,7 @@ macro_rules! implement_vertex {
 /// ## Example
 ///
 /// ```
-/// # #[macro_use]
-/// # extern crate glium;
+/// # use glium::implement_buffer_content;
 /// # fn main() {
 /// struct Data {
 ///     data: [u32]
@@ -277,15 +274,15 @@ macro_rules! implement_buffer_content {
     };
 
     ($struct_name:ident,) => (
-        implement_buffer_content!($struct_name);
+        $crate::implement_buffer_content!($struct_name);
     );
 
     ($struct_name:ident) => (
-        implement_buffer_content!(__impl $struct_name []);
+        $crate::implement_buffer_content!(__impl $struct_name []);
     );
 
     ($struct_name:ident <$t1:tt>) => (
-        implement_buffer_content!(__impl $struct_name [$t1]);
+        $crate::implement_buffer_content!(__impl $struct_name [$t1]);
     );
 }
 
@@ -296,8 +293,7 @@ macro_rules! implement_buffer_content {
 /// ## Example
 ///
 /// ```
-/// # #[macro_use]
-/// # extern crate glium;
+/// # use glium::implement_uniform_block;
 /// # fn main() {
 /// #[derive(Copy, Clone)]
 /// struct Vertex {
@@ -407,15 +403,15 @@ macro_rules! implement_uniform_block {
     );
 
     ($struct_name:ident, $($field_name:ident),+,) => (
-        implement_uniform_block!($struct_name, $($field_name),+);
+        $crate::implement_uniform_block!($struct_name, $($field_name),+);
     );
 
     ($struct_name:ident, $($field_name:ident),+) => (
-        implement_uniform_block!(__impl $struct_name [], $($field_name),+);
+        $crate::implement_uniform_block!(__impl $struct_name [], $($field_name),+);
     );
 
     ($struct_name:ident<$l:tt>, $($field_name:ident),+) => (
-        implement_uniform_block!(__impl $struct_name [$l], $($field_name),+);
+        $crate::implement_uniform_block!(__impl $struct_name [$l], $($field_name),+);
     );
 }
 
@@ -491,14 +487,14 @@ macro_rules! program {
     );
 
     ($facade:expr,,$($rest:tt)*) => (
-        program!($facade,$($rest)*)
+        $crate::program!($facade,$($rest)*)
     );
 
     ($facade:expr, $num:tt => $($rest:tt)*) => (
         {
             let context = $crate::backend::Facade::get_context($facade);
             let version = program!(_parse_num_gl $num);
-            program!(_inner, context, version, $($rest)*)
+            $crate::program!(_inner, context, version, $($rest)*)
         }
     );
 
@@ -506,7 +502,7 @@ macro_rules! program {
         {
             let context = $crate::backend::Facade::get_context($facade);
             let version = program!(_parse_num_gles $num);
-            program!(_inner, context, version, $($rest)*)
+            $crate::program!(_inner, context, version, $($rest)*)
         }
     );
 
@@ -521,7 +517,7 @@ macro_rules! program {
             let __uses_point_size: bool = false;
 
             $(
-                program!(_program_ty $ty, $src, __vertex_shader, __tessellation_control_shader,
+                $crate::program!(_program_ty $ty, $src, __vertex_shader, __tessellation_control_shader,
                          __tessellation_evaluation_shader, __geometry_shader, __fragment_shader,
                          __outputs_srgb, __uses_point_size);
             )+
@@ -541,12 +537,12 @@ macro_rules! program {
                            .map_err(|err| $crate::program::ProgramChooserCreationError::from(err))
 
         } else {
-            program!($context, $($rest)*)
+            $crate::program!($context, $($rest)*)
         }
     );
 
     (_inner, $context:ident, $vers:ident, {$($ty:ident:$src:expr),+,}$($rest:tt)*) => (
-        program!(_inner, $context, $vers, {$($ty:$src),+} $($rest)*);
+        $crate::program!(_inner, $context, $vers, {$($ty:$src),+} $($rest)*);
     );
 
     (_program_ty vertex, $src:expr, $vs:ident, $tcs:ident, $tes:ident, $gs:ident, $fs:ident, $srgb:ident, $ps:ident) => (
