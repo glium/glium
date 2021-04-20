@@ -50,7 +50,7 @@ To apply a texture, we do exactly the same thing as a few sections earlier:
 Loading the texture is done like we have already done before:
 
 ```rust
-let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-diffuse.jpg")[..]),
+let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-diffuse.jpg")),
                         image::JPEG).unwrap().to_rgba8();
 let image_dimensions = image.dimensions();
 let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
@@ -134,7 +134,7 @@ blue is the value `(0.0, 0.0, 1.0)` which is a vector pointing to the outside.
 Let's start with the beginning. We load the normal map into a texture:
 
 ```rust
-let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-normal.png")[..]),
+let image = image::load(Cursor::new(&include_bytes!("../book/tuto-14-normal.png")),
                         image::PNG).unwrap().to_rgba8();
 let image_dimensions = image.dimensions();
 let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);

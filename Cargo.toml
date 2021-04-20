@@ -26,9 +26,6 @@ build = "build/main.rs"
 exclude = ["doc", ".travis.yml", "circle.yml"]
 edition = "2018"
 
-[badges]
-travis-ci = { repository = "glium/glium" }
-
 [features]
 default = ["glutin"]
 unstable = [] # used for benchmarks
