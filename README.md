@@ -1,6 +1,6 @@
 # glium
 
-[![Build Status](https://travis-ci.org/glium/glium.svg?branch=master)](https://travis-ci.org/glium/glium)
+[![Build Status](https://github.com/glium/glium/actions/workflows/ci.yml/badge.svg)](https://github.com/glium/glium/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/tomaka/glium/badge.svg?branch=master&service=github)](https://coveralls.io/github/tomaka/glium?branch=master)
 
 [![crates.io page](https://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
