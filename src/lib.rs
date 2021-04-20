@@ -43,18 +43,18 @@ OpenGL is similar to a drawing software: you draw something, then draw over it, 
 again, etc. until you are satisfied of the result.
 
 Once you have a `display`, you can call `let mut frame = display.draw();` to start drawing. This
-`frame` object implements [the `Surface` trait](trait.Surface.html) and provides some functions
+`frame` object implements [the `Surface` trait](`Surface`) and provides some functions
 such as `clear_color`, but also allows you to draw with the rendering pipeline.
 
 In order to draw something, you will need to pass:
 
- - A source of vertices (see the [`vertex`](vertex/index.html) module)
- - A source of indices (see the [`index`](index/index.html) module)
+ - A source of vertices (see the [`vertex`](`vertex`) module)
+ - A source of indices (see the [`index`](`index`) module)
  - A program that contains the shader that the GPU will execute (see the
-   [`program`](program/index.html) module)
- - A list of uniforms for the program (see the [`uniforms`](uniforms/index.html) module)
+   [`program`](`mod@program`) module)
+ - A list of uniforms for the program (see the [`uniforms`](`uniforms`) module)
  - Draw parameters to customize the drawing process (see the
-   [`draw_parameters`](draw_parameters/index.html) module)
+   [`draw_parameters`](`draw_parameters`) module)
 
 Once you have finished drawing, you can call `frame.finish()` to swap buffers and present the
 result to the user.
