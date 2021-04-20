@@ -1,3 +1,5 @@
+#![allow(unknown_lints, proc_macro_back_compat)]
+
 #[macro_use]
 extern crate glium;
 #[macro_use]
