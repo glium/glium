@@ -60,7 +60,7 @@ pub unsafe fn get_gl_version(gl: &gl::Gl) -> Version {
     let version = version.split(' ').next().expect("glGetString(GL_VERSION) returned an empty \
                                                     string");
 
-    let mut iter = version.split(move |c: char| c == '.');
+    let mut iter = version.split('.');
     let major = iter.next().unwrap();
     let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
 
