@@ -96,6 +96,21 @@ result to the user.
 // TODO: remove these when everything is implemented
 #![allow(dead_code)]
 #![allow(unused_variables)]
+#![allow(
+    clippy::unused_unit,
+    clippy::too_many_arguments,
+    clippy::type_complexity,
+    clippy::module_inception,
+    clippy::neg_cmp_op_on_partial_ord,
+    clippy::missing_safety_doc,
+    clippy::new_without_default,
+    clippy::len_zero,
+    clippy::len_without_is_empty,
+    clippy::if_same_then_else,
+    // Maybe we'll fix these later, but not right now
+    // (Would require API change)
+    clippy::wrong_self_convention,
+)]
 
 #[macro_use]
 extern crate lazy_static;
@@ -154,6 +169,7 @@ mod version;
 mod vertex_array_object;
 
 mod gl {
+    #![allow(clippy::all)]
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
 

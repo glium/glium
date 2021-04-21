@@ -92,11 +92,11 @@ impl<'a> IndicesSource<'a> {
     /// Returns the type of the primitives.
     #[inline]
     pub fn get_primitives_type(&self) -> PrimitiveType {
-        match self {
-            &IndicesSource::IndexBuffer { primitives, .. } => primitives,
-            &IndicesSource::MultidrawArray { primitives, .. } => primitives,
-            &IndicesSource::MultidrawElement { primitives, .. } => primitives,
-            &IndicesSource::NoIndices { primitives } => primitives,
+        *match self {
+            IndicesSource::IndexBuffer { primitives, .. } => primitives,
+            IndicesSource::MultidrawArray { primitives, .. } => primitives,
+            IndicesSource::MultidrawElement { primitives, .. } => primitives,
+            IndicesSource::NoIndices { primitives } => primitives,
         }
     }
 }
@@ -220,18 +220,18 @@ impl ToGlEnum for PrimitiveType {
     #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &PrimitiveType::Points => gl::POINTS,
-            &PrimitiveType::LinesList => gl::LINES,
-            &PrimitiveType::LinesListAdjacency => gl::LINES_ADJACENCY,
-            &PrimitiveType::LineStrip => gl::LINE_STRIP,
-            &PrimitiveType::LineStripAdjacency => gl::LINE_STRIP_ADJACENCY,
-            &PrimitiveType::LineLoop => gl::LINE_LOOP,
-            &PrimitiveType::TrianglesList => gl::TRIANGLES,
-            &PrimitiveType::TrianglesListAdjacency => gl::TRIANGLES_ADJACENCY,
-            &PrimitiveType::TriangleStrip => gl::TRIANGLE_STRIP,
-            &PrimitiveType::TriangleStripAdjacency => gl::TRIANGLE_STRIP_ADJACENCY,
-            &PrimitiveType::TriangleFan => gl::TRIANGLE_FAN,
-            &PrimitiveType::Patches { .. } => gl::PATCHES,
+            PrimitiveType::Points => gl::POINTS,
+            PrimitiveType::LinesList => gl::LINES,
+            PrimitiveType::LinesListAdjacency => gl::LINES_ADJACENCY,
+            PrimitiveType::LineStrip => gl::LINE_STRIP,
+            PrimitiveType::LineStripAdjacency => gl::LINE_STRIP_ADJACENCY,
+            PrimitiveType::LineLoop => gl::LINE_LOOP,
+            PrimitiveType::TrianglesList => gl::TRIANGLES,
+            PrimitiveType::TrianglesListAdjacency => gl::TRIANGLES_ADJACENCY,
+            PrimitiveType::TriangleStrip => gl::TRIANGLE_STRIP,
+            PrimitiveType::TriangleStripAdjacency => gl::TRIANGLE_STRIP_ADJACENCY,
+            PrimitiveType::TriangleFan => gl::TRIANGLE_FAN,
+            PrimitiveType::Patches { .. } => gl::PATCHES,
         }
     }
 }
@@ -277,7 +277,7 @@ impl IndexType {
     /// Returns the size in bytes of each index of this type.
     #[inline]
     pub fn get_size(&self) -> usize {
-        match *self {
+        match self {
             IndexType::U8 => mem::size_of::<u8>(),
             IndexType::U16 => mem::size_of::<u16>(),
             IndexType::U32 => mem::size_of::<u32>(),
@@ -288,9 +288,9 @@ impl IndexType {
     #[inline]
     pub fn is_supported<C: ?Sized>(&self, caps: &C) -> bool where C: CapabilitiesSource {
         match self {
-            &IndexType::U8 => true,
-            &IndexType::U16 => true,
-            &IndexType::U32 => {
+            IndexType::U8 => true,
+            IndexType::U16 => true,
+            IndexType::U32 => {
                 caps.get_version() >= &Version(Api::Gl, 1, 0) ||
                 caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
                 caps.get_extensions().gl_oes_element_index_uint

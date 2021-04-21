@@ -142,7 +142,11 @@ mod get_format;
 mod pixel;
 mod ty_support;
 
-include!(concat!(env!("OUT_DIR"), "/textures.rs"));
+mod textures {
+    #![allow(clippy::all)]
+    include!(concat!(env!("OUT_DIR"), "/textures.rs"));
+}
+pub use self::textures::*;
 
 /// Represents a layer of a cubemap.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
@@ -164,12 +168,12 @@ impl CubeLayer {
     /// `PositiveY` face of the cubemap whose index is `1` in the array.
     pub fn get_layer_index(&self) -> usize {
         match self {
-            &CubeLayer::PositiveX => 0,
-            &CubeLayer::NegativeX => 1,
-            &CubeLayer::PositiveY => 2,
-            &CubeLayer::NegativeY => 3,
-            &CubeLayer::PositiveZ => 4,
-            &CubeLayer::NegativeZ => 5,
+            CubeLayer::PositiveX => 0,
+            CubeLayer::NegativeX => 1,
+            CubeLayer::PositiveY => 2,
+            CubeLayer::NegativeY => 3,
+            CubeLayer::PositiveZ => 4,
+            CubeLayer::NegativeZ => 5,
         }
     }
 }

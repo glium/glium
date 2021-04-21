@@ -391,133 +391,133 @@ impl UncompressedFloatFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &UncompressedFloatFormat::U8 => {
+            UncompressedFloatFormat::U8 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_rg
             },
-            &UncompressedFloatFormat::I8 => {
+            UncompressedFloatFormat::I8 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U16 => {
+            UncompressedFloatFormat::U16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_rg
             },
-            &UncompressedFloatFormat::I16 => {
+            UncompressedFloatFormat::I16 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U8U8 => {
+            UncompressedFloatFormat::U8U8 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_rg
             },
-            &UncompressedFloatFormat::I8I8 => {
+            UncompressedFloatFormat::I8I8 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U16U16 => {
+            UncompressedFloatFormat::U16U16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_rg
             },
-            &UncompressedFloatFormat::I16I16 => {
+            UncompressedFloatFormat::I16I16 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U3U3U2 => {
+            UncompressedFloatFormat::U3U3U2 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U4U4U4 => {
+            UncompressedFloatFormat::U4U4U4 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U5U5U5 => {
+            UncompressedFloatFormat::U5U5U5 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U8U8U8 => {
+            UncompressedFloatFormat::U8U8U8 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::I8I8I8 => {
+            UncompressedFloatFormat::I8I8I8 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U10U10U10 => {
+            UncompressedFloatFormat::U10U10U10 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U12U12U12 => {
+            UncompressedFloatFormat::U12U12U12 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U16U16U16 => {
+            UncompressedFloatFormat::U16U16U16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::I16I16I16 => {
+            UncompressedFloatFormat::I16I16I16 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U2U2U2U2 => {
+            UncompressedFloatFormat::U2U2U2U2 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U4U4U4U4 => {
+            UncompressedFloatFormat::U4U4U4U4 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U5U5U5U1 => {
+            UncompressedFloatFormat::U5U5U5U1 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U8U8U8U8 => {
+            UncompressedFloatFormat::U8U8U8U8 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::I8I8I8I8 => {
+            UncompressedFloatFormat::I8I8I8I8 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::U10U10U10U2 => {
+            UncompressedFloatFormat::U10U10U10U2 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U12U12U12U12 => {
+            UncompressedFloatFormat::U12U12U12U12 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::U16U16U16U16 => {
+            UncompressedFloatFormat::U16U16U16U16 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
-            &UncompressedFloatFormat::I16I16I16I16 => {
+            UncompressedFloatFormat::I16I16I16I16 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_snorm
             },
-            &UncompressedFloatFormat::F16 => {
+            UncompressedFloatFormat::F16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
-            &UncompressedFloatFormat::F16F16 => {
+            UncompressedFloatFormat::F16F16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
-            &UncompressedFloatFormat::F16F16F16 => {
+            UncompressedFloatFormat::F16F16F16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
-            &UncompressedFloatFormat::F16F16F16F16 => {
+            UncompressedFloatFormat::F16F16F16F16 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
-            &UncompressedFloatFormat::F32 => {
+            UncompressedFloatFormat::F32 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
-            &UncompressedFloatFormat::F32F32 => {
+            UncompressedFloatFormat::F32F32 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     (extensions.gl_arb_texture_float && extensions.gl_arb_texture_rg)
             },
-            &UncompressedFloatFormat::F32F32F32 => {
+            UncompressedFloatFormat::F32F32F32 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
-            &UncompressedFloatFormat::F32F32F32F32 => {
+            UncompressedFloatFormat::F32F32F32F32 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_arb_texture_float || extensions.gl_ati_texture_float
             },
-            &UncompressedFloatFormat::F11F11F10 => {
+            UncompressedFloatFormat::F11F11F10 => {
                 version >= &Version(Api::Gl, 3, 2) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_packed_float
             },
-            &UncompressedFloatFormat::F9F9F9 => {
+            UncompressedFloatFormat::F9F9F9 => {
                 version >= &Version(Api::Gl, 3, 0) || version >= &Version(Api::GlEs, 3, 0) ||
                     extensions.gl_ext_texture_shared_exponent
             },
@@ -528,7 +528,7 @@ impl UncompressedFloatFormat {
     /// attachment.
     pub fn is_color_renderable<C: ?Sized>(&self, context: &C) -> bool where C: CapabilitiesSource {
         // this is the only format that is never renderable
-        if let &UncompressedFloatFormat::F9F9F9 = self {
+        if matches!(self, UncompressedFloatFormat::F9F9F9) {
             return false;
         }
 
@@ -548,72 +548,72 @@ impl UncompressedFloatFormat {
         // if we have OpenGL ES, it depends
         // TODO: there are maybe more formats here
         match self {
-            &UncompressedFloatFormat::U8 => {
+            UncompressedFloatFormat::U8 => {
                 version >= &Version(Api::GlEs, 3, 0) || extensions.gl_arb_texture_rg
             },
-            &UncompressedFloatFormat::U8U8 => {
+            UncompressedFloatFormat::U8U8 => {
                 version >= &Version(Api::GlEs, 3, 0) || extensions.gl_arb_texture_rg
             },
             //&UncompressedFloatFormat::U5U6U5 => true,
-            &UncompressedFloatFormat::U8U8U8 => {
+            UncompressedFloatFormat::U8U8U8 => {
                 version >= &Version(Api::GlEs, 3, 0) || extensions.gl_oes_rgb8_rgba8
             },
-            &UncompressedFloatFormat::U4U4U4U4 => true,
-            &UncompressedFloatFormat::U5U5U5U1 => true,
-            &UncompressedFloatFormat::U8U8U8U8 => {
+            UncompressedFloatFormat::U4U4U4U4 => true,
+            UncompressedFloatFormat::U5U5U5U1 => true,
+            UncompressedFloatFormat::U8U8U8U8 => {
                 version >= &Version(Api::GlEs, 3, 0) || extensions.gl_arm_rgba8 ||
                 extensions.gl_oes_rgb8_rgba8
             },
-            &UncompressedFloatFormat::U10U10U10U2 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedFloatFormat::F16 => version >= &Version(Api::GlEs, 3, 2),
-            &UncompressedFloatFormat::F16F16 => version >= &Version(Api::GlEs, 3, 2),
-            &UncompressedFloatFormat::F16F16F16F16 => version >= &Version(Api::GlEs, 3, 2),
-            &UncompressedFloatFormat::F32 => version >= &Version(Api::GlEs, 3, 2),
-            &UncompressedFloatFormat::F32F32 => version >= &Version(Api::GlEs, 3, 2),
-            &UncompressedFloatFormat::F32F32F32F32 => version >= &Version(Api::GlEs, 3, 2),
-            &UncompressedFloatFormat::F11F11F10 => version >= &Version(Api::GlEs, 3, 2),
+            UncompressedFloatFormat::U10U10U10U2 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedFloatFormat::F16 => version >= &Version(Api::GlEs, 3, 2),
+            UncompressedFloatFormat::F16F16 => version >= &Version(Api::GlEs, 3, 2),
+            UncompressedFloatFormat::F16F16F16F16 => version >= &Version(Api::GlEs, 3, 2),
+            UncompressedFloatFormat::F32 => version >= &Version(Api::GlEs, 3, 2),
+            UncompressedFloatFormat::F32F32 => version >= &Version(Api::GlEs, 3, 2),
+            UncompressedFloatFormat::F32F32F32F32 => version >= &Version(Api::GlEs, 3, 2),
+            UncompressedFloatFormat::F11F11F10 => version >= &Version(Api::GlEs, 3, 2),
             _ => false
         }
     }
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &UncompressedFloatFormat::U8 => gl::R8,
-            &UncompressedFloatFormat::I8 => gl::R8_SNORM,
-            &UncompressedFloatFormat::U16 => gl::R16,
-            &UncompressedFloatFormat::I16 => gl::R16_SNORM,
-            &UncompressedFloatFormat::U8U8 => gl::RG8,
-            &UncompressedFloatFormat::I8I8 => gl::RG8_SNORM,
-            &UncompressedFloatFormat::U16U16 => gl::RG16,
-            &UncompressedFloatFormat::I16I16 => gl::RG16_SNORM,
-            &UncompressedFloatFormat::U3U3U2 => gl::R3_G3_B2,
-            &UncompressedFloatFormat::U4U4U4 => gl::RGB4,
-            &UncompressedFloatFormat::U5U5U5 => gl::RGB5,
-            &UncompressedFloatFormat::U8U8U8 => gl::RGB8,
-            &UncompressedFloatFormat::I8I8I8 => gl::RGB8_SNORM,
-            &UncompressedFloatFormat::U10U10U10 => gl::RGB10,
-            &UncompressedFloatFormat::U12U12U12 => gl::RGB12,
-            &UncompressedFloatFormat::U16U16U16 => gl::RGB16,
-            &UncompressedFloatFormat::I16I16I16 => gl::RGB16_SNORM,
-            &UncompressedFloatFormat::U2U2U2U2 => gl::RGBA2,
-            &UncompressedFloatFormat::U4U4U4U4 => gl::RGBA4,
-            &UncompressedFloatFormat::U5U5U5U1 => gl::RGB5_A1,
-            &UncompressedFloatFormat::U8U8U8U8 => gl::RGBA8,
-            &UncompressedFloatFormat::I8I8I8I8 => gl::RGBA8_SNORM,
-            &UncompressedFloatFormat::U10U10U10U2 => gl::RGB10_A2,
-            &UncompressedFloatFormat::U12U12U12U12 => gl::RGBA12,
-            &UncompressedFloatFormat::U16U16U16U16 => gl::RGBA16,
-            &UncompressedFloatFormat::I16I16I16I16 => gl::RGBA16_SNORM,
-            &UncompressedFloatFormat::F16 => gl::R16F,
-            &UncompressedFloatFormat::F16F16 => gl::RG16F,
-            &UncompressedFloatFormat::F16F16F16 => gl::RGB16F,
-            &UncompressedFloatFormat::F16F16F16F16 => gl::RGBA16F,
-            &UncompressedFloatFormat::F32 => gl::R32F,
-            &UncompressedFloatFormat::F32F32 => gl::RG32F,
-            &UncompressedFloatFormat::F32F32F32 => gl::RGB32F,
-            &UncompressedFloatFormat::F32F32F32F32 => gl::RGBA32F,
-            &UncompressedFloatFormat::F11F11F10 => gl::R11F_G11F_B10F,
-            &UncompressedFloatFormat::F9F9F9 => gl::RGB9_E5,
+            UncompressedFloatFormat::U8 => gl::R8,
+            UncompressedFloatFormat::I8 => gl::R8_SNORM,
+            UncompressedFloatFormat::U16 => gl::R16,
+            UncompressedFloatFormat::I16 => gl::R16_SNORM,
+            UncompressedFloatFormat::U8U8 => gl::RG8,
+            UncompressedFloatFormat::I8I8 => gl::RG8_SNORM,
+            UncompressedFloatFormat::U16U16 => gl::RG16,
+            UncompressedFloatFormat::I16I16 => gl::RG16_SNORM,
+            UncompressedFloatFormat::U3U3U2 => gl::R3_G3_B2,
+            UncompressedFloatFormat::U4U4U4 => gl::RGB4,
+            UncompressedFloatFormat::U5U5U5 => gl::RGB5,
+            UncompressedFloatFormat::U8U8U8 => gl::RGB8,
+            UncompressedFloatFormat::I8I8I8 => gl::RGB8_SNORM,
+            UncompressedFloatFormat::U10U10U10 => gl::RGB10,
+            UncompressedFloatFormat::U12U12U12 => gl::RGB12,
+            UncompressedFloatFormat::U16U16U16 => gl::RGB16,
+            UncompressedFloatFormat::I16I16I16 => gl::RGB16_SNORM,
+            UncompressedFloatFormat::U2U2U2U2 => gl::RGBA2,
+            UncompressedFloatFormat::U4U4U4U4 => gl::RGBA4,
+            UncompressedFloatFormat::U5U5U5U1 => gl::RGB5_A1,
+            UncompressedFloatFormat::U8U8U8U8 => gl::RGBA8,
+            UncompressedFloatFormat::I8I8I8I8 => gl::RGBA8_SNORM,
+            UncompressedFloatFormat::U10U10U10U2 => gl::RGB10_A2,
+            UncompressedFloatFormat::U12U12U12U12 => gl::RGBA12,
+            UncompressedFloatFormat::U16U16U16U16 => gl::RGBA16,
+            UncompressedFloatFormat::I16I16I16I16 => gl::RGBA16_SNORM,
+            UncompressedFloatFormat::F16 => gl::R16F,
+            UncompressedFloatFormat::F16F16 => gl::RG16F,
+            UncompressedFloatFormat::F16F16F16 => gl::RGB16F,
+            UncompressedFloatFormat::F16F16F16F16 => gl::RGBA16F,
+            UncompressedFloatFormat::F32 => gl::R32F,
+            UncompressedFloatFormat::F32F32 => gl::RG32F,
+            UncompressedFloatFormat::F32F32F32 => gl::RGB32F,
+            UncompressedFloatFormat::F32F32F32F32 => gl::RGBA32F,
+            UncompressedFloatFormat::F11F11F10 => gl::R11F_G11F_B10F,
+            UncompressedFloatFormat::F9F9F9 => gl::RGB9_E5,
         }
     }
 }
@@ -648,12 +648,12 @@ impl SrgbFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &SrgbFormat::U8U8U8 => {
+            SrgbFormat::U8U8U8 => {
                 version >= &Version(Api::Gl, 2, 1) || version >= &Version(Api::GlEs, 3, 0) ||
                    extensions.gl_ext_texture_srgb
             },
 
-            &SrgbFormat::U8U8U8U8 => {
+            SrgbFormat::U8U8U8U8 => {
                 version >= &Version(Api::Gl, 2, 1) || version >= &Version(Api::GlEs, 3, 0) ||
                    extensions.gl_ext_texture_srgb
             },
@@ -672,16 +672,16 @@ impl SrgbFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &SrgbFormat::U8U8U8 => version >= &Version(Api::Gl, 1, 0),
-            &SrgbFormat::U8U8U8U8 => version >= &Version(Api::Gl, 1, 0) ||
+            SrgbFormat::U8U8U8 => version >= &Version(Api::Gl, 1, 0),
+            SrgbFormat::U8U8U8U8 => version >= &Version(Api::Gl, 1, 0) ||
                                      version >= &Version(Api::GlEs, 3, 0),
         }
     }
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &SrgbFormat::U8U8U8 => gl::SRGB8,
-            &SrgbFormat::U8U8U8U8 => gl::SRGB8_ALPHA8,
+            SrgbFormat::U8U8U8 => gl::SRGB8,
+            SrgbFormat::U8U8U8U8 => gl::SRGB8_ALPHA8,
         }
     }
 }
@@ -739,57 +739,57 @@ impl UncompressedIntFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &UncompressedIntFormat::I8 => {
+            UncompressedIntFormat::I8 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedIntFormat::I16 => {
+            UncompressedIntFormat::I16 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedIntFormat::I32 => {
+            UncompressedIntFormat::I32 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedIntFormat::I8I8 => {
+            UncompressedIntFormat::I8I8 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedIntFormat::I16I16 => {
+            UncompressedIntFormat::I16I16 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedIntFormat::I32I32 => {
+            UncompressedIntFormat::I32I32 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedIntFormat::I8I8I8 => {
+            UncompressedIntFormat::I8I8I8 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedIntFormat::I16I16I16 => {
+            UncompressedIntFormat::I16I16I16 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedIntFormat::I32I32I32 => {
+            UncompressedIntFormat::I32I32I32 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedIntFormat::I8I8I8I8 => {
+            UncompressedIntFormat::I8I8I8I8 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedIntFormat::I16I16I16I16 => {
+            UncompressedIntFormat::I16I16I16I16 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedIntFormat::I32I32I32I32 => {
+            UncompressedIntFormat::I32I32I32I32 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
         }
@@ -812,35 +812,35 @@ impl UncompressedIntFormat {
 
         // if we have OpenGL ES, it depends
         match self {
-            &UncompressedIntFormat::I8 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I16 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I32 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I8I8 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I16I16 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I32I32 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I8I8I8 => false,
-            &UncompressedIntFormat::I16I16I16 => false,
-            &UncompressedIntFormat::I32I32I32 => false,
-            &UncompressedIntFormat::I8I8I8I8 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I16I16I16I16 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedIntFormat::I32I32I32I32 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I8 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I16 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I32 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I8I8 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I16I16 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I32I32 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I8I8I8 => false,
+            UncompressedIntFormat::I16I16I16 => false,
+            UncompressedIntFormat::I32I32I32 => false,
+            UncompressedIntFormat::I8I8I8I8 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I16I16I16I16 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedIntFormat::I32I32I32I32 => version >= &Version(Api::GlEs, 3, 0),
         }
     }
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &UncompressedIntFormat::I8 => gl::R8I,
-            &UncompressedIntFormat::I16 => gl::R16I,
-            &UncompressedIntFormat::I32 => gl::R32I,
-            &UncompressedIntFormat::I8I8 => gl::RG8I,
-            &UncompressedIntFormat::I16I16 => gl::RG16I,
-            &UncompressedIntFormat::I32I32 => gl::RG32I,
-            &UncompressedIntFormat::I8I8I8 => gl::RGB8I,
-            &UncompressedIntFormat::I16I16I16 => gl::RGB16I,
-            &UncompressedIntFormat::I32I32I32 => gl::RGB32I,
-            &UncompressedIntFormat::I8I8I8I8 => gl::RGBA8I,
-            &UncompressedIntFormat::I16I16I16I16 => gl::RGBA16I,
-            &UncompressedIntFormat::I32I32I32I32 => gl::RGBA32I,
+            UncompressedIntFormat::I8 => gl::R8I,
+            UncompressedIntFormat::I16 => gl::R16I,
+            UncompressedIntFormat::I32 => gl::R32I,
+            UncompressedIntFormat::I8I8 => gl::RG8I,
+            UncompressedIntFormat::I16I16 => gl::RG16I,
+            UncompressedIntFormat::I32I32 => gl::RG32I,
+            UncompressedIntFormat::I8I8I8 => gl::RGB8I,
+            UncompressedIntFormat::I16I16I16 => gl::RGB16I,
+            UncompressedIntFormat::I32I32I32 => gl::RGB32I,
+            UncompressedIntFormat::I8I8I8I8 => gl::RGBA8I,
+            UncompressedIntFormat::I16I16I16I16 => gl::RGBA16I,
+            UncompressedIntFormat::I32I32I32I32 => gl::RGBA32I,
         }
     }
 }
@@ -900,61 +900,61 @@ impl UncompressedUintFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &UncompressedUintFormat::U8 => {
+            UncompressedUintFormat::U8 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedUintFormat::U16 => {
+            UncompressedUintFormat::U16 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedUintFormat::U32 => {
+            UncompressedUintFormat::U32 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedUintFormat::U8U8 => {
+            UncompressedUintFormat::U8U8 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedUintFormat::U16U16 => {
+            UncompressedUintFormat::U16U16 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedUintFormat::U32U32 => {
+            UncompressedUintFormat::U32U32 => {
                 version >= &Version(Api::Gl, 3, 0) || (extensions.gl_ext_texture_integer &&
                                                        extensions.gl_arb_texture_rg)
             },
 
-            &UncompressedUintFormat::U8U8U8 => {
+            UncompressedUintFormat::U8U8U8 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedUintFormat::U16U16U16 => {
+            UncompressedUintFormat::U16U16U16 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedUintFormat::U32U32U32 => {
+            UncompressedUintFormat::U32U32U32 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedUintFormat::U8U8U8U8 => {
+            UncompressedUintFormat::U8U8U8U8 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedUintFormat::U16U16U16U16 => {
+            UncompressedUintFormat::U16U16U16U16 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedUintFormat::U32U32U32U32 => {
+            UncompressedUintFormat::U32U32U32U32 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_texture_integer
             },
 
-            &UncompressedUintFormat::U10U10U10U2 => {
+            UncompressedUintFormat::U10U10U10U2 => {
                 version >= &Version(Api::Gl, 3, 3) || extensions.gl_arb_texture_rgb10_a2ui
             },
         }
@@ -977,37 +977,37 @@ impl UncompressedUintFormat {
 
         // if we have OpenGL ES, it depends
         match self {
-            &UncompressedUintFormat::U8 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U16 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U32 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U8U8 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U16U16 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U32U32 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U8U8U8 => false,
-            &UncompressedUintFormat::U16U16U16 => false,
-            &UncompressedUintFormat::U32U32U32 => false,
-            &UncompressedUintFormat::U8U8U8U8 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U16U16U16U16 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U32U32U32U32 => version >= &Version(Api::GlEs, 3, 0),
-            &UncompressedUintFormat::U10U10U10U2 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U8 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U16 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U32 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U8U8 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U16U16 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U32U32 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U8U8U8 => false,
+            UncompressedUintFormat::U16U16U16 => false,
+            UncompressedUintFormat::U32U32U32 => false,
+            UncompressedUintFormat::U8U8U8U8 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U16U16U16U16 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U32U32U32U32 => version >= &Version(Api::GlEs, 3, 0),
+            UncompressedUintFormat::U10U10U10U2 => version >= &Version(Api::GlEs, 3, 0),
         }
     }
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &UncompressedUintFormat::U8 => gl::R8UI,
-            &UncompressedUintFormat::U16 => gl::R16UI,
-            &UncompressedUintFormat::U32 => gl::R32UI,
-            &UncompressedUintFormat::U8U8 => gl::RG8UI,
-            &UncompressedUintFormat::U16U16 => gl::RG16UI,
-            &UncompressedUintFormat::U32U32 => gl::RG32UI,
-            &UncompressedUintFormat::U8U8U8 => gl::RGB8UI,
-            &UncompressedUintFormat::U16U16U16 => gl::RGB16UI,
-            &UncompressedUintFormat::U32U32U32 => gl::RGB32UI,
-            &UncompressedUintFormat::U8U8U8U8 => gl::RGBA8UI,
-            &UncompressedUintFormat::U16U16U16U16 => gl::RGBA16UI,
-            &UncompressedUintFormat::U32U32U32U32 => gl::RGBA32UI,
-            &UncompressedUintFormat::U10U10U10U2 => gl::RGB10_A2UI,
+            UncompressedUintFormat::U8 => gl::R8UI,
+            UncompressedUintFormat::U16 => gl::R16UI,
+            UncompressedUintFormat::U32 => gl::R32UI,
+            UncompressedUintFormat::U8U8 => gl::RG8UI,
+            UncompressedUintFormat::U16U16 => gl::RG16UI,
+            UncompressedUintFormat::U32U32 => gl::RG32UI,
+            UncompressedUintFormat::U8U8U8 => gl::RGB8UI,
+            UncompressedUintFormat::U16U16U16 => gl::RGB16UI,
+            UncompressedUintFormat::U32U32U32 => gl::RGB32UI,
+            UncompressedUintFormat::U8U8U8U8 => gl::RGBA8UI,
+            UncompressedUintFormat::U16U16U16U16 => gl::RGBA16UI,
+            UncompressedUintFormat::U32U32U32U32 => gl::RGBA32UI,
+            UncompressedUintFormat::U10U10U10U2 => gl::RGB10_A2UI,
         }
     }
 }
@@ -1072,37 +1072,37 @@ impl CompressedFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &CompressedFormat::RgtcFormatU => {
+            CompressedFormat::RgtcFormatU => {
                 version >= &Version(Api::Gl, 3, 0)
             },
-            &CompressedFormat::RgtcFormatI => {
+            CompressedFormat::RgtcFormatI => {
                 version >= &Version(Api::Gl, 3, 0)
             },
-            &CompressedFormat::RgtcFormatUU => {
+            CompressedFormat::RgtcFormatUU => {
                 version >= &Version(Api::Gl, 3, 0)
             },
-            &CompressedFormat::RgtcFormatII => {
+            CompressedFormat::RgtcFormatII => {
                 version >= &Version(Api::Gl, 3, 0)
             },
-            &CompressedFormat::BptcUnorm4 => {
+            CompressedFormat::BptcUnorm4 => {
                 version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            &CompressedFormat::BptcSignedFloat3 => {
+            CompressedFormat::BptcSignedFloat3 => {
                 version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            &CompressedFormat::BptcUnsignedFloat3 => {
+            CompressedFormat::BptcUnsignedFloat3 => {
                 version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            &CompressedFormat::S3tcDxt1NoAlpha => {
+            CompressedFormat::S3tcDxt1NoAlpha => {
                 extensions.gl_ext_texture_compression_s3tc
             },
-            &CompressedFormat::S3tcDxt1Alpha => {
+            CompressedFormat::S3tcDxt1Alpha => {
                 extensions.gl_ext_texture_compression_s3tc
             },
-            &CompressedFormat::S3tcDxt3Alpha => {
+            CompressedFormat::S3tcDxt3Alpha => {
                 extensions.gl_ext_texture_compression_s3tc
             },
-            &CompressedFormat::S3tcDxt5Alpha => {
+            CompressedFormat::S3tcDxt5Alpha => {
                 extensions.gl_ext_texture_compression_s3tc
             },
         }
@@ -1110,17 +1110,17 @@ impl CompressedFormat {
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &CompressedFormat::RgtcFormatU => gl::COMPRESSED_RED_RGTC1,
-            &CompressedFormat::RgtcFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,
-            &CompressedFormat::RgtcFormatUU => gl::COMPRESSED_RG_RGTC2,
-            &CompressedFormat::RgtcFormatII => gl::COMPRESSED_SIGNED_RG_RGTC2,
-            &CompressedFormat::BptcUnorm4 => gl::COMPRESSED_RGBA_BPTC_UNORM,
-            &CompressedFormat::BptcSignedFloat3 => gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT,
-            &CompressedFormat::BptcUnsignedFloat3 => gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
-            &CompressedFormat::S3tcDxt1NoAlpha => gl::COMPRESSED_RGB_S3TC_DXT1_EXT,
-            &CompressedFormat::S3tcDxt1Alpha => gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,
-            &CompressedFormat::S3tcDxt3Alpha => gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,
-            &CompressedFormat::S3tcDxt5Alpha => gl::COMPRESSED_RGBA_S3TC_DXT5_EXT,
+            CompressedFormat::RgtcFormatU => gl::COMPRESSED_RED_RGTC1,
+            CompressedFormat::RgtcFormatI => gl::COMPRESSED_SIGNED_RED_RGTC1,
+            CompressedFormat::RgtcFormatUU => gl::COMPRESSED_RG_RGTC2,
+            CompressedFormat::RgtcFormatII => gl::COMPRESSED_SIGNED_RG_RGTC2,
+            CompressedFormat::BptcUnorm4 => gl::COMPRESSED_RGBA_BPTC_UNORM,
+            CompressedFormat::BptcSignedFloat3 => gl::COMPRESSED_RGB_BPTC_SIGNED_FLOAT,
+            CompressedFormat::BptcUnsignedFloat3 => gl::COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT,
+            CompressedFormat::S3tcDxt1NoAlpha => gl::COMPRESSED_RGB_S3TC_DXT1_EXT,
+            CompressedFormat::S3tcDxt1Alpha => gl::COMPRESSED_RGBA_S3TC_DXT1_EXT,
+            CompressedFormat::S3tcDxt3Alpha => gl::COMPRESSED_RGBA_S3TC_DXT3_EXT,
+            CompressedFormat::S3tcDxt5Alpha => gl::COMPRESSED_RGBA_S3TC_DXT5_EXT,
         }
     }
 }
@@ -1162,19 +1162,19 @@ impl CompressedSrgbFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &CompressedSrgbFormat::Bptc => {
+            CompressedSrgbFormat::Bptc => {
                 version >= &Version(Api::Gl, 4, 2) || extensions.gl_arb_texture_compression_bptc
             },
-            &CompressedSrgbFormat::S3tcDxt1NoAlpha => {
+            CompressedSrgbFormat::S3tcDxt1NoAlpha => {
                 extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
-            &CompressedSrgbFormat::S3tcDxt1Alpha => {
+            CompressedSrgbFormat::S3tcDxt1Alpha => {
                 extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
-            &CompressedSrgbFormat::S3tcDxt3Alpha => {
+            CompressedSrgbFormat::S3tcDxt3Alpha => {
                 extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
-            &CompressedSrgbFormat::S3tcDxt5Alpha => {
+            CompressedSrgbFormat::S3tcDxt5Alpha => {
                 extensions.gl_ext_texture_compression_s3tc && extensions.gl_ext_texture_srgb
             },
         }
@@ -1182,11 +1182,11 @@ impl CompressedSrgbFormat {
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &CompressedSrgbFormat::Bptc => gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM,
-            &CompressedSrgbFormat::S3tcDxt1NoAlpha => gl::COMPRESSED_SRGB_S3TC_DXT1_EXT,
-            &CompressedSrgbFormat::S3tcDxt1Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
-            &CompressedSrgbFormat::S3tcDxt3Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
-            &CompressedSrgbFormat::S3tcDxt5Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
+            CompressedSrgbFormat::Bptc => gl::COMPRESSED_SRGB_ALPHA_BPTC_UNORM,
+            CompressedSrgbFormat::S3tcDxt1NoAlpha => gl::COMPRESSED_SRGB_S3TC_DXT1_EXT,
+            CompressedSrgbFormat::S3tcDxt1Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,
+            CompressedSrgbFormat::S3tcDxt3Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,
+            CompressedSrgbFormat::S3tcDxt5Alpha => gl::COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,
         }
     }
 }
@@ -1229,19 +1229,19 @@ impl DepthFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &DepthFormat::I16 => {
+            DepthFormat::I16 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_depth_texture
             },
 
-            &DepthFormat::I24 => {
+            DepthFormat::I24 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_depth_texture
             },
 
-            &DepthFormat::I32 => {
+            DepthFormat::I32 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_depth_texture
             },
 
-            &DepthFormat::F32 => {
+            DepthFormat::F32 => {
                 version >= &Version(Api::Gl, 3, 0)
             },
         }
@@ -1249,10 +1249,10 @@ impl DepthFormat {
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &DepthFormat::I16 => gl::DEPTH_COMPONENT16,
-            &DepthFormat::I24 => gl::DEPTH_COMPONENT24,
-            &DepthFormat::I32 => gl::DEPTH_COMPONENT32,
-            &DepthFormat::F32 => gl::DEPTH_COMPONENT32F,
+            DepthFormat::I16 => gl::DEPTH_COMPONENT16,
+            DepthFormat::I24 => gl::DEPTH_COMPONENT24,
+            DepthFormat::I32 => gl::DEPTH_COMPONENT32,
+            DepthFormat::F32 => gl::DEPTH_COMPONENT32F,
         }
     }
 }
@@ -1289,12 +1289,12 @@ impl DepthStencilFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &DepthStencilFormat::I24I8 => {
+            DepthStencilFormat::I24I8 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_packed_depth_stencil ||
                     extensions.gl_oes_packed_depth_stencil
             },
 
-            &DepthStencilFormat::F32I8 => {
+            DepthStencilFormat::F32I8 => {
                 version >= &Version(Api::Gl, 3, 0)
             },
         }
@@ -1302,8 +1302,8 @@ impl DepthStencilFormat {
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &DepthStencilFormat::I24I8 => gl::DEPTH24_STENCIL8,
-            &DepthStencilFormat::F32I8 => gl::DEPTH32F_STENCIL8,
+            DepthStencilFormat::I24I8 => gl::DEPTH24_STENCIL8,
+            DepthStencilFormat::F32I8 => gl::DEPTH32F_STENCIL8,
         }
     }
 }
@@ -1347,7 +1347,7 @@ impl StencilFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &StencilFormat::I8 => {
+            StencilFormat::I8 => {
                 version >= &Version(Api::Gl, 4, 4) || version >= &Version(Api::GlEs, 3, 2) ||
                 extensions.gl_arb_texture_stencil8 || extensions.gl_oes_texture_stencil8
             },
@@ -1364,22 +1364,22 @@ impl StencilFormat {
         let extensions = context.get_extensions();
 
         match self {
-            &StencilFormat::I1 => {
+            StencilFormat::I1 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_framebuffer_object ||
                     extensions.gl_arb_framebuffer_object || extensions.gl_oes_stencil1
             },
 
-            &StencilFormat::I4 => {
+            StencilFormat::I4 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_framebuffer_object ||
                     extensions.gl_arb_framebuffer_object || extensions.gl_oes_stencil4
             },
 
-            &StencilFormat::I8 => {
+            StencilFormat::I8 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_arb_texture_stencil8 ||
                     version >= &Version(Api::GlEs, 2, 0)
             },
 
-            &StencilFormat::I16 => {
+            StencilFormat::I16 => {
                 version >= &Version(Api::Gl, 3, 0) || extensions.gl_ext_framebuffer_object ||
                     extensions.gl_arb_framebuffer_object
             },
@@ -1388,10 +1388,10 @@ impl StencilFormat {
 
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &StencilFormat::I1 => gl::STENCIL_INDEX1,
-            &StencilFormat::I4 => gl::STENCIL_INDEX4,
-            &StencilFormat::I8 => gl::STENCIL_INDEX8,
-            &StencilFormat::I16 => gl::STENCIL_INDEX16,
+            StencilFormat::I1 => gl::STENCIL_INDEX1,
+            StencilFormat::I4 => gl::STENCIL_INDEX4,
+            StencilFormat::I8 => gl::STENCIL_INDEX8,
+            StencilFormat::I16 => gl::STENCIL_INDEX16,
         }
     }
 }
@@ -1432,15 +1432,15 @@ impl TextureFormat {
     #[inline]
     pub fn is_supported_for_textures<C: ?Sized>(&self, c: &C) -> bool where C: CapabilitiesSource {
         match self {
-            &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
-            &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
-            &TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
-            &TextureFormat::Srgb(format) => format.is_supported(c),
-            &TextureFormat::CompressedFormat(format) => format.is_supported(c),
-            &TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
-            &TextureFormat::DepthFormat(format) => format.is_supported(c),
-            &TextureFormat::StencilFormat(format) => format.is_supported_for_textures(c),
-            &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
+            TextureFormat::UncompressedFloat(format) => format.is_supported(c),
+            TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
+            TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
+            TextureFormat::Srgb(format) => format.is_supported(c),
+            TextureFormat::CompressedFormat(format) => format.is_supported(c),
+            TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
+            TextureFormat::DepthFormat(format) => format.is_supported(c),
+            TextureFormat::StencilFormat(format) => format.is_supported_for_textures(c),
+            TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
         }
     }
 
@@ -1448,15 +1448,15 @@ impl TextureFormat {
     #[inline]
     pub fn is_supported_for_renderbuffers<C: ?Sized>(&self, c: &C) -> bool where C: CapabilitiesSource {
         match self {
-            &TextureFormat::UncompressedFloat(format) => format.is_supported(c),
-            &TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
-            &TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
-            &TextureFormat::Srgb(format) => format.is_supported(c),
-            &TextureFormat::CompressedFormat(format) => format.is_supported(c),
-            &TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
-            &TextureFormat::DepthFormat(format) => format.is_supported(c),
-            &TextureFormat::StencilFormat(format) => format.is_supported_for_renderbuffers(c),
-            &TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
+            TextureFormat::UncompressedFloat(format) => format.is_supported(c),
+            TextureFormat::UncompressedIntegral(format) => format.is_supported(c),
+            TextureFormat::UncompressedUnsigned(format) => format.is_supported(c),
+            TextureFormat::Srgb(format) => format.is_supported(c),
+            TextureFormat::CompressedFormat(format) => format.is_supported(c),
+            TextureFormat::CompressedSrgbFormat(format) => format.is_supported(c),
+            TextureFormat::DepthFormat(format) => format.is_supported(c),
+            TextureFormat::StencilFormat(format) => format.is_supported_for_renderbuffers(c),
+            TextureFormat::DepthStencilFormat(format) => format.is_supported(c),
         }
     }
 
@@ -1465,15 +1465,15 @@ impl TextureFormat {
     #[inline]
     pub fn is_renderable<C: ?Sized>(&self, c: &C) -> bool where C: CapabilitiesSource {
         match self {
-            &TextureFormat::UncompressedFloat(format) => format.is_color_renderable(c),
-            &TextureFormat::UncompressedIntegral(format) => format.is_color_renderable(c),
-            &TextureFormat::UncompressedUnsigned(format) => format.is_color_renderable(c),
-            &TextureFormat::Srgb(format) => format.is_color_renderable(c),
-            &TextureFormat::CompressedFormat(_) => false,
-            &TextureFormat::CompressedSrgbFormat(_) => false,
-            &TextureFormat::DepthFormat(_) => true,
-            &TextureFormat::StencilFormat(_) => true,
-            &TextureFormat::DepthStencilFormat(_) => true,
+            TextureFormat::UncompressedFloat(format) => format.is_color_renderable(c),
+            TextureFormat::UncompressedIntegral(format) => format.is_color_renderable(c),
+            TextureFormat::UncompressedUnsigned(format) => format.is_color_renderable(c),
+            TextureFormat::Srgb(format) => format.is_color_renderable(c),
+            TextureFormat::CompressedFormat(_) => false,
+            TextureFormat::CompressedSrgbFormat(_) => false,
+            TextureFormat::DepthFormat(_) => true,
+            TextureFormat::StencilFormat(_) => true,
+            TextureFormat::DepthStencilFormat(_) => true,
         }
     }
 }
@@ -1481,15 +1481,15 @@ impl TextureFormat {
 impl ToGlEnum for TextureFormat {
     fn to_glenum(&self) -> gl::types::GLenum {
         match self {
-            &TextureFormat::UncompressedFloat(f) => f.to_glenum(),
-            &TextureFormat::UncompressedIntegral(f) => f.to_glenum(),
-            &TextureFormat::UncompressedUnsigned(f) => f.to_glenum(),
-            &TextureFormat::Srgb(f) => f.to_glenum(),
-            &TextureFormat::CompressedFormat(f) => f.to_glenum(),
-            &TextureFormat::CompressedSrgbFormat(f) => f.to_glenum(),
-            &TextureFormat::DepthFormat(f) => f.to_glenum(),
-            &TextureFormat::StencilFormat(f) => f.to_glenum(),
-            &TextureFormat::DepthStencilFormat(f) => f.to_glenum(),
+            TextureFormat::UncompressedFloat(f) => f.to_glenum(),
+            TextureFormat::UncompressedIntegral(f) => f.to_glenum(),
+            TextureFormat::UncompressedUnsigned(f) => f.to_glenum(),
+            TextureFormat::Srgb(f) => f.to_glenum(),
+            TextureFormat::CompressedFormat(f) => f.to_glenum(),
+            TextureFormat::CompressedSrgbFormat(f) => f.to_glenum(),
+            TextureFormat::DepthFormat(f) => f.to_glenum(),
+            TextureFormat::StencilFormat(f) => f.to_glenum(),
+            TextureFormat::DepthStencilFormat(f) => f.to_glenum(),
         }
     }
 }
@@ -1626,9 +1626,9 @@ impl RequestType {
     #[inline]
     pub fn get_client_format(&self) -> Option<ClientFormatAny> {
         match self {
-            &RequestType::TexImage(f) => f,
-            &RequestType::TexStorage => None,
-            &RequestType::Renderbuffer => None,
+            RequestType::TexImage(f) => *f,
+            RequestType::TexStorage => None,
+            RequestType::Renderbuffer => None,
         }
     }
 }

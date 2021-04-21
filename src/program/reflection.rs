@@ -202,11 +202,8 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext<'_>, program: Handle)
          (ctxt.extensions.gl_arb_program_interface_query && ctxt.extensions.gl_arb_shader_atomic_counters);
     let mut active_atomic_counters: gl::types::GLint = 0;
     if query_atomic_counters {
-        let program = match program {
-            Handle::Id(program) => {
-                ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATOMIC_COUNTER_BUFFERS, &mut active_atomic_counters);
-            },
-            _ => ()
+        let program = if let Handle::Id(program) = program {
+            ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATOMIC_COUNTER_BUFFERS, &mut active_atomic_counters);
         };
     }
 
@@ -529,10 +526,10 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext<'_>, program: Han
             name_tmp.set_len(name_len_tmp as usize);
 
             String::from_utf8(name_tmp).unwrap()
-        }).collect::<Vec<_>>();
+        });
 
         // now computing the list of members
-        let members = member_names.into_iter().enumerate().map(|(index, name)| {
+        let members = member_names.enumerate().map(|(index, name)| {
             (name, member_offsets[index] as usize,
              glenum_to_uniform_type(member_types[index] as gl::types::GLenum),
              member_size[index] as usize, None)
@@ -868,7 +865,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
         let name_rest = components.next();
 
         // finding the appropriate place in `output` to write the element
-        let member = if let &mut BlockLayout::Struct { ref mut members } = output {
+        let member = if let BlockLayout::Struct { ref mut members } = output {
             // splitting the name and array size
             let (current_component, array) = if current_component.ends_with(']') {
                 let open_bracket_pos = current_component.rfind('[').unwrap();
@@ -876,7 +873,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                                         .parse().unwrap();
                 (&current_component[.. open_bracket_pos], Some(array))
             } else {
-                (&current_component[..], None)
+                (current_component, None)
             };
 
             // because of a bug in Rust's borrow checker, we have to loop twice instead of just
@@ -888,11 +885,11 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
 
                 if let Some(array) = array {
                     match member {
-                        &mut BlockLayout::Array { ref mut content, ref mut length } => {
+                        BlockLayout::Array { ref mut content, ref mut length } => {
                             if *length <= array { *length = array + 1; }
                             &mut **content
                         },
-                        &mut BlockLayout::DynamicSizedArray { ref mut content } => {
+                        BlockLayout::DynamicSizedArray { ref mut content } => {
                             &mut **content
                         },
                         _ => unreachable!()
@@ -916,8 +913,8 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                     }
 
                     match &mut members.last_mut().unwrap().1 {
-                        &mut BlockLayout::Array { ref mut content, .. } => &mut **content,
-                        &mut BlockLayout::DynamicSizedArray { ref mut content } => &mut **content,
+                        BlockLayout::Array { ref mut content, .. } => &mut **content,
+                        BlockLayout::DynamicSizedArray { ref mut content } => &mut **content,
                         _ => unreachable!()
                     }
 
@@ -939,8 +936,8 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
 
         } else {
             // don't write over the offset in buffer
-            match member {
-                &mut BlockLayout::BasicType { ty: ty_ex, .. } if ty_ex == ty => (),
+            match *member {
+                BlockLayout::BasicType { ty: ty_ex, .. } if ty_ex == ty => (),
                 _ => {
                     *member = BlockLayout::BasicType {
                         offset_in_buffer: offset,

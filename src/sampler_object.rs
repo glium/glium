@@ -103,10 +103,9 @@ pub fn get_sampler(ctxt: &mut CommandContext<'_>, behavior: &SamplerBehavior)
     }
 
     // looking for an existing sampler
-    match ctxt.samplers.get(behavior) {
-        Some(obj) => return Ok(obj.get_id()),
-        None => ()
-    };
+    if let Some(obj) = ctxt.samplers.get(behavior) {
+        return Ok(obj.get_id());
+    }
 
     // builds a new sampler
     let sampler = SamplerObject::new(ctxt, behavior);

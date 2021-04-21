@@ -392,10 +392,10 @@ impl<'a, T> From<&'a mut VertexBuffer<T>> for BufferMutSlice<'a, [T]> where T: C
     }
 }
 
-impl<'a, T> Into<VerticesSource<'a>> for &'a VertexBuffer<T> where T: Copy {
+impl<'a, T> From<&'a VertexBuffer<T>> for VerticesSource<'a> where T: Copy {
     #[inline]
-    fn into(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
+    fn from(this: &VertexBuffer<T>) -> VerticesSource<'_> {
+        VerticesSource::VertexBuffer(this.buffer.as_slice_any(), &this.bindings, false)
     }
 }
 
@@ -422,10 +422,10 @@ impl<'a, T> From<VertexBufferSlice<'a, T>> for BufferSlice<'a, [T]> where T: Cop
     }
 }
 
-impl<'a, T> Into<VerticesSource<'a>> for VertexBufferSlice<'a, T> where T: Copy {
+impl<'a, T> From<VertexBufferSlice<'a, T>> for VerticesSource<'a> where T: Copy {
     #[inline]
-    fn into(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
+    fn from(this: VertexBufferSlice<'a, T>) -> VerticesSource<'a> {
+        VerticesSource::VertexBuffer(this.buffer.as_slice_any(), &this.bindings, false)
     }
 }
 
@@ -517,10 +517,10 @@ impl DerefMut for VertexBufferAny {
     }
 }
 
-impl<'a> Into<VerticesSource<'a>> for &'a VertexBufferAny {
+impl<'a> From<&'a VertexBufferAny> for VerticesSource<'a> {
     #[inline]
-    fn into(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self.buffer.as_slice_any(), &self.bindings, false)
+    fn from(this :&VertexBufferAny) -> VerticesSource<'_> {
+        VerticesSource::VertexBuffer(this.buffer.as_slice_any(), &this.bindings, false)
     }
 }
 
