@@ -97,6 +97,9 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
         let mut instances_count: Option<usize> = None;
 
         for src in vertex_buffers.iter() {
+            // Allow single match for consistency with the match below.
+            // Integrating the two matches wouldn't improve the code either.
+            #[allow(clippy::single_match)]
             match src {
                 VerticesSource::VertexBuffer(buffer, format, per_instance) => {
                     // TODO: assert!(buffer.get_elements_size() == total_size(format));

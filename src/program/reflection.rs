@@ -202,11 +202,8 @@ pub unsafe fn reflect_uniforms(ctxt: &mut CommandContext<'_>, program: Handle)
          (ctxt.extensions.gl_arb_program_interface_query && ctxt.extensions.gl_arb_shader_atomic_counters);
     let mut active_atomic_counters: gl::types::GLint = 0;
     if query_atomic_counters {
-        let program = match program {
-            Handle::Id(program) => {
-                ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATOMIC_COUNTER_BUFFERS, &mut active_atomic_counters);
-            },
-            _ => ()
+        let program = if let Handle::Id(program) = program {
+            ctxt.gl.GetProgramiv(program, gl::ACTIVE_ATOMIC_COUNTER_BUFFERS, &mut active_atomic_counters);
         };
     }
 
