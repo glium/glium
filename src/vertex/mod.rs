@@ -170,10 +170,10 @@ pub struct EmptyVertexAttributes {
     pub len: usize,
 }
 
-impl<'a> Into<VerticesSource<'a>> for EmptyVertexAttributes {
+impl<'a> From<EmptyVertexAttributes> for VerticesSource<'a> {
     #[inline]
-    fn into(self) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: self.len, per_instance: false }
+    fn from(this: EmptyVertexAttributes) -> VerticesSource<'a> {
+        VerticesSource::Marker { len: this.len, per_instance: false }
     }
 }
 
@@ -183,20 +183,20 @@ pub struct EmptyInstanceAttributes {
     pub len: usize,
 }
 
-impl<'a> Into<VerticesSource<'a>> for EmptyInstanceAttributes {
+impl<'a> From<EmptyInstanceAttributes> for VerticesSource<'a> {
     #[inline]
-    fn into(self) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: self.len, per_instance: true }
+    fn from(this: EmptyInstanceAttributes) -> VerticesSource<'a> {
+        VerticesSource::Marker { len: this.len, per_instance: true }
     }
 }
 
 /// Marker that instructs glium that the buffer is to be used per instance.
 pub struct PerInstance<'a>(BufferAnySlice<'a>, &'a VertexFormat);
 
-impl<'a> Into<VerticesSource<'a>> for PerInstance<'a> {
+impl<'a> From<PerInstance<'a>> for VerticesSource<'a> {
     #[inline]
-    fn into(self) -> VerticesSource<'a> {
-        VerticesSource::VertexBuffer(self.0, self.1, true)
+    fn from(this: PerInstance<'a>) -> VerticesSource<'a> {
+        VerticesSource::VertexBuffer(this.0, this.1, true)
     }
 }
 
