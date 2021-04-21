@@ -526,10 +526,10 @@ pub unsafe fn reflect_uniform_blocks(ctxt: &mut CommandContext<'_>, program: Han
             name_tmp.set_len(name_len_tmp as usize);
 
             String::from_utf8(name_tmp).unwrap()
-        }).collect::<Vec<_>>();
+        });
 
         // now computing the list of members
-        let members = member_names.into_iter().enumerate().map(|(index, name)| {
+        let members = member_names.enumerate().map(|(index, name)| {
             (name, member_offsets[index] as usize,
              glenum_to_uniform_type(member_types[index] as gl::types::GLenum),
              member_size[index] as usize, None)
