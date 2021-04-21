@@ -121,7 +121,7 @@ impl VertexAttributesSystem {
         let mut vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
 
         let mut keys = Vec::with_capacity(4);
-        for (key, _) in &*vaos {
+        for key in (*vaos).keys() {
             if condition(key) {
                 keys.push(key.clone());
             }
