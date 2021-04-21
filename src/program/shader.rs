@@ -55,13 +55,13 @@ pub fn build_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum, sourc
                        -> Result<Shader, ProgramCreationError> where F: Facade
 {
     unsafe {
-        let mut ctxt = facade.get_context().make_current();
+        let ctxt = facade.get_context().make_current();
 
         if ctxt.capabilities.supported_glsl_versions.is_empty() {
             return Err(ProgramCreationError::CompilationNotSupported);
         }
 
-        if !check_shader_type_compatibility(&mut ctxt, shader_type) {
+        if !check_shader_type_compatibility(&ctxt, shader_type) {
             return Err(ProgramCreationError::ShaderTypeNotSupported);
         }
 
@@ -187,13 +187,13 @@ pub fn build_spirv_shader<F: ?Sized>(facade: &F, shader_type: gl::types::GLenum,
                        -> Result<Shader, ProgramCreationError> where F: Facade
 {
     unsafe {
-        let mut ctxt = facade.get_context().make_current();
+        let ctxt = facade.get_context().make_current();
 
         if ctxt.capabilities.supported_glsl_versions.is_empty() {
             return Err(ProgramCreationError::CompilationNotSupported);
         }
 
-        if !check_shader_type_compatibility(&mut ctxt, shader_type) {
+        if !check_shader_type_compatibility(&ctxt, shader_type) {
             return Err(ProgramCreationError::ShaderTypeNotSupported);
         }
 
