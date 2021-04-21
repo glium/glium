@@ -154,6 +154,7 @@ mod version;
 mod vertex_array_object;
 
 mod gl {
+    #![allow(clippy::all)]
     include!(concat!(env!("OUT_DIR"), "/gl_bindings.rs"));
 }
 

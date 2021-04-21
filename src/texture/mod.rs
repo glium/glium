@@ -142,7 +142,11 @@ mod get_format;
 mod pixel;
 mod ty_support;
 
-include!(concat!(env!("OUT_DIR"), "/textures.rs"));
+mod textures {
+    #![allow(clippy::all)]
+    include!(concat!(env!("OUT_DIR"), "/textures.rs"));
+}
+pub use self::textures::*;
 
 /// Represents a layer of a cubemap.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
