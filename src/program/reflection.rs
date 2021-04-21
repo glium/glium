@@ -868,7 +868,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
         let name_rest = components.next();
 
         // finding the appropriate place in `output` to write the element
-        let member = if let &mut BlockLayout::Struct { ref mut members } = output {
+        let member = if let BlockLayout::Struct { ref mut members } = output {
             // splitting the name and array size
             let (current_component, array) = if current_component.ends_with(']') {
                 let open_bracket_pos = current_component.rfind('[').unwrap();
@@ -888,11 +888,11 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
 
                 if let Some(array) = array {
                     match member {
-                        &mut BlockLayout::Array { ref mut content, ref mut length } => {
+                        BlockLayout::Array { ref mut content, ref mut length } => {
                             if *length <= array { *length = array + 1; }
                             &mut **content
                         },
-                        &mut BlockLayout::DynamicSizedArray { ref mut content } => {
+                        BlockLayout::DynamicSizedArray { ref mut content } => {
                             &mut **content
                         },
                         _ => unreachable!()
@@ -916,8 +916,8 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                     }
 
                     match &mut members.last_mut().unwrap().1 {
-                        &mut BlockLayout::Array { ref mut content, .. } => &mut **content,
-                        &mut BlockLayout::DynamicSizedArray { ref mut content } => &mut **content,
+                        BlockLayout::Array { ref mut content, .. } => &mut **content,
+                        BlockLayout::DynamicSizedArray { ref mut content } => &mut **content,
                         _ => unreachable!()
                     }
 
@@ -939,8 +939,8 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
 
         } else {
             // don't write over the offset in buffer
-            match member {
-                &mut BlockLayout::BasicType { ty: ty_ex, .. } if ty_ex == ty => (),
+            match *member {
+                BlockLayout::BasicType { ty: ty_ex, .. } if ty_ex == ty => (),
                 _ => {
                     *member = BlockLayout::BasicType {
                         offset_in_buffer: offset,

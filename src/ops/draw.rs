@@ -184,7 +184,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
     // TODO: make this code more readable
     {
         match &indices {
-            &IndicesSource::IndexBuffer { ref buffer, data_type, primitives } => {
+            IndicesSource::IndexBuffer { ref buffer, data_type, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.add(buffer.get_offset_bytes()) };
 
@@ -262,7 +262,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 }
             },
 
-            &IndicesSource::MultidrawArray { ref buffer, primitives } => {
+            IndicesSource::MultidrawArray { ref buffer, primitives } => {
                 let ptr: *const u8 = ptr::null_mut();
                 let ptr = unsafe { ptr.add(buffer.get_offset_bytes()) };
 
@@ -280,7 +280,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 }
             },
 
-            &IndicesSource::MultidrawElement { ref commands, ref indices, data_type, primitives } => {
+            IndicesSource::MultidrawElement { ref commands, ref indices, data_type, primitives } => {
                 let cmd_ptr: *const u8 = ptr::null_mut();
                 let cmd_ptr = unsafe { cmd_ptr.add(commands.get_offset_bytes()) };
 
@@ -302,7 +302,7 @@ pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachmen
                 }
             },
 
-            &IndicesSource::NoIndices { primitives } => {
+            IndicesSource::NoIndices { primitives } => {
                 let vertices_count = match vertices_count {
                     Some(c) => c,
                     None => return Err(DrawError::VerticesSourcesLengthMismatch)

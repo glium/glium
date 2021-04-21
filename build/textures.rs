@@ -29,26 +29,26 @@ enum TextureDimensions {
 impl TextureDimensions {
     fn is_array(&self) -> bool {
         match self {
-            &TextureDimensions::Texture1dArray => true,
-            &TextureDimensions::Texture2dArray => true,
-            &TextureDimensions::Texture2dMultisampleArray => true,
-            &TextureDimensions::CubemapArray => true,
+            TextureDimensions::Texture1dArray => true,
+            TextureDimensions::Texture2dArray => true,
+            TextureDimensions::Texture2dMultisampleArray => true,
+            TextureDimensions::CubemapArray => true,
             _ => false
         }
     }
 
     fn is_multisample(&self) -> bool {
         match self {
-            &TextureDimensions::Texture2dMultisample => true,
-            &TextureDimensions::Texture2dMultisampleArray => true,
+            TextureDimensions::Texture2dMultisample => true,
+            TextureDimensions::Texture2dMultisampleArray => true,
             _ => false
         }
     }
 
     fn is_cube(&self) -> bool {
         match self {
-            &TextureDimensions::Cubemap => true,
-            &TextureDimensions::CubemapArray => true,
+            TextureDimensions::Cubemap => true,
+            TextureDimensions::CubemapArray => true,
             _ => false
         }
     }

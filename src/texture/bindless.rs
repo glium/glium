@@ -187,7 +187,7 @@ impl<'a> UniformBlock for TextureHandle<'a> {
     fn matches(layout: &BlockLayout, base_offset: usize)
                -> Result<(), LayoutMismatchError>
     {
-        if let &BlockLayout::BasicType { ty, offset_in_buffer } = layout {
+        if let BlockLayout::BasicType { ty, offset_in_buffer } = *layout {
             // TODO: unfortunately we have no idea what the exact type of this handle is
             //       strong typing should be considered
             //
@@ -250,7 +250,7 @@ impl<'a> UniformBlock for TextureHandle<'a> {
 
             Ok(())
 
-        } else if let &BlockLayout::Struct { ref members } = layout {
+        } else if let BlockLayout::Struct { members } = layout {
             if members.len() == 1 {
                 <TextureHandle<'_> as UniformBlock>::matches(&members[0].1, base_offset)
 

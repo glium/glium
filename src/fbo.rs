@@ -118,8 +118,8 @@ impl<'a> RegularAttachment<'a> {
     #[inline]
     pub fn kind(&self) -> TextureKind {
         match self {
-            &RegularAttachment::Texture(t) => t.get_texture().kind(),
-            &RegularAttachment::RenderBuffer(rb) => rb.kind(),
+            RegularAttachment::Texture(t) => t.get_texture().kind(),
+            RegularAttachment::RenderBuffer(rb) => rb.kind(),
         }
     }
 }
@@ -505,9 +505,9 @@ impl<'a> FramebufferAttachments<'a> {
             },
             DepthStencilAttachments::DepthStencilAttachment(ref ds) => {
                 let depth_stencil_bits = match ds {
-                    &RegularAttachment::Texture(ref tex) =>
+                    RegularAttachment::Texture(ref tex) =>
                         tex.get_texture().get_depth_stencil_bits(),
-                    &RegularAttachment::RenderBuffer(ref rb) =>
+                    RegularAttachment::RenderBuffer(ref rb) =>
                         rb.get_depth_stencil_bits(),
                 };
                 depth_bits = Some(depth_stencil_bits.0);

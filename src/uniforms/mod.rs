@@ -305,13 +305,13 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
     fn matches(layout: &BlockLayout, base_offset: usize)
                -> Result<(), LayoutMismatchError>
     {
-        if let &BlockLayout::Struct { ref members } = layout {
+        if let BlockLayout::Struct { members } = layout {
             if members.len() == 1 {
                 return Self::matches(&members[0].1, base_offset);
             }
         }
 
-        if let &BlockLayout::DynamicSizedArray { ref content } = layout {
+        if let BlockLayout::DynamicSizedArray { content } = layout {
             <T as UniformBlock>::matches(content, base_offset)
                 .map_err(|err| {
                     LayoutMismatchError::MemberMismatch {
@@ -320,7 +320,7 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
                     }
                 })
 
-        } else if let &BlockLayout::Array { ref content, .. } = layout {
+        } else if let BlockLayout::Array { content, .. } = layout {
             <T as UniformBlock>::matches(content, base_offset)
                 .map_err(|err| {
                     LayoutMismatchError::MemberMismatch {

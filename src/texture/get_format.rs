@@ -97,11 +97,11 @@ impl InternalFormat {
     /// Returns the total number of bits of this format.
     #[inline]
     pub fn get_total_bits(&self) -> usize {
-        match self {
-            &InternalFormat::OneComponent { bits1, .. } => bits1,
-            &InternalFormat::TwoComponents { bits1, bits2, .. } => bits1 + bits2,
-            &InternalFormat::ThreeComponents { bits1, bits2, bits3, .. } => bits1 + bits2 + bits3,
-            &InternalFormat::FourComponents { bits1, bits2, bits3, bits4, .. } =>
+        match *self {
+            InternalFormat::OneComponent { bits1, .. } => bits1,
+            InternalFormat::TwoComponents { bits1, bits2, .. } => bits1 + bits2,
+            InternalFormat::ThreeComponents { bits1, bits2, bits3, .. } => bits1 + bits2 + bits3,
+            InternalFormat::FourComponents { bits1, bits2, bits3, bits4, .. } =>
                                                                     bits1 + bits2 + bits3 + bits4,
         }
     }

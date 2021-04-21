@@ -916,8 +916,8 @@ unsafe impl<'a, D: ?Sized> Sync for MappingImpl<'a, D> where D: Send + Sync {}
 
 impl<'a, D: ?Sized> Drop for MappingImpl<'a, D> {
     fn drop(&mut self) {
-        match self {
-            &mut MappingImpl::PersistentMapping { buffer, offset_bytes, data, needs_flushing } => {
+        match *self {
+            MappingImpl::PersistentMapping { buffer, offset_bytes, data, needs_flushing } => {
                 let mut ctxt = buffer.context.make_current();
                 unsafe {
                     if needs_flushing {
@@ -927,7 +927,7 @@ impl<'a, D: ?Sized> Drop for MappingImpl<'a, D> {
                 }
             },
 
-            &mut MappingImpl::TemporaryBuffer { original_buffer, original_buffer_offset,
+            MappingImpl::TemporaryBuffer { original_buffer, original_buffer_offset,
                                                 temporary_buffer, temporary_buffer_data,
                                                 needs_flushing } =>
             {
@@ -949,7 +949,7 @@ impl<'a, D: ?Sized> Drop for MappingImpl<'a, D> {
                 }
             },
 
-            &mut MappingImpl::RegularMapping { ref mut buffer, data, needs_flushing } => {
+            MappingImpl::RegularMapping { ref mut buffer, data, needs_flushing } => {
                 let mut ctxt = buffer.context.make_current();
 
                 unsafe {

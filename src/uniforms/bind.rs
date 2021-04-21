@@ -188,7 +188,7 @@ fn bind_uniform_block<'a, P>(ctxt: &mut context::CommandContext<'_>, value: &Uni
                              where P: ProgramExt
 {
     match value {
-        &UniformValue::Block(buffer, ref layout) => {
+        UniformValue::Block(buffer, ref layout) => {
             match layout(block) {
                 Ok(_) => (),
                 Err(e) => {
@@ -224,7 +224,7 @@ fn bind_shared_storage_block<'a, P>(ctxt: &mut context::CommandContext<'_>, valu
                                     where P: ProgramExt
 {
     match value {
-        &UniformValue::Block(buffer, ref layout) => {
+        UniformValue::Block(buffer, ref layout) => {
             match layout(block) {
                 Ok(_) => (),
                 Err(e) => {
@@ -260,7 +260,7 @@ fn bind_atomic_counter<'a, P>(ctxt: &mut context::CommandContext<'_>, value: &Un
                               where P: ProgramExt
 {
     match value {
-        &UniformValue::Block(buffer, ref layout) => {
+        UniformValue::Block(buffer, ref layout) => {
             match layout(block) {
                 Ok(_) => (),
                 Err(e) => {

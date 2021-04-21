@@ -153,7 +153,7 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext<'_>, source: S, rect: &Re
     let (integer, read_src_type) = match source {
         Source::Attachment(attachment) => {
             match attachment {
-                &fbo::RegularAttachment::Texture(ref tex) => {
+                fbo::RegularAttachment::Texture(ref tex) => {
                     let integer = match tex.get_texture().get_requested_format() {
                         TextureFormatRequest::Specific(TextureFormat::UncompressedIntegral(_)) => true,
                         TextureFormatRequest::Specific(TextureFormat::UncompressedUnsigned(_)) => true,
@@ -164,7 +164,7 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext<'_>, source: S, rect: &Re
 
                     (integer, ReadSourceType::Color)       // FIXME: wrong
                 },
-                &fbo::RegularAttachment::RenderBuffer(ref rb) => {
+                fbo::RegularAttachment::RenderBuffer(ref rb) => {
                     (false, ReadSourceType::Color)       // FIXME: wrong
                 },
             }
