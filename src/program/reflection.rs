@@ -873,7 +873,7 @@ fn introspection_output_to_layout<I>(elements: I) -> BlockLayout
                                         .parse().unwrap();
                 (&current_component[.. open_bracket_pos], Some(array))
             } else {
-                (&current_component[..], None)
+                (current_component, None)
             };
 
             // because of a bug in Rust's borrow checker, we have to loop twice instead of just
