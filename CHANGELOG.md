@@ -1,5 +1,13 @@
 # Change Log
 
+## Version 0.29.1 (2021-04-22)
+
+- Updated rand to 0.8.
+- Updated cgmath to 0.18.
+- Made `UniformsStorage` implement `Copy` and `Clone`.
+- Use `$crate::uniform!` internally.
+- Implemented `From` instead of `Into` for some conversions.
+
 ## Version 0.29.0 (2020-12-15)
 
 - Updated glutin to version 0.26.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0260-2020-12-10).
