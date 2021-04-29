@@ -2,12 +2,11 @@
 
 #[macro_use]
 extern crate glium;
-#[macro_use]
-extern crate rental;
 
 use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
+use ouroboros::self_referencing;
 use std::io::Cursor;
 
 mod support;
@@ -18,15 +17,12 @@ pub struct Dt {
     light_texture: glium::texture::Texture2d,
 }
 
-rental! {
-    mod my_rentals {
-        use super::Dt;
-        #[rental]
-        pub struct Data {
-            dt: Box<Dt>,
-            buffs: (glium::framebuffer::MultiOutputFrameBuffer<'dt>, glium::framebuffer::SimpleFrameBuffer<'dt>, &'dt Dt),
-        }
-    }
+#[self_referencing]
+struct Data {
+    dt: Box<Dt>,
+    #[borrows(dt)]
+    #[covariant]
+    buffs: (glium::framebuffer::MultiOutputFrameBuffer<'this>, glium::framebuffer::SimpleFrameBuffer<'this>, &'this Dt),
 }
 
 fn main() {
@@ -287,19 +283,19 @@ fn main() {
     let depthtexture = glium::texture::DepthTexture2d::empty_with_format(&display, glium::texture::DepthFormat::F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
     let light_texture = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
 
-    let mut tenants = my_rentals::Data::new(
-        Box::new(Dt {
+    let mut tenants = DataBuilder {
+        dt: Box::new(Dt {
             depthtexture,
             textures: [texture1, texture2, texture3, texture4],
             light_texture,
         }),
-        |dt| {
+        buffs_builder: |dt| {
             let output = [("output1", &dt.textures[0]), ("output2", &dt.textures[1]), ("output3", &dt.textures[2]), ("output4", &dt.textures[3])];
             let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(&display, output.iter().cloned(), &dt.depthtexture).unwrap();
             let light_buffer = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, &dt.light_texture, &dt.depthtexture).unwrap();
             (framebuffer, light_buffer, dt)
         }
-    );
+    }.build();
 
 
     let ortho_matrix: cgmath::Matrix4<f32> = cgmath::ortho(0.0, 800.0, 0.0, 500.0, -1.0, 1.0);
@@ -340,7 +336,10 @@ fn main() {
 
     // the main loop
     support::start_loop(event_loop, move |events| {
-        tenants.rent_mut(|(framebuffer, light_buffer, dt)| {
+        tenants.with_mut(|fields| {
+            let framebuffer = &mut fields.buffs.0;
+            let light_buffer = &mut fields.buffs.1;
+            let dt = fields.dt;
             // prepass
             let uniforms = uniform! {
                 perspective_matrix: Into::<[[f32; 4]; 4]>::into(perspective_matrix),
