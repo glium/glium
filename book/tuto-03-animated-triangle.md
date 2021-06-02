@@ -30,11 +30,11 @@ while !closed {
                 &Default::default()).unwrap();
     target.finish().unwrap();
 
-    events_loop.poll_events(|event| {
-        match event {
-            glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => closed = true,
-                _ => ()
+    event_loop.run(move |ev, _, _| {
+        match ev {
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => closed = true,
+                _ => (),
             },
             _ => (),
         }
@@ -80,11 +80,11 @@ while !closed {
                 &Default::default()).unwrap();
     target.finish().unwrap();
 
-    events_loop.poll_events(|event| {
-        match event {
-            glutin::Event::WindowEvent { event, .. } => match event {
-                glutin::WindowEvent::CloseRequested => closed = true,
-                _ => ()
+    event_loop.run(move |ev, _, _| {
+        match ev {
+            glutin::event::Event::WindowEvent { event, .. } => match event {
+                glutin::event::WindowEvent::CloseRequested => closed = true,
+                _ => (),
             },
             _ => (),
         }
