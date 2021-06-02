@@ -8,38 +8,47 @@ Our first approach will be to create a variable named `t` which represents the s
 
 ```rust
 let mut t: f32 = -0.5;
-let mut closed = false;
-while !closed {
+event_loop.run(move |event, _, control_flow| {
+
+    match event {
+        glutin::event::Event::WindowEvent { event, .. } => match event {
+            glutin::event::WindowEvent::CloseRequested => {
+                *control_flow = glutin::event_loop::ControlFlow::Exit;
+                return;
+            },
+            _ => return,
+        },
+        glutin::event::Event::NewEvents(cause) => match cause {
+            glutin::event::StartCause::ResumeTimeReached { .. } => (),
+            glutin::event::StartCause::Init => (),
+            _ => return,
+        },
+        _ => return,
+    }
+
+    let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
     // we update `t`
     t += 0.0002;
     if t > 0.5 {
         t = -0.5;
     }
-
-    // we create the shape an add `t` to each x coordinate
+    
     let vertex1 = Vertex { position: [-0.5 + t, -0.5] };
     let vertex2 = Vertex { position: [ 0.0 + t,  0.5] };
     let vertex3 = Vertex { position: [ 0.5 + t, -0.25] };
     let shape = vec![vertex1, vertex2, vertex3];
+
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
-    // drawing
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 1.0, 1.0);
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                &Default::default()).unwrap();
+            &Default::default()).unwrap();
     target.finish().unwrap();
-
-    event_loop.run(move |ev, _, _| {
-        match ev {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => closed = true,
-                _ => (),
-            },
-            _ => (),
-        }
-    });
-}
+});
 ```
 
 If you run this code, you should see your triangle going from the left to the right of the screen, then jumping back to the left!
@@ -63,33 +72,41 @@ let vertex3 = Vertex { position: [ 0.5, -0.25] };
 let shape = vec![vertex1, vertex2, vertex3];
 
 let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-
 let mut t: f32 = -0.5;
-let mut closed = false;
-while !closed {
+event_loop.run(move |event, _, control_flow| {
+
+    match event {
+        glutin::event::Event::WindowEvent { event, .. } => match event {
+            glutin::event::WindowEvent::CloseRequested => {
+                *control_flow = glutin::event_loop::ControlFlow::Exit;
+                return;
+            },
+            _ => return,
+        },
+        glutin::event::Event::NewEvents(cause) => match cause {
+            glutin::event::StartCause::ResumeTimeReached { .. } => (),
+            glutin::event::StartCause::Init => (),
+            _ => return,
+        },
+        _ => return,
+    }
+
+    let next_frame_time = std::time::Instant::now() +
+        std::time::Duration::from_nanos(16_666_667);
+    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
     // we update `t`
     t += 0.0002;
     if t > 0.5 {
         t = -0.5;
     }
 
-    // drawing
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 1.0, 1.0);
     target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                &Default::default()).unwrap();
+            &Default::default()).unwrap();
     target.finish().unwrap();
-
-    event_loop.run(move |ev, _, _| {
-        match ev {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => closed = true,
-                _ => (),
-            },
-            _ => (),
-        }
-    });
-}
+});
 ```
 
 And instead we are going to do a small change in our vertex shader:
