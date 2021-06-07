@@ -1,4 +1,4 @@
-use gl_generator::{Registry, Api, Profile, Fallbacks};
+use gl_generator::{Api, Fallbacks, Profile, Registry};
 use std::env;
 use std::fs::File;
 use std::io::Write;
@@ -17,7 +17,10 @@ fn main() {
     generate_gl_bindings(&mut file_output);
 }
 
-fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
+fn generate_gl_bindings<W>(dest: &mut W)
+where
+    W: Write,
+{
     let gl_registry = Registry::new(
         Api::Gl,
         (4, 6),

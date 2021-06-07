@@ -3,11 +3,11 @@
 #[macro_use]
 extern crate glium;
 
-use glium::{Surface};
-use glium::index::PrimitiveType;
-use glium::program::{ ShaderStage, is_subroutine_supported };
 use glium::backend::Facade;
+use glium::index::PrimitiveType;
+use glium::program::{is_subroutine_supported, ShaderStage};
 use glium::DrawError;
+use glium::Surface;
 
 mod support;
 
@@ -23,7 +23,7 @@ fn subroutine_bindings_simple() {
     let display = support::build_display();
     if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
-        return
+        return;
     };
 
     let program = program!(&display,
@@ -65,14 +65,33 @@ fn subroutine_bindings_simple() {
                 }
             "
         },
-    ).unwrap();
-    let vb = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    )
+    .unwrap();
+    let vb = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
-    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          &[0u16, 1, 2, 2, 1, 3]).unwrap();
+    let indices = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::TrianglesList,
+        &[0u16, 1, 2, 2, 1, 3],
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
 
@@ -80,8 +99,10 @@ fn subroutine_bindings_simple() {
         Color: ("ColorBlue", ShaderStage::Fragment),
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -94,8 +115,10 @@ fn subroutine_bindings_simple() {
         Color: ("ColorRed", ShaderStage::Fragment),
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -110,7 +133,7 @@ fn subroutine_bindings_explicit_location() {
     let display = support::build_display();
     if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
-        return
+        return;
     };
 
     let program = program!(&display,
@@ -154,14 +177,33 @@ fn subroutine_bindings_explicit_location() {
                 }
             "
         },
-    ).unwrap();
-    let vb = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    )
+    .unwrap();
+    let vb = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
-    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          &[0u16, 1, 2, 2, 1, 3]).unwrap();
+    let indices = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::TrianglesList,
+        &[0u16, 1, 2, 2, 1, 3],
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
 
@@ -169,8 +211,10 @@ fn subroutine_bindings_explicit_location() {
         Color: ("ColorBlue", ShaderStage::Fragment),
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -183,8 +227,10 @@ fn subroutine_bindings_explicit_location() {
         Color: ("ColorRed", ShaderStage::Fragment),
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -251,7 +297,8 @@ fn build_program_complex(display: &glium::Display) -> glium::Program {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
     program
 }
 
@@ -260,17 +307,35 @@ fn subroutine_bindings_multi() {
     let display = support::build_display();
     if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
-        return
+        return;
     };
 
     let program = build_program_complex(&display);
-    let vb = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    let vb = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
-    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          &[0u16, 1, 2, 2, 1, 3]).unwrap();
+    let indices = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::TrianglesList,
+        &[0u16, 1, 2, 2, 1, 3],
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
 
@@ -279,8 +344,10 @@ fn subroutine_bindings_multi() {
         Modify: ("DeleteR", ShaderStage::Fragment),
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -294,8 +361,10 @@ fn subroutine_bindings_multi() {
         Modify: ("SwapRB", ShaderStage::Fragment),
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -310,17 +379,35 @@ fn not_all_subroutine_uniforms_set() {
     let display = support::build_display();
     if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
-        return
+        return;
     };
 
     let program = build_program_complex(&display);
-    let vb = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    let vb = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
-    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          &[0u16, 1, 2, 2, 1, 3]).unwrap();
+    let indices = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::TrianglesList,
+        &[0u16, 1, 2, 2, 1, 3],
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
 
@@ -329,11 +416,13 @@ fn not_all_subroutine_uniforms_set() {
         // Not setting Modify on purpose
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    match texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()) {
-                                  Err(DrawError::SubroutineUniformMissing{ .. }) => (),
-                                  _ => panic!("Drawing should have errored")
-                              }
+    match texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+    {
+        Err(DrawError::SubroutineUniformMissing { .. }) => (),
+        _ => panic!("Drawing should have errored"),
+    }
 
     display.assert_no_error(None);
 }
@@ -343,17 +432,35 @@ fn mismatched_subroutines() {
     let display = support::build_display();
     if !is_subroutine_supported(display.get_context()) {
         println!("Backend does not support subroutines");
-        return
+        return;
     };
 
     let program = build_program_complex(&display);
-    let vb = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    let vb = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
-    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          &[0u16, 1, 2, 2, 1, 3]).unwrap();
+    let indices = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::TrianglesList,
+        &[0u16, 1, 2, 2, 1, 3],
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
 
@@ -362,11 +469,13 @@ fn mismatched_subroutines() {
         Modify: ("ColorBlue", ShaderStage::Fragment)
     );
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    match texture.as_surface().draw(&vb, &indices, &program, &uniforms,
-                              &Default::default()) {
-                                  Err(DrawError::SubroutineNotFound{ .. }) => (),
-                                  _ => panic!("Drawing should have errored")
-                              }
+    match texture
+        .as_surface()
+        .draw(&vb, &indices, &program, &uniforms, &Default::default())
+    {
+        Err(DrawError::SubroutineNotFound { .. }) => (),
+        _ => panic!("Drawing should have errored"),
+    }
 
     display.assert_no_error(None);
 }

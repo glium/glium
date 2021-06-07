@@ -1,16 +1,16 @@
 use crate::backend::Facade;
-use crate::context::Context;
 use crate::context::CommandContext;
+use crate::context::Context;
 use crate::ContextExt;
 use crate::DrawError;
-use crate::ToGlEnum;
 use crate::GlObject;
 use crate::QueryExt;
+use crate::ToGlEnum;
 
 use std::cell::Cell;
+use std::error::Error;
 use std::fmt;
 use std::rc::Rc;
-use std::error::Error;
 
 use crate::buffer::Buffer;
 use crate::buffer::BufferSlice;
@@ -53,7 +53,7 @@ impl ToGlEnum for QueryType {
             QueryType::PrimitivesGenerated => gl::PRIMITIVES_GENERATED,
             QueryType::TransformFeedbackPrimitivesWritten => {
                 gl::TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN
-            },
+            }
         }
     }
 }
@@ -99,7 +99,8 @@ impl Error for ToBufferError {}
 impl RawQuery {
     /// Builds a new query. Returns `None` if the backend doesn't support this type.
     pub fn new<F: ?Sized>(facade: &F, ty: QueryType) -> Result<RawQuery, QueryCreationError>
-                  where F: Facade
+    where
+        F: Facade,
     {
         let context = facade.get_context().clone();
         let ctxt = facade.get_context().make_current();
@@ -111,45 +112,65 @@ impl RawQuery {
 
             if ctxt.version >= &Version(Api::Gl, 3, 3) {
                 match ty {
-                    QueryType::AnySamplesPassed | QueryType::SamplesPassed |
-                    QueryType::PrimitivesGenerated | QueryType::TimeElapsed |
-                    QueryType::TransformFeedbackPrimitivesWritten => (),
-                    QueryType::AnySamplesPassedConservative if
-                            ctxt.extensions.gl_arb_es3_compatibility ||
-                            ctxt.version >= &Version(Api:: Gl, 4, 3) => (),
-                    _ => return Err(QueryCreationError::NotSupported)
+                    QueryType::AnySamplesPassed
+                    | QueryType::SamplesPassed
+                    | QueryType::PrimitivesGenerated
+                    | QueryType::TimeElapsed
+                    | QueryType::TransformFeedbackPrimitivesWritten => (),
+                    QueryType::AnySamplesPassedConservative
+                        if ctxt.extensions.gl_arb_es3_compatibility
+                            || ctxt.version >= &Version(Api::Gl, 4, 3) =>
+                    {
+                        ()
+                    }
+                    _ => return Err(QueryCreationError::NotSupported),
                 };
 
-                if ctxt.version >= &Version(Api:: Gl, 4, 5) ||
-                   ctxt.extensions.gl_arb_direct_state_access
+                if ctxt.version >= &Version(Api::Gl, 4, 5)
+                    || ctxt.extensions.gl_arb_direct_state_access
                 {
                     ctxt.gl.CreateQueries(ty.to_glenum(), 1, &mut id);
                 } else {
                     ctxt.gl.GenQueries(1, &mut id);
                 }
-
             } else if ctxt.version >= &Version(Api::Gl, 3, 0) {
                 match ty {
-                    QueryType::SamplesPassed | QueryType::PrimitivesGenerated |
-                    QueryType::TransformFeedbackPrimitivesWritten => (),
+                    QueryType::SamplesPassed
+                    | QueryType::PrimitivesGenerated
+                    | QueryType::TransformFeedbackPrimitivesWritten => (),
                     QueryType::AnySamplesPassed if ctxt.extensions.gl_arb_occlusion_query2 => (),
-                    QueryType::AnySamplesPassedConservative if ctxt.extensions.gl_arb_es3_compatibility => (),
+                    QueryType::AnySamplesPassedConservative
+                        if ctxt.extensions.gl_arb_es3_compatibility =>
+                    {
+                        ()
+                    }
                     QueryType::TimeElapsed if ctxt.extensions.gl_arb_timer_query => (),
 
-                    _ => return Err(QueryCreationError::NotSupported)
+                    _ => return Err(QueryCreationError::NotSupported),
                 };
 
                 ctxt.gl.GenQueries(1, &mut id);
-
-            } else if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.extensions.gl_arb_occlusion_query {
+            } else if ctxt.version >= &Version(Api::Gl, 1, 5)
+                || ctxt.extensions.gl_arb_occlusion_query
+            {
                 match ty {
                     QueryType::SamplesPassed => (),
                     QueryType::AnySamplesPassed if ctxt.extensions.gl_arb_occlusion_query2 => (),
-                    QueryType::AnySamplesPassedConservative if ctxt.extensions.gl_arb_es3_compatibility => (),
-                    QueryType::PrimitivesGenerated if ctxt.extensions.gl_ext_transform_feedback => (),
-                    QueryType::TransformFeedbackPrimitivesWritten if ctxt.extensions.gl_ext_transform_feedback => (),
+                    QueryType::AnySamplesPassedConservative
+                        if ctxt.extensions.gl_arb_es3_compatibility =>
+                    {
+                        ()
+                    }
+                    QueryType::PrimitivesGenerated if ctxt.extensions.gl_ext_transform_feedback => {
+                        ()
+                    }
+                    QueryType::TransformFeedbackPrimitivesWritten
+                        if ctxt.extensions.gl_ext_transform_feedback =>
+                    {
+                        ()
+                    }
                     QueryType::TimeElapsed if ctxt.extensions.gl_arb_timer_query => (),
-                    _ => return Err(QueryCreationError::NotSupported)
+                    _ => return Err(QueryCreationError::NotSupported),
                 };
 
                 if ctxt.version >= &Version(Api::Gl, 1, 5) {
@@ -159,24 +180,22 @@ impl RawQuery {
                 } else {
                     unreachable!();
                 }
-
             } else if ctxt.version >= &Version(Api::GlEs, 3, 0) {
                 match ty {
-                    QueryType::AnySamplesPassed | QueryType::AnySamplesPassedConservative |
-                    QueryType::TransformFeedbackPrimitivesWritten => (),
-                    _ => return Err(QueryCreationError::NotSupported)
+                    QueryType::AnySamplesPassed
+                    | QueryType::AnySamplesPassedConservative
+                    | QueryType::TransformFeedbackPrimitivesWritten => (),
+                    _ => return Err(QueryCreationError::NotSupported),
                 };
 
                 ctxt.gl.GenQueries(1, &mut id);
-
             } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
                 match ty {
                     QueryType::AnySamplesPassed | QueryType::AnySamplesPassedConservative => (),
-                    _ => return Err(QueryCreationError::NotSupported)
+                    _ => return Err(QueryCreationError::NotSupported),
                 };
 
                 ctxt.gl.GenQueriesEXT(1, &mut id);
-
             } else {
                 return Err(QueryCreationError::NotSupported);
             }
@@ -206,17 +225,16 @@ impl RawQuery {
         unsafe {
             let mut value = 0;
 
-            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-               ctxt.version >= &Version(Api::GlEs, 3, 0)
+            if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.version >= &Version(Api::GlEs, 3, 0)
             {
-                ctxt.gl.GetQueryObjectuiv(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
-
+                ctxt.gl
+                    .GetQueryObjectuiv(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
             } else if ctxt.extensions.gl_arb_occlusion_query {
-                ctxt.gl.GetQueryObjectuivARB(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
-
+                ctxt.gl
+                    .GetQueryObjectuivARB(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
             } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
-                ctxt.gl.GetQueryObjectuivEXT(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
-
+                ctxt.gl
+                    .GetQueryObjectuivEXT(self.id, gl::QUERY_RESULT_AVAILABLE, &mut value);
             } else {
                 // if we reach here, user shouldn't have been able to create a query in the
                 // first place
@@ -251,8 +269,9 @@ impl RawQuery {
     pub fn write_u32_to_buffer(&self, target: BufferSlice<'_, u32>) -> Result<(), ToBufferError> {
         let mut ctxt = self.context.make_current();
 
-        if !(ctxt.version >= &Version(Api::Gl, 4, 4) || ctxt.extensions.gl_arb_query_buffer_object ||
-             ctxt.extensions.gl_amd_query_buffer_object)
+        if !(ctxt.version >= &Version(Api::Gl, 4, 4)
+            || ctxt.extensions.gl_arb_query_buffer_object
+            || ctxt.extensions.gl_amd_query_buffer_object)
         {
             return Err(ToBufferError::NotSupported);
         }
@@ -266,7 +285,9 @@ impl RawQuery {
         assert!(target.get_offset_bytes() % 4 == 0);
 
         target.prepare_and_bind_for_query(&mut ctxt);
-        unsafe { self.raw_get_u32(&mut ctxt, target.get_offset_bytes() as *mut _); }
+        unsafe {
+            self.raw_get_u32(&mut ctxt, target.get_offset_bytes() as *mut _);
+        }
 
         if let Some(fence) = target.add_fence() {
             fence.insert(&mut ctxt);
@@ -278,13 +299,12 @@ impl RawQuery {
     unsafe fn raw_get_u32(&self, ctxt: &mut CommandContext<'_>, target: *mut gl::types::GLuint) {
         if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
             ctxt.gl.GetQueryObjectuiv(self.id, gl::QUERY_RESULT, target);
-
         } else if ctxt.extensions.gl_arb_occlusion_query {
-            ctxt.gl.GetQueryObjectuivARB(self.id, gl::QUERY_RESULT, target);
-
+            ctxt.gl
+                .GetQueryObjectuivARB(self.id, gl::QUERY_RESULT, target);
         } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
-            ctxt.gl.GetQueryObjectuivEXT(self.id, gl::QUERY_RESULT, target);
-
+            ctxt.gl
+                .GetQueryObjectuivEXT(self.id, gl::QUERY_RESULT, target);
         } else {
             // if we reach here, user shouldn't have been able to create a query in the
             // first place
@@ -317,13 +337,15 @@ impl RawQuery {
         }
     }
 
-    unsafe fn raw_get_u64(&self, ctxt: &mut CommandContext<'_>, target: *mut gl::types::GLuint64)
-                          -> Result<(), ()>
-    {
+    unsafe fn raw_get_u64(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        target: *mut gl::types::GLuint64,
+    ) -> Result<(), ()> {
         if ctxt.version >= &Version(Api::Gl, 3, 3) {
-            ctxt.gl.GetQueryObjectui64v(self.id, gl::QUERY_RESULT, target);
+            ctxt.gl
+                .GetQueryObjectui64v(self.id, gl::QUERY_RESULT, target);
             Ok(())
-
         } else {
             Err(())
         }
@@ -383,17 +405,13 @@ impl Drop for RawQuery {
         }
 
         unsafe {
-            if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-               ctxt.version >= &Version(Api::GlEs, 3, 0)
+            if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.version >= &Version(Api::GlEs, 3, 0)
             {
                 ctxt.gl.DeleteQueries(1, [self.id].as_ptr());
-
             } else if ctxt.extensions.gl_arb_occlusion_query {
                 ctxt.gl.DeleteQueriesARB(1, [self.id].as_ptr());
-
             } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
                 ctxt.gl.DeleteQueriesEXT(1, [self.id].as_ptr());
-
             } else {
                 unreachable!();
             }
@@ -407,12 +425,16 @@ impl QueryExt for RawQuery {
             QueryType::SamplesPassed => {
                 if ctxt.state.any_samples_passed_query != 0 {
                     ctxt.state.any_samples_passed_query = 0;
-                    unsafe { raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED); }
+                    unsafe {
+                        raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED);
+                    }
                 }
 
                 if ctxt.state.any_samples_passed_conservative_query != 0 {
                     ctxt.state.any_samples_passed_conservative_query = 0;
-                    unsafe { raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
+                    unsafe {
+                        raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED_CONSERVATIVE);
+                    }
                 }
 
                 if ctxt.state.samples_passed_query != self.id {
@@ -430,17 +452,21 @@ impl QueryExt for RawQuery {
                     self.has_been_used.set(true);
                     ctxt.state.samples_passed_query = self.id;
                 }
-            },
+            }
 
             QueryType::AnySamplesPassed => {
                 if ctxt.state.samples_passed_query != 0 {
                     ctxt.state.samples_passed_query = 0;
-                    unsafe { raw_end_query(ctxt, gl::SAMPLES_PASSED); }
+                    unsafe {
+                        raw_end_query(ctxt, gl::SAMPLES_PASSED);
+                    }
                 }
 
                 if ctxt.state.any_samples_passed_conservative_query != 0 {
                     ctxt.state.any_samples_passed_conservative_query = 0;
-                    unsafe { raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
+                    unsafe {
+                        raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED_CONSERVATIVE);
+                    }
                 }
 
                 if ctxt.state.any_samples_passed_query != self.id {
@@ -458,17 +484,21 @@ impl QueryExt for RawQuery {
                     self.has_been_used.set(true);
                     ctxt.state.any_samples_passed_query = self.id;
                 }
-            },
+            }
 
             QueryType::AnySamplesPassedConservative => {
                 if ctxt.state.samples_passed_query != 0 {
                     ctxt.state.samples_passed_query = 0;
-                    unsafe { raw_end_query(ctxt, gl::SAMPLES_PASSED); }
+                    unsafe {
+                        raw_end_query(ctxt, gl::SAMPLES_PASSED);
+                    }
                 }
 
                 if ctxt.state.any_samples_passed_query != 0 {
                     ctxt.state.any_samples_passed_query = 0;
-                    unsafe { raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED); }
+                    unsafe {
+                        raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED);
+                    }
                 }
 
                 if ctxt.state.any_samples_passed_conservative_query != self.id {
@@ -486,7 +516,7 @@ impl QueryExt for RawQuery {
                     self.has_been_used.set(true);
                     ctxt.state.any_samples_passed_conservative_query = self.id;
                 }
-            },
+            }
 
             QueryType::TimeElapsed => {
                 if ctxt.state.time_elapsed_query != self.id {
@@ -504,7 +534,7 @@ impl QueryExt for RawQuery {
                     self.has_been_used.set(true);
                     ctxt.state.time_elapsed_query = self.id;
                 }
-            },
+            }
 
             QueryType::Timestamp => panic!(),
 
@@ -524,7 +554,7 @@ impl QueryExt for RawQuery {
                     self.has_been_used.set(true);
                     ctxt.state.primitives_generated_query = self.id;
                 }
-            },
+            }
 
             QueryType::TransformFeedbackPrimitivesWritten => {
                 if ctxt.state.transform_feedback_primitives_written_query != self.id {
@@ -542,7 +572,7 @@ impl QueryExt for RawQuery {
                     self.has_been_used.set(true);
                     ctxt.state.transform_feedback_primitives_written_query = self.id;
                 }
-            },
+            }
         };
 
         Ok(())
@@ -551,17 +581,23 @@ impl QueryExt for RawQuery {
     fn end_samples_passed_query(ctxt: &mut CommandContext<'_>) {
         if ctxt.state.samples_passed_query != 0 {
             ctxt.state.samples_passed_query = 0;
-            unsafe { raw_end_query(ctxt, gl::SAMPLES_PASSED); }
+            unsafe {
+                raw_end_query(ctxt, gl::SAMPLES_PASSED);
+            }
         }
 
         if ctxt.state.any_samples_passed_query != 0 {
             ctxt.state.any_samples_passed_query = 0;
-            unsafe { raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED); }
+            unsafe {
+                raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED);
+            }
         }
 
         if ctxt.state.any_samples_passed_conservative_query != 0 {
             ctxt.state.any_samples_passed_conservative_query = 0;
-            unsafe { raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED_CONSERVATIVE); }
+            unsafe {
+                raw_end_query(ctxt, gl::ANY_SAMPLES_PASSED_CONSERVATIVE);
+            }
         }
     }
 
@@ -569,7 +605,9 @@ impl QueryExt for RawQuery {
     fn end_time_elapsed_query(ctxt: &mut CommandContext<'_>) {
         if ctxt.state.time_elapsed_query != 0 {
             ctxt.state.time_elapsed_query = 0;
-            unsafe { raw_end_query(ctxt, gl::TIME_ELAPSED); }
+            unsafe {
+                raw_end_query(ctxt, gl::TIME_ELAPSED);
+            }
         }
     }
 
@@ -577,7 +615,9 @@ impl QueryExt for RawQuery {
     fn end_primitives_generated_query(ctxt: &mut CommandContext<'_>) {
         if ctxt.state.primitives_generated_query != 0 {
             ctxt.state.primitives_generated_query = 0;
-            unsafe { raw_end_query(ctxt, gl::PRIMITIVES_GENERATED); }
+            unsafe {
+                raw_end_query(ctxt, gl::PRIMITIVES_GENERATED);
+            }
         }
     }
 
@@ -585,11 +625,18 @@ impl QueryExt for RawQuery {
     fn end_transform_feedback_primitives_written_query(ctxt: &mut CommandContext<'_>) {
         if ctxt.state.transform_feedback_primitives_written_query != 0 {
             ctxt.state.transform_feedback_primitives_written_query = 0;
-            unsafe { raw_end_query(ctxt, gl::TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN); }
+            unsafe {
+                raw_end_query(ctxt, gl::TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
+            }
         }
     }
 
-    fn begin_conditional_render(&self, ctxt: &mut CommandContext<'_>, wait: bool, per_region: bool) {
+    fn begin_conditional_render(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        wait: bool,
+        per_region: bool,
+    ) {
         let new_mode = match (wait, per_region) {
             (true, true) => gl::QUERY_BY_REGION_WAIT,
             (true, false) => gl::QUERY_WAIT,
@@ -637,9 +684,13 @@ impl QueryExt for RawQuery {
         }
 
         if ctxt.version >= &Version(Api::Gl, 3, 0) {
-            unsafe { ctxt.gl.EndConditionalRender(); }
+            unsafe {
+                ctxt.gl.EndConditionalRender();
+            }
         } else if ctxt.extensions.gl_nv_conditional_render {
-            unsafe { ctxt.gl.EndConditionalRenderNV(); }
+            unsafe {
+                ctxt.gl.EndConditionalRenderNV();
+            }
         } else {
             unreachable!();
         }
@@ -675,18 +726,17 @@ impl GlObject for RawQuery {
 /// The type of query must be guaranteed to be supported by the backend.
 /// The id of the query must be valid.
 ///
-unsafe fn raw_begin_query(ctxt: &mut CommandContext<'_>, ty: gl::types::GLenum, id: gl::types::GLuint) {
-    if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0)
-    {
+unsafe fn raw_begin_query(
+    ctxt: &mut CommandContext<'_>,
+    ty: gl::types::GLenum,
+    id: gl::types::GLuint,
+) {
+    if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
         ctxt.gl.BeginQuery(ty, id);
-
     } else if ctxt.extensions.gl_arb_occlusion_query {
         ctxt.gl.BeginQueryARB(ty, id);
-
     } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
         ctxt.gl.BeginQueryEXT(ty, id);
-
     } else {
         unreachable!();
     }
@@ -698,17 +748,12 @@ unsafe fn raw_begin_query(ctxt: &mut CommandContext<'_>, ty: gl::types::GLenum, 
 ///
 /// The type of query must be guaranteed to be supported by the backend.
 unsafe fn raw_end_query(ctxt: &mut CommandContext<'_>, ty: gl::types::GLenum) {
-    if ctxt.version >= &Version(Api::Gl, 1, 5) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0)
-    {
+    if ctxt.version >= &Version(Api::Gl, 1, 5) || ctxt.version >= &Version(Api::GlEs, 3, 0) {
         ctxt.gl.EndQuery(ty);
-
     } else if ctxt.extensions.gl_arb_occlusion_query {
         ctxt.gl.EndQueryARB(ty);
-
     } else if ctxt.extensions.gl_ext_occlusion_query_boolean {
         ctxt.gl.EndQueryEXT(ty);
-
     } else {
         unreachable!();
     }
@@ -744,9 +789,7 @@ macro_rules! impl_helper {
             ///
             /// This operation is not necessarily supported everywhere.
             #[inline]
-            pub fn to_buffer_u32(&self, target: BufferSlice<'_, u32>)
-                                 -> Result<(), ToBufferError>
-            {
+            pub fn to_buffer_u32(&self, target: BufferSlice<'_, u32>) -> Result<(), ToBufferError> {
                 self.query.write_u32_to_buffer(target)
             }
         }
@@ -787,7 +830,12 @@ macro_rules! impl_helper {
             }
 
             #[inline]
-            fn begin_conditional_render(&self, ctxt: &mut CommandContext<'_>, wait: bool, per_region: bool) {
+            fn begin_conditional_render(
+                &self,
+                ctxt: &mut CommandContext<'_>,
+                wait: bool,
+                per_region: bool,
+            ) {
                 self.query.begin_conditional_render(ctxt, wait, per_region)
             }
 
@@ -817,7 +865,10 @@ pub struct SamplesPassedQuery {
 impl SamplesPassedQuery {
     /// Builds a new query.
     #[inline]
-    pub fn new<F: ?Sized>(facade: &F) -> Result<SamplesPassedQuery, QueryCreationError> where F: Facade {
+    pub fn new<F: ?Sized>(facade: &F) -> Result<SamplesPassedQuery, QueryCreationError>
+    where
+        F: Facade,
+    {
         RawQuery::new(facade, QueryType::SamplesPassed).map(|q| SamplesPassedQuery { query: q })
     }
 }
@@ -836,7 +887,10 @@ pub struct TimeElapsedQuery {
 impl TimeElapsedQuery {
     /// Builds a new query.
     #[inline]
-    pub fn new<F: ?Sized>(facade: &F) -> Result<TimeElapsedQuery, QueryCreationError> where F: Facade {
+    pub fn new<F: ?Sized>(facade: &F) -> Result<TimeElapsedQuery, QueryCreationError>
+    where
+        F: Facade,
+    {
         RawQuery::new(facade, QueryType::TimeElapsed).map(|q| TimeElapsedQuery { query: q })
     }
 }
@@ -864,9 +918,12 @@ impl AnySamplesPassedQuery {
     ///
     /// If you pass `true` for `conservative`, then OpenGL may use a less accurate algorithm,
     /// leading to a faster result but with more false positives.
-    pub fn new<F: ?Sized>(facade: &F, conservative: bool)
-                  -> Result<AnySamplesPassedQuery, QueryCreationError>
-                  where F: Facade
+    pub fn new<F: ?Sized>(
+        facade: &F,
+        conservative: bool,
+    ) -> Result<AnySamplesPassedQuery, QueryCreationError>
+    where
+        F: Facade,
     {
         if conservative {
             if let Ok(q) = RawQuery::new(facade, QueryType::AnySamplesPassedConservative) {
@@ -897,10 +954,11 @@ impl PrimitivesGeneratedQuery {
     /// Builds a new query.
     #[inline]
     pub fn new<F: ?Sized>(facade: &F) -> Result<PrimitivesGeneratedQuery, QueryCreationError>
-                  where F: Facade
+    where
+        F: Facade,
     {
         RawQuery::new(facade, QueryType::PrimitivesGenerated)
-                                                    .map(|q| PrimitivesGeneratedQuery { query: q })
+            .map(|q| PrimitivesGeneratedQuery { query: q })
     }
 }
 
@@ -915,11 +973,14 @@ pub struct TransformFeedbackPrimitivesWrittenQuery {
 impl TransformFeedbackPrimitivesWrittenQuery {
     /// Builds a new query.
     #[inline]
-    pub fn new<F: ?Sized>(facade: &F) -> Result<TransformFeedbackPrimitivesWrittenQuery, QueryCreationError>
-                  where F: Facade
+    pub fn new<F: ?Sized>(
+        facade: &F,
+    ) -> Result<TransformFeedbackPrimitivesWrittenQuery, QueryCreationError>
+    where
+        F: Facade,
     {
         RawQuery::new(facade, QueryType::TransformFeedbackPrimitivesWritten)
-                                     .map(|q| TransformFeedbackPrimitivesWrittenQuery { query: q })
+            .map(|q| TransformFeedbackPrimitivesWrittenQuery { query: q })
     }
 }
 

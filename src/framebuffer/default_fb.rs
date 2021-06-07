@@ -5,22 +5,22 @@ use std::rc::Rc;
 use crate::backend::Facade;
 use crate::context::Context;
 
+use crate::ops;
+use crate::uniforms;
+use crate::BlitTarget;
+use crate::ContextExt;
 use crate::DrawParameters;
 use crate::FboAttachments;
 use crate::Rect;
-use crate::BlitTarget;
-use crate::ContextExt;
 use crate::ToGlEnum;
-use crate::ops;
-use crate::uniforms;
 
-use crate::{Program, Surface};
 use crate::DrawError;
+use crate::{Program, Surface};
 
-use crate::{fbo, gl};
 use crate::framebuffer;
 use crate::index;
 use crate::vertex;
+use crate::{fbo, gl};
 
 /// One of the color attachments on the default framebuffer.
 #[derive(Copy, Clone, Debug)]
@@ -45,7 +45,10 @@ pub struct DefaultFramebuffer {
 impl DefaultFramebuffer {
     /// Creates a `DefaultFramebuffer` with the back left buffer.
     #[inline]
-    pub fn back_left<F: ?Sized>(facade: &F) -> DefaultFramebuffer where F: Facade {
+    pub fn back_left<F: ?Sized>(facade: &F) -> DefaultFramebuffer
+    where
+        F: Facade,
+    {
         DefaultFramebuffer {
             context: facade.get_context().clone(),
             attachment: DefaultFramebufferAttachment::BackLeft,
@@ -55,9 +58,14 @@ impl DefaultFramebuffer {
 
 impl Surface for DefaultFramebuffer {
     #[inline]
-    fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
-             depth: Option<f32>, stencil: Option<i32>)
-    {
+    fn clear(
+        &mut self,
+        rect: Option<&Rect>,
+        color: Option<(f32, f32, f32, f32)>,
+        color_srgb: bool,
+        depth: Option<f32>,
+        stencil: Option<i32>,
+    ) {
         // TODO: wrong attachment
         ops::clear(&self.context, None, None, color, color_srgb, depth, stencil);
     }
@@ -74,67 +82,114 @@ impl Surface for DefaultFramebuffer {
         self.context.capabilities().stencil_bits
     }
 
-    fn draw<'a, 'b, V, I, U>(&mut self, vertex_buffer: V,
-                         index_buffer: I, program: &Program, uniforms: &U,
-                         draw_parameters: &DrawParameters<'_>) -> Result<(), DrawError>
-                         where I: Into<index::IndicesSource<'a>>, U: uniforms::Uniforms,
-                         V: vertex::MultiVerticesSource<'b>
+    fn draw<'a, 'b, V, I, U>(
+        &mut self,
+        vertex_buffer: V,
+        index_buffer: I,
+        program: &Program,
+        uniforms: &U,
+        draw_parameters: &DrawParameters<'_>,
+    ) -> Result<(), DrawError>
+    where
+        I: Into<index::IndicesSource<'a>>,
+        U: uniforms::Uniforms,
+        V: vertex::MultiVerticesSource<'b>,
     {
-        if !self.has_depth_buffer() && (draw_parameters.depth.test.requires_depth_buffer() ||
-                draw_parameters.depth.write)
+        if !self.has_depth_buffer()
+            && (draw_parameters.depth.test.requires_depth_buffer() || draw_parameters.depth.write)
         {
             return Err(DrawError::NoDepthBuffer);
         }
 
         if let Some(viewport) = draw_parameters.viewport {
-            if viewport.width > self.context.capabilities().max_viewport_dims.0
-                    as u32
-            {
+            if viewport.width > self.context.capabilities().max_viewport_dims.0 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
-            if viewport.height > self.context.capabilities().max_viewport_dims.1
-                    as u32
-            {
+            if viewport.height > self.context.capabilities().max_viewport_dims.1 as u32 {
                 return Err(DrawError::ViewportTooLarge);
             }
         }
 
         // TODO: wrong attachment
-        ops::draw(&self.context, None, vertex_buffer, index_buffer.into(), program,
-                  uniforms, draw_parameters, self.get_dimensions())
+        ops::draw(
+            &self.context,
+            None,
+            vertex_buffer,
+            index_buffer.into(),
+            program,
+            uniforms,
+            draw_parameters,
+            self.get_dimensions(),
+        )
     }
 
     #[inline]
-    fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
-                     filter: uniforms::MagnifySamplerFilter) where S: Surface
+    fn blit_color<S>(
+        &self,
+        source_rect: &Rect,
+        target: &S,
+        target_rect: &BlitTarget,
+        filter: uniforms::MagnifySamplerFilter,
+    ) where
+        S: Surface,
     {
         target.blit_from_frame(source_rect, target_rect, filter)
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_frame(
+        &self,
+        source_rect: &Rect,
+        target_rect: &BlitTarget,
+        filter: uniforms::MagnifySamplerFilter,
+    ) {
+        ops::blit(
+            &self.context,
+            None,
+            self.get_attachments(),
+            gl::COLOR_BUFFER_BIT,
+            source_rect,
+            target_rect,
+            filter.to_glenum(),
+        )
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer<'_>,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_simple_framebuffer(
+        &self,
+        source: &framebuffer::SimpleFrameBuffer<'_>,
+        source_rect: &Rect,
+        target_rect: &BlitTarget,
+        filter: uniforms::MagnifySamplerFilter,
+    ) {
+        ops::blit(
+            &self.context,
+            source.get_attachments(),
+            self.get_attachments(),
+            gl::COLOR_BUFFER_BIT,
+            source_rect,
+            target_rect,
+            filter.to_glenum(),
+        )
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer<'_>,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
-        ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+    fn blit_from_multioutput_framebuffer(
+        &self,
+        source: &framebuffer::MultiOutputFrameBuffer<'_>,
+        source_rect: &Rect,
+        target_rect: &BlitTarget,
+        filter: uniforms::MagnifySamplerFilter,
+    ) {
+        ops::blit(
+            &self.context,
+            source.get_attachments(),
+            self.get_attachments(),
+            gl::COLOR_BUFFER_BIT,
+            source_rect,
+            target_rect,
+            filter.to_glenum(),
+        )
     }
 }
 

@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
 
+use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
-use glium::index::PrimitiveType;
 
 mod support;
 
@@ -23,22 +23,36 @@ fn main() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-0.5, -0.5] },
-                Vertex { position: [ 0.0,  0.5] },
-                Vertex { position: [ 0.5, -0.5] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-0.5, -0.5],
+                },
+                Vertex {
+                    position: [0.0, 0.5],
+                },
+                Vertex {
+                    position: [0.5, -0.5],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     // building the index buffer
-    let index_buffer = glium::IndexBuffer::new(&display,
-                                               PrimitiveType::Patches { vertices_per_patch: 3 },
-                                               &[0u16, 1, 2]).unwrap();
+    let index_buffer = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::Patches {
+            vertices_per_patch: 3,
+        },
+        &[0u16, 1, 2],
+    )
+    .unwrap();
 
     // compiling shaders and linking them together
-    let program = glium::Program::new(&display,
+    let program = glium::Program::new(
+        &display,
         glium::program::SourceCode {
             vertex_shader: "
                 #version 140
@@ -59,7 +73,8 @@ fn main() {
                     f_color = vec4(color, 1.0);
                 }
             ",
-            geometry_shader: Some("
+            geometry_shader: Some(
+                "
                 #version 330
 
                 uniform mat4 matrix;
@@ -92,8 +107,10 @@ fn main() {
                     color = all_color;
                     EmitVertex();
                 }
-            "),
-            tessellation_control_shader: Some("
+            ",
+            ),
+            tessellation_control_shader: Some(
+                "
                 #version 400
 
                 layout(vertices = 3) out;
@@ -108,8 +125,10 @@ fn main() {
                     gl_TessLevelOuter[2] = tess_level;
                     gl_TessLevelInner[0] = tess_level;
                 }
-            "),
-            tessellation_evaluation_shader: Some("
+            ",
+            ),
+            tessellation_evaluation_shader: Some(
+                "
                 #version 400
 
                 layout(triangles, equal_spacing) in;
@@ -121,12 +140,18 @@ fn main() {
                     gl_Position = vec4(position, 1.0);
                 }
 
-            "),
-        }).unwrap();
+            ",
+            ),
+        },
+    )
+    .unwrap();
 
     // level of tessellation
     let mut tess_level: i32 = 5;
-    println!("The current tessellation level is {} ; use the Up and Down keys to change it", tess_level);
+    println!(
+        "The current tessellation level is {} ; use the Up and Down keys to change it",
+        tess_level
+    );
 
     // the main loop
     support::start_loop(event_loop, move |events| {
@@ -144,7 +169,15 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                &program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
@@ -159,13 +192,13 @@ fn main() {
                             Some(glutin::event::VirtualKeyCode::Up) => {
                                 tess_level += 1;
                                 println!("New tessellation level: {}", tess_level);
-                            },
+                            }
                             Some(glutin::event::VirtualKeyCode::Down) => {
                                 if tess_level >= 2 {
                                     tess_level -= 1;
                                     println!("New tessellation level: {}", tess_level);
                                 }
-                            },
+                            }
                             _ => (),
                         },
                         _ => (),
@@ -174,7 +207,7 @@ fn main() {
                 },
                 _ => (),
             }
-        };
+        }
 
         action
     });

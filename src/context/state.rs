@@ -1,5 +1,5 @@
-use crate::Handle;
 use crate::gl;
+use crate::Handle;
 use smallvec::SmallVec;
 
 /// Represents the current OpenGL state.
@@ -88,8 +88,12 @@ pub struct GlState {
     pub vertex_array: gl::types::GLuint,
 
     /// The latest value passed to `glClearColor`.
-    pub clear_color: (gl::types::GLclampf, gl::types::GLclampf,
-                      gl::types::GLclampf, gl::types::GLclampf),
+    pub clear_color: (
+        gl::types::GLclampf,
+        gl::types::GLclampf,
+        gl::types::GLclampf,
+        gl::types::GLclampf,
+    ),
 
     /// The latest value passed to `glClearDepthf`.
     pub clear_depth: gl::types::GLclampf,
@@ -98,8 +102,12 @@ pub struct GlState {
     pub clear_stencil: gl::types::GLint,
 
     /// The latest values passed to ``glColorMask`.
-    pub color_mask: (gl::types::GLboolean, gl::types::GLboolean,
-                     gl::types::GLboolean, gl::types::GLboolean),
+    pub color_mask: (
+        gl::types::GLboolean,
+        gl::types::GLboolean,
+        gl::types::GLboolean,
+        gl::types::GLboolean,
+    ),
 
     /// The latest buffer bound to `GL_ARRAY_BUFFER`.
     pub array_buffer_binding: gl::types::GLuint,
@@ -114,7 +122,7 @@ pub struct GlState {
     pub uniform_buffer_binding: gl::types::GLuint,
 
     /// List of buffers bound to the indexed `GL_UNIFORM_BUFFER`.
-    pub indexed_uniform_buffer_bindings: SmallVec<[IndexedBufferState ; 8]>,
+    pub indexed_uniform_buffer_bindings: SmallVec<[IndexedBufferState; 8]>,
 
     /// The latest buffer bound to `GL_COPY_READ_BUFFER`.
     pub copy_read_buffer_binding: gl::types::GLuint,
@@ -138,13 +146,13 @@ pub struct GlState {
     pub atomic_counter_buffer_binding: gl::types::GLuint,
 
     /// List of buffers bound to the indexed `GL_ATOMIC_COUNTER_BUFFER`.
-    pub indexed_atomic_counter_buffer_bindings: SmallVec<[IndexedBufferState ; 8]>,
+    pub indexed_atomic_counter_buffer_bindings: SmallVec<[IndexedBufferState; 8]>,
 
     /// The latest buffer bound to `GL_SHADER_STORAGE_BUFFER`.
     pub shader_storage_buffer_binding: gl::types::GLuint,
 
     /// List of buffers bound to the indexed `GL_SHADER_STORAGE_BUFFER`.
-    pub indexed_shader_storage_buffer_bindings: SmallVec<[IndexedBufferState ; 8]>,
+    pub indexed_shader_storage_buffer_bindings: SmallVec<[IndexedBufferState; 8]>,
 
     /// List of buffers bound to the indexed `GL_TRANSFORM_FEEDBACK_BUFFER`.
     pub indexed_transform_feedback_buffer_bindings: SmallVec<[IndexedBufferState; 4]>,
@@ -166,12 +174,20 @@ pub struct GlState {
     pub blend_equation: (gl::types::GLenum, gl::types::GLenum),
 
     /// The latest values passed to `glBlendFunc`.
-    pub blend_func: (gl::types::GLenum, gl::types::GLenum,
-                     gl::types::GLenum, gl::types::GLenum),
+    pub blend_func: (
+        gl::types::GLenum,
+        gl::types::GLenum,
+        gl::types::GLenum,
+        gl::types::GLenum,
+    ),
 
     /// The latest value passed to `glBlendColor`.
-    pub blend_color: (gl::types::GLclampf, gl::types::GLclampf,
-                      gl::types::GLclampf, gl::types::GLclampf),
+    pub blend_color: (
+        gl::types::GLclampf,
+        gl::types::GLclampf,
+        gl::types::GLclampf,
+        gl::types::GLclampf,
+    ),
 
     /// The latest value passed to `glDepthFunc`.
     pub depth_func: gl::types::GLenum,
@@ -201,12 +217,20 @@ pub struct GlState {
     pub stencil_op_back: (gl::types::GLenum, gl::types::GLenum, gl::types::GLenum),
 
     /// The latest values passed to `glViewport`. `None` means unknown.
-    pub viewport: Option<(gl::types::GLint, gl::types::GLint,
-                          gl::types::GLsizei, gl::types::GLsizei)>,
+    pub viewport: Option<(
+        gl::types::GLint,
+        gl::types::GLint,
+        gl::types::GLsizei,
+        gl::types::GLsizei,
+    )>,
 
     /// The latest values passed to `glScissor`. `None` means unknown.
-    pub scissor: Option<(gl::types::GLint, gl::types::GLint,
-                         gl::types::GLsizei, gl::types::GLsizei)>,
+    pub scissor: Option<(
+        gl::types::GLint,
+        gl::types::GLint,
+        gl::types::GLsizei,
+        gl::types::GLsizei,
+    )>,
 
     /// The latest value passed to `glLineWidth`.
     pub line_width: gl::types::GLfloat,
@@ -247,7 +271,7 @@ pub struct GlState {
     pub active_texture: gl::types::GLenum,
 
     /// List of texture units.
-    pub texture_units: SmallVec<[TextureUnitState ; 32]>,
+    pub texture_units: SmallVec<[TextureUnitState; 32]>,
 
     /// Current query being used for GL_SAMPLES_PASSED​.
     pub samples_passed_query: gl::types::GLuint,
@@ -368,7 +392,11 @@ pub struct IndexedBufferState {
 /// Builds the `GlState` corresponding to a newly-created OpenGL context.
 impl Default for GlState {
     fn default() -> GlState {
-        fn small_vec_one<T>() -> SmallVec<T> where T: ::smallvec::Array, T::Item: Default {
+        fn small_vec_one<T>() -> SmallVec<T>
+        where
+            T: ::smallvec::Array,
+            T::Item: Default,
+        {
             let mut v = SmallVec::new();
             v.push(Default::default());
             v

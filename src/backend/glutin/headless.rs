@@ -1,15 +1,15 @@
 //! Backend implementation for a glutin headless renderer.
 
-use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
-use crate::debug;
-use crate::context;
+use super::glutin;
+use super::glutin::{ContextCurrentState, PossiblyCurrent as Pc};
 use crate::backend::{self, Backend};
-use std::rc::Rc;
+use crate::context;
+use crate::debug;
+use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
 use std::cell::RefCell;
 use std::ops::Deref;
 use std::os::raw::c_void;
-use super::glutin;
-use super::glutin::{PossiblyCurrent as Pc, ContextCurrentState};
+use std::rc::Rc;
 use takeable_option::Takeable;
 
 /// A headless glutin context.
@@ -48,7 +48,7 @@ unsafe impl Backend for GlutinBackend {
 
     #[inline]
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        (800, 600)      // FIXME: these are random
+        (800, 600) // FIXME: these are random
     }
 
     #[inline]
@@ -77,7 +77,9 @@ impl Headless {
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new<T: ContextCurrentState>(context: glutin::Context<T>) -> Result<Self, IncompatibleOpenGl> {
+    pub fn new<T: ContextCurrentState>(
+        context: glutin::Context<T>,
+    ) -> Result<Self, IncompatibleOpenGl> {
         Self::with_debug(context, Default::default())
     }
 
@@ -85,14 +87,17 @@ impl Headless {
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    pub unsafe fn unchecked<T: ContextCurrentState>(context: glutin::Context<T>) -> Result<Self, IncompatibleOpenGl> {
+    pub unsafe fn unchecked<T: ContextCurrentState>(
+        context: glutin::Context<T>,
+    ) -> Result<Self, IncompatibleOpenGl> {
         Self::unchecked_with_debug(context, Default::default())
     }
 
     /// The same as the `new` constructor, but allows for specifying debug callback behaviour.
-    pub fn with_debug<T: ContextCurrentState>(context: glutin::Context<T>, debug: debug::DebugCallbackBehavior)
-        -> Result<Self, IncompatibleOpenGl>
-    {
+    pub fn with_debug<T: ContextCurrentState>(
+        context: glutin::Context<T>,
+        debug: debug::DebugCallbackBehavior,
+    ) -> Result<Self, IncompatibleOpenGl> {
         Self::new_inner(context, debug, true)
     }
 
@@ -100,8 +105,7 @@ impl Headless {
     pub unsafe fn unchecked_with_debug<T: ContextCurrentState>(
         context: glutin::Context<T>,
         debug: debug::DebugCallbackBehavior,
-    ) -> Result<Self, IncompatibleOpenGl>
-    {
+    ) -> Result<Self, IncompatibleOpenGl> {
         Self::new_inner(context, debug, false)
     }
 
@@ -109,15 +113,15 @@ impl Headless {
         context: glutin::Context<T>,
         debug: debug::DebugCallbackBehavior,
         checked: bool,
-    ) -> Result<Self, IncompatibleOpenGl>
-    {
-        let context = unsafe {
-            context.treat_as_current()
-        };
+    ) -> Result<Self, IncompatibleOpenGl> {
+        let context = unsafe { context.treat_as_current() };
         let glutin_context = Rc::new(RefCell::new(Takeable::new(context)));
         let glutin_backend = GlutinBackend(glutin_context.clone());
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
-        Ok(Headless { context, glutin: glutin_context })
+        Ok(Headless {
+            context,
+            glutin: glutin_context,
+        })
     }
 
     /// Start drawing on the backbuffer.

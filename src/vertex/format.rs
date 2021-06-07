@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 use std::mem;
 
-use crate::vertex::Attribute;
 use crate::version::Api;
 use crate::version::Version;
+use crate::vertex::Attribute;
 use crate::CapabilitiesSource;
 
 #[cfg(feature = "cgmath")]
@@ -151,88 +151,125 @@ pub enum AttributeType {
 
 impl AttributeType {
     /// Returns true if the backend supports this type of attribute.
-    pub fn is_supported<C: ?Sized>(&self, caps: &C) -> bool where C: CapabilitiesSource {
+    pub fn is_supported<C: ?Sized>(&self, caps: &C) -> bool
+    where
+        C: CapabilitiesSource,
+    {
         match self {
-            &AttributeType::I8 | &AttributeType::I8I8 | &AttributeType::I8I8I8 |
-            &AttributeType::I8I8I8I8 | &AttributeType::U8 | &AttributeType::U8U8 |
-            &AttributeType::U8U8U8 | &AttributeType::U8U8U8U8 | &AttributeType::I16 |
-            &AttributeType::I16I16 | &AttributeType::I16I16I16 | &AttributeType::I16I16I16I16 |
-            &AttributeType::U16 | &AttributeType::U16U16 | &AttributeType::U16U16U16 |
-            &AttributeType::U16U16U16U16 | &AttributeType::F32 |
-            &AttributeType::F32F32 | &AttributeType::F32F32F32 | &AttributeType::F32F32F32F32 |
-            &AttributeType::F32x2x2 | &AttributeType::F32x2x3 | &AttributeType::F32x2x4 |
-            &AttributeType::F32x3x2 | &AttributeType::F32x3x3 | &AttributeType::F32x3x4 |
-            &AttributeType::F32x4x2 | &AttributeType::F32x4x3 | &AttributeType::F32x4x4 =>
-            {
-                true
-            },
+            &AttributeType::I8
+            | &AttributeType::I8I8
+            | &AttributeType::I8I8I8
+            | &AttributeType::I8I8I8I8
+            | &AttributeType::U8
+            | &AttributeType::U8U8
+            | &AttributeType::U8U8U8
+            | &AttributeType::U8U8U8U8
+            | &AttributeType::I16
+            | &AttributeType::I16I16
+            | &AttributeType::I16I16I16
+            | &AttributeType::I16I16I16I16
+            | &AttributeType::U16
+            | &AttributeType::U16U16
+            | &AttributeType::U16U16U16
+            | &AttributeType::U16U16U16U16
+            | &AttributeType::F32
+            | &AttributeType::F32F32
+            | &AttributeType::F32F32F32
+            | &AttributeType::F32F32F32F32
+            | &AttributeType::F32x2x2
+            | &AttributeType::F32x2x3
+            | &AttributeType::F32x2x4
+            | &AttributeType::F32x3x2
+            | &AttributeType::F32x3x3
+            | &AttributeType::F32x3x4
+            | &AttributeType::F32x4x2
+            | &AttributeType::F32x4x3
+            | &AttributeType::F32x4x4 => true,
 
-            &AttributeType::I32 | &AttributeType::I32I32 | &AttributeType::I32I32I32 |
-            &AttributeType::I32I32I32I32 | &AttributeType::U32 | &AttributeType::U32U32 |
-            &AttributeType::U32U32U32 | &AttributeType::U32U32U32U32 =>
-            {
-                caps.get_version() >= &Version(Api::Gl, 1, 0) ||
-                caps.get_version() >= &Version(Api::GlEs, 3, 0)
-            },
-
-            &AttributeType::I64 | &AttributeType::I64I64 | &AttributeType::I64I64I64 |
-            &AttributeType::I64I64I64I64 =>
-            {
-                caps.get_extensions().gl_nv_vertex_attrib_integer_64bit
-            },
-
-            &AttributeType::U64 | &AttributeType::U64U64 |
-            &AttributeType::U64U64U64 | &AttributeType::U64U64U64U64 =>
-            {
-                caps.get_extensions().gl_arb_bindless_texture ||
-                caps.get_extensions().gl_nv_vertex_attrib_integer_64bit
-            },
-
-            &AttributeType::F64 | &AttributeType::F64F64 | &AttributeType::F64F64F64 |
-            &AttributeType::F64F64F64F64 | &AttributeType::F64x2x2 | &AttributeType::F64x2x3 |
-            &AttributeType::F64x2x4 | &AttributeType::F64x3x2 | &AttributeType::F64x3x3 |
-            &AttributeType::F64x3x4 | &AttributeType::F64x4x2 | &AttributeType::F64x4x3 |
-            &AttributeType::F64x4x4 =>
-            {
+            &AttributeType::I32
+            | &AttributeType::I32I32
+            | &AttributeType::I32I32I32
+            | &AttributeType::I32I32I32I32
+            | &AttributeType::U32
+            | &AttributeType::U32U32
+            | &AttributeType::U32U32U32
+            | &AttributeType::U32U32U32U32 => {
                 caps.get_version() >= &Version(Api::Gl, 1, 0)
-            },
+                    || caps.get_version() >= &Version(Api::GlEs, 3, 0)
+            }
 
-            &AttributeType::F16 | &AttributeType::F16F16 | &AttributeType::F16F16F16 |
-            &AttributeType::F16F16F16F16 |
-            &AttributeType::F16x2x2 | &AttributeType::F16x2x3 | &AttributeType::F16x2x4 |
-            &AttributeType::F16x3x2 | &AttributeType::F16x3x3 | &AttributeType::F16x3x4 |
-            &AttributeType::F16x4x2 | &AttributeType::F16x4x3 | &AttributeType::F16x4x4 =>
-            {
-                caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
-                caps.get_version() >= &Version(Api::Gl, 4, 0) ||
-                caps.get_extensions().gl_arb_es3_compatibility ||
-                caps.get_extensions().gl_oes_vertex_half_float ||
-                caps.get_extensions().gl_arb_vertex_half_float ||
-                caps.get_extensions().gl_nv_half_float
-            },
+            &AttributeType::I64
+            | &AttributeType::I64I64
+            | &AttributeType::I64I64I64
+            | &AttributeType::I64I64I64I64 => {
+                caps.get_extensions().gl_nv_vertex_attrib_integer_64bit
+            }
+
+            &AttributeType::U64
+            | &AttributeType::U64U64
+            | &AttributeType::U64U64U64
+            | &AttributeType::U64U64U64U64 => {
+                caps.get_extensions().gl_arb_bindless_texture
+                    || caps.get_extensions().gl_nv_vertex_attrib_integer_64bit
+            }
+
+            &AttributeType::F64
+            | &AttributeType::F64F64
+            | &AttributeType::F64F64F64
+            | &AttributeType::F64F64F64F64
+            | &AttributeType::F64x2x2
+            | &AttributeType::F64x2x3
+            | &AttributeType::F64x2x4
+            | &AttributeType::F64x3x2
+            | &AttributeType::F64x3x3
+            | &AttributeType::F64x3x4
+            | &AttributeType::F64x4x2
+            | &AttributeType::F64x4x3
+            | &AttributeType::F64x4x4 => caps.get_version() >= &Version(Api::Gl, 1, 0),
+
+            &AttributeType::F16
+            | &AttributeType::F16F16
+            | &AttributeType::F16F16F16
+            | &AttributeType::F16F16F16F16
+            | &AttributeType::F16x2x2
+            | &AttributeType::F16x2x3
+            | &AttributeType::F16x2x4
+            | &AttributeType::F16x3x2
+            | &AttributeType::F16x3x3
+            | &AttributeType::F16x3x4
+            | &AttributeType::F16x4x2
+            | &AttributeType::F16x4x3
+            | &AttributeType::F16x4x4 => {
+                caps.get_version() >= &Version(Api::GlEs, 3, 0)
+                    || caps.get_version() >= &Version(Api::Gl, 4, 0)
+                    || caps.get_extensions().gl_arb_es3_compatibility
+                    || caps.get_extensions().gl_oes_vertex_half_float
+                    || caps.get_extensions().gl_arb_vertex_half_float
+                    || caps.get_extensions().gl_nv_half_float
+            }
 
             &AttributeType::FixedFloatI16U16 => {
-                caps.get_version() >= &Version(Api::GlEs, 2, 0) ||
-                caps.get_version() >= &Version(Api::Gl, 4, 0) ||
-                caps.get_extensions().gl_arb_es2_compatibility ||
-                caps.get_extensions().gl_oes_fixed_point
-            },
+                caps.get_version() >= &Version(Api::GlEs, 2, 0)
+                    || caps.get_version() >= &Version(Api::Gl, 4, 0)
+                    || caps.get_extensions().gl_arb_es2_compatibility
+                    || caps.get_extensions().gl_oes_fixed_point
+            }
 
             &AttributeType::I2I10I10I10Reversed | &AttributeType::U2U10U10U10Reversed => {
-                caps.get_version() >= &Version(Api::Gl, 3, 0) ||
-                caps.get_version() >= &Version(Api::GlEs, 3, 0) ||
-                caps.get_extensions().gl_arb_vertex_type_2_10_10_10_rev ||
-                caps.get_extensions().gl_arb_es3_compatibility
-            },
+                caps.get_version() >= &Version(Api::Gl, 3, 0)
+                    || caps.get_version() >= &Version(Api::GlEs, 3, 0)
+                    || caps.get_extensions().gl_arb_vertex_type_2_10_10_10_rev
+                    || caps.get_extensions().gl_arb_es3_compatibility
+            }
 
             &AttributeType::I10I10I10I2 | &AttributeType::U10U10U10U2 => {
                 caps.get_extensions().gl_oes_vertex_type_10_10_10_2
-            },
+            }
 
             &AttributeType::F10F11F11UnsignedIntReversed => {
-                caps.get_version() >= &Version(Api::Gl, 4, 0) ||
-                caps.get_extensions().gl_arb_vertex_type_10f_11f_11f_rev
-            },
+                caps.get_version() >= &Version(Api::Gl, 4, 0)
+                    || caps.get_extensions().gl_arb_vertex_type_10f_11f_11f_rev
+            }
         }
     }
 
@@ -944,8 +981,7 @@ unsafe impl Attribute for [[f64; 4]; 4] {
     }
 }
 
-
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -953,7 +989,7 @@ unsafe impl Attribute for cgmath::Point2<i8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -961,7 +997,7 @@ unsafe impl Attribute for cgmath::Point3<i8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -969,7 +1005,7 @@ unsafe impl Attribute for cgmath::Vector2<i8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -977,7 +1013,7 @@ unsafe impl Attribute for cgmath::Vector3<i8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -985,7 +1021,7 @@ unsafe impl Attribute for cgmath::Vector4<i8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -993,7 +1029,7 @@ unsafe impl Attribute for cgmath::Point2<u8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1001,7 +1037,7 @@ unsafe impl Attribute for cgmath::Point3<u8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1009,7 +1045,7 @@ unsafe impl Attribute for cgmath::Vector2<u8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1017,7 +1053,7 @@ unsafe impl Attribute for cgmath::Vector3<u8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1025,7 +1061,7 @@ unsafe impl Attribute for cgmath::Vector4<u8> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1033,7 +1069,7 @@ unsafe impl Attribute for cgmath::Point2<i16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1041,7 +1077,7 @@ unsafe impl Attribute for cgmath::Point3<i16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1049,7 +1085,7 @@ unsafe impl Attribute for cgmath::Vector2<i16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1057,7 +1093,7 @@ unsafe impl Attribute for cgmath::Vector3<i16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1065,7 +1101,7 @@ unsafe impl Attribute for cgmath::Vector4<i16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1073,7 +1109,7 @@ unsafe impl Attribute for cgmath::Point2<u16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1081,7 +1117,7 @@ unsafe impl Attribute for cgmath::Point3<u16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1089,7 +1125,7 @@ unsafe impl Attribute for cgmath::Vector2<u16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1097,7 +1133,7 @@ unsafe impl Attribute for cgmath::Vector3<u16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1105,7 +1141,7 @@ unsafe impl Attribute for cgmath::Vector4<u16> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1113,7 +1149,7 @@ unsafe impl Attribute for cgmath::Point2<i32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1121,7 +1157,7 @@ unsafe impl Attribute for cgmath::Point3<i32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1129,7 +1165,7 @@ unsafe impl Attribute for cgmath::Vector2<i32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1137,7 +1173,7 @@ unsafe impl Attribute for cgmath::Vector3<i32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1145,7 +1181,7 @@ unsafe impl Attribute for cgmath::Vector4<i32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1153,7 +1189,7 @@ unsafe impl Attribute for cgmath::Point2<u32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1161,7 +1197,7 @@ unsafe impl Attribute for cgmath::Point3<u32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1169,7 +1205,7 @@ unsafe impl Attribute for cgmath::Vector2<u32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1177,7 +1213,7 @@ unsafe impl Attribute for cgmath::Vector3<u32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1185,7 +1221,7 @@ unsafe impl Attribute for cgmath::Vector4<u32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1193,7 +1229,7 @@ unsafe impl Attribute for cgmath::Point2<i64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1201,7 +1237,7 @@ unsafe impl Attribute for cgmath::Point3<i64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1209,7 +1245,7 @@ unsafe impl Attribute for cgmath::Vector2<i64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1217,7 +1253,7 @@ unsafe impl Attribute for cgmath::Vector3<i64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1225,7 +1261,7 @@ unsafe impl Attribute for cgmath::Vector4<i64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1233,7 +1269,7 @@ unsafe impl Attribute for cgmath::Point2<u64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1241,7 +1277,7 @@ unsafe impl Attribute for cgmath::Point3<u64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1249,7 +1285,7 @@ unsafe impl Attribute for cgmath::Vector2<u64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1257,7 +1293,7 @@ unsafe impl Attribute for cgmath::Vector3<u64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1265,7 +1301,7 @@ unsafe impl Attribute for cgmath::Vector4<u64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1273,7 +1309,7 @@ unsafe impl Attribute for cgmath::Point2<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1281,7 +1317,7 @@ unsafe impl Attribute for cgmath::Point3<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1289,7 +1325,7 @@ unsafe impl Attribute for cgmath::Vector2<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1297,7 +1333,7 @@ unsafe impl Attribute for cgmath::Vector3<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1305,7 +1341,7 @@ unsafe impl Attribute for cgmath::Vector4<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Matrix2<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1313,7 +1349,7 @@ unsafe impl Attribute for cgmath::Matrix2<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Matrix3<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1321,7 +1357,7 @@ unsafe impl Attribute for cgmath::Matrix3<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Matrix4<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1329,7 +1365,7 @@ unsafe impl Attribute for cgmath::Matrix4<f32> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point2<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1337,7 +1373,7 @@ unsafe impl Attribute for cgmath::Point2<f64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Point3<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1345,7 +1381,7 @@ unsafe impl Attribute for cgmath::Point3<f64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector2<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1353,7 +1389,7 @@ unsafe impl Attribute for cgmath::Vector2<f64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector3<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1361,7 +1397,7 @@ unsafe impl Attribute for cgmath::Vector3<f64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Vector4<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1369,7 +1405,7 @@ unsafe impl Attribute for cgmath::Vector4<f64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Matrix2<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1377,7 +1413,7 @@ unsafe impl Attribute for cgmath::Matrix2<f64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Matrix3<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1385,7 +1421,7 @@ unsafe impl Attribute for cgmath::Matrix3<f64> {
     }
 }
 
-#[cfg(feature="cgmath")]
+#[cfg(feature = "cgmath")]
 unsafe impl Attribute for cgmath::Matrix4<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1393,15 +1429,14 @@ unsafe impl Attribute for cgmath::Matrix4<f64> {
     }
 }
 
-
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i8> {
     #[inline]
     fn get_type() -> AttributeType {
         AttributeType::I8
     }
 }
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1409,7 +1444,7 @@ unsafe impl Attribute for nalgebra::Pnt2<i8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1417,7 +1452,7 @@ unsafe impl Attribute for nalgebra::Pnt3<i8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1425,7 +1460,7 @@ unsafe impl Attribute for nalgebra::Pnt4<i8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1433,7 +1468,7 @@ unsafe impl Attribute for nalgebra::Vec1<i8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1441,7 +1476,7 @@ unsafe impl Attribute for nalgebra::Vec2<i8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1449,7 +1484,7 @@ unsafe impl Attribute for nalgebra::Vec3<i8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1457,7 +1492,7 @@ unsafe impl Attribute for nalgebra::Vec4<i8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1465,7 +1500,7 @@ unsafe impl Attribute for nalgebra::Pnt1<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1473,7 +1508,7 @@ unsafe impl Attribute for nalgebra::Pnt2<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1481,7 +1516,7 @@ unsafe impl Attribute for nalgebra::Pnt3<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1489,7 +1524,7 @@ unsafe impl Attribute for nalgebra::Pnt4<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1497,7 +1532,7 @@ unsafe impl Attribute for nalgebra::Vec1<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1505,7 +1540,7 @@ unsafe impl Attribute for nalgebra::Vec2<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1513,7 +1548,7 @@ unsafe impl Attribute for nalgebra::Vec3<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u8> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1521,7 +1556,7 @@ unsafe impl Attribute for nalgebra::Vec4<u8> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1529,7 +1564,7 @@ unsafe impl Attribute for nalgebra::Pnt1<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1537,7 +1572,7 @@ unsafe impl Attribute for nalgebra::Pnt2<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1545,7 +1580,7 @@ unsafe impl Attribute for nalgebra::Pnt3<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1553,7 +1588,7 @@ unsafe impl Attribute for nalgebra::Pnt4<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1561,7 +1596,7 @@ unsafe impl Attribute for nalgebra::Vec1<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1569,7 +1604,7 @@ unsafe impl Attribute for nalgebra::Vec2<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1577,7 +1612,7 @@ unsafe impl Attribute for nalgebra::Vec3<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1585,7 +1620,7 @@ unsafe impl Attribute for nalgebra::Vec4<i16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1593,7 +1628,7 @@ unsafe impl Attribute for nalgebra::Pnt1<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1601,7 +1636,7 @@ unsafe impl Attribute for nalgebra::Pnt2<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1609,7 +1644,7 @@ unsafe impl Attribute for nalgebra::Pnt3<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1617,7 +1652,7 @@ unsafe impl Attribute for nalgebra::Pnt4<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1625,7 +1660,7 @@ unsafe impl Attribute for nalgebra::Vec1<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1633,7 +1668,7 @@ unsafe impl Attribute for nalgebra::Vec2<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1641,7 +1676,7 @@ unsafe impl Attribute for nalgebra::Vec3<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u16> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1649,7 +1684,7 @@ unsafe impl Attribute for nalgebra::Vec4<u16> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1657,7 +1692,7 @@ unsafe impl Attribute for nalgebra::Pnt1<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1665,7 +1700,7 @@ unsafe impl Attribute for nalgebra::Pnt2<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1673,7 +1708,7 @@ unsafe impl Attribute for nalgebra::Pnt3<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1681,7 +1716,7 @@ unsafe impl Attribute for nalgebra::Pnt4<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1689,7 +1724,7 @@ unsafe impl Attribute for nalgebra::Vec1<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1697,7 +1732,7 @@ unsafe impl Attribute for nalgebra::Vec2<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1705,7 +1740,7 @@ unsafe impl Attribute for nalgebra::Vec3<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1713,7 +1748,7 @@ unsafe impl Attribute for nalgebra::Vec4<i32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1721,7 +1756,7 @@ unsafe impl Attribute for nalgebra::Pnt1<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1729,7 +1764,7 @@ unsafe impl Attribute for nalgebra::Pnt2<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1737,7 +1772,7 @@ unsafe impl Attribute for nalgebra::Pnt3<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1745,7 +1780,7 @@ unsafe impl Attribute for nalgebra::Pnt4<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1753,7 +1788,7 @@ unsafe impl Attribute for nalgebra::Vec1<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1761,7 +1796,7 @@ unsafe impl Attribute for nalgebra::Vec2<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1769,7 +1804,7 @@ unsafe impl Attribute for nalgebra::Vec3<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1777,7 +1812,7 @@ unsafe impl Attribute for nalgebra::Vec4<u32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1785,7 +1820,7 @@ unsafe impl Attribute for nalgebra::Pnt1<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1793,7 +1828,7 @@ unsafe impl Attribute for nalgebra::Pnt2<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1801,7 +1836,7 @@ unsafe impl Attribute for nalgebra::Pnt3<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1809,7 +1844,7 @@ unsafe impl Attribute for nalgebra::Pnt4<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1817,7 +1852,7 @@ unsafe impl Attribute for nalgebra::Vec1<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1825,7 +1860,7 @@ unsafe impl Attribute for nalgebra::Vec2<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1833,7 +1868,7 @@ unsafe impl Attribute for nalgebra::Vec3<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1841,7 +1876,7 @@ unsafe impl Attribute for nalgebra::Vec4<i64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1849,7 +1884,7 @@ unsafe impl Attribute for nalgebra::Pnt1<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1857,7 +1892,7 @@ unsafe impl Attribute for nalgebra::Pnt2<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1865,7 +1900,7 @@ unsafe impl Attribute for nalgebra::Pnt3<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1873,7 +1908,7 @@ unsafe impl Attribute for nalgebra::Pnt4<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1881,7 +1916,7 @@ unsafe impl Attribute for nalgebra::Vec1<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1889,7 +1924,7 @@ unsafe impl Attribute for nalgebra::Vec2<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1897,7 +1932,7 @@ unsafe impl Attribute for nalgebra::Vec3<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1905,7 +1940,7 @@ unsafe impl Attribute for nalgebra::Vec4<u64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1913,7 +1948,7 @@ unsafe impl Attribute for nalgebra::Pnt1<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1921,7 +1956,7 @@ unsafe impl Attribute for nalgebra::Pnt2<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1929,7 +1964,7 @@ unsafe impl Attribute for nalgebra::Pnt3<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1937,7 +1972,7 @@ unsafe impl Attribute for nalgebra::Pnt4<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1945,7 +1980,7 @@ unsafe impl Attribute for nalgebra::Vec1<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1953,7 +1988,7 @@ unsafe impl Attribute for nalgebra::Vec2<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1961,7 +1996,7 @@ unsafe impl Attribute for nalgebra::Vec3<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1969,7 +2004,7 @@ unsafe impl Attribute for nalgebra::Vec4<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat1<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1977,7 +2012,7 @@ unsafe impl Attribute for nalgebra::Mat1<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat2<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1985,7 +2020,7 @@ unsafe impl Attribute for nalgebra::Mat2<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat3<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -1993,7 +2028,7 @@ unsafe impl Attribute for nalgebra::Mat3<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat4<f32> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2001,7 +2036,7 @@ unsafe impl Attribute for nalgebra::Mat4<f32> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2009,7 +2044,7 @@ unsafe impl Attribute for nalgebra::Pnt1<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2017,7 +2052,7 @@ unsafe impl Attribute for nalgebra::Pnt2<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2025,7 +2060,7 @@ unsafe impl Attribute for nalgebra::Pnt3<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2033,7 +2068,7 @@ unsafe impl Attribute for nalgebra::Pnt4<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2041,7 +2076,7 @@ unsafe impl Attribute for nalgebra::Vec1<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2049,7 +2084,7 @@ unsafe impl Attribute for nalgebra::Vec2<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2057,7 +2092,7 @@ unsafe impl Attribute for nalgebra::Vec3<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2065,7 +2100,7 @@ unsafe impl Attribute for nalgebra::Vec4<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat1<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2073,7 +2108,7 @@ unsafe impl Attribute for nalgebra::Mat1<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat2<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2081,7 +2116,7 @@ unsafe impl Attribute for nalgebra::Mat2<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat3<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2089,7 +2124,7 @@ unsafe impl Attribute for nalgebra::Mat3<f64> {
     }
 }
 
-#[cfg(feature="nalgebra")]
+#[cfg(feature = "nalgebra")]
 unsafe impl Attribute for nalgebra::Mat4<f64> {
     #[inline]
     fn get_type() -> AttributeType {
@@ -2097,18 +2132,17 @@ unsafe impl Attribute for nalgebra::Mat4<f64> {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     #[allow(unused_imports)]
     use std::mem;
 
-    #[cfg(feature="cgmath")]
+    #[cfg(feature = "cgmath")]
     macro_rules! test_layout_val {
         ($from_val:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
             let arr: [$ety; $ncomps] = unsafe { mem::transmute($from_val($literal)) };
             assert_eq!(arr, $literal);
-        }}
+        }};
     }
 
     #[cfg(feature = "nalgebra")]
@@ -2116,10 +2150,10 @@ mod tests {
         ($from_ref:path, $ety:ty, $ncomps:expr, $literal:expr) => {{
             let arr: &[$ety; $ncomps] = unsafe { mem::transmute($from_ref(&$literal)) };
             assert_eq!(*arr, $literal);
-        }}
+        }};
     }
 
-    #[cfg(feature="cgmath")]
+    #[cfg(feature = "cgmath")]
     #[test]
     fn test_cgmath_layout() {
         use cgmath;
@@ -2168,25 +2202,53 @@ mod tests {
         test_layout_val!(cgmath::Point2::from, f64, 2, [0.0f64, 1.0]);
         test_layout_val!(cgmath::Point3::from, f64, 3, [0.0f64, 1.0, 2.0]);
 
-        test_layout_val!(cgmath::Matrix2::from, [f32; 2], 2, [[0.0f32, 1.0],
-                                                              [2.0f32, 3.0]]);
-        test_layout_val!(cgmath::Matrix3::from, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
-                                                              [3.0f32, 4.0, 5.0],
-                                                              [6.0f32, 7.0, 8.0]]);
-        test_layout_val!(cgmath::Matrix4::from, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
-                                                              [4.0f32, 5.0, 6.0, 7.0],
-                                                              [8.0f32, 9.0, 10.0, 11.0],
-                                                              [12.0f32, 13.0, 14.0, 15.0]]);
+        test_layout_val!(
+            cgmath::Matrix2::from,
+            [f32; 2],
+            2,
+            [[0.0f32, 1.0], [2.0f32, 3.0]]
+        );
+        test_layout_val!(
+            cgmath::Matrix3::from,
+            [f32; 3],
+            3,
+            [[0.0f32, 1.0, 2.0], [3.0f32, 4.0, 5.0], [6.0f32, 7.0, 8.0]]
+        );
+        test_layout_val!(
+            cgmath::Matrix4::from,
+            [f32; 4],
+            4,
+            [
+                [0.0f32, 1.0, 2.0, 3.0],
+                [4.0f32, 5.0, 6.0, 7.0],
+                [8.0f32, 9.0, 10.0, 11.0],
+                [12.0f32, 13.0, 14.0, 15.0]
+            ]
+        );
 
-        test_layout_val!(cgmath::Matrix2::from, [f64; 2], 2, [[0.0f64, 1.0],
-                                                              [2.0f64, 3.0]]);
-        test_layout_val!(cgmath::Matrix3::from, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
-                                                              [3.0f64, 4.0, 5.0],
-                                                              [6.0f64, 7.0, 8.0]]);
-        test_layout_val!(cgmath::Matrix4::from, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
-                                                              [4.0f64, 5.0, 6.0, 7.0],
-                                                              [8.0f64, 9.0, 10.0, 11.0],
-                                                              [12.0f64, 13.0, 14.0, 15.0]]);
+        test_layout_val!(
+            cgmath::Matrix2::from,
+            [f64; 2],
+            2,
+            [[0.0f64, 1.0], [2.0f64, 3.0]]
+        );
+        test_layout_val!(
+            cgmath::Matrix3::from,
+            [f64; 3],
+            3,
+            [[0.0f64, 1.0, 2.0], [3.0f64, 4.0, 5.0], [6.0f64, 7.0, 8.0]]
+        );
+        test_layout_val!(
+            cgmath::Matrix4::from,
+            [f64; 4],
+            4,
+            [
+                [0.0f64, 1.0, 2.0, 3.0],
+                [4.0f64, 5.0, 6.0, 7.0],
+                [8.0f64, 9.0, 10.0, 11.0],
+                [12.0f64, 13.0, 14.0, 15.0]
+            ]
+        );
     }
 
     #[cfg(feature = "nalgebra")]
@@ -2248,40 +2310,88 @@ mod tests {
         test_layout_ref!(nalgebra::Vec1::from_array_ref, f32, 1, [0.0f32]);
         test_layout_ref!(nalgebra::Vec2::from_array_ref, f32, 2, [0.0f32, 1.0]);
         test_layout_ref!(nalgebra::Vec3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_layout_ref!(nalgebra::Vec4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout_ref!(
+            nalgebra::Vec4::from_array_ref,
+            f32,
+            4,
+            [0.0f32, 1.0, 2.0, 3.0]
+        );
         test_layout_ref!(nalgebra::Vec1::from_array_ref, f64, 1, [0.0f64]);
         test_layout_ref!(nalgebra::Vec2::from_array_ref, f64, 2, [0.0f64, 1.0]);
         test_layout_ref!(nalgebra::Vec3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
-        test_layout_ref!(nalgebra::Vec4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+        test_layout_ref!(
+            nalgebra::Vec4::from_array_ref,
+            f64,
+            4,
+            [0.0f64, 1.0, 2.0, 3.0]
+        );
         test_layout_ref!(nalgebra::Pnt1::from_array_ref, f32, 1, [0.0f32]);
         test_layout_ref!(nalgebra::Pnt2::from_array_ref, f32, 2, [0.0f32, 1.0]);
         test_layout_ref!(nalgebra::Pnt3::from_array_ref, f32, 3, [0.0f32, 1.0, 2.0]);
-        test_layout_ref!(nalgebra::Pnt4::from_array_ref, f32, 4, [0.0f32, 1.0, 2.0, 3.0]);
+        test_layout_ref!(
+            nalgebra::Pnt4::from_array_ref,
+            f32,
+            4,
+            [0.0f32, 1.0, 2.0, 3.0]
+        );
         test_layout_ref!(nalgebra::Pnt1::from_array_ref, f64, 1, [0.0f64]);
         test_layout_ref!(nalgebra::Pnt2::from_array_ref, f64, 2, [0.0f64, 1.0]);
         test_layout_ref!(nalgebra::Pnt3::from_array_ref, f64, 3, [0.0f64, 1.0, 2.0]);
-        test_layout_ref!(nalgebra::Pnt4::from_array_ref, f64, 4, [0.0f64, 1.0, 2.0, 3.0]);
+        test_layout_ref!(
+            nalgebra::Pnt4::from_array_ref,
+            f64,
+            4,
+            [0.0f64, 1.0, 2.0, 3.0]
+        );
 
         test_layout_ref!(nalgebra::Mat1::from_array_ref, [f32; 1], 1, [[0.0f32]]);
-        test_layout_ref!(nalgebra::Mat2::from_array_ref, [f32; 2], 2, [[0.0f32, 1.0],
-                                                                       [2.0f32, 3.0]]);
-        test_layout_ref!(nalgebra::Mat3::from_array_ref, [f32; 3], 3, [[0.0f32, 1.0, 2.0],
-                                                                       [3.0f32, 4.0, 5.0],
-                                                                       [6.0f32, 7.0, 8.0]]);
-        test_layout_ref!(nalgebra::Mat4::from_array_ref, [f32; 4], 4, [[0.0f32, 1.0, 2.0, 3.0],
-                                                                       [4.0f32, 5.0, 6.0, 7.0],
-                                                                       [8.0f32, 9.0, 10.0, 11.0],
-                                                                       [12.0f32, 13.0, 14.0, 15.0]]);
+        test_layout_ref!(
+            nalgebra::Mat2::from_array_ref,
+            [f32; 2],
+            2,
+            [[0.0f32, 1.0], [2.0f32, 3.0]]
+        );
+        test_layout_ref!(
+            nalgebra::Mat3::from_array_ref,
+            [f32; 3],
+            3,
+            [[0.0f32, 1.0, 2.0], [3.0f32, 4.0, 5.0], [6.0f32, 7.0, 8.0]]
+        );
+        test_layout_ref!(
+            nalgebra::Mat4::from_array_ref,
+            [f32; 4],
+            4,
+            [
+                [0.0f32, 1.0, 2.0, 3.0],
+                [4.0f32, 5.0, 6.0, 7.0],
+                [8.0f32, 9.0, 10.0, 11.0],
+                [12.0f32, 13.0, 14.0, 15.0]
+            ]
+        );
 
         test_layout_ref!(nalgebra::Mat1::from_array_ref, [f64; 1], 1, [[0.0f64]]);
-        test_layout_ref!(nalgebra::Mat2::from_array_ref, [f64; 2], 2, [[0.0f64, 1.0],
-                                                                       [2.0f64, 3.0]]);
-        test_layout_ref!(nalgebra::Mat3::from_array_ref, [f64; 3], 3, [[0.0f64, 1.0, 2.0],
-                                                                       [3.0f64, 4.0, 5.0],
-                                                                       [6.0f64, 7.0, 8.0]]);
-        test_layout_ref!(nalgebra::Mat4::from_array_ref, [f64; 4], 4, [[0.0f64, 1.0, 2.0, 3.0],
-                                                                       [4.0f64, 5.0, 6.0, 7.0],
-                                                                       [8.0f64, 9.0, 10.0, 11.0],
-                                                                       [12.0f64, 13.0, 14.0, 15.0]]);
+        test_layout_ref!(
+            nalgebra::Mat2::from_array_ref,
+            [f64; 2],
+            2,
+            [[0.0f64, 1.0], [2.0f64, 3.0]]
+        );
+        test_layout_ref!(
+            nalgebra::Mat3::from_array_ref,
+            [f64; 3],
+            3,
+            [[0.0f64, 1.0, 2.0], [3.0f64, 4.0, 5.0], [6.0f64, 7.0, 8.0]]
+        );
+        test_layout_ref!(
+            nalgebra::Mat4::from_array_ref,
+            [f64; 4],
+            4,
+            [
+                [0.0f64, 1.0, 2.0, 3.0],
+                [4.0f64, 5.0, 6.0, 7.0],
+                [8.0f64, 9.0, 10.0, 11.0],
+                [12.0f64, 13.0, 14.0, 15.0]
+            ]
+        );
     }
 }

@@ -1,5 +1,5 @@
-use crate::ToGlEnum;
 use crate::gl;
+use crate::ToGlEnum;
 
 /// Function to use for out-of-bounds samples.
 ///
@@ -19,7 +19,7 @@ pub enum SamplerWrapFunction {
     BorderClamp,
 
     /// Same as Mirror, but only for one repetition,
-    MirrorClamp
+    MirrorClamp,
 }
 
 impl ToGlEnum for SamplerWrapFunction {
@@ -169,7 +169,10 @@ impl<'t, T: 't> Sampler<'t, T> {
     }
 
     /// Sets the depth texture comparison method.
-    pub fn depth_texture_comparison(mut self, comparison: Option<DepthTextureComparison>) -> Sampler<'t, T> {
+    pub fn depth_texture_comparison(
+        mut self,
+        comparison: Option<DepthTextureComparison>,
+    ) -> Sampler<'t, T> {
         self.1.depth_texture_comparison = comparison;
         self
     }
@@ -194,7 +197,11 @@ impl<'t, T: 't> Clone for Sampler<'t, T> {
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
-    pub wrap_function: (SamplerWrapFunction, SamplerWrapFunction, SamplerWrapFunction),
+    pub wrap_function: (
+        SamplerWrapFunction,
+        SamplerWrapFunction,
+        SamplerWrapFunction,
+    ),
 
     /// Filter to use when minifying the texture.
     pub minify_filter: MinifySamplerFilter,
@@ -224,7 +231,7 @@ impl Default for SamplerBehavior {
             wrap_function: (
                 SamplerWrapFunction::Mirror,
                 SamplerWrapFunction::Mirror,
-                SamplerWrapFunction::Mirror
+                SamplerWrapFunction::Mirror,
             ),
             minify_filter: MinifySamplerFilter::LinearMipmapLinear,
             magnify_filter: MagnifySamplerFilter::Linear,

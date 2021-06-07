@@ -17,8 +17,8 @@ fn magnify_nearest_filtering() {
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
     let program = program!(&display,
-        110 => {
-            vertex: "
+    110 => {
+        vertex: "
                 #version 110
 
                 attribute vec2 position;
@@ -27,7 +27,7 @@ fn magnify_nearest_filtering() {
                     gl_Position = vec4(position, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 110
 
                 uniform sampler2D texture;
@@ -36,9 +36,9 @@ fn magnify_nearest_filtering() {
                     gl_FragColor = texture2D(texture, vec2(0.51, 0.0));
                 }
             ",
-        },
-        100 => {
-            vertex: "
+    },
+    100 => {
+        vertex: "
                 #version 100
 
                 attribute lowp vec2 position;
@@ -47,7 +47,7 @@ fn magnify_nearest_filtering() {
                     gl_Position = vec4(position, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 100
 
                 uniform lowp sampler2D texture;
@@ -56,7 +56,8 @@ fn magnify_nearest_filtering() {
                     gl_FragColor = texture2D(texture, vec2(0.51, 0.0));
                 }
             ",
-        }).unwrap();
+    })
+    .unwrap();
 
     let texture_data = vec![vec![(0u8, 0, 0), (255, 255, 255)]];
     let texture = glium::texture::Texture2d::new(&display, texture_data).unwrap();
@@ -68,10 +69,13 @@ fn magnify_nearest_filtering() {
     let output = support::build_renderable_texture(&display);
     output.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
-    match output.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()) {
+    match output
+        .as_surface()
+        .draw(&vb, &ib, &program, &uniforms, &Default::default())
+    {
         Ok(_) => (),
         Err(glium::DrawError::SamplersNotSupported) => return,
-        Err(e) => panic!("{:?}", e)
+        Err(e) => panic!("{:?}", e),
     };
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = output.read();

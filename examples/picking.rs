@@ -107,24 +107,37 @@ fn main() {
 
     //id's must be unique and != 0
     let mut per_instance = vec![
-        PerInstance { id: 1, w_position: (-1.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
-        PerInstance { id: 2, w_position: ( 0.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
-        PerInstance { id: 3, w_position: ( 1.0, 0.0, 0.0), color: (1.0, 0.0, 0.0)},
+        PerInstance {
+            id: 1,
+            w_position: (-1.0, 0.0, 0.0),
+            color: (1.0, 0.0, 0.0),
+        },
+        PerInstance {
+            id: 2,
+            w_position: (0.0, 0.0, 0.0),
+            color: (1.0, 0.0, 0.0),
+        },
+        PerInstance {
+            id: 3,
+            w_position: (1.0, 0.0, 0.0),
+            color: (1.0, 0.0, 0.0),
+        },
     ];
     per_instance.sort_by(|a, b| a.id.cmp(&b.id));
     let original = per_instance.clone();
 
-    let mut picking_attachments: Option<(glium::texture::UnsignedTexture2d, glium::framebuffer::DepthRenderBuffer)> = None;
-    let picking_pbo: glium::texture::pixel_buffer::PixelBuffer<u32>
-        = glium::texture::pixel_buffer::PixelBuffer::new_empty(&display, 1);
-
+    let mut picking_attachments: Option<(
+        glium::texture::UnsignedTexture2d,
+        glium::framebuffer::DepthRenderBuffer,
+    )> = None;
+    let picking_pbo: glium::texture::pixel_buffer::PixelBuffer<u32> =
+        glium::texture::pixel_buffer::PixelBuffer::new_empty(&display, 1);
 
     let mut cursor_position: Option<(i32, i32)> = None;
 
     // the main loop
     support::start_loop(event_loop, move |events| {
         camera.update();
-
 
         // determine which object has been picked at the previous frame
         let picked_object = {
@@ -141,7 +154,7 @@ fn main() {
             per_instance[index as usize] = PerInstance {
                 id: per_instance[index as usize].id,
                 w_position: per_instance[index as usize].w_position,
-                color: (0.0, 1.0, 0.0)
+                color: (0.0, 1.0, 0.0),
             };
         }
 
@@ -156,69 +169,110 @@ fn main() {
             depth: glium::Depth {
                 test: glium::DepthTest::IfLess,
                 write: true,
-                .. Default::default()
+                ..Default::default()
             },
-            .. Default::default()
+            ..Default::default()
         };
 
-        let per_instance_buffer = glium::vertex::VertexBuffer::new(&display, &per_instance).unwrap();
+        let per_instance_buffer =
+            glium::vertex::VertexBuffer::new(&display, &per_instance).unwrap();
 
         // drawing a frame
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
 
         //update picking texture
-        if picking_attachments.is_none() || (
-            picking_attachments.as_ref().unwrap().0.get_width(),
-            picking_attachments.as_ref().unwrap().0.get_height().unwrap()
-        ) != target.get_dimensions() {
+        if picking_attachments.is_none()
+            || (
+                picking_attachments.as_ref().unwrap().0.get_width(),
+                picking_attachments
+                    .as_ref()
+                    .unwrap()
+                    .0
+                    .get_height()
+                    .unwrap(),
+            ) != target.get_dimensions()
+        {
             let (width, height) = target.get_dimensions();
             picking_attachments = Some((
                 glium::texture::UnsignedTexture2d::empty_with_format(
                     &display,
                     glium::texture::UncompressedUintFormat::U32,
                     glium::texture::MipmapsOption::NoMipmap,
-                    width, height,
-                ).unwrap(),
+                    width,
+                    height,
+                )
+                .unwrap(),
                 glium::framebuffer::DepthRenderBuffer::new(
                     &display,
                     glium::texture::DepthFormat::F32,
-                    width, height,
-                ).unwrap()
+                    width,
+                    height,
+                )
+                .unwrap(),
             ))
         }
 
         // drawing the models and pass the picking texture
         if let Some((ref picking_texture, ref depth_buffer)) = picking_attachments {
             //clearing the picking texture
-            picking_texture.main_level().first_layer().into_image(None).unwrap().raw_clear_buffer([0u32, 0, 0, 0]);
+            picking_texture
+                .main_level()
+                .first_layer()
+                .into_image(None)
+                .unwrap()
+                .raw_clear_buffer([0u32, 0, 0, 0]);
 
-            let mut picking_target = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(&display, picking_texture, depth_buffer).unwrap();
+            let mut picking_target = glium::framebuffer::SimpleFrameBuffer::with_depth_buffer(
+                &display,
+                picking_texture,
+                depth_buffer,
+            )
+            .unwrap();
             picking_target.clear_depth(1.0);
-            picking_target.draw((&vertex_buffer, per_instance_buffer.per_instance().unwrap()),
-                        &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
-                        &picking_program, &uniforms, &params).unwrap();
-        }
-        target.draw((&vertex_buffer, per_instance_buffer.per_instance().unwrap()),
+            picking_target
+                .draw(
+                    (&vertex_buffer, per_instance_buffer.per_instance().unwrap()),
                     &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
-                    &program, &uniforms, &params).unwrap();
+                    &picking_program,
+                    &uniforms,
+                    &params,
+                )
+                .unwrap();
+        }
+        target
+            .draw(
+                (&vertex_buffer, per_instance_buffer.per_instance().unwrap()),
+                &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+                &program,
+                &uniforms,
+                &params,
+            )
+            .unwrap();
         target.finish().unwrap();
 
-
         // committing into the picking pbo
-        if let (Some(cursor), Some(&(ref picking_texture, _))) = (cursor_position, picking_attachments.as_ref()) {
+        if let (Some(cursor), Some(&(ref picking_texture, _))) =
+            (cursor_position, picking_attachments.as_ref())
+        {
             let read_target = glium::Rect {
                 left: (cursor.0 - 1) as u32,
-                bottom: picking_texture.get_height().unwrap().saturating_sub(std::cmp::max(cursor.1 - 1, 0) as u32),
+                bottom: picking_texture
+                    .get_height()
+                    .unwrap()
+                    .saturating_sub(std::cmp::max(cursor.1 - 1, 0) as u32),
                 width: 1,
                 height: 1,
             };
 
             if read_target.left < picking_texture.get_width()
-            && read_target.bottom < picking_texture.get_height().unwrap() {
-                picking_texture.main_level()
+                && read_target.bottom < picking_texture.get_height().unwrap()
+            {
+                picking_texture
+                    .main_level()
                     .first_layer()
-                    .into_image(None).unwrap()
+                    .into_image(None)
+                    .unwrap()
                     .raw_read_to_pixel_buffer(&read_target, &picking_pbo);
             } else {
                 picking_pbo.write(&[0]);
@@ -241,7 +295,7 @@ fn main() {
                 },
                 _ => (),
             }
-        };
+        }
 
         action
     });

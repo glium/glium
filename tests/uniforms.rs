@@ -17,7 +17,8 @@ fn uniforms_storage_single_value() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -36,13 +37,18 @@ fn uniforms_storage_single_value() {
                 gl_FragColor = color;
             }
         ",
-        None).unwrap();
+        None,
+    )
+    .unwrap();
 
     let uniforms = glium::uniforms::UniformsStorage::new("color", [1.0, 0.0, 0.0, 0.5f32]);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(data[0][0], (255, 0, 0, 128));
@@ -56,7 +62,8 @@ fn uniforms_storage_multiple_values() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -76,14 +83,19 @@ fn uniforms_storage_multiple_values() {
                 gl_FragColor = color1 + color2;
             }
         ",
-        None).unwrap();
+        None,
+    )
+    .unwrap();
 
     let uniforms = glium::uniforms::UniformsStorage::new("color1", [0.7, 0.0, 0.0, 0.5f32]);
     let uniforms = uniforms.add("color2", [0.3, 0.0, 0.0, 0.5f32]);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(data[0][0], (255, 0, 0, 255));
@@ -97,7 +109,8 @@ fn uniforms_storage_ignore_inactive_uniforms() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -116,7 +129,9 @@ fn uniforms_storage_ignore_inactive_uniforms() {
                 gl_FragColor = color;
             }
         ",
-        None).unwrap();
+        None,
+    )
+    .unwrap();
 
     let uniforms = glium::uniforms::UniformsStorage::new("color", [1.0, 0.0, 0.0, 0.5f32]);
     let uniforms = uniforms.add("color2", 0.8f32);
@@ -124,7 +139,10 @@ fn uniforms_storage_ignore_inactive_uniforms() {
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(data[0][0], (255, 0, 0, 128));
@@ -138,7 +156,8 @@ fn uniform_wrong_type() {
     let display = support::build_display();
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -157,7 +176,9 @@ fn uniform_wrong_type() {
                 gl_FragColor = color;
             }
         ",
-        None).unwrap();
+        None,
+    )
+    .unwrap();
 
     let uniforms = glium::uniforms::UniformsStorage::new("color", 1.0f32);
 
@@ -165,7 +186,7 @@ fn uniform_wrong_type() {
     target.clear_color(0.0, 0.0, 0.0, 0.0);
     match target.draw(&vb, &ib, &program, &uniforms, &Default::default()) {
         Err(glium::DrawError::UniformTypeMismatch { .. }) => (),
-        a => panic!("{:?}", a)
+        a => panic!("{:?}", a),
     };
     target.finish().unwrap();
 
@@ -282,33 +303,89 @@ uniform_test!(uniform_type_f32arr_floatvec2, "vec2", [1.0f32, 2.4]);
 uniform_test!(uniform_type_f32tup_floatvec2, "vec2", (1.0f32, 2.4));
 uniform_test!(uniform_type_f32arr_floatvec3, "vec3", [1.0f32, 2.4, 0.0003]);
 uniform_test!(uniform_type_f32tup_floatvec3, "vec3", (1.0f32, 2.4, 0.0003));
-uniform_test!(uniform_type_f32arr_floatvec4, "vec4", [1.0f32, 2.4, 0.0003, 123456.55]);
-uniform_test!(uniform_type_f32tup_floatvec4, "vec4", (1.0f32, 2.4, 0.0003, 123456.55));
-uniform_test!(uniform_type_f32arr_floatmat2, "mat2", [[1.0f32, 2.4], [-2.0f32, -7.8867]]);
-uniform_test!(uniform_type_f32arr_floatmat3, "mat3", [[ 1.0f32,     2.4, -1000000.0],
-                                                      [-2.0f32, -7.8867,     6.6666],
-                                                      [ 1.1f32,     7.7,       -6.1]]);
-uniform_test!(uniform_type_f32arr_floatmat4, "mat4", [[ 1.0f32,     2.4, -1000000.0,  0.0],
-                                                      [-2.0f32, -7.8867,     6.6666, -0.0],
-                                                      [ 1.1f32,     7.7,       -6.1,  0.0],
-                                                      [12.0f32, 12345.0,    0.11111,  0.0]]);
+uniform_test!(
+    uniform_type_f32arr_floatvec4,
+    "vec4",
+    [1.0f32, 2.4, 0.0003, 123456.55]
+);
+uniform_test!(
+    uniform_type_f32tup_floatvec4,
+    "vec4",
+    (1.0f32, 2.4, 0.0003, 123456.55)
+);
+uniform_test!(
+    uniform_type_f32arr_floatmat2,
+    "mat2",
+    [[1.0f32, 2.4], [-2.0f32, -7.8867]]
+);
+uniform_test!(
+    uniform_type_f32arr_floatmat3,
+    "mat3",
+    [
+        [1.0f32, 2.4, -1000000.0],
+        [-2.0f32, -7.8867, 6.6666],
+        [1.1f32, 7.7, -6.1]
+    ]
+);
+uniform_test!(
+    uniform_type_f32arr_floatmat4,
+    "mat4",
+    [
+        [1.0f32, 2.4, -1000000.0, 0.0],
+        [-2.0f32, -7.8867, 6.6666, -0.0],
+        [1.1f32, 7.7, -6.1, 0.0],
+        [12.0f32, 12345.0, 0.11111, 0.0]
+    ]
+);
 
 // Doubles
 uniform_test!(uniform_type_f64_double, "double", 12.567f64);
 uniform_test!(uniform_type_f64arr_doublevec2, "dvec2", [1.0f64, 2.4]);
 uniform_test!(uniform_type_f64tup_doublevec2, "dvec2", (1.0f64, 2.4));
-uniform_test!(uniform_type_f64arr_doublevec3, "dvec3", [1.0f64, 2.4, 0.0003]);
-uniform_test!(uniform_type_f64tup_doublevec3, "dvec3", (1.0f64, 2.4, 0.0003));
-uniform_test!(uniform_type_f64arr_doublevec4, "dvec4", [1.0f64, 2.4, 0.0003, 123456.0]);
-uniform_test!(uniform_type_f64tup_doublevec4, "dvec4", (1.0f64, 2.4, 0.0003, 123456.0));
-uniform_test!(uniform_type_f64arr_doublemat2, "dmat2", [[1.0f64, 2.4], [-2.0f64, -7.8867]]);
-uniform_test!(uniform_type_f64arr_doublemat3, "dmat3", [[ 1.0f64,     2.4, -1000000.0],
-                                                        [-2.0f64, -7.8867,     6.6666],
-                                                        [ 1.1f64,     7.7,       -6.1]]);
-uniform_test!(uniform_type_f64arr_doublemat4, "dmat4", [[ 1.0f64,     2.4, -1000000.0,  0.0],
-                                                        [-2.0f64, -7.8867,     6.6666, -0.0],
-                                                        [ 1.1f64,     7.7,       -6.1,  0.0],
-                                                        [12.0f64, 12345.0,    0.11111,  0.0]]);
+uniform_test!(
+    uniform_type_f64arr_doublevec3,
+    "dvec3",
+    [1.0f64, 2.4, 0.0003]
+);
+uniform_test!(
+    uniform_type_f64tup_doublevec3,
+    "dvec3",
+    (1.0f64, 2.4, 0.0003)
+);
+uniform_test!(
+    uniform_type_f64arr_doublevec4,
+    "dvec4",
+    [1.0f64, 2.4, 0.0003, 123456.0]
+);
+uniform_test!(
+    uniform_type_f64tup_doublevec4,
+    "dvec4",
+    (1.0f64, 2.4, 0.0003, 123456.0)
+);
+uniform_test!(
+    uniform_type_f64arr_doublemat2,
+    "dmat2",
+    [[1.0f64, 2.4], [-2.0f64, -7.8867]]
+);
+uniform_test!(
+    uniform_type_f64arr_doublemat3,
+    "dmat3",
+    [
+        [1.0f64, 2.4, -1000000.0],
+        [-2.0f64, -7.8867, 6.6666],
+        [1.1f64, 7.7, -6.1]
+    ]
+);
+uniform_test!(
+    uniform_type_f64arr_doublemat4,
+    "dmat4",
+    [
+        [1.0f64, 2.4, -1000000.0, 0.0],
+        [-2.0f64, -7.8867, 6.6666, -0.0],
+        [1.1f64, 7.7, -6.1, 0.0],
+        [12.0f64, 12345.0, 0.11111, 0.0]
+    ]
+);
 
 // Integer
 uniform_test!(uniform_type_i8_int, "int", 5i8);
@@ -318,8 +395,16 @@ uniform_test!(uniform_type_i32arr_intvec2, "ivec2", [1i32, 24]);
 uniform_test!(uniform_type_i32tup_intvec2, "ivec2", (1i32, 24));
 uniform_test!(uniform_type_i32arr_intvec3, "ivec3", [1i32, 24, -7]);
 uniform_test!(uniform_type_i32tup_intvec3, "ivec3", (1i32, 24, -7));
-uniform_test!(uniform_type_i32arr_intvec4, "ivec4", [1i32, 24, -7, -123456]);
-uniform_test!(uniform_type_i32tup_intvec4, "ivec4", (1i32, 24, -7, -123456));
+uniform_test!(
+    uniform_type_i32arr_intvec4,
+    "ivec4",
+    [1i32, 24, -7, -123456]
+);
+uniform_test!(
+    uniform_type_i32tup_intvec4,
+    "ivec4",
+    (1i32, 24, -7, -123456)
+);
 
 // Unsigned integer
 uniform_test!(uniform_type_u8_uint, "uint", 5u8);
@@ -333,28 +418,64 @@ uniform_test!(uniform_type_u32arr_uintvec4, "uvec4", [1u32, 24, 7, 123456]);
 uniform_test!(uniform_type_u32tup_uintvec4, "uvec4", (1u32, 24, 7, 123456));
 
 // Integer 64 bit
-uniform_test!(uniform_type_i64_int64_t, "int64_t", 9_223_372_036_854_775_807i64);
+uniform_test!(
+    uniform_type_i64_int64_t,
+    "int64_t",
+    9_223_372_036_854_775_807i64
+);
 uniform_test!(uniform_type_i64arr_i64vec2, "i64vec2", [1i64, 24]);
 uniform_test!(uniform_type_i64tup_i64vec2, "i64vec2", (1i64, 24));
 uniform_test!(uniform_type_i64arr_i64vec3, "i64vec3", [1i64, 24, -7]);
 uniform_test!(uniform_type_i64tup_i64vec3, "i64vec3", (1i64, 24, -7));
-uniform_test!(uniform_type_i64arr_i64vec4, "i64vec4", [1i64, 24, -7, -123456]);
-uniform_test!(uniform_type_i64tup_i64vec4, "i64vec4", (1i64, 24, -7, -123456));
+uniform_test!(
+    uniform_type_i64arr_i64vec4,
+    "i64vec4",
+    [1i64, 24, -7, -123456]
+);
+uniform_test!(
+    uniform_type_i64tup_i64vec4,
+    "i64vec4",
+    (1i64, 24, -7, -123456)
+);
 
 // Unsigned integer 64 bit
-uniform_test!(uniform_type_u64_uint64_t, "uint64_t", 9_223_372_036_854_775_807u64);
+uniform_test!(
+    uniform_type_u64_uint64_t,
+    "uint64_t",
+    9_223_372_036_854_775_807u64
+);
 uniform_test!(uniform_type_u64arr_u64vec2, "u64vec2", [1u64, 24]);
 uniform_test!(uniform_type_u64tup_u64vec2, "u64vec2", (1u64, 24));
 uniform_test!(uniform_type_u64arr_u64vec3, "u64vec3", [1u64, 24, 7]);
 uniform_test!(uniform_type_u64tup_u64vec3, "u64vec3", (1u64, 24, 7));
-uniform_test!(uniform_type_u64arr_u64vec4, "u64vec4", [1u64, 24, 7, 123456]);
-uniform_test!(uniform_type_u64tup_u64vec4, "u64vec4", (1u64, 24, 7, 123456));
+uniform_test!(
+    uniform_type_u64arr_u64vec4,
+    "u64vec4",
+    [1u64, 24, 7, 123456]
+);
+uniform_test!(
+    uniform_type_u64tup_u64vec4,
+    "u64vec4",
+    (1u64, 24, 7, 123456)
+);
 
 // Booleans
 uniform_test!(uniform_type_bool_bool, "bool", true);
 uniform_test!(uniform_type_boolarr_boolvec2, "bvec2", [true, false]);
 uniform_test!(uniform_type_booltup_boolvec2, "bvec2", (false, true));
 uniform_test!(uniform_type_boolarr_boolvec3, "bvec3", [true, true, true]);
-uniform_test!(uniform_type_booltup_boolvec3, "bvec3", (false, false, false));
-uniform_test!(uniform_type_boolarr_boolvec4, "bvec4", [true, false, false, true]);
-uniform_test!(uniform_type_booltup_boolvec4, "bvec4", (false, true, true, false));
+uniform_test!(
+    uniform_type_booltup_boolvec3,
+    "bvec3",
+    (false, false, false)
+);
+uniform_test!(
+    uniform_type_boolarr_boolvec4,
+    "bvec4",
+    [true, false, false, true]
+);
+uniform_test!(
+    uniform_type_booltup_boolvec4,
+    "bvec4",
+    (false, true, true, false)
+);

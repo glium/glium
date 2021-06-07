@@ -44,27 +44,27 @@
 //! # }
 //! ```
 //!
-pub use self::view::{Buffer, BufferAny, BufferMutSlice};
-pub use self::view::{BufferSlice, BufferAnySlice};
-pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, CopyError};
-pub use self::alloc::{is_buffer_read_supported};
+pub use self::alloc::is_buffer_read_supported;
+pub use self::alloc::{CopyError, Mapping, ReadError, ReadMapping, WriteMapping};
 pub use self::fences::Inserter;
+pub use self::view::{Buffer, BufferAny, BufferMutSlice};
+pub use self::view::{BufferAnySlice, BufferSlice};
 
 /// DEPRECATED. Only here for backwards compatibility.
 #[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::Buffer as BufferView;
 /// DEPRECATED. Only here for backwards compatibility.
 #[deprecated(note = "Only here for backwards compatibility")]
-pub use self::view::BufferSlice as BufferViewSlice;
+pub use self::view::BufferAny as BufferViewAny;
+/// DEPRECATED. Only here for backwards compatibility.
+#[deprecated(note = "Only here for backwards compatibility")]
+pub use self::view::BufferAnySlice as BufferViewAnySlice;
 /// DEPRECATED. Only here for backwards compatibility.
 #[deprecated(note = "Only here for backwards compatibility")]
 pub use self::view::BufferMutSlice as BufferViewMutSlice;
 /// DEPRECATED. Only here for backwards compatibility.
 #[deprecated(note = "Only here for backwards compatibility")]
-pub use self::view::BufferAny as BufferViewAny;
-/// DEPRECATED. Only here for backwards compatibility.
-#[deprecated(note = "Only here for backwards compatibility")]
-pub use self::view::BufferAnySlice as BufferViewAnySlice;
+pub use self::view::BufferSlice as BufferViewSlice;
 
 use crate::gl;
 use std::error::Error;
@@ -83,7 +83,8 @@ pub unsafe trait Content {
 
     /// Prepares an output buffer, then turns this buffer into an `Owned`.
     fn read<F, E>(size: usize, _: F) -> Result<Self::Owned, E>
-                  where F: FnOnce(&mut Self) -> Result<(), E>;
+    where
+        F: FnOnce(&mut Self) -> Result<(), E>;
 
     /// Returns the size of each element.
     fn get_elements_size() -> usize;
@@ -98,11 +99,17 @@ pub unsafe trait Content {
     fn is_size_suitable(_: usize) -> bool;
 }
 
-unsafe impl<T> Content for T where T: Copy {
+unsafe impl<T> Content for T
+where
+    T: Copy,
+{
     type Owned = T;
 
     #[inline]
-    fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
+    fn read<F, E>(size: usize, f: F) -> Result<T, E>
+    where
+        F: FnOnce(&mut T) -> Result<(), E>,
+    {
         assert!(size == mem::size_of::<T>());
         // Note(Lokathor): This is brittle and dangerous if `T` isn't a type
         // that can be zeroed. However, it's a breaking change to adjust the API
@@ -138,12 +145,16 @@ unsafe impl<T> Content for T where T: Copy {
     }
 }
 
-unsafe impl<T> Content for [T] where T: Copy {
+unsafe impl<T> Content for [T]
+where
+    T: Copy,
+{
     type Owned = Vec<T>;
 
     #[inline]
     fn read<F, E>(size: usize, f: F) -> Result<Vec<T>, E>
-                  where F: FnOnce(&mut [T]) -> Result<(), E>
+    where
+        F: FnOnce(&mut [T]) -> Result<(), E>,
     {
         assert!(size % mem::size_of::<T>() == 0);
         let len = size / mem::size_of::<T>();

@@ -19,18 +19,21 @@ fn texture_2d_read_pixelbuffer() {
     let display = support::build_display();
 
     // we use only powers of two, in order to avoid float rounding errors
-    let texture = glium::texture::Texture2d::new(&display, vec![
-        vec![(0u8, 1u8, 2u8), (4u8, 8u8, 16u8)],
-        vec![(32u8, 64u8, 128u8), (32u8, 16u8, 4u8)],
-    ]).unwrap();
+    let texture = glium::texture::Texture2d::new(
+        &display,
+        vec![
+            vec![(0u8, 1u8, 2u8), (4u8, 8u8, 16u8)],
+            vec![(32u8, 64u8, 128u8), (32u8, 16u8, 4u8)],
+        ],
+    )
+    .unwrap();
 
-    let read_back: Vec<Vec<(u8, u8, u8, u8)>> = match texture.read_to_pixel_buffer()
-                                                             .read_as_texture_2d()
-    {
-        Ok(r) => r,
-        Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
-    };
+    let read_back: Vec<Vec<(u8, u8, u8, u8)>> =
+        match texture.read_to_pixel_buffer().read_as_texture_2d() {
+            Ok(r) => r,
+            Err(glium::buffer::ReadError::NotSupported) => return,
+            e => e.unwrap(),
+        };
 
     assert_eq!(read_back[0][0], (0, 1, 2, 255));
     assert_eq!(read_back[0][1], (4, 8, 16, 255));
@@ -41,14 +44,14 @@ fn texture_2d_read_pixelbuffer() {
 }
 
 macro_rules! read_texture_test {
-    ($test_name:ident, $tex_ty:ident, $data_ty:ty, $data:expr) => (
+    ($test_name:ident, $tex_ty:ident, $data_ty:ty, $data:expr) => {
         #[test]
         fn $test_name() {
             let display = support::build_display();
 
             let texture = match glium::texture::$tex_ty::new(&display, $data) {
-                Err(_) => return,       // TODO: make sure that the error is "NotSupported"
-                Ok(t) => t
+                Err(_) => return, // TODO: make sure that the error is "NotSupported"
+                Ok(t) => t,
             };
 
             let read_back: Vec<Vec<$data_ty>> = texture.read();
@@ -57,7 +60,7 @@ macro_rules! read_texture_test {
 
             display.assert_no_error(None);
         }
-    );
+    };
 }
 
 /*read_texture_test!(read_compressedtexture1d, CompressedTexture1d, (u8, u8, u8, u8),
@@ -114,11 +117,15 @@ read_texture_test!(read_texture1d, Texture1d, (u8, u8, u8, u8),
     vec![(0, 1, 2, 3), (4, 5, 6, 7)]);
 read_texture_test!(read_texture1darray, Texture1dArray, (u8, u8, u8, u8),
     vec![vec![(0, 1, 2, 3), (4, 5, 6, 7)], vec![(8, 9, 10, 11), (12, 13, 14, 15)]]);*/
-read_texture_test!(read_texture2d, Texture2d, (u8, u8, u8, u8),
+read_texture_test!(
+    read_texture2d,
+    Texture2d,
+    (u8, u8, u8, u8),
     vec![
         vec![(0u8, 1u8, 2u8, 3u8), (4u8, 5u8, 6u8, 7u8)],
         vec![(8u8, 9u8, 10u8, 11u8), (12u8, 13u8, 14u8, 15u8)]
-    ]);
+    ]
+);
 /*read_texture_test!(read_texture2darray, Texture2dArray, (u8, u8, u8, u8),
     vec![vec![vec![(0, 1, 2, 3), (4, 5, 6, 7)], vec![(8, 9, 10, 11), (12, 13, 14, 15)]]]);
 read_texture_test!(read_texture3d, Texture3d, (u8, u8, u8, u8),

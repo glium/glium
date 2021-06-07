@@ -1,4 +1,4 @@
-use std::ops::{Range, RangeTo, RangeFrom, RangeFull};
+use std::ops::{Range, RangeFrom, RangeFull, RangeTo};
 
 /// Temporary re-implementation of RangeArgument from stdlib while
 /// waiting for it to become stable

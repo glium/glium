@@ -11,7 +11,7 @@ fn query_sequence() {
 
     let query = match glium::draw_parameters::SamplesPassedQuery::new(&display) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -19,14 +19,16 @@ fn query_sequence() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
-    for _ in 0 .. 3 {
+    for _ in 0..3 {
         let params = glium::DrawParameters {
             samples_passed_query: Some((&query).into()),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
     let result = query.get();
@@ -41,7 +43,7 @@ fn samples_passed() {
 
     let query = match glium::draw_parameters::SamplesPassedQuery::new(&display) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -52,11 +54,13 @@ fn samples_passed() {
     {
         let params = glium::DrawParameters {
             samples_passed_query: Some((&query).into()),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
     let result = query.get();
@@ -71,7 +75,7 @@ fn any_samples_passed() {
 
     let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, false) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -82,11 +86,13 @@ fn any_samples_passed() {
     {
         let params = glium::DrawParameters {
             samples_passed_query: Some((&query).into()),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
     assert!(query.get());
@@ -103,7 +109,7 @@ fn any_samples_passed_conservative() {
 
     let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, true) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -114,11 +120,13 @@ fn any_samples_passed_conservative() {
     {
         let params = glium::DrawParameters {
             samples_passed_query: Some((&query).into()),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
     assert!(query.get());
@@ -135,7 +143,7 @@ fn time_elapsed() {
 
     let query = match glium::draw_parameters::TimeElapsedQuery::new(&display) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -146,11 +154,13 @@ fn time_elapsed() {
     {
         let params = glium::DrawParameters {
             time_elapsed_query: Some(&query),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
     let result = query.get();
@@ -160,13 +170,13 @@ fn time_elapsed() {
 }
 
 #[test]
-#[ignore]       // not sure about the interaction between primitives_generated and no geometry shader
+#[ignore] // not sure about the interaction between primitives_generated and no geometry shader
 fn primitives_generated() {
     let display = support::build_display();
 
     let query = match glium::draw_parameters::PrimitivesGeneratedQuery::new(&display) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -177,11 +187,13 @@ fn primitives_generated() {
     {
         let params = glium::DrawParameters {
             primitives_generated_query: Some(&query),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
     let result = query.get();
@@ -195,13 +207,13 @@ fn primitives_generated() {
 // FIXME: add more tests for conditional rendering
 
 #[test]
-#[ignore]       // FIXME: problem with query not having a type yet when passed to BeginConditionalRender
+#[ignore] // FIXME: problem with query not having a type yet when passed to BeginConditionalRender
 fn conditional_render_nodraw() {
     let display = support::build_display();
 
     let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, false) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -216,11 +228,13 @@ fn conditional_render_nodraw() {
                 wait: true,
                 per_region: false,
             }),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
@@ -235,7 +249,7 @@ fn conditional_render_nodraw() {
 }
 
 #[test]
-#[ignore]       // FIXME: not implemented yet
+#[ignore] // FIXME: not implemented yet
 fn conditional_render_simultaneous_query() {
     //! we try to draw with a query and simultaneously use conditional
     //! rendering with the same query
@@ -244,7 +258,7 @@ fn conditional_render_simultaneous_query() {
 
     let query = match glium::draw_parameters::AnySamplesPassedQuery::new(&display, false) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -259,15 +273,17 @@ fn conditional_render_simultaneous_query() {
             wait: true,
             per_region: false,
         }),
-        .. Default::default()
+        ..Default::default()
     };
 
-    let res = texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
-                                        &params);
+    let res =
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params);
 
     match res {
         Err(glium::DrawError::WrongQueryOperation) => (),
-        _ => panic!()
+        _ => panic!(),
     };
 
     display.assert_no_error(None);
@@ -279,7 +295,7 @@ fn query_to_buffer() {
 
     let query = match glium::draw_parameters::SamplesPassedQuery::new(&display) {
         Err(_) => return,
-        Ok(q) => q
+        Ok(q) => q,
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -290,16 +306,21 @@ fn query_to_buffer() {
     {
         let params = glium::DrawParameters {
             samples_passed_query: Some((&query).into()),
-            .. Default::default()
+            ..Default::default()
         };
 
-        texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
-               .unwrap();
+        texture
+            .as_surface()
+            .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+            .unwrap();
     }
 
-    let mut buffer = glium::buffer::BufferView::empty(&display,
-                                                      glium::buffer::BufferType::ArrayBuffer,
-                                                      glium::buffer::BufferMode::Default).unwrap();
+    let mut buffer = glium::buffer::BufferView::empty(
+        &display,
+        glium::buffer::BufferType::ArrayBuffer,
+        glium::buffer::BufferMode::Default,
+    )
+    .unwrap();
     if query.to_buffer_u32(buffer.as_slice()).is_err() {
         return;
     }

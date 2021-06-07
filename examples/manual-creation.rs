@@ -17,13 +17,13 @@ There are three concepts in play:
 
 */
 
-use takeable_option::Takeable;
-use glium::Surface;
 use glium::glutin::{self, PossiblyCurrent};
+use glium::Surface;
+use takeable_option::Takeable;
 
-use std::rc::Rc;
 use std::cell::RefCell;
 use std::os::raw::c_void;
+use std::rc::Rc;
 
 fn main() {
     // building the glutin window
@@ -32,9 +32,7 @@ fn main() {
     let wb = glutin::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
     let gl_window = cb.build_windowed(wb, &event_loop).unwrap();
-    let gl_window = unsafe {
-        gl_window.treat_as_current()
-    };
+    let gl_window = unsafe { gl_window.treat_as_current() };
     let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
 
     // in order to create our context, we will need to provide an object which implements
@@ -90,9 +88,12 @@ fn main() {
         //
         // It is recommended to pass `true`, but you can pass `false` if you are sure that no
         // other OpenGL context will be made current in this thread.
-        let backend = Backend { gl_window: gl_window };
+        let backend = Backend {
+            gl_window: gl_window,
+        };
         glium::backend::Context::new(backend, true, Default::default())
-    }.unwrap();
+    }
+    .unwrap();
 
     // drawing a frame to prove that it works
     // note that constructing a `Frame` object manually is a bit hacky and may be changed

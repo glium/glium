@@ -3,10 +3,10 @@ extern crate glium;
 
 mod support;
 
-#[allow(unused_imports)]
-use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 use glium::program::ShaderStage;
+#[allow(unused_imports)]
+use glium::{glutin, Surface};
 
 fn main() {
     // building the display, ie. the main object
@@ -24,18 +24,26 @@ fn main() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-0.5, -0.5] },
-                Vertex { position: [ 0.0,  0.5] },
-                Vertex { position: [ 0.5, -0.5] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-0.5, -0.5],
+                },
+                Vertex {
+                    position: [0.0, 0.5],
+                },
+                Vertex {
+                    position: [0.5, -0.5],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     // building the index buffer
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                               &[0u16, 1, 2]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[0u16, 1, 2]).unwrap();
 
     // compiling shaders and linking them together
     let program = program!(&display,
@@ -85,15 +93,18 @@ fn main() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let mut i = 0;
     // the main loop
     support::start_loop(event_loop, move |events| {
-        if i == 120 { i = 0; }
+        if i == 120 {
+            i = 0;
+        }
         let subroutine = if i % 120 < 40 {
             "ColorYellow"
-        } else if i % 120 < 80{
+        } else if i % 120 < 80 {
             "ColorBlue"
         } else {
             "ColorRed"
@@ -113,7 +124,15 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                &program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
@@ -122,11 +141,11 @@ fn main() {
             match event {
                 glutin::event::Event::WindowEvent { event, .. } => match event {
                     glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
-                    _ => ()
+                    _ => (),
                 },
                 _ => (),
             }
-        };
+        }
         i += 1;
 
         action

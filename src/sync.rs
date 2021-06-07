@@ -1,7 +1,7 @@
 use crate::context::CommandContext;
+use crate::gl;
 use crate::version::Api;
 use crate::version::Version;
-use crate::gl;
 
 use crate::backend::Facade;
 use crate::context::Context;
@@ -37,7 +37,10 @@ pub struct SyncFence {
 impl SyncFence {
     /// Builds a new `SyncFence` that is injected in the server.
     #[inline]
-    pub fn new<F: ?Sized>(facade: &F) -> Result<SyncFence, SyncNotSupportedError> where F: Facade {
+    pub fn new<F: ?Sized>(facade: &F) -> Result<SyncFence, SyncNotSupportedError>
+    where
+        F: Facade,
+    {
         let mut ctxt = facade.get_context().make_current();
         unsafe { new_linear_sync_fence(&mut ctxt) }.map(|f| f.into_sync_fence(facade))
     }
@@ -52,7 +55,7 @@ impl SyncFence {
 
         match result {
             gl::ALREADY_SIGNALED | gl::CONDITION_SATISFIED => (),
-            _ => panic!("Could not wait for the fence")
+            _ => panic!("Could not wait for the fence"),
         };
     }
 }
@@ -61,8 +64,8 @@ impl Drop for SyncFence {
     #[inline]
     fn drop(&mut self) {
         let sync = match self.id {
-            None => return,     // fence has already been deleted
-            Some(s) => s
+            None => return, // fence has already been deleted
+            Some(s) => s,
         };
 
         let mut ctxt = self.context.make_current();
@@ -84,10 +87,13 @@ unsafe impl Send for LinearSyncFence {}
 impl LinearSyncFence {
     /// Turns the prototype into a real fence.
     #[inline]
-    pub fn into_sync_fence<F: ?Sized>(mut self, facade: &F) -> SyncFence where F: Facade {
+    pub fn into_sync_fence<F: ?Sized>(mut self, facade: &F) -> SyncFence
+    where
+        F: Facade,
+    {
         SyncFence {
             context: facade.get_context().clone(),
-            id: self.id.take()
+            id: self.id.take(),
         }
     }
 }
@@ -101,21 +107,23 @@ impl Drop for LinearSyncFence {
     }
 }
 
-pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext<'_>)
-                                    -> Result<LinearSyncFence, SyncNotSupportedError>
-{
-    if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
+pub unsafe fn new_linear_sync_fence(
+    ctxt: &mut CommandContext<'_>,
+) -> Result<LinearSyncFence, SyncNotSupportedError> {
+    if ctxt.version >= &Version(Api::Gl, 3, 2)
+        || ctxt.version >= &Version(Api::GlEs, 3, 0)
+        || ctxt.extensions.gl_arb_sync
     {
         Ok(LinearSyncFence {
             id: Some(ctxt.gl.FenceSync(gl::SYNC_GPU_COMMANDS_COMPLETE, 0)),
         })
-
     } else if ctxt.extensions.gl_apple_sync {
         Ok(LinearSyncFence {
-            id: Some(ctxt.gl.FenceSyncAPPLE(gl::SYNC_GPU_COMMANDS_COMPLETE_APPLE, 0)),
+            id: Some(
+                ctxt.gl
+                    .FenceSyncAPPLE(gl::SYNC_GPU_COMMANDS_COMPLETE_APPLE, 0),
+            ),
         })
-
     } else {
         Err(SyncNotSupportedError)
     }
@@ -123,9 +131,10 @@ pub unsafe fn new_linear_sync_fence(ctxt: &mut CommandContext<'_>)
 
 /// Waits for this fence and destroys it, from within the commands context.
 #[inline]
-pub unsafe fn wait_linear_sync_fence_and_drop(mut fence: LinearSyncFence,
-                                              ctxt: &mut CommandContext<'_>)
-{
+pub unsafe fn wait_linear_sync_fence_and_drop(
+    mut fence: LinearSyncFence,
+    ctxt: &mut CommandContext<'_>,
+) {
     let fence = fence.id.take().unwrap();
     client_wait(ctxt, fence);
     delete_fence(ctxt, fence);
@@ -146,10 +155,14 @@ pub unsafe fn destroy_linear_sync_fence(ctxt: &mut CommandContext<'_>, mut fence
 ///
 /// The fence object must exist.
 ///
-unsafe fn client_wait(ctxt: &mut CommandContext<'_>, fence: gl::types::GLsync) -> gl::types::GLenum {
+unsafe fn client_wait(
+    ctxt: &mut CommandContext<'_>,
+    fence: gl::types::GLsync,
+) -> gl::types::GLenum {
     // trying without flushing first
-    let result = if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-                    ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
+    let result = if ctxt.version >= &Version(Api::Gl, 3, 2)
+        || ctxt.version >= &Version(Api::GlEs, 3, 0)
+        || ctxt.extensions.gl_arb_sync
     {
         ctxt.gl.ClientWaitSync(fence, 0, 0)
     } else if ctxt.extensions.gl_apple_sync {
@@ -162,20 +175,27 @@ unsafe fn client_wait(ctxt: &mut CommandContext<'_>, fence: gl::types::GLsync) -
         val @ gl::ALREADY_SIGNALED | val @ gl::CONDITION_SATISFIED => return val,
         gl::TIMEOUT_EXPIRED => (),
         gl::WAIT_FAILED => (),
-        _ => unreachable!()
+        _ => unreachable!(),
     };
 
     // waiting with a deadline of one year
     // the reason why the deadline is so long is because if you attach a GL debugger,
     // the wait can be blocked during a breaking point of the debugger
-    if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
+    if ctxt.version >= &Version(Api::Gl, 3, 2)
+        || ctxt.version >= &Version(Api::GlEs, 3, 0)
+        || ctxt.extensions.gl_arb_sync
     {
-        ctxt.gl.ClientWaitSync(fence, gl::SYNC_FLUSH_COMMANDS_BIT,
-                               365 * 24 * 3600 * 1000 * 1000 * 1000)
+        ctxt.gl.ClientWaitSync(
+            fence,
+            gl::SYNC_FLUSH_COMMANDS_BIT,
+            365 * 24 * 3600 * 1000 * 1000 * 1000,
+        )
     } else if ctxt.extensions.gl_apple_sync {
-        ctxt.gl.ClientWaitSyncAPPLE(fence, gl::SYNC_FLUSH_COMMANDS_BIT_APPLE,
-                                    365 * 24 * 3600 * 1000 * 1000 * 1000)
+        ctxt.gl.ClientWaitSyncAPPLE(
+            fence,
+            gl::SYNC_FLUSH_COMMANDS_BIT_APPLE,
+            365 * 24 * 3600 * 1000 * 1000 * 1000,
+        )
     } else {
         unreachable!();
     }
@@ -189,8 +209,9 @@ unsafe fn client_wait(ctxt: &mut CommandContext<'_>, fence: gl::types::GLsync) -
 ///
 #[inline]
 unsafe fn delete_fence(ctxt: &mut CommandContext<'_>, fence: gl::types::GLsync) {
-    if ctxt.version >= &Version(Api::Gl, 3, 2) ||
-       ctxt.version >= &Version(Api::GlEs, 3, 0) || ctxt.extensions.gl_arb_sync
+    if ctxt.version >= &Version(Api::Gl, 3, 2)
+        || ctxt.version >= &Version(Api::GlEs, 3, 0)
+        || ctxt.extensions.gl_arb_sync
     {
         ctxt.gl.DeleteSync(fence);
     } else if ctxt.extensions.gl_apple_sync {

@@ -1,6 +1,6 @@
+use crate::gl;
 use std::cmp::Ordering;
 use std::ffi::CStr;
-use crate::gl;
 
 /// Describes a version.
 ///
@@ -28,7 +28,7 @@ impl PartialOrd for Version {
 
         match self.1.cmp(&other.1) {
             Ordering::Equal => Some(self.2.cmp(&other.2)),
-            a => Some(a)
+            a => Some(a),
         }
     }
 }
@@ -41,7 +41,8 @@ impl PartialOrd for Version {
 /// an undefined behavior.
 pub unsafe fn get_gl_version(gl: &gl::Gl) -> Version {
     let version = gl.GetString(gl::VERSION);
-    let version = String::from_utf8(CStr::from_ptr(version as *const _).to_bytes().to_vec()).unwrap();
+    let version =
+        String::from_utf8(CStr::from_ptr(version as *const _).to_bytes().to_vec()).unwrap();
 
     // for the moment we mock WebGL as OpenGL ES 2.0
     // TODO: handle the differences between WebGL and OpenGL ES
@@ -57,17 +58,27 @@ pub unsafe fn get_gl_version(gl: &gl::Gl) -> Version {
         (&version[..], Api::Gl)
     };
 
-    let version = version.split(' ').next().expect("glGetString(GL_VERSION) returned an empty \
-                                                    string");
+    let version = version.split(' ').next().expect(
+        "glGetString(GL_VERSION) returned an empty \
+                                                    string",
+    );
 
     let mut iter = version.split('.');
     let major = iter.next().unwrap();
-    let minor = iter.next().expect("glGetString(GL_VERSION) did not return a correct version");
+    let minor = iter
+        .next()
+        .expect("glGetString(GL_VERSION) did not return a correct version");
 
     Version(
         api,
-        major.parse().ok().expect("failed to parse GL major version"),
-        minor.parse().ok().expect("failed to parse GL minor version"),
+        major
+            .parse()
+            .ok()
+            .expect("failed to parse GL major version"),
+        minor
+            .parse()
+            .ok()
+            .expect("failed to parse GL minor version"),
     )
 }
 
@@ -92,9 +103,9 @@ pub fn get_supported_glsl_version(gl_version: &Version) -> Version {
                 Version(a, 3, 0) => Version(a, 1, 3),
                 Version(a, 3, 1) => Version(a, 1, 4),
                 Version(a, 3, 2) => Version(a, 1, 5),
-                _ => panic!("no corresponding glsl version exists")
+                _ => panic!("no corresponding glsl version exists"),
             }
-        },
+        }
         Api::GlEs => {
             // since OpenGL ES 3.0: glsl versions match gl version, just return a copy
             if *gl_version >= Version(gl_version.0, 3, 0) {
@@ -102,7 +113,7 @@ pub fn get_supported_glsl_version(gl_version: &Version) -> Version {
             }
 
             // only other valid GLES version is 2.0
-            if *gl_version == Version(gl_version.0, 2, 0){
+            if *gl_version == Version(gl_version.0, 2, 0) {
                 Version(Api::GlEs, 1, 0)
             } else {
                 panic!("no corresponding glsl version exists")
@@ -113,15 +124,15 @@ pub fn get_supported_glsl_version(gl_version: &Version) -> Version {
 
 #[cfg(test)]
 mod tests {
-    use super::{Version, Api, get_supported_glsl_version};
+    use super::{get_supported_glsl_version, Api, Version};
 
     macro_rules! assert_versions {
         ( $api:path, $gl_major:expr, $gl_minor:expr => $glsl_major:expr, $glsl_minor:expr) => {
             assert_eq!(
                 get_supported_glsl_version(&Version($api, $gl_major, $gl_minor)),
                 Version($api, $glsl_major, $glsl_minor)
-                    );
-        }
+            );
+        };
     }
 
     #[test]

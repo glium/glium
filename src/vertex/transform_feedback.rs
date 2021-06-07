@@ -1,20 +1,20 @@
-use std::{ mem, fmt };
 use std::error::Error;
+use std::{fmt, mem};
 
-use crate::version::Api;
-use crate::version::Version;
-use crate::context::CommandContext;
 use crate::backend::Facade;
-use crate::BufferExt;
-use crate::GlObject;
-use crate::ContextExt;
-use crate::CapabilitiesSource;
-use crate::TransformFeedbackSessionExt;
 use crate::buffer::{Buffer, BufferAnySlice};
+use crate::context::CommandContext;
 use crate::index::PrimitiveType;
 use crate::program::OutputPrimitives;
 use crate::program::Program;
+use crate::version::Api;
+use crate::version::Version;
 use crate::vertex::Vertex;
+use crate::BufferExt;
+use crate::CapabilitiesSource;
+use crate::ContextExt;
+use crate::GlObject;
+use crate::TransformFeedbackSessionExt;
 
 use crate::gl;
 
@@ -106,10 +106,10 @@ impl fmt::Display for TransformFeedbackSessionCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::TransformFeedbackSessionCreationError::*;
         let desc = match *self {
-            NotSupported =>
-                "Transform feedback is not supported by the OpenGL implementation",
-            WrongVertexFormat =>
-                "The format of the output doesn't match what the program is expected to output",
+            NotSupported => "Transform feedback is not supported by the OpenGL implementation",
+            WrongVertexFormat => {
+                "The format of the output doesn't match what the program is expected to output"
+            }
         };
         fmt.write_str(desc)
     }
@@ -119,12 +119,15 @@ impl Error for TransformFeedbackSessionCreationError {}
 
 /// Returns true if transform feedback is supported by the OpenGL implementation.
 #[inline]
-pub fn is_transform_feedback_supported<F: ?Sized>(facade: &F) -> bool where F: Facade {
+pub fn is_transform_feedback_supported<F: ?Sized>(facade: &F) -> bool
+where
+    F: Facade,
+{
     let context = facade.get_context();
 
-    context.get_version() >= &Version(Api::Gl, 3, 0) ||
-    context.get_version() >= &Version(Api::GlEs, 3, 0) ||
-    context.get_extensions().gl_ext_transform_feedback
+    context.get_version() >= &Version(Api::Gl, 3, 0)
+        || context.get_version() >= &Version(Api::GlEs, 3, 0)
+        || context.get_extensions().gl_ext_transform_feedback
 }
 
 impl<'a> TransformFeedbackSession<'a> {
@@ -132,16 +135,21 @@ impl<'a> TransformFeedbackSession<'a> {
     ///
     /// TODO: this constructor should ultimately support passing multiple buffers of different
     ///       types
-    pub fn new<F: ?Sized, V>(facade: &F, program: &'a Program, buffer: &'a mut Buffer<[V]>)
-                     -> Result<TransformFeedbackSession<'a>, TransformFeedbackSessionCreationError>
-                     where F: Facade, V: Vertex + Copy + Send + 'static
+    pub fn new<F: ?Sized, V>(
+        facade: &F,
+        program: &'a Program,
+        buffer: &'a mut Buffer<[V]>,
+    ) -> Result<TransformFeedbackSession<'a>, TransformFeedbackSessionCreationError>
+    where
+        F: Facade,
+        V: Vertex + Copy + Send + 'static,
     {
         if !is_transform_feedback_supported(facade) {
             return Err(TransformFeedbackSessionCreationError::NotSupported);
         }
 
-        if !program.transform_feedback_matches(&<V as Vertex>::build_bindings(),
-                                               mem::size_of::<V>())
+        if !program
+            .transform_feedback_matches(&<V as Vertex>::build_bindings(), mem::size_of::<V>())
         {
             return Err(TransformFeedbackSessionCreationError::WrongVertexFormat);
         }
@@ -168,7 +176,7 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
                 (Some(OutputPrimitives::Points), _) => gl::POINTS,
                 (Some(OutputPrimitives::Lines), _) => gl::LINES,
                 (Some(OutputPrimitives::Triangles), _) => gl::TRIANGLES,
-                (Some(OutputPrimitives::Quads), _) => panic!(),         // TODO: return a proper error
+                (Some(OutputPrimitives::Quads), _) => panic!(), // TODO: return a proper error
                 (None, PrimitiveType::Points) => gl::POINTS,
                 (None, PrimitiveType::LinesList) => gl::LINES,
                 (None, PrimitiveType::LinesListAdjacency) => gl::LINES,
@@ -202,13 +210,20 @@ impl<'a> TransformFeedbackSessionExt for TransformFeedbackSession<'a> {
         }
     }
 
-    fn ensure_buffer_out_of_transform_feedback(ctxt: &mut CommandContext<'_>, buffer: gl::types::GLuint) {
+    fn ensure_buffer_out_of_transform_feedback(
+        ctxt: &mut CommandContext<'_>,
+        buffer: gl::types::GLuint,
+    ) {
         if ctxt.state.transform_feedback_enabled.is_none() {
             return;
         }
 
         let mut needs_unbind = false;
-        for elem in ctxt.state.indexed_transform_feedback_buffer_bindings.iter_mut() {
+        for elem in ctxt
+            .state
+            .indexed_transform_feedback_buffer_bindings
+            .iter_mut()
+        {
             if elem.buffer == buffer {
                 needs_unbind = true;
                 break;

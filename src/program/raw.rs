@@ -1,49 +1,49 @@
 use crate::gl;
 
 use crate::context::CommandContext;
-use crate::version::Version;
 use crate::version::Api;
+use crate::version::Version;
 
 use crate::backend::Facade;
 use crate::context::Context;
 use crate::ContextExt;
 use crate::UniformsExt;
 
-use std::{ffi, fmt};
-use std::collections::hash_map::{self, HashMap};
-use std::rc::Rc;
 use std::cell::RefCell;
-use std::os::raw;
+use std::collections::hash_map::{self, HashMap};
 use std::hash::BuildHasherDefault;
+use std::os::raw;
+use std::rc::Rc;
+use std::{ffi, fmt};
 
 use fnv::FnvHasher;
 
 use crate::DrawError;
 use crate::GlObject;
-use crate::ProgramExt;
 use crate::Handle;
+use crate::ProgramExt;
 use crate::RawUniformValue;
 
-use crate::QueryExt;
 use crate::draw_parameters::TimeElapsedQuery;
+use crate::QueryExt;
 
 use crate::buffer::BufferSlice;
 use crate::BufferExt;
 use crate::BufferSliceExt;
 
-use crate::program::{ProgramCreationError, Binary, GetBinaryError};
 use crate::program::uniforms_storage::UniformsStorage;
+use crate::program::{Binary, GetBinaryError, ProgramCreationError};
 
-use crate::program::compute::ComputeCommand;
-use crate::program::reflection::{Uniform, UniformBlock, OutputPrimitives};
-use crate::program::reflection::{Attribute, TransformFeedbackMode, TransformFeedbackBuffer};
-use crate::program::reflection::{SubroutineData, ShaderStage};
-use crate::program::reflection::{reflect_uniforms, reflect_attributes, reflect_uniform_blocks};
-use crate::program::reflection::{reflect_transform_feedback, reflect_geometry_output_type};
-use crate::program::reflection::{reflect_tess_eval_output_type, reflect_shader_storage_blocks};
-use crate::program::reflection::{reflect_subroutine_data};
-use crate::program::shader::Shader;
 use crate::program::binary_header::{attach_glium_header, process_glium_header};
+use crate::program::compute::ComputeCommand;
+use crate::program::reflection::reflect_subroutine_data;
+use crate::program::reflection::{reflect_attributes, reflect_uniform_blocks, reflect_uniforms};
+use crate::program::reflection::{reflect_geometry_output_type, reflect_transform_feedback};
+use crate::program::reflection::{reflect_shader_storage_blocks, reflect_tess_eval_output_type};
+use crate::program::reflection::{Attribute, TransformFeedbackBuffer, TransformFeedbackMode};
+use crate::program::reflection::{OutputPrimitives, Uniform, UniformBlock};
+use crate::program::reflection::{ShaderStage, SubroutineData};
+use crate::program::shader::Shader;
 
 use crate::uniforms::Uniforms;
 
@@ -72,12 +72,17 @@ pub struct RawProgram {
 impl RawProgram {
     /// Builds a new program from a list of shaders.
     // TODO: the "has_*" parameters are bad
-    pub fn from_shaders<'a, F: ?Sized, I>(facade: &'a F, shaders: I, has_geometry_shader: bool,
-                                  has_tessellation_control_shader: bool,
-                                  has_tessellation_evaluation_shader: bool,
-                                  transform_feedback: Option<(Vec<String>, TransformFeedbackMode)>)
-                                  -> Result<RawProgram, ProgramCreationError>
-                                  where F: Facade, I: IntoIterator<Item = &'a Shader>
+    pub fn from_shaders<'a, F: ?Sized, I>(
+        facade: &'a F,
+        shaders: I,
+        has_geometry_shader: bool,
+        has_tessellation_control_shader: bool,
+        has_tessellation_evaluation_shader: bool,
+        transform_feedback: Option<(Vec<String>, TransformFeedbackMode)>,
+    ) -> Result<RawProgram, ProgramCreationError>
+    where
+        F: Facade,
+        I: IntoIterator<Item = &'a Shader>,
     {
         let mut ctxt = facade.get_context().make_current();
 
@@ -90,15 +95,17 @@ impl RawProgram {
             for sh in shaders_ids.iter() {
                 match (id, sh) {
                     (Handle::Id(id), &Handle::Id(sh)) => {
-                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                                ctxt.version >= &Version(Api::GlEs, 2, 0));
+                        assert!(
+                            ctxt.version >= &Version(Api::Gl, 2, 0)
+                                || ctxt.version >= &Version(Api::GlEs, 2, 0)
+                        );
                         ctxt.gl.AttachShader(id, sh);
-                    },
+                    }
                     (Handle::Handle(id), &Handle::Handle(sh)) => {
                         assert!(ctxt.extensions.gl_arb_shader_objects);
                         ctxt.gl.AttachObjectARB(id, sh);
-                    },
-                    _ => unreachable!()
+                    }
+                    _ => unreachable!(),
                 }
             }
 
@@ -106,13 +113,14 @@ impl RawProgram {
             if let Some((names, mode)) = transform_feedback {
                 let id = match id {
                     Handle::Id(id) => id,
-                    Handle::Handle(id) => unreachable!()    // transf. feedback shouldn't be
-                                                            // available with handles
+                    Handle::Handle(id) => unreachable!(), // transf. feedback shouldn't be
+                                                          // available with handles
                 };
 
-                let names = names.into_iter().map(|name| {
-                    ffi::CString::new(name.into_bytes()).unwrap()
-                }).collect::<Vec<_>>();
+                let names = names
+                    .into_iter()
+                    .map(|name| ffi::CString::new(name.into_bytes()).unwrap())
+                    .collect::<Vec<_>>();
                 let names_ptr = names.iter().map(|n| n.as_ptr()).collect::<Vec<_>>();
 
                 if ctxt.version >= &Version(Api::Gl, 3, 0) {
@@ -121,21 +129,26 @@ impl RawProgram {
                         TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS,
                     };
 
-                    ctxt.gl.TransformFeedbackVaryings(id, names_ptr.len() as gl::types::GLsizei,
-                                                      names_ptr.as_ptr(), mode);
-
+                    ctxt.gl.TransformFeedbackVaryings(
+                        id,
+                        names_ptr.len() as gl::types::GLsizei,
+                        names_ptr.as_ptr(),
+                        mode,
+                    );
                 } else if ctxt.extensions.gl_ext_transform_feedback {
                     let mode = match mode {
                         TransformFeedbackMode::Interleaved => gl::INTERLEAVED_ATTRIBS_EXT,
                         TransformFeedbackMode::Separate => gl::SEPARATE_ATTRIBS_EXT,
                     };
 
-                    ctxt.gl.TransformFeedbackVaryingsEXT(id, names_ptr.len()
-                                                         as gl::types::GLsizei,
-                                                         names_ptr.as_ptr(), mode);
-
+                    ctxt.gl.TransformFeedbackVaryingsEXT(
+                        id,
+                        names_ptr.len() as gl::types::GLsizei,
+                        names_ptr.as_ptr(),
+                        mode,
+                    );
                 } else {
-                    unreachable!();     // has been checked in the frontend
+                    unreachable!(); // has been checked in the frontend
                 }
             }
 
@@ -145,10 +158,12 @@ impl RawProgram {
 
                 match id {
                     Handle::Id(id) => {
-                        assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                                ctxt.version >= &Version(Api::GlEs, 2, 0));
+                        assert!(
+                            ctxt.version >= &Version(Api::Gl, 2, 0)
+                                || ctxt.version >= &Version(Api::GlEs, 2, 0)
+                        );
                         ctxt.gl.LinkProgram(id);
-                    },
+                    }
                     Handle::Handle(id) => {
                         assert!(ctxt.extensions.gl_arb_shader_objects);
                         ctxt.gl.LinkProgramARB(id);
@@ -170,10 +185,14 @@ impl RawProgram {
         let tf_buffers = unsafe { reflect_transform_feedback(&mut ctxt, id) };
         let ssbos = unsafe { reflect_shader_storage_blocks(&mut ctxt, id) };
         let subroutine_data = unsafe {
-            reflect_subroutine_data(&mut ctxt, id, has_geometry_shader,
-                                    has_tessellation_control_shader,
-                                    has_tessellation_evaluation_shader)
-            };
+            reflect_subroutine_data(
+                &mut ctxt,
+                id,
+                has_geometry_shader,
+                has_tessellation_control_shader,
+                has_tessellation_evaluation_shader,
+            )
+        };
 
         let output_primitives = if has_geometry_shader {
             Some(unsafe { reflect_geometry_output_type(&mut ctxt, id) })
@@ -203,13 +222,21 @@ impl RawProgram {
     }
 
     /// Creates a program from binary.
-    pub fn from_binary<F: ?Sized>(facade: &F, binary: Binary)
-                          -> Result<RawProgram, ProgramCreationError> where F: Facade
+    pub fn from_binary<F: ?Sized>(
+        facade: &F,
+        binary: Binary,
+    ) -> Result<RawProgram, ProgramCreationError>
+    where
+        F: Facade,
     {
-        let (has_geometry_shader, has_tessellation_control_shader, has_tessellation_evaluation_shader) = {
+        let (
+            has_geometry_shader,
+            has_tessellation_control_shader,
+            has_tessellation_evaluation_shader,
+        ) = {
             match process_glium_header(&binary.content) {
                 Some(flags) => flags,
-                None => return Err(ProgramCreationError::BinaryHeaderError)
+                None => return Err(ProgramCreationError::BinaryHeaderError),
             }
         };
 
@@ -221,11 +248,14 @@ impl RawProgram {
             match id {
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
-                    ctxt.gl.ProgramBinary(id, binary.format,
-                                          binary.content[1..].as_ptr() as *const _,
-                                          (binary.content.len() - 1) as gl::types::GLsizei);
-                },
-                Handle::Handle(id) => unreachable!()
+                    ctxt.gl.ProgramBinary(
+                        id,
+                        binary.format,
+                        binary.content[1..].as_ptr() as *const _,
+                        (binary.content.len() - 1) as gl::types::GLsizei,
+                    );
+                }
+                Handle::Handle(id) => unreachable!(),
             };
 
             // checking for errors
@@ -241,9 +271,13 @@ impl RawProgram {
                 reflect_uniform_blocks(&mut ctxt, id),
                 reflect_transform_feedback(&mut ctxt, id),
                 reflect_shader_storage_blocks(&mut ctxt, id),
-                reflect_subroutine_data(&mut ctxt, id, has_geometry_shader,
-                                        has_tessellation_control_shader,
-                                        has_tessellation_evaluation_shader),
+                reflect_subroutine_data(
+                    &mut ctxt,
+                    id,
+                    has_geometry_shader,
+                    has_tessellation_control_shader,
+                    has_tessellation_evaluation_shader,
+                ),
             )
         };
 
@@ -282,34 +316,39 @@ impl RawProgram {
         unsafe {
             let ctxt = self.context.make_current();
 
-            if ctxt.version >= &Version(Api::Gl, 4, 1) ||
-               ctxt.extensions.gl_arb_get_programy_binary
+            if ctxt.version >= &Version(Api::Gl, 4, 1) || ctxt.extensions.gl_arb_get_programy_binary
             {
                 let id = match self.id {
                     Handle::Id(id) => id,
-                    Handle::Handle(_) => unreachable!()
+                    Handle::Handle(_) => unreachable!(),
                 };
 
                 let mut num_supported_formats = 0;
-                ctxt.gl.GetIntegerv(gl::NUM_PROGRAM_BINARY_FORMATS, &mut num_supported_formats);
+                ctxt.gl
+                    .GetIntegerv(gl::NUM_PROGRAM_BINARY_FORMATS, &mut num_supported_formats);
                 if num_supported_formats == 0 {
-                    return Err(GetBinaryError::NoFormats)
+                    return Err(GetBinaryError::NoFormats);
                 }
 
                 let mut buf_len = 0;
-                ctxt.gl.GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
+                ctxt.gl
+                    .GetProgramiv(id, gl::PROGRAM_BINARY_LENGTH, &mut buf_len);
 
                 let mut format = 0;
                 let mut storage: Vec<u8> = Vec::with_capacity(buf_len as usize);
-                ctxt.gl.GetProgramBinary(id, buf_len, &mut buf_len, &mut format,
-                                         storage.as_mut_ptr() as *mut _);
+                ctxt.gl.GetProgramBinary(
+                    id,
+                    buf_len,
+                    &mut buf_len,
+                    &mut format,
+                    storage.as_mut_ptr() as *mut _,
+                );
                 storage.set_len(buf_len as usize);
                 attach_glium_header(&self, &mut storage);
                 Ok(Binary {
                     format,
                     content: storage,
                 })
-
             } else {
                 Err(GetBinaryError::NotSupported)
             }
@@ -342,9 +381,11 @@ impl RawProgram {
             match self.id {
                 Handle::Id(id) => {
                     assert!(ctxt.version >= &Version(Api::Gl, 2, 0));
-                    ctxt.gl.GetFragDataLocation(id, name_c.as_bytes_with_nul().as_ptr()
-                                                as *const raw::c_char)
-                },
+                    ctxt.gl.GetFragDataLocation(
+                        id,
+                        name_c.as_bytes_with_nul().as_ptr() as *const raw::c_char,
+                    )
+                }
                 Handle::Handle(id) => {
                     // not supported
                     -1
@@ -357,7 +398,9 @@ impl RawProgram {
             a => Some(a as u32),
         };
 
-        self.frag_data_locations.borrow_mut().insert(name.to_owned(), location);
+        self.frag_data_locations
+            .borrow_mut()
+            .insert(name.to_owned(), location);
         location
     }
 
@@ -395,8 +438,9 @@ impl RawProgram {
     /// # }
     /// ```
     #[inline]
-    pub fn get_uniform_blocks(&self)
-                              -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    pub fn get_uniform_blocks(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.uniform_blocks
     }
 
@@ -428,14 +472,18 @@ impl RawProgram {
         }
 
         for elem in buf.elements.iter() {
-            if format.iter().find(|e| e.1 == elem.offset && e.2 == elem.ty)
-                            .is_none()
+            if format
+                .iter()
+                .find(|e| e.1 == elem.offset && e.2 == elem.ty)
+                .is_none()
             {
                 return false;
             }
 
-
-            if format.iter().any(|e| e.1 != elem.offset && e.0 == elem.name) {
+            if format
+                .iter()
+                .any(|e| e.1 != elem.offset && e.0 == elem.name)
+            {
                 return false;
             }
         }
@@ -511,8 +559,9 @@ impl RawProgram {
     /// # }
     /// ```
     #[inline]
-    pub fn get_shader_storage_blocks(&self)
-            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    pub fn get_shader_storage_blocks(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.ssbos
     }
 
@@ -528,8 +577,9 @@ impl RawProgram {
     /// # }
     /// ```
     #[inline]
-    pub fn get_atomic_counters(&self)
-            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    pub fn get_atomic_counters(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.atomic_counters
     }
 
@@ -545,9 +595,16 @@ impl RawProgram {
     ///
     /// The program *must* contain a compute shader.
     /// TODO: check inside the program if it has a compute shader instead of being unsafe
-    pub unsafe fn dispatch_compute<U>(&self, uniforms: U, x: u32, y: u32, z: u32)
-                                      -> Result<(), DrawError>      // TODO: other error?
-                                      where U: Uniforms
+    pub unsafe fn dispatch_compute<U>(
+        &self,
+        uniforms: U,
+        x: u32,
+        y: u32,
+        z: u32,
+    ) -> Result<(), DrawError>
+    // TODO: other error?
+    where
+        U: Uniforms,
     {
         let mut ctxt = self.context.make_current();
 
@@ -556,9 +613,11 @@ impl RawProgram {
         assert!(y < ctxt.capabilities.max_compute_work_group_count.1 as u32);
         assert!(z < ctxt.capabilities.max_compute_work_group_count.2 as u32);
 
-        assert!(ctxt.version >= &Version(Api::Gl, 4, 3) ||
-                ctxt.version >= &Version(Api::GlEs, 3, 1) ||
-                ctxt.extensions.gl_arb_compute_shader);
+        assert!(
+            ctxt.version >= &Version(Api::Gl, 4, 3)
+                || ctxt.version >= &Version(Api::GlEs, 3, 1)
+                || ctxt.extensions.gl_arb_compute_shader
+        );
 
         TimeElapsedQuery::end_conditional_render(&mut ctxt);
 
@@ -581,16 +640,22 @@ impl RawProgram {
     ///
     /// The program *must* contain a compute shader.
     /// TODO: check inside the program if it has a compute shader instead of being unsafe
-    pub unsafe fn dispatch_compute_indirect<U>(&self, uniforms: U,
-                                               buffer: BufferSlice<'_, ComputeCommand>)
-                                               -> Result<(), DrawError>      // TODO: other error?
-                                               where U: Uniforms
+    pub unsafe fn dispatch_compute_indirect<U>(
+        &self,
+        uniforms: U,
+        buffer: BufferSlice<'_, ComputeCommand>,
+    ) -> Result<(), DrawError>
+    // TODO: other error?
+    where
+        U: Uniforms,
     {
         let mut ctxt = self.context.make_current();
 
-        assert!(ctxt.version >= &Version(Api::Gl, 4, 3) ||
-                ctxt.version >= &Version(Api::GlEs, 3, 1) ||
-                ctxt.extensions.gl_arb_compute_shader);
+        assert!(
+            ctxt.version >= &Version(Api::Gl, 4, 3)
+                || ctxt.version >= &Version(Api::GlEs, 3, 1)
+                || ctxt.extensions.gl_arb_compute_shader
+        );
 
         TimeElapsedQuery::end_conditional_render(&mut ctxt);
 
@@ -609,7 +674,8 @@ impl RawProgram {
         let mut fences = Vec::with_capacity(0);
         uniforms.bind_uniforms(&mut ctxt, self, &mut fences)?;
 
-        ctxt.gl.DispatchComputeIndirect(offset as gl::types::GLintptr);
+        ctxt.gl
+            .DispatchComputeIndirect(offset as gl::types::GLintptr);
 
         for fence in fences {
             fence.insert(&mut ctxt);
@@ -651,33 +717,47 @@ impl ProgramExt for RawProgram {
     }
 
     #[inline]
-    fn set_uniform(&self, ctxt: &mut CommandContext<'_>, uniform_location: gl::types::GLint,
-                   value: &RawUniformValue)
-    {
-        self.uniform_values.set_uniform_value(ctxt, self.id, uniform_location, value);
+    fn set_uniform(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        uniform_location: gl::types::GLint,
+        value: &RawUniformValue,
+    ) {
+        self.uniform_values
+            .set_uniform_value(ctxt, self.id, uniform_location, value);
     }
 
     #[inline]
-    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext<'_>, block_location: gl::types::GLuint,
-                                 value: gl::types::GLuint)
-    {
-        self.uniform_values.set_uniform_block_binding(ctxt, self.id, block_location, value);
+    fn set_uniform_block_binding(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        block_location: gl::types::GLuint,
+        value: gl::types::GLuint,
+    ) {
+        self.uniform_values
+            .set_uniform_block_binding(ctxt, self.id, block_location, value);
     }
 
     #[inline]
-    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext<'_>,
-                                        block_location: gl::types::GLuint,
-                                        value: gl::types::GLuint)
-    {
-        self.uniform_values.set_shader_storage_block_binding(ctxt, self.id, block_location, value);
+    fn set_shader_storage_block_binding(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        block_location: gl::types::GLuint,
+        value: gl::types::GLuint,
+    ) {
+        self.uniform_values
+            .set_shader_storage_block_binding(ctxt, self.id, block_location, value);
     }
 
     #[inline]
-    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext<'_>,
-                                         stage: ShaderStage,
-                                         indices: &[gl::types::GLuint])
-    {
-        self.uniform_values.set_subroutine_uniforms_for_stage(ctxt, self.id, stage, indices);
+    fn set_subroutine_uniforms_for_stage(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        stage: ShaderStage,
+        indices: &[gl::types::GLuint],
+    ) {
+        self.uniform_values
+            .set_subroutine_uniforms_for_stage(ctxt, self.id, stage, indices);
     }
 
     #[inline]
@@ -691,14 +771,14 @@ impl ProgramExt for RawProgram {
     }
 
     #[inline]
-    fn get_shader_storage_blocks(&self)
-                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    fn get_shader_storage_blocks(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.ssbos
     }
 
     #[inline]
-    fn get_atomic_counters(&self)
-                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    fn get_atomic_counters(&self) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         &self.atomic_counters
     }
 
@@ -719,8 +799,10 @@ impl Drop for RawProgram {
         unsafe {
             match self.id {
                 Handle::Id(id) => {
-                    assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                            ctxt.version >= &Version(Api::GlEs, 2, 0));
+                    assert!(
+                        ctxt.version >= &Version(Api::Gl, 2, 0)
+                            || ctxt.version >= &Version(Api::GlEs, 2, 0)
+                    );
 
                     if ctxt.state.program == Handle::Id(id) {
                         ctxt.gl.UseProgram(0);
@@ -728,7 +810,7 @@ impl Drop for RawProgram {
                     }
 
                     ctxt.gl.DeleteProgram(id);
-                },
+                }
                 Handle::Handle(id) => {
                     assert!(ctxt.extensions.gl_arb_shader_objects);
 
@@ -746,8 +828,7 @@ impl Drop for RawProgram {
 
 /// Builds an empty program from within the GL context.
 unsafe fn create_program(ctxt: &mut CommandContext<'_>) -> Handle {
-    let id = if ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                ctxt.version >= &Version(Api::GlEs, 2, 0)
+    let id = if ctxt.version >= &Version(Api::Gl, 2, 0) || ctxt.version >= &Version(Api::GlEs, 2, 0)
     {
         Handle::Id(ctxt.gl.CreateProgram())
     } else if ctxt.extensions.gl_arb_shader_objects {
@@ -763,21 +844,24 @@ unsafe fn create_program(ctxt: &mut CommandContext<'_>) -> Handle {
     id
 }
 
-unsafe fn check_program_link_errors(ctxt: &mut CommandContext<'_>, id: Handle)
-                                    -> Result<(), ProgramCreationError>
-{
+unsafe fn check_program_link_errors(
+    ctxt: &mut CommandContext<'_>,
+    id: Handle,
+) -> Result<(), ProgramCreationError> {
     let mut link_success: gl::types::GLint = 0;
 
     match id {
         Handle::Id(id) => {
-            assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0));
+            assert!(
+                ctxt.version >= &Version(Api::Gl, 2, 0)
+                    || ctxt.version >= &Version(Api::GlEs, 2, 0)
+            );
             ctxt.gl.GetProgramiv(id, gl::LINK_STATUS, &mut link_success);
-        },
+        }
         Handle::Handle(id) => {
             assert!(ctxt.extensions.gl_arb_shader_objects);
-            ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_LINK_STATUS_ARB,
-                                            &mut link_success);
+            ctxt.gl
+                .GetObjectParameterivARB(id, gl::OBJECT_LINK_STATUS_ARB, &mut link_success);
         }
     }
 
@@ -787,13 +871,19 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext<'_>, id: Handle)
         match ctxt.gl.GetError() {
             gl::NO_ERROR => (),
             gl::INVALID_VALUE => {
-                return Err(LinkingError("glLinkProgram triggered GL_INVALID_VALUE".to_string()));
-            },
+                return Err(LinkingError(
+                    "glLinkProgram triggered GL_INVALID_VALUE".to_string(),
+                ));
+            }
             gl::INVALID_OPERATION => {
-                return Err(LinkingError("glLinkProgram triggered GL_INVALID_OPERATION".to_string()));
-            },
+                return Err(LinkingError(
+                    "glLinkProgram triggered GL_INVALID_OPERATION".to_string(),
+                ));
+            }
             _ => {
-                return Err(LinkingError("glLinkProgram triggered an unknown error".to_string()));
+                return Err(LinkingError(
+                    "glLinkProgram triggered an unknown error".to_string(),
+                ));
             }
         };
 
@@ -801,14 +891,20 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext<'_>, id: Handle)
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0));
-                ctxt.gl.GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
-            },
+                assert!(
+                    ctxt.version >= &Version(Api::Gl, 2, 0)
+                        || ctxt.version >= &Version(Api::GlEs, 2, 0)
+                );
+                ctxt.gl
+                    .GetProgramiv(id, gl::INFO_LOG_LENGTH, &mut error_log_size);
+            }
             Handle::Handle(id) => {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
-                ctxt.gl.GetObjectParameterivARB(id, gl::OBJECT_INFO_LOG_LENGTH_ARB,
-                                                &mut error_log_size);
+                ctxt.gl.GetObjectParameterivARB(
+                    id,
+                    gl::OBJECT_INFO_LOG_LENGTH_ARB,
+                    &mut error_log_size,
+                );
             }
         }
 
@@ -816,15 +912,25 @@ unsafe fn check_program_link_errors(ctxt: &mut CommandContext<'_>, id: Handle)
 
         match id {
             Handle::Id(id) => {
-                assert!(ctxt.version >= &Version(Api::Gl, 2, 0) ||
-                    ctxt.version >= &Version(Api::GlEs, 2, 0));
-                ctxt.gl.GetProgramInfoLog(id, error_log_size, &mut error_log_size,
-                                          error_log.as_mut_ptr() as *mut gl::types::GLchar);
-            },
+                assert!(
+                    ctxt.version >= &Version(Api::Gl, 2, 0)
+                        || ctxt.version >= &Version(Api::GlEs, 2, 0)
+                );
+                ctxt.gl.GetProgramInfoLog(
+                    id,
+                    error_log_size,
+                    &mut error_log_size,
+                    error_log.as_mut_ptr() as *mut gl::types::GLchar,
+                );
+            }
             Handle::Handle(id) => {
                 assert!(ctxt.extensions.gl_arb_shader_objects);
-                ctxt.gl.GetInfoLogARB(id, error_log_size, &mut error_log_size,
-                                      error_log.as_mut_ptr() as *mut gl::types::GLchar);
+                ctxt.gl.GetInfoLogARB(
+                    id,
+                    error_log_size,
+                    &mut error_log_size,
+                    error_log.as_mut_ptr() as *mut gl::types::GLchar,
+                );
             }
         }
 

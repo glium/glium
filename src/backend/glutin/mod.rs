@@ -18,6 +18,7 @@ use crate::backend::Context;
 use crate::context;
 use crate::debug;
 use crate::glutin::{ContextCurrentState, PossiblyCurrent as Pc};
+use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
 use std::cell::{Cell, Ref, RefCell};
 use std::error::Error;
 use std::fmt;
@@ -25,7 +26,6 @@ use std::ops::Deref;
 use std::os::raw::c_void;
 use std::rc::Rc;
 use takeable_option::Takeable;
-use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
 
 /// A GL context combined with a facade for drawing upon.
 ///

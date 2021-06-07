@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
 
-use std::io::Cursor;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
+use std::io::Cursor;
 
 mod support;
 
@@ -14,10 +14,15 @@ fn main() {
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-                            image::ImageFormat::Png).unwrap().to_rgba8();
+    let image = image::load(
+        Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
+        image::ImageFormat::Png,
+    )
+    .unwrap()
+    .to_rgba8();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+    let image =
+        glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedSrgbTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
@@ -30,20 +35,41 @@ fn main() {
 
         implement_vertex!(Vertex, position, tex_coords);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-0.5,  0.5, 3.0], tex_coords: [1.0, 1.0] },
-                Vertex { position: [ 0.5,  0.5, 3.0], tex_coords: [0.0, 1.0] },
-                Vertex { position: [-0.5, -0.5, 3.0], tex_coords: [1.0, 0.0] },
-                Vertex { position: [ 0.5,  0.5, 3.0], tex_coords: [0.0, 1.0] },
-                Vertex { position: [ 0.5, -0.5, 3.0], tex_coords: [0.0, 0.0] },
-                Vertex { position: [-0.5, -0.5, 3.0], tex_coords: [1.0, 0.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-0.5, 0.5, 3.0],
+                    tex_coords: [1.0, 1.0],
+                },
+                Vertex {
+                    position: [0.5, 0.5, 3.0],
+                    tex_coords: [0.0, 1.0],
+                },
+                Vertex {
+                    position: [-0.5, -0.5, 3.0],
+                    tex_coords: [1.0, 0.0],
+                },
+                Vertex {
+                    position: [0.5, 0.5, 3.0],
+                    tex_coords: [0.0, 1.0],
+                },
+                Vertex {
+                    position: [0.5, -0.5, 3.0],
+                    tex_coords: [0.0, 0.0],
+                },
+                Vertex {
+                    position: [-0.5, -0.5, 3.0],
+                    tex_coords: [1.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     // compiling shaders and linking them together
-    let program = glium::Program::new(&display,
+    let program = glium::Program::new(
+        &display,
         glium::program::SourceCode {
             vertex_shader: "
                 #version 400
@@ -61,7 +87,8 @@ fn main() {
                     v_tex_coords = tex_coords;
                 }
             ",
-            tessellation_control_shader: Some("
+            tessellation_control_shader: Some(
+                "
                 #version 400
 
                 layout(vertices = 3) out;
@@ -89,8 +116,10 @@ fn main() {
                     gl_TessLevelInner[0] = inner_level;
                     gl_TessLevelInner[1] = inner_level;
                 }
-            "),
-            tessellation_evaluation_shader: Some("
+            ",
+            ),
+            tessellation_evaluation_shader: Some(
+                "
                 #version 400
 
                 layout(triangles, equal_spacing, ccw) in;
@@ -129,8 +158,10 @@ fn main() {
                     te_normal = vec3(view_matrix * vec4(normal, 1.0)).xyz;
                     te_tex_coords = tex_coords;
                 }
-            "),
-            geometry_shader: Some("
+            ",
+            ),
+            geometry_shader: Some(
+                "
                 #version 400
 
                 layout(triangles) in;
@@ -163,7 +194,8 @@ fn main() {
 
                     EndPrimitive();
                 }
-            "),
+            ",
+            ),
             fragment_shader: "
                 #version 400
 
@@ -183,7 +215,9 @@ fn main() {
                     o_color = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
-        }).unwrap();
+        },
+    )
+    .unwrap();
 
     let camera = support::camera::CameraState::new();
 
@@ -208,12 +242,17 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 1.0);
-        target.draw(&vertex_buffer,
-                    &glium::index::NoIndices(glium::index::PrimitiveType::Patches {
-                        vertices_per_patch: 3
-                    }),
-                    &program, &uniforms,
-                    &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &glium::index::NoIndices(glium::index::PrimitiveType::Patches {
+                    vertices_per_patch: 3,
+                }),
+                &program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
@@ -221,11 +260,13 @@ fn main() {
         // polling and handling the events received by the window
         for event in events {
             match event {
-                glutin::event::Event::WindowEvent { event: glutin::event::WindowEvent::CloseRequested, .. } =>
-                    action = support::Action::Stop,
-                _ => ()
+                glutin::event::Event::WindowEvent {
+                    event: glutin::event::WindowEvent::CloseRequested,
+                    ..
+                } => action = support::Action::Stop,
+                _ => (),
             }
-        };
+        }
 
         action
     });

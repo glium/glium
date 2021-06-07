@@ -3,11 +3,11 @@ extern crate glium;
 
 use std::io::Cursor;
 
-use glium::Surface;
-use glium::index::PrimitiveType;
 #[allow(unused_imports)]
-use glium::glutin::event::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
+use glium::glutin::event::{self, ElementState, Event, VirtualKeyCode, WindowEvent};
 use glium::glutin::window::Fullscreen;
+use glium::index::PrimitiveType;
+use glium::Surface;
 
 mod support;
 
@@ -19,10 +19,15 @@ fn main() {
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-                            image::ImageFormat::Png).unwrap().to_rgba8();
+    let image = image::load(
+        Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
+        image::ImageFormat::Png,
+    )
+    .unwrap()
+    .to_rgba8();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+    let image =
+        glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
@@ -35,22 +40,39 @@ fn main() {
 
         implement_vertex!(Vertex, position, tex_coords);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 0.0] },
-                Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 1.0] },
-                Vertex { position: [ 1.0,  1.0], tex_coords: [1.0, 1.0] },
-                Vertex { position: [ 1.0, -1.0], tex_coords: [1.0, 0.0] }
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-1.0, -1.0],
+                    tex_coords: [0.0, 0.0],
+                },
+                Vertex {
+                    position: [-1.0, 1.0],
+                    tex_coords: [0.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, 1.0],
+                    tex_coords: [1.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, -1.0],
+                    tex_coords: [1.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     // building the index buffer
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[1 as u16, 2, 0, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[1 as u16, 2, 0, 3])
+            .unwrap();
 
     // compiling shaders and linking them together
-    let program = glium::Program::from_source(&display, r"
+    let program = glium::Program::from_source(
+        &display,
+        r"
         #version 140
 
         uniform mat4 matrix;
@@ -64,7 +86,8 @@ fn main() {
             gl_Position = matrix * vec4(position, 0.0, 1.0);
             v_tex_coords = tex_coords;
         }
-    ", r"
+    ",
+        r"
         #version 140
         uniform sampler2D tex;
         in vec2 v_tex_coords;
@@ -73,8 +96,10 @@ fn main() {
         void main() {
             color = texture(tex, v_tex_coords);
         }
-    ", None).unwrap();
-
+    ",
+        None,
+    )
+    .unwrap();
 
     let mut fullscreen = false;
 
@@ -84,15 +109,23 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 1.0, 0.0, 1.0);
-        target.draw(&vertex_buffer, &index_buffer, &program, &uniform! {
-                matrix: [
-                    [0.5, 0.0, 0.0, 0.0],
-                    [0.0, 0.5, 0.0, 0.0],
-                    [0.0, 0.0, 0.5, 0.0],
-                    [0.0, 0.0, 0.0, 1.0f32]
-                ],
-                tex: &opengl_texture
-            }, &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                &program,
+                &uniform! {
+                    matrix: [
+                        [0.5, 0.0, 0.0, 0.0],
+                        [0.0, 0.5, 0.0, 0.0],
+                        [0.0, 0.0, 0.5, 0.0],
+                        [0.0, 0.0, 0.0, 1.0f32]
+                    ],
+                    tex: &opengl_texture
+                },
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
@@ -101,7 +134,7 @@ fn main() {
         let mut enter_pressed = false;
         for event in events {
             match event {
-                Event::WindowEvent { event, window_id } =>
+                Event::WindowEvent { event, window_id } => {
                     if *window_id == display.gl_window().window().id() {
                         match event {
                             WindowEvent::CloseRequested => action = support::Action::Stop,
@@ -111,13 +144,14 @@ fn main() {
                                         enter_pressed = true;
                                     }
                                 }
-                            },
-                            _ => ()
+                            }
+                            _ => (),
                         }
-                    },
+                    }
+                }
                 _ => (),
             }
-        };
+        }
 
         // If enter was pressed toggle fullscreen.
         if enter_pressed {
@@ -125,7 +159,12 @@ fn main() {
                 display.gl_window().window().set_fullscreen(None);
                 fullscreen = false;
             } else {
-                let monitor_handle = display.gl_window().window().available_monitors().next().unwrap();
+                let monitor_handle = display
+                    .gl_window()
+                    .window()
+                    .available_monitors()
+                    .next()
+                    .unwrap();
                 let fs = Fullscreen::Borderless(Some(monitor_handle));
                 display.gl_window().window().set_fullscreen(Some(fs));
 

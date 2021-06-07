@@ -126,16 +126,18 @@ let program = glium::Program::from_source(&display,
 ```
 */
 pub use self::buffer::UniformBuffer;
-pub use self::sampler::{SamplerWrapFunction, MagnifySamplerFilter, MinifySamplerFilter, DepthTextureComparison};
+pub use self::sampler::{
+    DepthTextureComparison, MagnifySamplerFilter, MinifySamplerFilter, SamplerWrapFunction,
+};
 pub use self::sampler::{Sampler, SamplerBehavior};
 pub use self::uniforms::{EmptyUniforms, UniformsStorage};
-pub use self::value::{UniformValue, UniformType};
+pub use self::value::{UniformType, UniformValue};
 
 use std::error::Error;
 use std::fmt;
 
-use crate::buffer::Content as BufferContent;
 use crate::buffer::Buffer;
+use crate::buffer::Content as BufferContent;
 use crate::program;
 use crate::program::BlockLayout;
 
@@ -201,7 +203,7 @@ impl Error for LayoutMismatchError {
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         use self::LayoutMismatchError::*;
         match *self {
-            MemberMismatch{ ref err, .. } => Some(err.as_ref()),
+            MemberMismatch { ref err, .. } => Some(err.as_ref()),
             _ => None,
         }
     }
@@ -211,58 +213,41 @@ impl fmt::Display for LayoutMismatchError {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         use self::LayoutMismatchError::*;
         let desc = match *self {
-            TypeMismatch { .. } =>
-                "There is a mismatch in the type of one element",
-            LayoutMismatch { .. } =>
-                "The expected layout is totally different from what we have",
-            OffsetMismatch { .. } =>
-                "The type of data is good, but there is a misalignment",
-            MemberMismatch { .. } =>
-                "There is a mismatch in a submember of this layout",
-            MissingField { .. } =>
-                "A field is missing in either the expected of the input data layout",
+            TypeMismatch { .. } => "There is a mismatch in the type of one element",
+            LayoutMismatch { .. } => "The expected layout is totally different from what we have",
+            OffsetMismatch { .. } => "The type of data is good, but there is a misalignment",
+            MemberMismatch { .. } => "There is a mismatch in a submember of this layout",
+            MissingField { .. } => {
+                "A field is missing in either the expected of the input data layout"
+            }
         };
         match *self {
             //duplicate Patternmatching, different Types can't be condensed
-            TypeMismatch { ref expected, ref obtained } =>
-                write!(
-                    fmt,
-                    "{}, got: {:?}, expected: {:?}",
-                    desc,
-                    obtained,
-                    expected,
-                ),
-            LayoutMismatch { ref expected, ref obtained } =>
-                write!(
-                    fmt,
-                    "{}, got: {:?}, expected: {:?}",
-                    desc,
-                    obtained,
-                    expected,
-                ),
-            OffsetMismatch { ref expected, ref obtained } =>
-                write!(
-                    fmt,
-                    "{}, got: {}, expected: {}",
-                    desc,
-                    obtained,
-                    expected,
-                ),
-            MemberMismatch { ref member, ref err } =>
-                write!(
-                    fmt,
-                    "{}, {}: {}",
-                    desc,
-                    member,
-                    err,
-                ),
-            MissingField { ref name } =>
-                write!(
-                    fmt,
-                    "{}: {}",
-                    desc,
-                    name,
-                ),
+            TypeMismatch {
+                ref expected,
+                ref obtained,
+            } => write!(
+                fmt,
+                "{}, got: {:?}, expected: {:?}",
+                desc, obtained, expected,
+            ),
+            LayoutMismatch {
+                ref expected,
+                ref obtained,
+            } => write!(
+                fmt,
+                "{}, got: {:?}, expected: {:?}",
+                desc, obtained, expected,
+            ),
+            OffsetMismatch {
+                ref expected,
+                ref obtained,
+            } => write!(fmt, "{}, got: {}, expected: {}", desc, obtained, expected,),
+            MemberMismatch {
+                ref member,
+                ref err,
+            } => write!(fmt, "{}, {}: {}", desc, member, err,),
+            MissingField { ref name } => write!(fmt, "{}: {}", desc, name,),
         }
     }
 }
@@ -276,12 +261,16 @@ pub trait AsUniformValue {
 }
 
 // TODO: no way to bind a slice
-impl<'a, T: ?Sized> AsUniformValue for &'a Buffer<T> where T: UniformBlock + BufferContent {
+impl<'a, T: ?Sized> AsUniformValue for &'a Buffer<T>
+where
+    T: UniformBlock + BufferContent,
+{
     #[inline]
     fn as_uniform_value(&self) -> UniformValue<'_> {
         #[inline]
-        fn f<T: ?Sized>(block: &program::UniformBlock)
-                        -> Result<(), LayoutMismatchError> where T: UniformBlock + BufferContent
+        fn f<T: ?Sized>(block: &program::UniformBlock) -> Result<(), LayoutMismatchError>
+        where
+            T: UniformBlock + BufferContent,
         {
             // TODO: more checks?
             T::matches(&block.layout, 0)
@@ -292,7 +281,8 @@ impl<'a, T: ?Sized> AsUniformValue for &'a Buffer<T> where T: UniformBlock + Buf
 }
 
 /// Objects that are suitable for being inside a uniform block or a SSBO.
-pub trait UniformBlock {        // TODO: `: Copy`, but unsized structs don't impl `Copy`
+pub trait UniformBlock {
+    // TODO: `: Copy`, but unsized structs don't impl `Copy`
     /// Checks whether the uniforms' layout matches the given block if `Self` starts at
     /// the given offset.
     fn matches(_: &BlockLayout, base_offset: usize) -> Result<(), LayoutMismatchError>;
@@ -301,10 +291,11 @@ pub trait UniformBlock {        // TODO: `: Copy`, but unsized structs don't imp
     fn build_layout(base_offset: usize) -> BlockLayout;
 }
 
-impl<T> UniformBlock for [T] where T: UniformBlock {
-    fn matches(layout: &BlockLayout, base_offset: usize)
-               -> Result<(), LayoutMismatchError>
-    {
+impl<T> UniformBlock for [T]
+where
+    T: UniformBlock,
+{
+    fn matches(layout: &BlockLayout, base_offset: usize) -> Result<(), LayoutMismatchError> {
         if let BlockLayout::Struct { members } = layout {
             if members.len() == 1 {
                 return Self::matches(&members[0].1, base_offset);
@@ -312,23 +303,19 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
         }
 
         if let BlockLayout::DynamicSizedArray { content } = layout {
-            <T as UniformBlock>::matches(content, base_offset)
-                .map_err(|err| {
-                    LayoutMismatchError::MemberMismatch {
-                        member: "<dynamic array content>".to_owned(),
-                        err: Box::new(err),
-                    }
-                })
-
+            <T as UniformBlock>::matches(content, base_offset).map_err(|err| {
+                LayoutMismatchError::MemberMismatch {
+                    member: "<dynamic array content>".to_owned(),
+                    err: Box::new(err),
+                }
+            })
         } else if let BlockLayout::Array { content, .. } = layout {
-            <T as UniformBlock>::matches(content, base_offset)
-                .map_err(|err| {
-                    LayoutMismatchError::MemberMismatch {
-                        member: "<dynamic array content>".to_owned(),
-                        err: Box::new(err),
-                    }
-                })
-
+            <T as UniformBlock>::matches(content, base_offset).map_err(|err| {
+                LayoutMismatchError::MemberMismatch {
+                    member: "<dynamic array content>".to_owned(),
+                    err: Box::new(err),
+                }
+            })
         } else {
             Err(LayoutMismatchError::LayoutMismatch {
                 expected: layout.clone(),
@@ -346,18 +333,26 @@ impl<T> UniformBlock for [T] where T: UniformBlock {
 }
 
 macro_rules! impl_uniform_block_array {
-    ($len:expr) => (
-        impl<T> UniformBlock for [T; $len] where T: UniformBlock {
-            fn matches(layout: &program::BlockLayout, base_offset: usize)
-                       -> Result<(), LayoutMismatchError>
-            {
+    ($len:expr) => {
+        impl<T> UniformBlock for [T; $len]
+        where
+            T: UniformBlock,
+        {
+            fn matches(
+                layout: &program::BlockLayout,
+                base_offset: usize,
+            ) -> Result<(), LayoutMismatchError> {
                 if let &BlockLayout::Struct { ref members } = layout {
                     if members.len() == 1 {
                         return Self::matches(&members[0].1, base_offset);
                     }
                 }
 
-                if let &BlockLayout::Array { ref content, length } = layout {
+                if let &BlockLayout::Array {
+                    ref content,
+                    length,
+                } = layout
+                {
                     if let Err(err) = T::matches(content, base_offset) {
                         return Err(LayoutMismatchError::MemberMismatch {
                             member: "<array content>".to_owned(),
@@ -373,7 +368,6 @@ macro_rules! impl_uniform_block_array {
                     }
 
                     Ok(())
-
                 } else {
                     Err(LayoutMismatchError::LayoutMismatch {
                         expected: layout.clone(),
@@ -390,7 +384,7 @@ macro_rules! impl_uniform_block_array {
                 }
             }
         }
-    );
+    };
 }
 
 impl_uniform_block_array!(5);

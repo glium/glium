@@ -38,8 +38,8 @@ impl Fences {
         let mut new_fences = SmallVec::new();
 
         for existing in existing_fences.drain(..) {
-            if (existing.0.start >= range.start && existing.0.start < range.end) ||
-               (existing.0.end > range.start && existing.0.end < range.end)
+            if (existing.0.start >= range.start && existing.0.start < range.end)
+                || (existing.0.end > range.start && existing.0.end < range.end)
             {
                 unsafe { sync::wait_linear_sync_fence_and_drop(existing.1, ctxt) };
             } else {
@@ -76,23 +76,20 @@ impl<'a> Inserter<'a> {
         for existing in existing_fences.drain(..) {
             if existing.0.start < self.range.start && existing.0.end <= self.range.start {
                 new_fences.push(existing);
-
             } else if existing.0.start < self.range.start && existing.0.end >= self.range.end {
                 // we are stuck here, because we can't duplicate a fence
                 // so instead we just extend the new fence to the existing one
                 let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
-                new_fences.push((existing.0.start .. self.range.start, existing.1));
-                new_fences.push((self.range.start .. existing.0.end, new_fence));
+                new_fences.push((existing.0.start..self.range.start, existing.1));
+                new_fences.push((self.range.start..existing.0.end, new_fence));
                 written = true;
-
             } else if existing.0.start < self.range.start && existing.0.end >= self.range.start {
-                new_fences.push((existing.0.start .. self.range.start, existing.1));
+                new_fences.push((existing.0.start..self.range.start, existing.1));
                 if !written {
                     let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
                     new_fences.push((self.range.clone(), new_fence));
                     written = true;
                 }
-
             } else if existing.0.start >= self.range.start && existing.0.end <= self.range.end {
                 unsafe { sync::destroy_linear_sync_fence(ctxt, existing.1) };
                 if !written {
@@ -100,7 +97,6 @@ impl<'a> Inserter<'a> {
                     new_fences.push((self.range.clone(), new_fence));
                     written = true;
                 }
-
             } else if existing.0.start >= self.range.end {
                 if !written {
                     let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
@@ -109,7 +105,6 @@ impl<'a> Inserter<'a> {
                 }
 
                 new_fences.push(existing);
-
             } else {
                 if !written {
                     let new_fence = unsafe { sync::new_linear_sync_fence(ctxt).unwrap() };
@@ -117,7 +112,7 @@ impl<'a> Inserter<'a> {
                     written = true;
                 }
 
-                new_fences.push((self.range.end .. existing.0.end, existing.1));
+                new_fences.push((self.range.end..existing.0.end, existing.1));
             }
         }
 

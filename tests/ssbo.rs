@@ -11,7 +11,8 @@ fn basic() {
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -36,12 +37,13 @@ fn basic() {
                 f_color = vec4(0.0, 0.0, 0.0, 1.0);
             }
         ",
-        None);
+        None,
+    );
 
     // ignoring test in case of compilation error (version may not be supported)
     let program = match program {
         Ok(p) => p,
-        Err(_) => return
+        Err(_) => return,
     };
 
     #[derive(Copy, Clone)]
@@ -51,18 +53,26 @@ fn basic() {
 
     implement_uniform_block!(Data, color);
 
-    let buffer = match glium::uniforms::UniformBuffer::new(&display, Data { color: (0.0f32, 0.0f32, 0.0f32) }) {
+    let buffer = match glium::uniforms::UniformBuffer::new(
+        &display,
+        Data {
+            color: (0.0f32, 0.0f32, 0.0f32),
+        },
+    ) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
-    let uniforms = uniform!{
+    let uniforms = uniform! {
         MyBlock: &buffer
     };
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data = buffer.read().unwrap();
     assert_eq!(data.color, (1.0, 1.0, 0.5));
@@ -76,7 +86,8 @@ fn custom_bind_point() {
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -101,12 +112,13 @@ fn custom_bind_point() {
                 f_color = vec4(0.0, 0.0, 0.0, 1.0);
             }
         ",
-        None);
+        None,
+    );
 
     // ignoring test in case of compilation error (version may not be supported)
     let program = match program {
         Ok(p) => p,
-        Err(_) => return
+        Err(_) => return,
     };
 
     #[derive(Copy, Clone)]
@@ -116,18 +128,26 @@ fn custom_bind_point() {
 
     implement_uniform_block!(Data, color);
 
-    let buffer = match glium::uniforms::UniformBuffer::new(&display, Data { color: (0.0f32, 0.0f32, 0.0f32) }) {
+    let buffer = match glium::uniforms::UniformBuffer::new(
+        &display,
+        Data {
+            color: (0.0f32, 0.0f32, 0.0f32),
+        },
+    ) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
-    let uniforms = uniform!{
+    let uniforms = uniform! {
         MyBlock: &buffer
     };
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data = buffer.read().unwrap();
     assert_eq!(data.color, (1.0, 1.0, 0.5));

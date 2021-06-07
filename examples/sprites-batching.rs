@@ -1,19 +1,21 @@
 #[macro_use]
 extern crate glium;
 
+use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
-use glium::index::PrimitiveType;
 
 mod support;
 
 fn main() {
-    println!("This example demonstrates how to draw a lot of sprites in an efficient manner. \n\n\
+    println!(
+        "This example demonstrates how to draw a lot of sprites in an efficient manner. \n\n\
               Instead of drawing sprites one by one, it writes the list of sprites in a buffer \
               and draws everything at once. Textures are accessed though a Texture2dArray to \
               avoid the problem of binding textures one by one.\n\n\
               Performances are limited by the synchronization required to write on the color \
-              buffer. Enabling depth test would likely increase the framerate.\n");
+              buffer. Enabling depth test would likely increase the framerate.\n"
+    );
 
     const SPRITES_COUNT: usize = 1024;
     println!("Number of sprites: {}", SPRITES_COUNT);
@@ -26,11 +28,13 @@ fn main() {
     // generating a bunch of unicolor 2D images that will be used for a texture
     // we store all of them in a `Texture2dArray`
     let texture = {
-        let images = (0 .. 64).map(|_| {
-            let color1: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
-            let color2: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
-            vec![vec![color1], vec![color2]]
-        }).collect::<Vec<_>>();
+        let images = (0..64)
+            .map(|_| {
+                let color1: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
+                let color2: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
+                vec![vec![color1], vec![color2]]
+            })
+            .collect::<Vec<_>>();
 
         glium::texture::Texture2dArray::new(&display, images).unwrap()
     };
@@ -46,8 +50,8 @@ fn main() {
 
         implement_vertex!(Vertex, i_position, i_tex_id);
 
-        let mut vb: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty_dynamic(&display,
-                                                                        SPRITES_COUNT * 4).unwrap();
+        let mut vb: glium::VertexBuffer<Vertex> =
+            glium::VertexBuffer::empty_dynamic(&display, SPRITES_COUNT * 4).unwrap();
         let mut ib_data = Vec::with_capacity(SPRITES_COUNT * 6);
 
         // initializing with random data
@@ -79,7 +83,11 @@ fn main() {
             ib_data.push(num * 4 + 2);
         }
 
-        (vb, glium::index::IndexBuffer::new(&display, PrimitiveType::TrianglesList, &ib_data).unwrap())
+        (
+            vb,
+            glium::index::IndexBuffer::new(&display, PrimitiveType::TrianglesList, &ib_data)
+                .unwrap(),
+        )
     };
 
     // we determine the texture coordinates depending on the ID the of vertex
@@ -208,7 +216,8 @@ fn main() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // the main loop
     support::start_loop(event_loop, move |events| {
@@ -234,13 +243,20 @@ fn main() {
 
         // we must only draw the number of sprites that we have written in the vertex buffer
         // if you only want to draw 20 sprites for example, you should pass `0 .. 20 * 6` instead
-        let ib_slice = index_buffer.slice(0 .. SPRITES_COUNT * 6).unwrap();
+        let ib_slice = index_buffer.slice(0..SPRITES_COUNT * 6).unwrap();
 
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer, &ib_slice,
-                    &program, &uniform! { tex: &texture }, &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &ib_slice,
+                &program,
+                &uniform! { tex: &texture },
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
@@ -249,11 +265,11 @@ fn main() {
             match event {
                 glutin::event::Event::WindowEvent { event, .. } => match event {
                     glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
-                    _ => ()
+                    _ => (),
                 },
                 _ => (),
             }
-        };
+        }
 
         action
     });

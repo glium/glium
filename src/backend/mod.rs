@@ -12,9 +12,9 @@ There are three concepts in play:
    that implements this trait. It is implemented on `Rc<Context>`.
 
 */
-use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;
+use std::rc::Rc;
 
 use crate::CapabilitiesSource;
 use crate::SwapBuffersError;
@@ -52,7 +52,10 @@ pub unsafe trait Backend {
     unsafe fn make_current(&self);
 }
 
-unsafe impl<T> Backend for Rc<T> where T: Backend {
+unsafe impl<T> Backend for Rc<T>
+where
+    T: Backend,
+{
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         self.deref().swap_buffers()
     }
@@ -80,7 +83,10 @@ pub trait Facade {
     fn get_context(&self) -> &Rc<Context>;
 }
 
-impl<T: ?Sized> CapabilitiesSource for T where T: Facade {
+impl<T: ?Sized> CapabilitiesSource for T
+where
+    T: Facade,
+{
     fn get_version(&self) -> &Version {
         self.get_context().deref().get_opengl_version()
     }

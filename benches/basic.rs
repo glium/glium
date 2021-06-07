@@ -64,7 +64,7 @@ fn create_program(b: &mut Bencher) {
 }
 
 #[bench]
-#[ignore]       // TODO: segfaults
+#[ignore] // TODO: segfaults
 fn draw_triangle(b: &mut Bencher) {
     let display = support::build_context();
 
@@ -77,13 +77,24 @@ fn draw_triangle(b: &mut Bencher) {
 
         implement_vertex!(Vertex, position, color);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-0.5, -0.5], color: [1.0, 0.0, 0.0] },
-                Vertex { position: [ 0.0,  0.5], color: [0.0, 1.0, 0.0] },
-                Vertex { position: [ 0.5, -0.5], color: [0.0, 0.0, 1.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-0.5, -0.5],
+                    color: [1.0, 0.0, 0.0],
+                },
+                Vertex {
+                    position: [0.0, 0.5],
+                    color: [0.0, 1.0, 0.0],
+                },
+                Vertex {
+                    position: [0.5, -0.5],
+                    color: [0.0, 0.0, 1.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let program = program!(&display,
@@ -113,13 +124,21 @@ fn draw_triangle(b: &mut Bencher) {
                 }
             ",
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     b.iter(|| {
         let mut target = glium::Frame::new(display.clone(), (800, 600));
         target.clear_color(0.0, 0.0, 0.0, 1.0);
-        target.draw(&vertex_buffer, &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
-                    &program, &uniform!{}, &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+                &program,
+                &uniform! {},
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
     });
 }
@@ -137,12 +156,23 @@ fn build_buffer(b: &mut Bencher) {
 
         implement_vertex!(Vertex, position, color);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-0.5, -0.5], color: [1.0, 0.0, 0.0] },
-                Vertex { position: [ 0.0,  0.5], color: [0.0, 1.0, 0.0] },
-                Vertex { position: [ 0.5, -0.5], color: [0.0, 0.0, 1.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-0.5, -0.5],
+                    color: [1.0, 0.0, 0.0],
+                },
+                Vertex {
+                    position: [0.0, 0.5],
+                    color: [0.0, 1.0, 0.0],
+                },
+                Vertex {
+                    position: [0.5, -0.5],
+                    color: [0.0, 0.0, 1.0],
+                },
+            ],
+        )
+        .unwrap()
     });
 }

@@ -1,7 +1,7 @@
-use std::ffi::CStr;
-use crate::version::Version;
-use crate::version::Api;
 use crate::gl;
+use crate::version::Api;
+use crate::version::Version;
+use std::ffi::CStr;
 
 macro_rules! extensions {
     ($($string:expr => $field:ident,)+) => {
@@ -218,16 +218,16 @@ unsafe fn get_extensions_strings(gl: &gl::Gl, version: &Version) -> Vec<String> 
         let mut num_extensions = 0;
         gl.GetIntegerv(gl::NUM_EXTENSIONS, &mut num_extensions);
 
-        (0 .. num_extensions).map(|num| {
-            let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
-            String::from_utf8(CStr::from_ptr(ext as *const _).to_bytes().to_vec()).unwrap()
-        }).collect()
-
+        (0..num_extensions)
+            .map(|num| {
+                let ext = gl.GetStringi(gl::EXTENSIONS, num as gl::types::GLuint);
+                String::from_utf8(CStr::from_ptr(ext as *const _).to_bytes().to_vec()).unwrap()
+            })
+            .collect()
     } else {
         let list = gl.GetString(gl::EXTENSIONS);
         assert!(!list.is_null());
-        let list = String::from_utf8(CStr::from_ptr(list as *const _).to_bytes().to_vec())
-                                     .unwrap();
+        let list = String::from_utf8(CStr::from_ptr(list as *const _).to_bytes().to_vec()).unwrap();
         list.split(' ').map(|e| e.to_owned()).collect()
     }
 }

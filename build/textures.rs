@@ -33,7 +33,7 @@ impl TextureDimensions {
             TextureDimensions::Texture2dArray => true,
             TextureDimensions::Texture2dMultisampleArray => true,
             TextureDimensions::CubemapArray => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -41,7 +41,7 @@ impl TextureDimensions {
         match self {
             TextureDimensions::Texture2dMultisample => true,
             TextureDimensions::Texture2dMultisampleArray => true,
-            _ => false
+            _ => false,
         }
     }
 
@@ -49,7 +49,7 @@ impl TextureDimensions {
         match self {
             TextureDimensions::Cubemap => true,
             TextureDimensions::CubemapArray => true,
-            _ => false
+            _ => false,
         }
     }
 }
@@ -58,80 +58,232 @@ pub fn build_texture_file<W: Write>(dest: &mut W) {
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Srgb, TextureDimensions::Texture1d);
-    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture1d);
+    build_texture(
+        dest,
+        TextureType::CompressedSrgb,
+        TextureDimensions::Texture1d,
+    );
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture1d);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture1d);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture1d);
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::Texture1d,
+    );
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2d);
-    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture2d);
+    build_texture(
+        dest,
+        TextureType::CompressedSrgb,
+        TextureDimensions::Texture2d,
+    );
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2d);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2d);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2d);
-    build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dMultisample);
-    build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dMultisample);
-    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2dMultisample);
-    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dMultisample);
-    build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dMultisample);
-    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dMultisample);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dMultisample);
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::Texture2d,
+    );
+    build_texture(
+        dest,
+        TextureType::Regular,
+        TextureDimensions::Texture2dMultisample,
+    );
+    build_texture(
+        dest,
+        TextureType::Integral,
+        TextureDimensions::Texture2dMultisample,
+    );
+    build_texture(
+        dest,
+        TextureType::Srgb,
+        TextureDimensions::Texture2dMultisample,
+    );
+    build_texture(
+        dest,
+        TextureType::Unsigned,
+        TextureDimensions::Texture2dMultisample,
+    );
+    build_texture(
+        dest,
+        TextureType::Depth,
+        TextureDimensions::Texture2dMultisample,
+    );
+    build_texture(
+        dest,
+        TextureType::Stencil,
+        TextureDimensions::Texture2dMultisample,
+    );
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::Texture2dMultisample,
+    );
     build_texture(dest, TextureType::Regular, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Srgb, TextureDimensions::Texture3d);
-    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture3d);
+    build_texture(
+        dest,
+        TextureType::CompressedSrgb,
+        TextureDimensions::Texture3d,
+    );
     build_texture(dest, TextureType::Integral, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture3d);
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture3d);
     //build_texture(dest, TextureType::Stencil, TextureDimensions::Texture3d);  // forbidden
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture3d);
-    build_texture(dest, TextureType::Regular, TextureDimensions::Texture1dArray);
-    build_texture(dest, TextureType::Compressed, TextureDimensions::Texture1dArray);
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::Texture3d,
+    );
+    build_texture(
+        dest,
+        TextureType::Regular,
+        TextureDimensions::Texture1dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Compressed,
+        TextureDimensions::Texture1dArray,
+    );
     build_texture(dest, TextureType::Srgb, TextureDimensions::Texture1dArray);
-    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture1dArray);
-    build_texture(dest, TextureType::Integral, TextureDimensions::Texture1dArray);
-    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture1dArray);
+    build_texture(
+        dest,
+        TextureType::CompressedSrgb,
+        TextureDimensions::Texture1dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Integral,
+        TextureDimensions::Texture1dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Unsigned,
+        TextureDimensions::Texture1dArray,
+    );
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture1dArray);
-    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture1dArray);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture1dArray);
-    build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::Compressed, TextureDimensions::Texture2dArray);
+    build_texture(
+        dest,
+        TextureType::Stencil,
+        TextureDimensions::Texture1dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::Texture1dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Regular,
+        TextureDimensions::Texture2dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Compressed,
+        TextureDimensions::Texture2dArray,
+    );
     build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dArray);
+    build_texture(
+        dest,
+        TextureType::CompressedSrgb,
+        TextureDimensions::Texture2dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Integral,
+        TextureDimensions::Texture2dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Unsigned,
+        TextureDimensions::Texture2dArray,
+    );
     build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dArray);
-    build_texture(dest, TextureType::Regular, TextureDimensions::Texture2dMultisampleArray);
-    build_texture(dest, TextureType::Srgb, TextureDimensions::Texture2dMultisampleArray);
-    build_texture(dest, TextureType::Integral, TextureDimensions::Texture2dMultisampleArray);
-    build_texture(dest, TextureType::Unsigned, TextureDimensions::Texture2dMultisampleArray);
-    build_texture(dest, TextureType::Depth, TextureDimensions::Texture2dMultisampleArray);
-    build_texture(dest, TextureType::Stencil, TextureDimensions::Texture2dMultisampleArray);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::Texture2dMultisampleArray);
+    build_texture(
+        dest,
+        TextureType::Stencil,
+        TextureDimensions::Texture2dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::Texture2dArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Regular,
+        TextureDimensions::Texture2dMultisampleArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Srgb,
+        TextureDimensions::Texture2dMultisampleArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Integral,
+        TextureDimensions::Texture2dMultisampleArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Unsigned,
+        TextureDimensions::Texture2dMultisampleArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Depth,
+        TextureDimensions::Texture2dMultisampleArray,
+    );
+    build_texture(
+        dest,
+        TextureType::Stencil,
+        TextureDimensions::Texture2dMultisampleArray,
+    );
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::Texture2dMultisampleArray,
+    );
     build_texture(dest, TextureType::Regular, TextureDimensions::Cubemap);
     build_texture(dest, TextureType::Compressed, TextureDimensions::Cubemap);
     build_texture(dest, TextureType::Srgb, TextureDimensions::Cubemap);
-    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::Cubemap);
+    build_texture(
+        dest,
+        TextureType::CompressedSrgb,
+        TextureDimensions::Cubemap,
+    );
     build_texture(dest, TextureType::Integral, TextureDimensions::Cubemap);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::Cubemap);
     build_texture(dest, TextureType::Depth, TextureDimensions::Cubemap);
     build_texture(dest, TextureType::Stencil, TextureDimensions::Cubemap);
     build_texture(dest, TextureType::DepthStencil, TextureDimensions::Cubemap);
     build_texture(dest, TextureType::Regular, TextureDimensions::CubemapArray);
-    build_texture(dest, TextureType::Compressed, TextureDimensions::CubemapArray);
+    build_texture(
+        dest,
+        TextureType::Compressed,
+        TextureDimensions::CubemapArray,
+    );
     build_texture(dest, TextureType::Srgb, TextureDimensions::CubemapArray);
-    build_texture(dest, TextureType::CompressedSrgb, TextureDimensions::CubemapArray);
+    build_texture(
+        dest,
+        TextureType::CompressedSrgb,
+        TextureDimensions::CubemapArray,
+    );
     build_texture(dest, TextureType::Integral, TextureDimensions::CubemapArray);
     build_texture(dest, TextureType::Unsigned, TextureDimensions::CubemapArray);
     build_texture(dest, TextureType::Depth, TextureDimensions::CubemapArray);
     build_texture(dest, TextureType::Stencil, TextureDimensions::CubemapArray);
-    build_texture(dest, TextureType::DepthStencil, TextureDimensions::CubemapArray);
+    build_texture(
+        dest,
+        TextureType::DepthStencil,
+        TextureDimensions::CubemapArray,
+    );
 }
 
 fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDimensions) {
@@ -198,10 +350,10 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dDataSource",
         TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dDataSource",
         TextureDimensions::Texture3d => "Texture3dDataSource",
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray |
-        TextureDimensions::Cubemap | TextureDimensions::CubemapArray => {
-            "unreachable"
-        },
+        TextureDimensions::Texture2dMultisample
+        | TextureDimensions::Texture2dMultisampleArray
+        | TextureDimensions::Cubemap
+        | TextureDimensions::CubemapArray => "unreachable",
     };
 
     // the format enum corresponding to this texture
@@ -231,8 +383,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     };
 
     // whether this is a internally compressed texture object
-    let is_compressed = matches!(ty, TextureType::Compressed |
-        TextureType::CompressedSrgb);
+    let is_compressed = matches!(ty, TextureType::Compressed | TextureType::CompressedSrgb);
 
     let client_format_any_ty = match ty {
         TextureType::Compressed => "ClientFormatAny::CompressedFormat",
@@ -246,7 +397,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     };
 
     let mipmap_default = match ty {
-        TextureType::Compressed | TextureType::CompressedSrgb => "CompressedMipmapsOption::NoMipmap",
+        TextureType::Compressed | TextureType::CompressedSrgb => {
+            "CompressedMipmapsOption::NoMipmap"
+        }
         TextureType::Unsigned | TextureType::Integral => "MipmapsOption::NoMipmap",
         _ => "MipmapsOption::AutoGeneratedMipmaps",
     };
@@ -259,7 +412,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         TextureDimensions::Texture3d => "width: u32, height: u32, depth: u32",
         TextureDimensions::Texture1dArray => "width: u32, array_size: u32",
         TextureDimensions::Texture2dArray => "width: u32, height: u32, array_size: u32",
-        TextureDimensions::Texture2dMultisampleArray => "width: u32, height: u32, array_size: u32, samples: u32",
+        TextureDimensions::Texture2dMultisampleArray => {
+            "width: u32, height: u32, array_size: u32, samples: u32"
+        }
         TextureDimensions::Cubemap => "dimension: u32",
         TextureDimensions::CubemapArray => "dimension: u32, array_size: u32",
     };
@@ -336,48 +491,79 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
 
     // writing the struct with doc-comment
     (write!(dest, "/// ")).unwrap();
-    (write!(dest, "{}", match dimensions {
-        TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d |
-        TextureDimensions::Cubemap => "A ",
-        TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dMultisampleArray |
-        TextureDimensions::CubemapArray => "An array of ",
-    })).unwrap();
+    (write!(
+        dest,
+        "{}",
+        match dimensions {
+            TextureDimensions::Texture1d
+            | TextureDimensions::Texture2d
+            | TextureDimensions::Texture2dMultisample
+            | TextureDimensions::Texture3d
+            | TextureDimensions::Cubemap => "A ",
+            TextureDimensions::Texture1dArray
+            | TextureDimensions::Texture2dArray
+            | TextureDimensions::Texture2dMultisampleArray
+            | TextureDimensions::CubemapArray => "An array of ",
+        }
+    ))
+    .unwrap();
     if is_compressed {
         (write!(dest, "compressed ")).unwrap();
     }
-    (write!(dest, "{}", match dimensions {
-        TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "one-dimensional ",
-        TextureDimensions::Texture2d | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray => {
-            "two-dimensional "
-        },
-        TextureDimensions::Texture3d => "three-dimensional ",
-        TextureDimensions::Cubemap | TextureDimensions::CubemapArray => "cube ",
-    })).unwrap();
-    (write!(dest, "{}", match dimensions {
-        TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture3d |
-        TextureDimensions::Cubemap => "texture ",
-        TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dMultisampleArray |
-        TextureDimensions::CubemapArray => "textures ",
-    })).unwrap();
-    (write!(dest, "{}", match ty {
-        TextureType::Regular | TextureType::Compressed => " containing floating-point data",
-        TextureType::Srgb | TextureType::CompressedSrgb => " containing sRGB floating-point data",
-        TextureType::Integral => " containing signed integral data",
-        TextureType::Unsigned => " containing unsigned integral data",
-        TextureType::Depth => " containing depth data",
-        TextureType::Stencil => " containing stencil data",
-        TextureType::DepthStencil => " containing both depth and stencil data",
-    })).unwrap();
+    (write!(
+        dest,
+        "{}",
+        match dimensions {
+            TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "one-dimensional ",
+            TextureDimensions::Texture2d
+            | TextureDimensions::Texture2dArray
+            | TextureDimensions::Texture2dMultisample
+            | TextureDimensions::Texture2dMultisampleArray => {
+                "two-dimensional "
+            }
+            TextureDimensions::Texture3d => "three-dimensional ",
+            TextureDimensions::Cubemap | TextureDimensions::CubemapArray => "cube ",
+        }
+    ))
+    .unwrap();
+    (write!(
+        dest,
+        "{}",
+        match dimensions {
+            TextureDimensions::Texture1d
+            | TextureDimensions::Texture2d
+            | TextureDimensions::Texture2dMultisample
+            | TextureDimensions::Texture3d
+            | TextureDimensions::Cubemap => "texture ",
+            TextureDimensions::Texture1dArray
+            | TextureDimensions::Texture2dArray
+            | TextureDimensions::Texture2dMultisampleArray
+            | TextureDimensions::CubemapArray => "textures ",
+        }
+    ))
+    .unwrap();
+    (write!(
+        dest,
+        "{}",
+        match ty {
+            TextureType::Regular | TextureType::Compressed => " containing floating-point data",
+            TextureType::Srgb | TextureType::CompressedSrgb =>
+                " containing sRGB floating-point data",
+            TextureType::Integral => " containing signed integral data",
+            TextureType::Unsigned => " containing unsigned integral data",
+            TextureType::Depth => " containing depth data",
+            TextureType::Stencil => " containing stencil data",
+            TextureType::DepthStencil => " containing both depth and stencil data",
+        }
+    ))
+    .unwrap();
     (writeln!(dest, ".")).unwrap();
     (writeln!(dest, "pub struct {}(TextureAny);", name)).unwrap();
 
     // `GlObject` trait impl
-    (writeln!(dest, "
+    (writeln!(
+        dest,
+        "
                 impl GlObject for {} {{
                     type Id = gl::types::GLuint;
 
@@ -386,10 +572,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                         self.0.get_id()
                     }}
                 }}
-            ", name)).unwrap();
+            ",
+        name
+    ))
+    .unwrap();
 
     // `Debug` trait impl
-    (writeln!(dest, "
+    (writeln!(
+        dest,
+        "
                 impl ::std::fmt::Debug for {} {{
                     #[inline]
                     fn fmt(&self, f: &mut ::std::fmt::Formatter) -> Result<(), ::std::fmt::Error>
@@ -397,10 +588,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                         self.0.fmt(f)
                     }}
                 }}
-            ", name)).unwrap();
+            ",
+        name
+    ))
+    .unwrap();
 
     // 'Deref' impl to common type.
-    (writeln!(dest, "
+    (writeln!(
+        dest,
+        "
                 impl ::std::ops::Deref for {} {{
                     type Target = TextureAny;
 
@@ -409,14 +605,21 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                         &self.0
                     }}
                 }}
-            ", name)).unwrap();
+            ",
+        name
+    ))
+    .unwrap();
 
     // `UniformValue` trait impl
     {
         match ty {
-            TextureType::Regular | TextureType::Compressed |
-            TextureType::Srgb | TextureType::CompressedSrgb |
-            TextureType::Integral | TextureType::Unsigned | TextureType::Depth => {
+            TextureType::Regular
+            | TextureType::Compressed
+            | TextureType::Srgb
+            | TextureType::CompressedSrgb
+            | TextureType::Integral
+            | TextureType::Unsigned
+            | TextureType::Depth => {
                 (writeln!(dest, "
                             impl<'a> AsUniformValue for &'a {myname} {{
                                 #[inline]
@@ -452,17 +655,21 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                                 }}
                             }}
                         ", myname = name)).unwrap();
-            },
-            _ => ()
+            }
+            _ => (),
         }
     }
 
     // `ToXXXAttachment` trait impl
-    if dimensions == TextureDimensions::Texture2d || dimensions == TextureDimensions::Texture2dMultisample ||
-       dimensions == TextureDimensions::Texture1d
+    if dimensions == TextureDimensions::Texture2d
+        || dimensions == TextureDimensions::Texture2dMultisample
+        || dimensions == TextureDimensions::Texture1d
     {
         match ty {
-            TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
+            TextureType::Regular
+            | TextureType::Srgb
+            | TextureType::Integral
+            | TextureType::Unsigned => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToColorAttachment<'t> for &'t {name} {{
                             #[inline]
@@ -471,7 +678,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", name = name)).unwrap();
-            },
+            }
             TextureType::Depth => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToDepthAttachment<'t> for &'t {name} {{
@@ -481,7 +688,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", name = name)).unwrap();
-            },
+            }
             TextureType::Stencil => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToStencilAttachment<'t> for &'t {name} {{
@@ -491,7 +698,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", name = name)).unwrap();
-            },
+            }
             TextureType::DepthStencil => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToDepthStencilAttachment<'t> for &'t {name} {{
@@ -501,8 +708,8 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", name = name)).unwrap();
-            },
-            _ => ()
+            }
+            _ => (),
         }
     }
 
@@ -510,7 +717,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     (writeln!(dest, "impl {} {{", name)).unwrap();
 
     // writing `get_internal_format`
-    writeln!(dest, "
+    writeln!(
+        dest,
+        "
             /// Determines the internal format of this texture.
             ///
             /// The backend may not support querying the actual format, in which case an error
@@ -519,18 +728,20 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             pub fn get_internal_format(&self) -> Result<InternalFormat, GetFormatError> {{
                 self.0.get_internal_format()
             }}
-        ").unwrap();
+        "
+    )
+    .unwrap();
 
     // writing the `new` function
     if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => "T",
+            TextureDimensions::Texture1d
+            | TextureDimensions::Texture2d
+            | TextureDimensions::Texture3d => "T",
 
-            TextureDimensions::Texture1dArray |
-            TextureDimensions::Texture2dArray => "Vec<T>",
+            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => "Vec<T>",
 
-            _ => unreachable!()
+            _ => unreachable!(),
         };
 
         let gen_doc = if is_compressed {
@@ -539,7 +750,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             "/// This function will automatically generate all mipmaps of the texture."
         };
 
-        (writeln!(dest, "
+        (writeln!(
+            dest,
+            "
                 /// Builds a new texture by uploading data.
                 ///
                 {gen_doc}
@@ -550,23 +763,31 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 {{
                     {name}::new_impl(facade, data, None, {mipmap_default})
                 }}
-            ", data_source_trait = data_source_trait, param = param, name = name,
-               mipmap_default = mipmap_default, gen_doc = gen_doc)).unwrap();
+            ",
+            data_source_trait = data_source_trait,
+            param = param,
+            name = name,
+            mipmap_default = mipmap_default,
+            gen_doc = gen_doc
+        ))
+        .unwrap();
     }
 
     // writing the `with_mipmaps` function
     if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => "T",
+            TextureDimensions::Texture1d
+            | TextureDimensions::Texture2d
+            | TextureDimensions::Texture3d => "T",
 
-            TextureDimensions::Texture1dArray |
-            TextureDimensions::Texture2dArray => "Vec<T>",
+            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => "Vec<T>",
 
-            _ => unreachable!()
+            _ => unreachable!(),
         };
 
-        (writeln!(dest, "
+        (writeln!(
+            dest,
+            "
                 /// Builds a new texture by uploading data.
                 #[inline]
                 pub fn with_mipmaps<'a, F: ?Sized, T>(facade: &F, data: {param}, mipmaps: {mipmaps})
@@ -575,20 +796,25 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 {{
                     {name}::new_impl(facade, data, None, mipmaps)
                 }}
-            ", data_source_trait = data_source_trait, param = param, name = name,
-               mipmaps = mipmaps_option_ty)).unwrap();
+            ",
+            data_source_trait = data_source_trait,
+            param = param,
+            name = name,
+            mipmaps = mipmaps_option_ty
+        ))
+        .unwrap();
     }
 
     // writing the `with_compressed_data` function
     if is_compressed && !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => "&[u8]",
+            TextureDimensions::Texture1d
+            | TextureDimensions::Texture2d
+            | TextureDimensions::Texture3d => "&[u8]",
 
-            TextureDimensions::Texture1dArray |
-            TextureDimensions::Texture2dArray => "Vec<&[u8]>",
+            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => "Vec<&[u8]>",
 
-            _ => unreachable!()
+            _ => unreachable!(),
         };
 
         (writeln!(dest, "
@@ -614,16 +840,18 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     // writing the `with_format` function
     if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => "T",
+            TextureDimensions::Texture1d
+            | TextureDimensions::Texture2d
+            | TextureDimensions::Texture3d => "T",
 
-            TextureDimensions::Texture1dArray |
-            TextureDimensions::Texture2dArray => "Vec<T>",
+            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => "Vec<T>",
 
-            _ => unreachable!()
+            _ => unreachable!(),
         };
 
-        (writeln!(dest, "
+        (writeln!(
+            dest,
+            "
                 /// Builds a new texture with a specific format.
                 #[inline]
                 pub fn with_format<'a, F: ?Sized, T>(facade: &F, data: {param},
@@ -633,39 +861,55 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 {{
                     {name}::new_impl(facade, data, Some(format), mipmaps)
                 }}
-            ", data_source_trait = data_source_trait, param = param,
-               format = relevant_format, name = name,
-               mipmaps = mipmaps_option_ty)).unwrap();
+            ",
+            data_source_trait = data_source_trait,
+            param = param,
+            format = relevant_format,
+            name = name,
+            mipmaps = mipmaps_option_ty
+        ))
+        .unwrap();
     }
 
     // writing the `new_impl` function
     if !dimensions.is_multisample() && !dimensions.is_cube() {
         let param = match dimensions {
-            TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => "T",
+            TextureDimensions::Texture1d
+            | TextureDimensions::Texture2d
+            | TextureDimensions::Texture3d => "T",
 
-            TextureDimensions::Texture1dArray |
-            TextureDimensions::Texture2dArray => "Vec<T>",
+            TextureDimensions::Texture1dArray | TextureDimensions::Texture2dArray => "Vec<T>",
 
-            _ => unreachable!()
+            _ => unreachable!(),
         };
 
-        (writeln!(dest, "
+        (writeln!(
+            dest,
+            "
                 #[inline]
                 fn new_impl<'a, F: ?Sized, T>(facade: &F, data: {param},
                                    format: Option<{relevant_format}>, mipmaps: {mipmaps})
                                    -> Result<{name}, TextureCreationError>
                                    where T: {data_source_trait}<'a>, F: Facade
                 {{
-            ", data_source_trait = data_source_trait,
-               param = param, name = name,
-               relevant_format = relevant_format,
-               mipmaps = mipmaps_option_ty)).unwrap();
+            ",
+            data_source_trait = data_source_trait,
+            param = param,
+            name = name,
+            relevant_format = relevant_format,
+            mipmaps = mipmaps_option_ty
+        ))
+        .unwrap();
 
         // writing the `let format = ...` line
-        (write!(dest, "let format = format.map(|f| {{
+        (write!(
+            dest,
+            "let format = format.map(|f| {{
                            TextureFormatRequest::Specific(f.to_texture_format())
-                       }}).unwrap_or({});", default_format)).unwrap();
+                       }}).unwrap_or({});",
+            default_format
+        ))
+        .unwrap();
 
         match dimensions {
             TextureDimensions::Texture1d => (write!(dest, "
@@ -695,11 +939,20 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             _ => unreachable!()
         }
 
-        (write!(dest, "let client_format = ClientFormatAny::ClientFormat(client_format);")).unwrap();
+        (write!(
+            dest,
+            "let client_format = ClientFormatAny::ClientFormat(client_format);"
+        ))
+        .unwrap();
 
         // writing the constructor
-        (write!(dest, "Ok({}(any::new_texture(facade, format, \
-                       Some((client_format, data)), mipmaps.into(), {}", name, dimensions_parameters_passing)).unwrap();
+        (write!(
+            dest,
+            "Ok({}(any::new_texture(facade, format, \
+                       Some((client_format, data)), mipmaps.into(), {}",
+            name, dimensions_parameters_passing
+        ))
+        .unwrap();
         (writeln!(dest, ")?))")).unwrap();
 
         // end of "new" function block
@@ -709,7 +962,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     // writing the `empty` function
     if !is_compressed {
         // opening function
-        (writeln!(dest, "
+        (writeln!(
+            dest,
+            "
                 /// Creates an empty texture.
                 ///
                 /// No mipmap level (except for the main level) will be allocated or generated.
@@ -721,8 +976,12 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                                 where F: Facade
                 {{
                     let format = {format};
-            ", format = default_format, dim_params = dimensions_parameters_input, name = name,
-               )).unwrap();
+            ",
+            format = default_format,
+            dim_params = dimensions_parameters_input,
+            name = name,
+        ))
+        .unwrap();
 
         // writing the constructor
         (write!(dest, "any::new_texture::<_, u8>(facade, format, None, {mipmap}::NoMipmap.into(), {}).map(|t| {}(t))",
@@ -747,9 +1006,19 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                mipmaps = mipmaps_option_ty)).unwrap();
 
         // writing the constructor
-        (write!(dest, "let t = any::new_texture::<_, u8>(facade, format, None, mipmaps.into(), {});", dimensions_parameters_passing)).unwrap();
-        (writeln!(dest, "
-            t.map(|t| {}(t))", name)).unwrap();
+        (write!(
+            dest,
+            "let t = any::new_texture::<_, u8>(facade, format, None, mipmaps.into(), {});",
+            dimensions_parameters_passing
+        ))
+        .unwrap();
+        (writeln!(
+            dest,
+            "
+            t.map(|t| {}(t))",
+            name
+        ))
+        .unwrap();
 
         // closing function
         (writeln!(dest, "}}")).unwrap();
@@ -769,7 +1038,12 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                mipmaps = mipmaps_option_ty)).unwrap();
 
         // writing the constructor
-        (write!(dest, "any::new_texture::<_, u8>(facade, format, None, mipmaps.into(), {})", dimensions_parameters_passing)).unwrap();
+        (write!(
+            dest,
+            "any::new_texture::<_, u8>(facade, format, None, mipmaps.into(), {})",
+            dimensions_parameters_passing
+        ))
+        .unwrap();
         (writeln!(dest, ".map(|t| {}(t))", name)).unwrap();
 
         // closing function
@@ -799,13 +1073,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     write_dimensions_getters(dest, dimensions, "self.0", true);
 
     // writing the `as_surface` function
-    if (dimensions == TextureDimensions::Texture2d ||
-        dimensions == TextureDimensions::Texture2dMultisample) &&
-       (ty == TextureType::Regular ||
-        ty == TextureType::Integral ||
-        ty == TextureType::Unsigned)
+    if (dimensions == TextureDimensions::Texture2d
+        || dimensions == TextureDimensions::Texture2dMultisample)
+        && (ty == TextureType::Regular
+            || ty == TextureType::Integral
+            || ty == TextureType::Unsigned)
     {
-        (write!(dest, "
+        (write!(
+            dest,
+            "
                 /// Starts drawing on the texture.
                 ///
                 /// All the function calls to the framebuffer will draw on the texture instead
@@ -821,11 +1097,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn as_surface<'a>(&'a self) -> framebuffer::SimpleFrameBuffer<'a> {{
                     framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self).unwrap()
                 }}
-            ")).unwrap();
+            "
+        ))
+        .unwrap();
     }
 
     // writing the `get_mipmap_levels` function
-    (write!(dest, "
+    (write!(
+        dest,
+        "
             /// Returns the number of mipmap levels of the texture.
             ///
             /// The minimum value is 1, since there is always a main texture.
@@ -833,14 +1113,18 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             pub fn get_mipmap_levels(&self) -> u32 {{
                 self.0.get_mipmap_levels()
             }}
-        ")).unwrap();
+        "
+    ))
+    .unwrap();
 
     // writing the `read` functions
     // TODO: implement for other types too
-    if dimensions == TextureDimensions::Texture2d &&
-       (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
+    if dimensions == TextureDimensions::Texture2d
+        && (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
     {
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Reads the content of the texture to RAM. This method may only read `U8U8U8U8`
                 /// data, as it is the only format guaranteed to be supported across all OpenGL
                 /// versions.
@@ -852,9 +1136,13 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn read<T>(&self) -> T where T: Texture2dDataSink<(u8, u8, u8, u8)> {{
                     unsafe {{ self.unchecked_read() }}
                 }}
-            "#)).unwrap();
+            "#
+        ))
+        .unwrap();
 
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Reads the content of the texture into a buffer in video memory. This method may
                 /// only read `U8U8U8U8` data, as it is the only format guaranteed to be supported
                 /// across all OpenGL versions.
@@ -866,7 +1154,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn read_to_pixel_buffer(&self) -> PixelBuffer<(u8, u8, u8, u8)> {{
                     unsafe {{ self.unchecked_read_to_pixel_buffer() }}
                 }}
-            "#)).unwrap();
+            "#
+        ))
+        .unwrap();
 
         (write!(dest, r#"
                 /// Unsafely reads the content of the texture to RAM in the specified pixel format.
@@ -907,7 +1197,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
 
     // writing the `read_compressed_data` function
     if is_compressed && !dimensions.is_array() {
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Reads the content of the texture to RAM without decompressing it before.
                 ///
                 /// You should avoid doing this at all cost during performance-critical
@@ -919,14 +1211,16 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn read_compressed_data(&self) -> Option<({format}, Vec<u8>)> {{
                     self.main_level().read_compressed_data()
                 }}
-            "#, format = relevant_format)).unwrap();
+            "#,
+            format = relevant_format
+        ))
+        .unwrap();
     }
-
 
     // writing the `write` function
     // TODO: implement for other types too
-    if dimensions == TextureDimensions::Texture2d &&
-            (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
+    if dimensions == TextureDimensions::Texture2d
+        && (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
     {
         let compressed_restrictions = if is_compressed {
             r#" ///
@@ -940,7 +1234,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             ""
         };
 
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Uploads some data in the texture.
                 ///
                 /// Note that this may cause a synchronization if you use the texture right before
@@ -955,14 +1251,16 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn write<'a, T>(&self, rect: Rect, data: T) where T: {data_source_trait}<'a> {{
                     self.main_level().write(rect, data)
                 }}
-            "#, data_source_trait = data_source_trait,
-                compressed_restrictions = compressed_restrictions)).unwrap();
+            "#,
+            data_source_trait = data_source_trait,
+            compressed_restrictions = compressed_restrictions
+        ))
+        .unwrap();
     }
 
     // writing the `write_compressed_data` function
     // TODO: implement for other types too
-    if dimensions == TextureDimensions::Texture2d && is_compressed
-    {
+    if dimensions == TextureDimensions::Texture2d && is_compressed {
         (write!(dest, r#"
                 /// Uploads some data in the texture by using a compressed format as input.
                 ///
@@ -992,7 +1290,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     }
 
     // `resident_if_supported`
-    (write!(dest, r#"
+    (write!(
+        dest,
+        r#"
             /// Turns the texture into a `ResidentTexture`.
             ///
             /// This allows you to use the texture in a much more efficient way by storing
@@ -1003,11 +1303,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             pub fn resident(self) -> Result<ResidentTexture, BindlessTexturesNotSupportedError> {{
                 ResidentTexture::new(self.0)
             }}
-        "#)).unwrap();
+        "#
+    ))
+    .unwrap();
 
     // writing the layer & mipmap access functions
     if dimensions.is_array() {
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Access the first layer of this texture.
                 #[inline]
                 pub fn first_layer(&self) -> {name}Layer {{
@@ -1019,10 +1323,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
                     self.0.layer(layer).map(|l| {name}Layer(l, self))
                 }}
-            "#, name = name)).unwrap();
+            "#,
+            name = name
+        ))
+        .unwrap();
     }
 
-    (write!(dest, r#"
+    (write!(
+        dest,
+        r#"
             /// Access a single mipmap level of this texture.
             #[inline]
             pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
@@ -1034,7 +1343,10 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             pub fn main_level(&self) -> {name}Mipmap {{
                 self.mipmap(0).unwrap()
             }}
-        "#, name = name)).unwrap();
+        "#,
+        name = name
+    ))
+    .unwrap();
 
     // closing `impl Texture` block
     (writeln!(dest, "}}")).unwrap();
@@ -1042,13 +1354,18 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     // the `Layer` struct
     if dimensions.is_array() {
         // writing the struct
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Represents a single layer of a `{name}`.
                 ///
                 /// Can be obtained by calling `{name}::layer()`.
                 #[derive(Copy, Clone)]
                 pub struct {name}Layer<'t>(TextureAnyLayer<'t>, &'t {name});
-            "#, name = name)).unwrap();
+            "#,
+            name = name
+        ))
+        .unwrap();
 
         // opening `impl Layer` block
         (writeln!(dest, "impl<'t> {}Layer<'t> {{", name)).unwrap();
@@ -1057,7 +1374,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         write_dimensions_getters(dest, dimensions, "(self.1).0", false);
 
         // writing the `get_layer` and `get_texture` functions
-        (write!(dest, "
+        (write!(
+            dest,
+            "
                 /// Returns the corresponding texture.
                 #[inline]
                 pub fn get_texture(&self) -> &'t {name} {{
@@ -1069,10 +1388,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn get_layer(&self) -> u32 {{
                     self.0.get_layer()
                 }}
-            ", name = name)).unwrap();
+            ",
+            name = name
+        ))
+        .unwrap();
 
         // writing the `get_mipmap_levels` function
-        (write!(dest, "
+        (write!(
+            dest,
+            "
                 /// Returns the number of mipmap levels of the texture.
                 ///
                 /// The minimum value is 1, since there is always a main texture.
@@ -1080,10 +1404,14 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn get_mipmap_levels(&self) -> u32 {{
                     self.0.get_texture().get_mipmap_levels()
                 }}
-            ")).unwrap();
+            "
+        ))
+        .unwrap();
 
         // writing the layer & mipmap access functions
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
             /// Access a single mipmap level of this layer.
             #[inline]
             pub fn mipmap(&self, level: u32) -> Option<{name}LayerMipmap<'t>> {{
@@ -1095,7 +1423,10 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             pub fn main_level(&self) -> {name}LayerMipmap<'t> {{
                 self.mipmap(0).unwrap()
             }}
-        "#, name = name)).unwrap();
+        "#,
+            name = name
+        ))
+        .unwrap();
 
         // closing `impl Layer` block
         (writeln!(dest, "}}")).unwrap();
@@ -1104,7 +1435,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     // the `Mipmap` struct
     {
         // writing the struct
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Represents a single mipmap level of a `{name}`.
                 ///
                 /// Can be obtained by calling `{name}::mipmap()`, `{name}::main_level()`,
@@ -1120,7 +1453,10 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                         &self.0
                     }}
                 }}
-            "#, name = name)).unwrap();
+            "#,
+            name = name
+        ))
+        .unwrap();
 
         // opening `impl Mipmap` block
         (writeln!(dest, "impl<'t> {}Mipmap<'t> {{", name)).unwrap();
@@ -1130,8 +1466,8 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
 
         // writing the `write` function for mipmaps.
         // TODO: implement for other types too
-        if dimensions == TextureDimensions::Texture2d &&
-                (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
+        if dimensions == TextureDimensions::Texture2d
+            && (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
         {
             let compressed_restrictions = if is_compressed {
                 r#" ///
@@ -1173,8 +1509,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
 
         // writing the `write_compressed_data` function for mipmaps.
         // TODO: implement for other types too
-        if dimensions == TextureDimensions::Texture2d && is_compressed
-        {
+        if dimensions == TextureDimensions::Texture2d && is_compressed {
             (write!(dest, r#"
                     /// Uploads some data in the texture level by using a compressed format as input.
                     ///
@@ -1231,7 +1566,9 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         }
 
         // writing the `get_level` and `get_texture` functions
-        (write!(dest, "
+        (write!(
+            dest,
+            "
                 /// Returns the corresponding texture.
                 #[inline]
                 pub fn get_texture(&self) -> &'t {name} {{
@@ -1243,10 +1580,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 pub fn get_level(&self) -> u32 {{
                     self.0.get_level()
                 }}
-        ", name = name)).unwrap();
+        ",
+            name = name
+        ))
+        .unwrap();
 
         if dimensions.is_array() {
-            (write!(dest, "
+            (write!(
+                dest,
+                "
                     /// Access the first layer of this texture.
                     #[inline]
                     pub fn first_layer(&self) -> {name}LayerMipmap<'t> {{
@@ -1258,15 +1600,22 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                     pub fn layer(&self, layer: u32) -> Option<{name}LayerMipmap<'t>> {{
                         self.0.layer(layer).map(|l| {name}LayerMipmap(l, self.1))
                     }}
-                ", name = name)).unwrap();
+                ",
+                name = name
+            ))
+            .unwrap();
         }
 
         if !dimensions.is_array() && dimensions.is_cube() {
-            writeln!(dest,
+            writeln!(
+                dest,
                 "/// Provides an object representing a single layer of this cubemap.
                 pub fn image(&self, layer: CubeLayer) -> {name}Image<'t> {{
                     {name}Image(self.0.first_layer().into_image(Some(layer)).unwrap(), self.1)
-                }}", name = name).unwrap();
+                }}",
+                name = name
+            )
+            .unwrap();
         }
 
         // closing `impl Mipmap` block
@@ -1274,22 +1623,32 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
 
         if !dimensions.is_array() && !dimensions.is_cube() {
             // into raw image
-            (writeln!(dest, "impl<'t> Into<TextureAnyImage<'t>> for {name}Mipmap<'t> {{
+            (writeln!(
+                dest,
+                "impl<'t> Into<TextureAnyImage<'t>> for {name}Mipmap<'t> {{
                                 fn into(self) -> TextureAnyImage<'t> {{
                                     self.0.first_layer().into_image(None).unwrap()
                                 }}
-                             }}", name = name)).unwrap();
+                             }}",
+                name = name
+            ))
+            .unwrap();
         }
     }
 
     // the `LayerMipmap` struct
     if dimensions.is_array() {
         // writing the struct
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Represents a single layer of a mipmap level of a `{name}`.
                 #[derive(Copy, Clone)]
                 pub struct {name}LayerMipmap<'t>(TextureAnyLayerMipmap<'t>, &'t {name});
-            "#, name = name)).unwrap();
+            "#,
+            name = name
+        ))
+        .unwrap();
 
         // opening `impl LayerMipmap` block
         (writeln!(dest, "impl<'t> {}LayerMipmap<'t> {{", name)).unwrap();
@@ -1299,11 +1658,15 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
 
         // to the image struct
         if dimensions.is_cube() {
-            writeln!(dest,
+            writeln!(
+                dest,
                 "/// Provides an object representing a single layer of this cubemap.
                 pub fn image(&self, layer: CubeLayer) -> {name}Image<'t> {{
                     {name}Image(self.0.into_image(Some(layer)).unwrap(), self.1)
-                }}", name = name).unwrap();
+                }}",
+                name = name
+            )
+            .unwrap();
         }
 
         // closing `impl LayerMipmap` block
@@ -1312,22 +1675,32 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         // attachment traits
         if !dimensions.is_cube() {
             // into raw image
-            (writeln!(dest, "impl<'t> Into<TextureAnyImage<'t>> for {name}LayerMipmap<'t> {{
+            (writeln!(
+                dest,
+                "impl<'t> Into<TextureAnyImage<'t>> for {name}LayerMipmap<'t> {{
                                 fn into(self) -> TextureAnyImage<'t> {{
                                     self.0.into_image(None).unwrap()
                                 }}
-                             }}", name = name)).unwrap();
+                             }}",
+                name = name
+            ))
+            .unwrap();
         }
     }
 
     // the `Image` struct, only for cubemaps
     if dimensions.is_cube() {
         // writing the struct
-        (write!(dest, r#"
+        (write!(
+            dest,
+            r#"
                 /// Represents a single image of a mipmap level of a layer of `{name}`.
                 #[derive(Copy, Clone)]
                 pub struct {name}Image<'t>(TextureAnyImage<'t>, &'t {name});
-            "#, name = name)).unwrap();
+            "#,
+            name = name
+        ))
+        .unwrap();
 
         // opening `impl Image` block
         (writeln!(dest, "impl<'t> {}Image<'t> {{", name)).unwrap();
@@ -1339,11 +1712,16 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         (writeln!(dest, "}}")).unwrap();
 
         // into raw image
-        (writeln!(dest, "impl<'t> Into<TextureAnyImage<'t>> for {name}Image<'t> {{
+        (writeln!(
+            dest,
+            "impl<'t> Into<TextureAnyImage<'t>> for {name}Image<'t> {{
                             fn into(self) -> TextureAnyImage<'t> {{
                                 self.0
                             }}
-                         }}", name = name)).unwrap();
+                         }}",
+            name = name
+        ))
+        .unwrap();
     }
 
     // implement the attachments traits
@@ -1357,7 +1735,10 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         };
 
         match ty {
-            TextureType::Regular | TextureType::Srgb | TextureType::Integral | TextureType::Unsigned => {
+            TextureType::Regular
+            | TextureType::Srgb
+            | TextureType::Integral
+            | TextureType::Unsigned => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToColorAttachment<'t> for {ty}<'t> {{
                             #[inline]
@@ -1366,7 +1747,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", ty = attachment_type)).unwrap();
-            },
+            }
             TextureType::Depth => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToDepthAttachment<'t> for {ty}<'t> {{
@@ -1376,7 +1757,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", ty = attachment_type)).unwrap();
-            },
+            }
             TextureType::Stencil => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToStencilAttachment<'t> for {ty}<'t> {{
@@ -1386,7 +1767,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", ty = attachment_type)).unwrap();
-            },
+            }
             TextureType::DepthStencil => {
                 (writeln!(dest, "
                         impl<'t> crate::framebuffer::ToDepthStencilAttachment<'t> for {ty}<'t> {{
@@ -1396,8 +1777,8 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                             }}
                         }}
                     ", ty = attachment_type)).unwrap();
-            },
-            _ => ()
+            }
+            _ => (),
         }
     }
 
@@ -1405,104 +1786,150 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     writeln!(dest, "}}").unwrap();
 }
 
-fn write_dimensions_getters<W: Write>(dest: &mut W, dimensions: TextureDimensions,
-                                      accessor: &str, write_array_size: bool)
-{
-    writeln!(dest, r#"
+fn write_dimensions_getters<W: Write>(
+    dest: &mut W,
+    dimensions: TextureDimensions,
+    accessor: &str,
+    write_array_size: bool,
+) {
+    writeln!(
+        dest,
+        r#"
         /// Returns the width of that image.
         #[inline]
         pub fn width(&self) -> u32 {{
             {}.get_width()
         }}
-    "#, accessor).unwrap();
+    "#,
+        accessor
+    )
+    .unwrap();
 
     match dimensions {
-        TextureDimensions::Texture2d | TextureDimensions::Texture2dMultisample |
-        TextureDimensions::Texture3d | TextureDimensions::Texture2dArray |
-        TextureDimensions::Texture2dMultisampleArray | TextureDimensions::Cubemap |
-        TextureDimensions::CubemapArray => {
-            writeln!(dest, r#"
+        TextureDimensions::Texture2d
+        | TextureDimensions::Texture2dMultisample
+        | TextureDimensions::Texture3d
+        | TextureDimensions::Texture2dArray
+        | TextureDimensions::Texture2dMultisampleArray
+        | TextureDimensions::Cubemap
+        | TextureDimensions::CubemapArray => {
+            writeln!(
+                dest,
+                r#"
                 /// Returns the height of that image.
                 #[inline]
                 pub fn height(&self) -> u32 {{
                     {}.get_height().unwrap()
                 }}
-            "#, accessor).unwrap();
-        },
-        _ => ()
+            "#,
+                accessor
+            )
+            .unwrap();
+        }
+        _ => (),
     };
 
     match dimensions {
         TextureDimensions::Texture3d => {
-            writeln!(dest, r#"
+            writeln!(
+                dest,
+                r#"
                 /// Returns the depth of that image.
                 #[inline]
                 pub fn depth(&self) -> u32 {{
                     {}.get_depth().unwrap()
                 }}
-            "#, accessor).unwrap();
-        },
-        _ => ()
+            "#,
+                accessor
+            )
+            .unwrap();
+        }
+        _ => (),
     };
 
     if write_array_size {
         match dimensions {
-            TextureDimensions::Texture2dArray | TextureDimensions::Texture2dMultisampleArray |
-            TextureDimensions::CubemapArray => {
-                writeln!(dest, r#"
+            TextureDimensions::Texture2dArray
+            | TextureDimensions::Texture2dMultisampleArray
+            | TextureDimensions::CubemapArray => {
+                writeln!(
+                    dest,
+                    r#"
                     /// Returns the number of array layers.
                     #[inline]
                     pub fn array_size(&self) -> u32 {{
                         {}.get_array_size().unwrap()
                     }}
-                "#, accessor).unwrap();
-            },
-            _ => ()
+                "#,
+                    accessor
+                )
+                .unwrap();
+            }
+            _ => (),
         }
     };
 
     match dimensions {
         TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray => {
-            writeln!(dest, r#"
+            writeln!(
+                dest,
+                r#"
                 /// Returns the number of samples of that image.
                 #[inline]
                 pub fn samples(&self) -> u32 {{
                     {}.get_samples().unwrap()
                 }}
-            "#, accessor).unwrap();
-        },
-        _ => ()
+            "#,
+                accessor
+            )
+            .unwrap();
+        }
+        _ => (),
     };
 
     match dimensions {
-        TextureDimensions::Texture2d | TextureDimensions::Texture2dMultisample |
-        TextureDimensions::Texture2dArray | TextureDimensions::Texture2dMultisampleArray => {
-            writeln!(dest, r#"
+        TextureDimensions::Texture2d
+        | TextureDimensions::Texture2dMultisample
+        | TextureDimensions::Texture2dArray
+        | TextureDimensions::Texture2dMultisampleArray => {
+            writeln!(
+                dest,
+                r#"
                 /// Returns the width and height of that image.
                 #[inline]
                 pub fn dimensions(&self) -> (u32, u32) {{
                     (self.width(), self.height())
                 }}
-            "#).unwrap();
-        },
+            "#
+            )
+            .unwrap();
+        }
         TextureDimensions::Texture3d => {
-            writeln!(dest, r#"
+            writeln!(
+                dest,
+                r#"
                 /// Returns the width, height and depth of that image.
                 #[inline]
                 pub fn dimensions(&self) -> (u32, u32, u32) {{
                     (self.width(), self.height(), self.depth())
                 }}
-            "#).unwrap();
-        },
+            "#
+            )
+            .unwrap();
+        }
         TextureDimensions::Cubemap | TextureDimensions::CubemapArray => {
-            writeln!(dest, r#"
+            writeln!(
+                dest,
+                r#"
                 /// Returns the dimension of that image.
                 #[inline]
                 pub fn dimensions(&self) -> u32 {{
                     self.width()
                 }}
-            "#).unwrap();
-        },
-        _ => ()
+            "#
+            )
+            .unwrap();
+        }
+        _ => (),
     };
 }

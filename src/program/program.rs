@@ -1,29 +1,32 @@
 use crate::gl;
 
 use crate::context::CommandContext;
-use crate::version::Version;
 use crate::version::Api;
+use crate::version::Version;
 
 use crate::backend::Facade;
 use crate::CapabilitiesSource;
 
-use std::fmt;
 use std::collections::hash_map::{self, HashMap};
+use std::fmt;
 use std::hash::BuildHasherDefault;
 
 use fnv::FnvHasher;
 
 use crate::GlObject;
-use crate::ProgramExt;
 use crate::Handle;
+use crate::ProgramExt;
 use crate::RawUniformValue;
 
-use crate::program::{COMPILER_GLOBAL_LOCK, ProgramCreationInput, ProgramCreationError, ShaderType, Binary, SpirvProgram};
 use crate::program::GetBinaryError;
+use crate::program::{
+    Binary, ProgramCreationError, ProgramCreationInput, ShaderType, SpirvProgram,
+    COMPILER_GLOBAL_LOCK,
+};
 
-use crate::program::reflection::{Uniform, UniformBlock, OutputPrimitives};
 use crate::program::reflection::{Attribute, TransformFeedbackBuffer};
-use crate::program::reflection::{SubroutineData, ShaderStage, SubroutineUniform};
+use crate::program::reflection::{OutputPrimitives, Uniform, UniformBlock};
+use crate::program::reflection::{ShaderStage, SubroutineData, SubroutineUniform};
 use crate::program::shader::{build_shader, build_spirv_shader};
 
 use crate::program::raw::RawProgram;
@@ -40,23 +43,30 @@ pub struct Program {
 impl Program {
     /// Builds a new program.
     pub fn new<'a, F: ?Sized, I>(facade: &F, input: I) -> Result<Program, ProgramCreationError>
-                         where I: Into<ProgramCreationInput<'a>>, F: Facade
+    where
+        I: Into<ProgramCreationInput<'a>>,
+        F: Facade,
     {
         let input = input.into();
 
         let (raw, outputs_srgb, uses_point_size) = match input {
-            ProgramCreationInput::SourceCode { vertex_shader, tessellation_control_shader,
-                                               tessellation_evaluation_shader, geometry_shader,
-                                               fragment_shader, transform_feedback_varyings,
-                                               outputs_srgb, uses_point_size } =>
-            {
+            ProgramCreationInput::SourceCode {
+                vertex_shader,
+                tessellation_control_shader,
+                tessellation_evaluation_shader,
+                geometry_shader,
+                fragment_shader,
+                transform_feedback_varyings,
+                outputs_srgb,
+                uses_point_size,
+            } => {
                 let mut has_geometry_shader = false;
                 let mut has_tessellation_control_shader = false;
                 let mut has_tessellation_evaluation_shader = false;
 
                 let mut shaders = vec![
                     (vertex_shader, ShaderType::Vertex),
-                    (fragment_shader, ShaderType::Fragment)
+                    (fragment_shader, ShaderType::Fragment),
                 ];
 
                 if let Some(gs) = geometry_shader {
@@ -75,14 +85,19 @@ impl Program {
                 }
 
                 // TODO: move somewhere else
-                if transform_feedback_varyings.is_some() &&
-                    !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) &&
-                    !facade.get_context().get_extensions().gl_ext_transform_feedback
+                if transform_feedback_varyings.is_some()
+                    && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0))
+                    && !facade
+                        .get_context()
+                        .get_extensions()
+                        .gl_ext_transform_feedback
                 {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
 
-                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size
+                    && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0))
+                {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
@@ -96,32 +111,55 @@ impl Program {
                     shaders_store
                 };
 
-                (RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
-                                               has_tessellation_control_shader, has_tessellation_evaluation_shader,
-                                               transform_feedback_varyings)?,
-                 outputs_srgb, uses_point_size)
-            },
+                (
+                    RawProgram::from_shaders(
+                        facade,
+                        &shaders_store,
+                        has_geometry_shader,
+                        has_tessellation_control_shader,
+                        has_tessellation_evaluation_shader,
+                        transform_feedback_varyings,
+                    )?,
+                    outputs_srgb,
+                    uses_point_size,
+                )
+            }
 
-            ProgramCreationInput::Binary { data, outputs_srgb, uses_point_size } => {
-                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+            ProgramCreationInput::Binary {
+                data,
+                outputs_srgb,
+                uses_point_size,
+            } => {
+                if uses_point_size
+                    && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0))
+                {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
-                (RawProgram::from_binary(facade, data)?, outputs_srgb, uses_point_size)
-            },
+                (
+                    RawProgram::from_binary(facade, data)?,
+                    outputs_srgb,
+                    uses_point_size,
+                )
+            }
 
-            ProgramCreationInput::SpirV(SpirvProgram { vertex_shader, tessellation_control_shader,
-                                               tessellation_evaluation_shader, geometry_shader,
-                                               fragment_shader, transform_feedback_varyings,
-                                               outputs_srgb, uses_point_size }) =>
-            {
+            ProgramCreationInput::SpirV(SpirvProgram {
+                vertex_shader,
+                tessellation_control_shader,
+                tessellation_evaluation_shader,
+                geometry_shader,
+                fragment_shader,
+                transform_feedback_varyings,
+                outputs_srgb,
+                uses_point_size,
+            }) => {
                 let mut has_geometry_shader = false;
                 let mut has_tessellation_control_shader = false;
                 let mut has_tessellation_evaluation_shader = false;
 
                 let mut shaders = vec![
                     (vertex_shader, ShaderType::Vertex),
-                    (fragment_shader, ShaderType::Fragment)
+                    (fragment_shader, ShaderType::Fragment),
                 ];
 
                 if let Some(gs) = geometry_shader {
@@ -140,14 +178,19 @@ impl Program {
                 }
 
                 // TODO: move somewhere else
-                if transform_feedback_varyings.is_some() &&
-                    !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) &&
-                    !facade.get_context().get_extensions().gl_ext_transform_feedback
+                if transform_feedback_varyings.is_some()
+                    && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0))
+                    && !facade
+                        .get_context()
+                        .get_extensions()
+                        .gl_ext_transform_feedback
                 {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
 
-                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size
+                    && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0))
+                {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
@@ -161,10 +204,18 @@ impl Program {
                     shaders_store
                 };
 
-                (RawProgram::from_shaders(facade, &shaders_store, has_geometry_shader,
-                                               has_tessellation_control_shader, has_tessellation_evaluation_shader,
-                                               transform_feedback_varyings)?,
-                 outputs_srgb, uses_point_size)
+                (
+                    RawProgram::from_shaders(
+                        facade,
+                        &shaders_store,
+                        has_geometry_shader,
+                        has_tessellation_control_shader,
+                        has_tessellation_evaluation_shader,
+                        transform_feedback_varyings,
+                    )?,
+                    outputs_srgb,
+                    uses_point_size,
+                )
             }
         };
         Ok(Program {
@@ -195,20 +246,28 @@ impl Program {
     /// ```
     ///
     #[inline]
-    pub fn from_source<'a, F: ?Sized>(facade: &F, vertex_shader: &'a str, fragment_shader: &'a str,
-                              geometry_shader: Option<&'a str>)
-                              -> Result<Program, ProgramCreationError> where F: Facade
+    pub fn from_source<'a, F: ?Sized>(
+        facade: &F,
+        vertex_shader: &'a str,
+        fragment_shader: &'a str,
+        geometry_shader: Option<&'a str>,
+    ) -> Result<Program, ProgramCreationError>
+    where
+        F: Facade,
     {
-        Program::new(facade, ProgramCreationInput::SourceCode {
-            vertex_shader,
-            fragment_shader,
-            geometry_shader,
-            tessellation_control_shader: None,
-            tessellation_evaluation_shader: None,
-            transform_feedback_varyings: None,
-            outputs_srgb: false,
-            uses_point_size: false,
-        })
+        Program::new(
+            facade,
+            ProgramCreationInput::SourceCode {
+                vertex_shader,
+                fragment_shader,
+                geometry_shader,
+                tessellation_control_shader: None,
+                tessellation_evaluation_shader: None,
+                transform_feedback_varyings: None,
+                outputs_srgb: false,
+                uses_point_size: false,
+            },
+        )
     }
 
     /// Returns the program's compiled binary.
@@ -270,8 +329,9 @@ impl Program {
     /// # }
     /// ```
     #[inline]
-    pub fn get_uniform_blocks(&self)
-                              -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    pub fn get_uniform_blocks(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_uniform_blocks()
     }
 
@@ -364,8 +424,9 @@ impl Program {
     /// # }
     /// ```
     #[inline]
-    pub fn get_shader_storage_blocks(&self)
-            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    pub fn get_shader_storage_blocks(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_shader_storage_blocks()
     }
 
@@ -381,8 +442,9 @@ impl Program {
     /// # }
     /// ```
     #[inline]
-    pub fn get_atomic_counters(&self)
-            -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    pub fn get_atomic_counters(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_atomic_counters()
     }
 
@@ -400,8 +462,9 @@ impl Program {
     /// # }
     /// ```
     #[inline]
-    pub fn get_subroutine_uniforms(&self)
-            -> &HashMap<(String, ShaderStage), SubroutineUniform, BuildHasherDefault<FnvHasher>> {
+    pub fn get_subroutine_uniforms(
+        &self,
+    ) -> &HashMap<(String, ShaderStage), SubroutineUniform, BuildHasherDefault<FnvHasher>> {
         &self.raw.get_subroutine_data().subroutine_uniforms
     }
 
@@ -411,7 +474,7 @@ impl Program {
     /// setting the value of `gl_PointSize` will have no effect.
     #[inline]
     pub fn uses_point_size(&self) -> bool {
-      self.uses_point_size
+        self.uses_point_size
     }
 }
 
@@ -435,13 +498,21 @@ impl ProgramExt for Program {
     fn use_program(&self, ctxt: &mut CommandContext<'_>) {
         // compatibility was checked at program creation
         if self.uses_point_size && !ctxt.state.enabled_program_point_size {
-            unsafe { ctxt.gl.Enable(gl::PROGRAM_POINT_SIZE); }
+            unsafe {
+                ctxt.gl.Enable(gl::PROGRAM_POINT_SIZE);
+            }
         } else if !self.uses_point_size && ctxt.state.enabled_program_point_size {
-            unsafe { ctxt.gl.Disable(gl::PROGRAM_POINT_SIZE); }
+            unsafe {
+                ctxt.gl.Disable(gl::PROGRAM_POINT_SIZE);
+            }
         }
 
-        if (ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
-           ctxt.extensions.gl_ext_framebuffer_srgb || ctxt.extensions.gl_ext_srgb_write_control) && ctxt.state.enabled_framebuffer_srgb == self.outputs_srgb {
+        if (ctxt.version >= &Version(Api::Gl, 3, 0)
+            || ctxt.extensions.gl_arb_framebuffer_srgb
+            || ctxt.extensions.gl_ext_framebuffer_srgb
+            || ctxt.extensions.gl_ext_srgb_write_control)
+            && ctxt.state.enabled_framebuffer_srgb == self.outputs_srgb
+        {
             ctxt.state.enabled_framebuffer_srgb = !self.outputs_srgb;
 
             if self.outputs_srgb {
@@ -455,33 +526,46 @@ impl ProgramExt for Program {
     }
 
     #[inline]
-    fn set_uniform(&self, ctxt: &mut CommandContext<'_>, uniform_location: gl::types::GLint,
-                   value: &RawUniformValue)
-    {
+    fn set_uniform(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        uniform_location: gl::types::GLint,
+        value: &RawUniformValue,
+    ) {
         self.raw.set_uniform(ctxt, uniform_location, value)
     }
 
     #[inline]
-    fn set_uniform_block_binding(&self, ctxt: &mut CommandContext<'_>, block_location: gl::types::GLuint,
-                                 value: gl::types::GLuint)
-    {
-        self.raw.set_uniform_block_binding(ctxt, block_location, value)
+    fn set_uniform_block_binding(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        block_location: gl::types::GLuint,
+        value: gl::types::GLuint,
+    ) {
+        self.raw
+            .set_uniform_block_binding(ctxt, block_location, value)
     }
 
     #[inline]
-    fn set_shader_storage_block_binding(&self, ctxt: &mut CommandContext<'_>,
-                                        block_location: gl::types::GLuint,
-                                        value: gl::types::GLuint)
-    {
-        self.raw.set_shader_storage_block_binding(ctxt, block_location, value)
+    fn set_shader_storage_block_binding(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        block_location: gl::types::GLuint,
+        value: gl::types::GLuint,
+    ) {
+        self.raw
+            .set_shader_storage_block_binding(ctxt, block_location, value)
     }
 
     #[inline]
-    fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext<'_>,
-                                         stage: ShaderStage,
-                                         indices: &[gl::types::GLuint])
-    {
-        self.raw.set_subroutine_uniforms_for_stage(ctxt, stage, indices);
+    fn set_subroutine_uniforms_for_stage(
+        &self,
+        ctxt: &mut CommandContext<'_>,
+        stage: ShaderStage,
+        indices: &[gl::types::GLuint],
+    ) {
+        self.raw
+            .set_subroutine_uniforms_for_stage(ctxt, stage, indices);
     }
 
     #[inline]
@@ -495,14 +579,14 @@ impl ProgramExt for Program {
     }
 
     #[inline]
-    fn get_shader_storage_blocks(&self)
-                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    fn get_shader_storage_blocks(
+        &self,
+    ) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_shader_storage_blocks()
     }
 
     #[inline]
-    fn get_atomic_counters(&self)
-                                 -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
+    fn get_atomic_counters(&self) -> &HashMap<String, UniformBlock, BuildHasherDefault<FnvHasher>> {
         self.raw.get_atomic_counters()
     }
 

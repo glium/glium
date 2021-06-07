@@ -64,29 +64,29 @@
 //!
 //! For the same reasons, as soon as you call `is_ready` on a query it will stop being usable.
 
-use crate::gl;
 use crate::context;
 use crate::context::Context;
-use crate::version::Version;
+use crate::gl;
 use crate::version::Api;
+use crate::version::Version;
 
 use crate::index::PrimitiveType;
 
-use crate::QueryExt;
+use crate::vertex::TransformFeedbackSession;
 use crate::CapabilitiesSource;
 use crate::DrawError;
+use crate::QueryExt;
 use crate::Rect;
 use crate::ToGlEnum;
-use crate::vertex::TransformFeedbackSession;
 
 use std::ops::Range;
 
 pub use self::blend::{Blend, BlendingFunction, LinearBlendingFactor};
-pub use self::depth::{Depth, DepthTest, DepthClamp};
-pub use self::query::{QueryCreationError};
-pub use self::query::{SamplesPassedQuery, TimeElapsedQuery, PrimitivesGeneratedQuery};
+pub use self::depth::{Depth, DepthClamp, DepthTest};
+pub use self::query::QueryCreationError;
 pub use self::query::{AnySamplesPassedQuery, TransformFeedbackPrimitivesWrittenQuery};
-pub use self::stencil::{StencilTest, StencilOperation, Stencil};
+pub use self::query::{PrimitivesGeneratedQuery, SamplesPassedQuery, TimeElapsedQuery};
+pub use self::stencil::{Stencil, StencilOperation, StencilTest};
 
 mod blend;
 mod depth;
@@ -143,7 +143,7 @@ pub enum BackfaceCullingMode {
     CullCounterClockwise,
 
     /// Triangles whose vertices are clockwise won't be drawn.
-    CullClockwise
+    CullClockwise,
 }
 
 /// Defines how the device should render polygons.
@@ -351,7 +351,7 @@ pub struct DrawParameters<'a> {
 
     /// If set, the number of vertices written by transform feedback.
     pub transform_feedback_primitives_written_query:
-                                    Option<&'a TransformFeedbackPrimitivesWrittenQuery>,
+        Option<&'a TransformFeedbackPrimitivesWrittenQuery>,
 
     /// If set, the commands will only be executed if the specified query contains `true` or
     /// a number different than 0.
@@ -456,12 +456,12 @@ pub struct PolygonOffset {
 
 impl Default for PolygonOffset {
     fn default() -> Self {
-        PolygonOffset{
+        PolygonOffset {
             factor: 0.0,
             units: 0.0,
             point: false,
             line: false,
-            fill: false
+            fill: false,
         }
     }
 }
@@ -491,7 +491,7 @@ impl<'a> Default for DrawParameters<'a> {
             transform_feedback: None,
             smooth: None,
             provoking_vertex: ProvokingVertex::LastVertex,
-            primitive_bounding_box: (-1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0),
+            primitive_bounding_box: (-1.0..1.0, -1.0..1.0, -1.0..1.0, -1.0..1.0),
             primitive_restart_index: false,
             polygon_offset: Default::default(),
         }
@@ -500,14 +500,17 @@ impl<'a> Default for DrawParameters<'a> {
 
 /// DEPRECATED. Checks parameters and returns an error if something is wrong.
 pub fn validate(context: &Context, params: &DrawParameters<'_>) -> Result<(), DrawError> {
-    if params.depth.range.0 < 0.0 || params.depth.range.0 > 1.0 ||
-       params.depth.range.1 < 0.0 || params.depth.range.1 > 1.0
+    if params.depth.range.0 < 0.0
+        || params.depth.range.0 > 1.0
+        || params.depth.range.1 < 0.0
+        || params.depth.range.1 > 1.0
     {
         return Err(DrawError::InvalidDepthRange);
     }
 
-    if !params.draw_primitives && context.get_opengl_version() < &Version(Api::Gl, 3, 0) &&
-        !context.get_extensions().gl_ext_transform_feedback
+    if !params.draw_primitives
+        && context.get_opengl_version() < &Version(Api::Gl, 3, 0)
+        && !context.get_extensions().gl_ext_transform_feedback
     {
         return Err(DrawError::RasterizerDiscardNotSupported);
     }
@@ -516,26 +519,40 @@ pub fn validate(context: &Context, params: &DrawParameters<'_>) -> Result<(), Dr
 }
 
 #[doc(hidden)]
-pub fn sync(ctxt: &mut context::CommandContext<'_>, draw_parameters: &DrawParameters<'_>,
-            dimensions: (u32, u32), primitives_types: PrimitiveType) -> Result<(), DrawError>
-{
+pub fn sync(
+    ctxt: &mut context::CommandContext<'_>,
+    draw_parameters: &DrawParameters<'_>,
+    dimensions: (u32, u32),
+    primitives_types: PrimitiveType,
+) -> Result<(), DrawError> {
     depth::sync_depth(ctxt, &draw_parameters.depth)?;
     stencil::sync_stencil(ctxt, &draw_parameters.stencil);
     blend::sync_blending(ctxt, draw_parameters.blend)?;
     sync_color_mask(ctxt, draw_parameters.color_mask);
     sync_line_width(ctxt, draw_parameters.line_width);
     sync_point_size(ctxt, draw_parameters.point_size);
-    sync_polygon_mode(ctxt, draw_parameters.backface_culling, draw_parameters.polygon_mode);
+    sync_polygon_mode(
+        ctxt,
+        draw_parameters.backface_culling,
+        draw_parameters.polygon_mode,
+    );
     sync_clip_planes_bitmask(ctxt, draw_parameters.clip_planes_bitmask)?;
     sync_multisampling(ctxt, draw_parameters.multisampling);
     sync_dithering(ctxt, draw_parameters.dithering);
-    sync_viewport_scissor(ctxt, draw_parameters.viewport, draw_parameters.scissor,
-                          dimensions);
+    sync_viewport_scissor(
+        ctxt,
+        draw_parameters.viewport,
+        draw_parameters.scissor,
+        dimensions,
+    );
     sync_rasterizer_discard(ctxt, draw_parameters.draw_primitives)?;
-    sync_queries(ctxt, draw_parameters.samples_passed_query,
-                      draw_parameters.time_elapsed_query,
-                      draw_parameters.primitives_generated_query,
-                      draw_parameters.transform_feedback_primitives_written_query)?;
+    sync_queries(
+        ctxt,
+        draw_parameters.samples_passed_query,
+        draw_parameters.time_elapsed_query,
+        draw_parameters.primitives_generated_query,
+        draw_parameters.transform_feedback_primitives_written_query,
+    )?;
     sync_conditional_render(ctxt, draw_parameters.condition);
     sync_smooth(ctxt, draw_parameters.smooth, primitives_types)?;
     sync_provoking_vertex(ctxt, draw_parameters.provoking_vertex)?;
@@ -585,9 +602,11 @@ fn sync_point_size(ctxt: &mut context::CommandContext<'_>, point_size: Option<f3
     }
 }
 
-fn sync_polygon_mode(ctxt: &mut context::CommandContext<'_>, backface_culling: BackfaceCullingMode,
-                     polygon_mode: PolygonMode)
-{
+fn sync_polygon_mode(
+    ctxt: &mut context::CommandContext<'_>,
+    backface_culling: BackfaceCullingMode,
+    polygon_mode: PolygonMode,
+) {
     // back-face culling
     // note: we never change the value of `glFrontFace`, whose default is GL_CCW
     //  that's why `CullClockwise` uses `GL_BACK` for example
@@ -630,11 +649,14 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext<'_>, backface_culling: B
     }
 }
 
-fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext<'_>, clip_planes_bitmask: u32)
-                            -> Result<(), DrawError> {
+fn sync_clip_planes_bitmask(
+    ctxt: &mut context::CommandContext<'_>,
+    clip_planes_bitmask: u32,
+) -> Result<(), DrawError> {
     unsafe {
         let mut max_clip_planes: gl::types::GLint = 0;
-        ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
+        ctxt.gl
+            .GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
         for i in 0..32 {
             if clip_planes_bitmask & (1 << i) != ctxt.state.enabled_clip_planes & (1 << i) {
                 if clip_planes_bitmask & (1 << i) != 0 {
@@ -682,45 +704,71 @@ fn sync_dithering(ctxt: &mut context::CommandContext<'_>, dithering: bool) {
     }
 }
 
-fn sync_viewport_scissor(ctxt: &mut context::CommandContext<'_>, viewport: Option<Rect>,
-                         scissor: Option<Rect>, surface_dimensions: (u32, u32))
-{
+fn sync_viewport_scissor(
+    ctxt: &mut context::CommandContext<'_>,
+    viewport: Option<Rect>,
+    scissor: Option<Rect>,
+    surface_dimensions: (u32, u32),
+) {
     // viewport
     if let Some(viewport) = viewport {
-        assert!(viewport.width <= ctxt.capabilities.max_viewport_dims.0 as u32,
-                "Viewport dimensions are too large");
-        assert!(viewport.height <= ctxt.capabilities.max_viewport_dims.1 as u32,
-                "Viewport dimensions are too large");
+        assert!(
+            viewport.width <= ctxt.capabilities.max_viewport_dims.0 as u32,
+            "Viewport dimensions are too large"
+        );
+        assert!(
+            viewport.height <= ctxt.capabilities.max_viewport_dims.1 as u32,
+            "Viewport dimensions are too large"
+        );
 
-        let viewport = (viewport.left as gl::types::GLint, viewport.bottom as gl::types::GLint,
-                        viewport.width as gl::types::GLsizei,
-                        viewport.height as gl::types::GLsizei);
+        let viewport = (
+            viewport.left as gl::types::GLint,
+            viewport.bottom as gl::types::GLint,
+            viewport.width as gl::types::GLsizei,
+            viewport.height as gl::types::GLsizei,
+        );
 
         if ctxt.state.viewport != Some(viewport) {
-            unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
+            unsafe {
+                ctxt.gl
+                    .Viewport(viewport.0, viewport.1, viewport.2, viewport.3);
+            }
             ctxt.state.viewport = Some(viewport);
         }
-
     } else {
-        assert!(surface_dimensions.0 <= ctxt.capabilities.max_viewport_dims.0 as u32,
-                "Viewport dimensions are too large");
-        assert!(surface_dimensions.1 <= ctxt.capabilities.max_viewport_dims.1 as u32,
-                "Viewport dimensions are too large");
+        assert!(
+            surface_dimensions.0 <= ctxt.capabilities.max_viewport_dims.0 as u32,
+            "Viewport dimensions are too large"
+        );
+        assert!(
+            surface_dimensions.1 <= ctxt.capabilities.max_viewport_dims.1 as u32,
+            "Viewport dimensions are too large"
+        );
 
-        let viewport = (0, 0, surface_dimensions.0 as gl::types::GLsizei,
-                        surface_dimensions.1 as gl::types::GLsizei);
+        let viewport = (
+            0,
+            0,
+            surface_dimensions.0 as gl::types::GLsizei,
+            surface_dimensions.1 as gl::types::GLsizei,
+        );
 
         if ctxt.state.viewport != Some(viewport) {
-            unsafe { ctxt.gl.Viewport(viewport.0, viewport.1, viewport.2, viewport.3); }
+            unsafe {
+                ctxt.gl
+                    .Viewport(viewport.0, viewport.1, viewport.2, viewport.3);
+            }
             ctxt.state.viewport = Some(viewport);
         }
     }
 
     // scissor
     if let Some(scissor) = scissor {
-        let scissor = (scissor.left as gl::types::GLint, scissor.bottom as gl::types::GLint,
-                       scissor.width as gl::types::GLsizei,
-                       scissor.height as gl::types::GLsizei);
+        let scissor = (
+            scissor.left as gl::types::GLint,
+            scissor.bottom as gl::types::GLint,
+            scissor.width as gl::types::GLsizei,
+            scissor.height as gl::types::GLsizei,
+        );
 
         unsafe {
             if ctxt.state.scissor != Some(scissor) {
@@ -743,28 +791,35 @@ fn sync_viewport_scissor(ctxt: &mut context::CommandContext<'_>, viewport: Optio
     }
 }
 
-fn sync_rasterizer_discard(ctxt: &mut context::CommandContext<'_>, draw_primitives: bool)
-                           -> Result<(), DrawError>
-{
+fn sync_rasterizer_discard(
+    ctxt: &mut context::CommandContext<'_>,
+    draw_primitives: bool,
+) -> Result<(), DrawError> {
     if ctxt.state.enabled_rasterizer_discard == draw_primitives {
         if ctxt.version >= &Version(Api::Gl, 3, 0) {
             if draw_primitives {
-                unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD); }
+                unsafe {
+                    ctxt.gl.Disable(gl::RASTERIZER_DISCARD);
+                }
                 ctxt.state.enabled_rasterizer_discard = false;
             } else {
-                unsafe { ctxt.gl.Enable(gl::RASTERIZER_DISCARD); }
+                unsafe {
+                    ctxt.gl.Enable(gl::RASTERIZER_DISCARD);
+                }
                 ctxt.state.enabled_rasterizer_discard = true;
             }
-
         } else if ctxt.extensions.gl_ext_transform_feedback {
             if draw_primitives {
-                unsafe { ctxt.gl.Disable(gl::RASTERIZER_DISCARD_EXT); }
+                unsafe {
+                    ctxt.gl.Disable(gl::RASTERIZER_DISCARD_EXT);
+                }
                 ctxt.state.enabled_rasterizer_discard = false;
             } else {
-                unsafe { ctxt.gl.Enable(gl::RASTERIZER_DISCARD_EXT); }
+                unsafe {
+                    ctxt.gl.Enable(gl::RASTERIZER_DISCARD_EXT);
+                }
                 ctxt.state.enabled_rasterizer_discard = true;
             }
-
         } else {
             return Err(DrawError::RasterizerDiscardNotSupported);
         }
@@ -773,14 +828,13 @@ fn sync_rasterizer_discard(ctxt: &mut context::CommandContext<'_>, draw_primitiv
     Ok(())
 }
 
-fn sync_queries(ctxt: &mut context::CommandContext<'_>,
-                samples_passed_query: Option<SamplesQueryParam<'_>>,
-                time_elapsed_query: Option<&TimeElapsedQuery>,
-                primitives_generated_query: Option<&PrimitivesGeneratedQuery>,
-                transform_feedback_primitives_written_query:
-                                            Option<&TransformFeedbackPrimitivesWrittenQuery>)
-                -> Result<(), DrawError>
-{
+fn sync_queries(
+    ctxt: &mut context::CommandContext<'_>,
+    samples_passed_query: Option<SamplesQueryParam<'_>>,
+    time_elapsed_query: Option<&TimeElapsedQuery>,
+    primitives_generated_query: Option<&PrimitivesGeneratedQuery>,
+    transform_feedback_primitives_written_query: Option<&TransformFeedbackPrimitivesWrittenQuery>,
+) -> Result<(), DrawError> {
     if let Some(SamplesQueryParam::SamplesPassedQuery(q)) = samples_passed_query {
         q.begin_query(ctxt)?;
     } else if let Some(SamplesQueryParam::AnySamplesPassedQuery(q)) = samples_passed_query {
@@ -810,28 +864,34 @@ fn sync_queries(ctxt: &mut context::CommandContext<'_>,
     Ok(())
 }
 
-fn sync_conditional_render(ctxt: &mut context::CommandContext<'_>,
-                           condition: Option<ConditionalRendering<'_>>)
-{
-    if let Some(ConditionalRendering { query, wait, per_region }) = condition {
+fn sync_conditional_render(
+    ctxt: &mut context::CommandContext<'_>,
+    condition: Option<ConditionalRendering<'_>>,
+) {
+    if let Some(ConditionalRendering {
+        query,
+        wait,
+        per_region,
+    }) = condition
+    {
         match query {
             SamplesQueryParam::SamplesPassedQuery(ref q) => {
                 q.begin_conditional_render(ctxt, wait, per_region);
-            },
+            }
             SamplesQueryParam::AnySamplesPassedQuery(ref q) => {
                 q.begin_conditional_render(ctxt, wait, per_region);
-            },
+            }
         }
-
     } else {
         TimeElapsedQuery::end_conditional_render(ctxt);
     }
 }
 
-fn sync_smooth(ctxt: &mut context::CommandContext<'_>,
-               smooth: Option<Smooth>,
-               primitive_type: PrimitiveType) -> Result<(), DrawError> {
-
+fn sync_smooth(
+    ctxt: &mut context::CommandContext<'_>,
+    smooth: Option<Smooth>,
+    primitive_type: PrimitiveType,
+) -> Result<(), DrawError> {
     if let Some(smooth) = smooth {
         // check if smoothing is supported, it isn't on OpenGL ES
         if !(ctxt.version >= &Version(Api::Gl, 1, 0)) {
@@ -842,13 +902,14 @@ fn sync_smooth(ctxt: &mut context::CommandContext<'_>,
 
         match primitive_type {
             // point
-            PrimitiveType::Points =>
-                return Err(DrawError::SmoothingNotSupported),
+            PrimitiveType::Points => return Err(DrawError::SmoothingNotSupported),
 
             // line
-            PrimitiveType::LinesList | PrimitiveType::LinesListAdjacency |
-            PrimitiveType::LineStrip | PrimitiveType::LineStripAdjacency |
-            PrimitiveType::LineLoop => unsafe {
+            PrimitiveType::LinesList
+            | PrimitiveType::LinesListAdjacency
+            | PrimitiveType::LineStrip
+            | PrimitiveType::LineStripAdjacency
+            | PrimitiveType::LineLoop => unsafe {
                 if !ctxt.state.enabled_line_smooth {
                     ctxt.state.enabled_line_smooth = true;
                     ctxt.gl.Enable(gl::LINE_SMOOTH);
@@ -871,18 +932,19 @@ fn sync_smooth(ctxt: &mut context::CommandContext<'_>,
                     ctxt.state.smooth.1 = hint;
                     ctxt.gl.Hint(gl::POLYGON_SMOOTH_HINT, hint);
                 }
-            }
-          }
+            },
         }
-        else {
-          match primitive_type {
+    } else {
+        match primitive_type {
             // point
             PrimitiveType::Points => (),
 
             // line
-            PrimitiveType::LinesList | PrimitiveType::LinesListAdjacency |
-            PrimitiveType::LineStrip | PrimitiveType::LineStripAdjacency |
-            PrimitiveType::LineLoop => unsafe {
+            PrimitiveType::LinesList
+            | PrimitiveType::LinesListAdjacency
+            | PrimitiveType::LineStrip
+            | PrimitiveType::LineStripAdjacency
+            | PrimitiveType::LineLoop => unsafe {
                 if ctxt.state.enabled_line_smooth {
                     ctxt.state.enabled_line_smooth = false;
                     ctxt.gl.Disable(gl::LINE_SMOOTH);
@@ -895,16 +957,17 @@ fn sync_smooth(ctxt: &mut context::CommandContext<'_>,
                     ctxt.state.enabled_polygon_smooth = false;
                     ctxt.gl.Disable(gl::POLYGON_SMOOTH);
                 }
-            }
+            },
         }
     }
 
     Ok(())
 }
 
-fn sync_provoking_vertex(ctxt: &mut context::CommandContext<'_>, value: ProvokingVertex)
-                         -> Result<(), DrawError>
-{
+fn sync_provoking_vertex(
+    ctxt: &mut context::CommandContext<'_>,
+    value: ProvokingVertex,
+) -> Result<(), DrawError> {
     let value = match value {
         ProvokingVertex::LastVertex => gl::LAST_VERTEX_CONVENTION,
         ProvokingVertex::FirstVertex => gl::FIRST_VERTEX_CONVENTION,
@@ -915,13 +978,15 @@ fn sync_provoking_vertex(ctxt: &mut context::CommandContext<'_>, value: Provokin
     }
 
     if ctxt.version >= &Version(Api::Gl, 3, 2) || ctxt.extensions.gl_arb_provoking_vertex {
-        unsafe { ctxt.gl.ProvokingVertex(value); }
+        unsafe {
+            ctxt.gl.ProvokingVertex(value);
+        }
         ctxt.state.provoking_vertex = value;
-
     } else if ctxt.extensions.gl_ext_provoking_vertex {
-        unsafe { ctxt.gl.ProvokingVertexEXT(value); }
+        unsafe {
+            ctxt.gl.ProvokingVertexEXT(value);
+        }
         ctxt.state.provoking_vertex = value;
-
     } else {
         return Err(DrawError::ProvokingVertexNotSupported);
     }
@@ -929,53 +994,69 @@ fn sync_provoking_vertex(ctxt: &mut context::CommandContext<'_>, value: Provokin
     Ok(())
 }
 
-fn sync_primitive_bounding_box(ctxt: &mut context::CommandContext<'_>,
-                               bb: &(Range<f32>, Range<f32>, Range<f32>, Range<f32>))
-{
-    let value = (bb.0.start, bb.1.start, bb.2.start, bb.3.start,
-                 bb.0.end, bb.1.end, bb.2.end, bb.3.end);
+fn sync_primitive_bounding_box(
+    ctxt: &mut context::CommandContext<'_>,
+    bb: &(Range<f32>, Range<f32>, Range<f32>, Range<f32>),
+) {
+    let value = (
+        bb.0.start, bb.1.start, bb.2.start, bb.3.start, bb.0.end, bb.1.end, bb.2.end, bb.3.end,
+    );
 
     if ctxt.state.primitive_bounding_box == value {
         return;
     }
 
     if ctxt.version >= &Version(Api::GlEs, 3, 2) {
-        unsafe { ctxt.gl.PrimitiveBoundingBox(value.0, value.1, value.2, value.3,
-                                              value.4, value.5, value.6, value.7); }
+        unsafe {
+            ctxt.gl.PrimitiveBoundingBox(
+                value.0, value.1, value.2, value.3, value.4, value.5, value.6, value.7,
+            );
+        }
         ctxt.state.primitive_bounding_box = value;
-
     } else if ctxt.extensions.gl_arb_es3_2_compatibility {
-        unsafe { ctxt.gl.PrimitiveBoundingBoxARB(value.0, value.1, value.2, value.3,
-                                                 value.4, value.5, value.6, value.7); }
+        unsafe {
+            ctxt.gl.PrimitiveBoundingBoxARB(
+                value.0, value.1, value.2, value.3, value.4, value.5, value.6, value.7,
+            );
+        }
         ctxt.state.primitive_bounding_box = value;
-
     } else if ctxt.extensions.gl_oes_primitive_bounding_box {
-        unsafe { ctxt.gl.PrimitiveBoundingBoxOES(value.0, value.1, value.2, value.3,
-                                                 value.4, value.5, value.6, value.7); }
+        unsafe {
+            ctxt.gl.PrimitiveBoundingBoxOES(
+                value.0, value.1, value.2, value.3, value.4, value.5, value.6, value.7,
+            );
+        }
         ctxt.state.primitive_bounding_box = value;
-
     } else if ctxt.extensions.gl_ext_primitive_bounding_box {
-        unsafe { ctxt.gl.PrimitiveBoundingBoxEXT(value.0, value.1, value.2, value.3,
-                                                 value.4, value.5, value.6, value.7); }
+        unsafe {
+            ctxt.gl.PrimitiveBoundingBoxEXT(
+                value.0, value.1, value.2, value.3, value.4, value.5, value.6, value.7,
+            );
+        }
         ctxt.state.primitive_bounding_box = value;
     }
 }
 
-fn sync_primitive_restart_index(ctxt: &mut context::CommandContext<'_>,
-                                enabled: bool)
-                                -> Result<(), DrawError>
-{
+fn sync_primitive_restart_index(
+    ctxt: &mut context::CommandContext<'_>,
+    enabled: bool,
+) -> Result<(), DrawError> {
     // TODO: use GL_PRIMITIVE_RESTART (if possible) if
     // GL_PRIMITIVE_RESTART_FIXED_INDEX is not supported
-    if ctxt.version >= &Version(Api::Gl, 3, 1)   || ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-    ctxt.extensions.gl_arb_es3_compatibility
+    if ctxt.version >= &Version(Api::Gl, 3, 1)
+        || ctxt.version >= &Version(Api::GlEs, 3, 0)
+        || ctxt.extensions.gl_arb_es3_compatibility
     {
         if ctxt.state.enabled_primitive_fixed_restart != enabled {
             if enabled {
-                unsafe { ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+                unsafe {
+                    ctxt.gl.Enable(gl::PRIMITIVE_RESTART_FIXED_INDEX);
+                }
                 ctxt.state.enabled_primitive_fixed_restart = true;
             } else {
-                unsafe { ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX); }
+                unsafe {
+                    ctxt.gl.Disable(gl::PRIMITIVE_RESTART_FIXED_INDEX);
+                }
                 ctxt.state.enabled_primitive_fixed_restart = false;
             }
         }
@@ -983,15 +1064,18 @@ fn sync_primitive_restart_index(ctxt: &mut context::CommandContext<'_>,
         return Err(DrawError::FixedIndexRestartingNotSupported);
     }
 
-
     Ok(())
 }
 
 fn set_flag_enabled(ctxt: &mut context::CommandContext<'_>, cap: gl::types::GLenum, enabled: bool) {
     if enabled {
-        unsafe { ctxt.gl.Enable(cap); }
+        unsafe {
+            ctxt.gl.Enable(cap);
+        }
     } else {
-        unsafe { ctxt.gl.Disable(cap); }
+        unsafe {
+            ctxt.gl.Disable(cap);
+        }
     }
 }
 
@@ -1020,4 +1104,3 @@ fn sync_polygon_offset(ctxt: &mut context::CommandContext<'_>, offset: PolygonOf
         set_flag_enabled(ctxt, gl::POLYGON_OFFSET_FILL, offset.fill);
     }
 }
-

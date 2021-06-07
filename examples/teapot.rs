@@ -120,7 +120,8 @@ fn main() {
                 }
             ",
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     //
     let mut camera = support::camera::CameraState::new();
@@ -140,17 +141,23 @@ fn main() {
             depth: glium::Depth {
                 test: glium::DepthTest::IfLess,
                 write: true,
-                .. Default::default()
+                ..Default::default()
             },
-            .. Default::default()
+            ..Default::default()
         };
 
         // drawing a frame
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
-        target.draw(&vertex_buffer,
-                    &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
-                    &program, &uniforms, &params).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+                &program,
+                &uniforms,
+                &params,
+            )
+            .unwrap();
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
@@ -164,7 +171,7 @@ fn main() {
                 },
                 _ => (),
             }
-        };
+        }
 
         action
     });

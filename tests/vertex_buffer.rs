@@ -49,34 +49,39 @@ fn transform_feedback() {
 
         transform_feedback_varyings: Some((
             vec!["output_val".to_string()],
-            glium::program::TransformFeedbackMode::Separate
+            glium::program::TransformFeedbackMode::Separate,
         )),
     };
 
     let program = match glium::Program::new(&display, source) {
         Ok(p) => p,
         Err(glium::program::ProgramCreationError::TransformFeedbackNotSupported) => return,
-        Err(e) => panic!("{:?}", e)
+        Err(e) => panic!("{:?}", e),
     };
 
-    let mut out_buffer: glium::VertexBuffer<Vertex> = glium::VertexBuffer::empty(&display, 6).unwrap();
+    let mut out_buffer: glium::VertexBuffer<Vertex> =
+        glium::VertexBuffer::empty(&display, 6).unwrap();
 
     {
-        let session = glium::vertex::TransformFeedbackSession::new(&display, &program,
-                                                                   &mut out_buffer).unwrap();
+        let session =
+            glium::vertex::TransformFeedbackSession::new(&display, &program, &mut out_buffer)
+                .unwrap();
 
         let params = glium::DrawParameters {
             transform_feedback: Some(&session),
-            .. Default::default()
+            ..Default::default()
         };
 
-        display.draw().draw(&vb, &ib, &program, &uniform!{}, &params).unwrap();
+        display
+            .draw()
+            .draw(&vb, &ib, &program, &uniform! {}, &params)
+            .unwrap();
     }
 
     let result = match out_buffer.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(result[0].output_val, (-1.0, 1.0));

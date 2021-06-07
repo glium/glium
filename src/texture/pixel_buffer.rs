@@ -10,9 +10,9 @@ use std::ops::{Deref, DerefMut};
 
 use crate::backend::Facade;
 
-use crate::GlObject;
-use crate::buffer::{ReadError, Buffer, BufferType, BufferMode};
+use crate::buffer::{Buffer, BufferMode, BufferType, ReadError};
 use crate::gl;
+use crate::GlObject;
 
 use crate::texture::PixelValue;
 use crate::texture::Texture2dDataSink;
@@ -20,32 +20,52 @@ use crate::texture::Texture2dDataSink;
 /// Buffer that stores the content of a texture.
 ///
 /// The generic type represents the type of pixels that the buffer contains.
-pub struct PixelBuffer<T> where T: PixelValue {
+pub struct PixelBuffer<T>
+where
+    T: PixelValue,
+{
     buffer: Buffer<[T]>,
     dimensions: Cell<Option<(u32, u32)>>,
 }
 
-impl<T> PixelBuffer<T> where T: PixelValue {
+impl<T> PixelBuffer<T>
+where
+    T: PixelValue,
+{
     /// Builds a new buffer with an uninitialized content.
     #[inline]
-    pub fn new_empty<F: ?Sized>(facade: &F, capacity: usize) -> PixelBuffer<T> where F: Facade {
+    pub fn new_empty<F: ?Sized>(facade: &F, capacity: usize) -> PixelBuffer<T>
+    where
+        F: Facade,
+    {
         PixelBuffer {
-            buffer: Buffer::empty_array(facade, BufferType::PixelPackBuffer, capacity,
-                                            BufferMode::Default).unwrap(),
+            buffer: Buffer::empty_array(
+                facade,
+                BufferType::PixelPackBuffer,
+                capacity,
+                BufferMode::Default,
+            )
+            .unwrap(),
             dimensions: Cell::new(None),
         }
     }
 
     /// Reads the content of the pixel buffer.
     #[inline]
-    pub fn read_as_texture_2d<S>(&self) -> Result<S, ReadError> where S: Texture2dDataSink<T> {
+    pub fn read_as_texture_2d<S>(&self) -> Result<S, ReadError>
+    where
+        S: Texture2dDataSink<T>,
+    {
         let dimensions = self.dimensions.get().expect("The pixel buffer is empty");
         let data = self.read()?;
         Ok(S::from_raw(Cow::Owned(data), dimensions.0, dimensions.1))
     }
 }
 
-impl<T> Deref for PixelBuffer<T> where T: PixelValue {
+impl<T> Deref for PixelBuffer<T>
+where
+    T: PixelValue,
+{
     type Target = Buffer<[T]>;
 
     #[inline]
@@ -54,7 +74,10 @@ impl<T> Deref for PixelBuffer<T> where T: PixelValue {
     }
 }
 
-impl<T> DerefMut for PixelBuffer<T> where T: PixelValue {
+impl<T> DerefMut for PixelBuffer<T>
+where
+    T: PixelValue,
+{
     #[inline]
     fn deref_mut(&mut self) -> &mut Buffer<[T]> {
         &mut self.buffer
@@ -62,7 +85,10 @@ impl<T> DerefMut for PixelBuffer<T> where T: PixelValue {
 }
 
 // TODO: rework this
-impl<T> GlObject for PixelBuffer<T> where T: PixelValue {
+impl<T> GlObject for PixelBuffer<T>
+where
+    T: PixelValue,
+{
     type Id = gl::types::GLuint;
 
     #[inline]
@@ -74,6 +100,9 @@ impl<T> GlObject for PixelBuffer<T> where T: PixelValue {
 // TODO: remove this hack
 #[doc(hidden)]
 #[inline]
-pub fn store_infos<T>(b: &PixelBuffer<T>, dimensions: (u32, u32)) where T: PixelValue {
+pub fn store_infos<T>(b: &PixelBuffer<T>, dimensions: (u32, u32))
+where
+    T: PixelValue,
+{
     b.dimensions.set(Some(dimensions));
 }

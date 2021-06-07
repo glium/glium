@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
 
-use glium::Surface;
 use glium::texture::buffer_texture::BufferTexture;
 use glium::texture::buffer_texture::BufferTextureType;
+use glium::Surface;
 
 mod support;
 
@@ -14,7 +14,7 @@ fn empty() {
     let texture = BufferTexture::empty(&display, 32, BufferTextureType::Float);
     let texture: BufferTexture<(u8, u8, u8, u8)> = match texture {
         Ok(t) => t,
-        Err(_) => return
+        Err(_) => return,
     };
 
     display.assert_no_error(None);
@@ -30,12 +30,13 @@ fn sample() {
     let buf_tex = BufferTexture::new(&display, data, BufferTextureType::Float);
     let buf_tex: BufferTexture<(u8, u8, u8, u8)> = match buf_tex {
         Ok(t) => t,
-        Err(_) => return
+        Err(_) => return,
     };
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -54,16 +55,25 @@ fn sample() {
                 gl_FragColor = texelFetch(tex, 0);
             }
         ",
-        None);
+        None,
+    );
     let program = match program {
         Ok(p) => p,
-        Err(_) => return
+        Err(_) => return,
     };
 
     let output = support::build_renderable_texture(&display);
     output.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    output.as_surface().draw(&vb, &ib, &program, &uniform!{ tex: &buf_tex },
-                             &Default::default()).unwrap();
+    output
+        .as_surface()
+        .draw(
+            &vb,
+            &ib,
+            &program,
+            &uniform! { tex: &buf_tex },
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = output.read();
     for row in data.iter() {
@@ -83,12 +93,13 @@ fn wrong_type() {
     let buf_tex = BufferTexture::new(&display, data, BufferTextureType::Float);
     let buf_tex: BufferTexture<(u8, u8, u8, u8)> = match buf_tex {
         Ok(t) => t,
-        Err(_) => return
+        Err(_) => return,
     };
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -107,18 +118,25 @@ fn wrong_type() {
                 gl_FragColor = texelFetch(tex, 0);
             }
         ",
-        None);
+        None,
+    );
     let program = match program {
         Ok(p) => p,
-        Err(_) => return
+        Err(_) => return,
     };
 
     let mut frame = display.draw();
-    let result = frame.draw(&vb, &ib, &program, &uniform!{ tex: &buf_tex }, &Default::default());
+    let result = frame.draw(
+        &vb,
+        &ib,
+        &program,
+        &uniform! { tex: &buf_tex },
+        &Default::default(),
+    );
 
     match result {
         Err(glium::DrawError::UniformTypeMismatch { .. }) => (),
-        _ => panic!()
+        _ => panic!(),
     };
 
     frame.finish().unwrap();

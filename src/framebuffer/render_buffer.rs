@@ -7,27 +7,29 @@ You should prefer render buffers over textures when you know that you don't need
 the data of the render buffer.
 
 */
-use std::rc::Rc;
-use std::ops::{Deref, DerefMut};
-use std::fmt;
 use std::error::Error;
+use std::fmt;
+use std::ops::{Deref, DerefMut};
+use std::rc::Rc;
 
 use crate::framebuffer::{ColorAttachment, ToColorAttachment};
 use crate::framebuffer::{DepthAttachment, ToDepthAttachment};
-use crate::framebuffer::{StencilAttachment, ToStencilAttachment};
 use crate::framebuffer::{DepthStencilAttachment, ToDepthStencilAttachment};
-use crate::texture::{UncompressedFloatFormat, DepthFormat, StencilFormat, DepthStencilFormat, TextureKind};
+use crate::framebuffer::{StencilAttachment, ToStencilAttachment};
+use crate::texture::{
+    DepthFormat, DepthStencilFormat, StencilFormat, TextureKind, UncompressedFloatFormat,
+};
 
 use crate::image_format;
 
-use crate::gl;
-use crate::GlObject;
-use crate::fbo::FramebuffersContainer;
 use crate::backend::Facade;
 use crate::context::Context;
-use crate::ContextExt;
-use crate::version::Version;
+use crate::fbo::FramebuffersContainer;
+use crate::gl;
 use crate::version::Api;
+use crate::version::Version;
+use crate::ContextExt;
+use crate::GlObject;
 
 /// Error while creating a render buffer.
 #[derive(Copy, Clone, Debug)]
@@ -63,14 +65,26 @@ pub struct RenderBuffer {
 
 impl RenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F: ?Sized>(facade: &F, format: UncompressedFloatFormat, width: u32, height: u32)
-                  -> Result<RenderBuffer, CreationError> where F: Facade
+    pub fn new<F: ?Sized>(
+        facade: &F,
+        format: UncompressedFloatFormat,
+        width: u32,
+        height: u32,
+    ) -> Result<RenderBuffer, CreationError>
+    where
+        F: Facade,
     {
-        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::UncompressedFloat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
+        let format = image_format::TextureFormatRequest::Specific(
+            image_format::TextureFormat::UncompressedFloat(format),
+        );
+        let format = image_format::format_request_to_glenum(
+            &facade.get_context(),
+            format,
+            image_format::RequestType::Renderbuffer,
+        )?;
 
         Ok(RenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, TextureKind::Float, width, height, None)
+            buffer: RenderBufferAny::new(facade, format, TextureKind::Float, width, height, None),
         })
     }
 }
@@ -116,14 +130,26 @@ pub struct DepthRenderBuffer {
 
 impl DepthRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F: ?Sized>(facade: &F, format: DepthFormat, width: u32, height: u32)
-                  -> Result<DepthRenderBuffer, CreationError> where F: Facade
+    pub fn new<F: ?Sized>(
+        facade: &F,
+        format: DepthFormat,
+        width: u32,
+        height: u32,
+    ) -> Result<DepthRenderBuffer, CreationError>
+    where
+        F: Facade,
     {
-        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthFormat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
+        let format = image_format::TextureFormatRequest::Specific(
+            image_format::TextureFormat::DepthFormat(format),
+        );
+        let format = image_format::format_request_to_glenum(
+            &facade.get_context(),
+            format,
+            image_format::RequestType::Renderbuffer,
+        )?;
 
         Ok(DepthRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, TextureKind::Depth, width, height, None)
+            buffer: RenderBufferAny::new(facade, format, TextureKind::Depth, width, height, None),
         })
     }
 }
@@ -168,14 +194,26 @@ pub struct StencilRenderBuffer {
 
 impl StencilRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F: ?Sized>(facade: &F, format: StencilFormat, width: u32, height: u32)
-                  -> Result<StencilRenderBuffer, CreationError> where F: Facade
+    pub fn new<F: ?Sized>(
+        facade: &F,
+        format: StencilFormat,
+        width: u32,
+        height: u32,
+    ) -> Result<StencilRenderBuffer, CreationError>
+    where
+        F: Facade,
     {
-        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::StencilFormat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
+        let format = image_format::TextureFormatRequest::Specific(
+            image_format::TextureFormat::StencilFormat(format),
+        );
+        let format = image_format::format_request_to_glenum(
+            &facade.get_context(),
+            format,
+            image_format::RequestType::Renderbuffer,
+        )?;
 
         Ok(StencilRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, TextureKind::Stencil, width, height, None)
+            buffer: RenderBufferAny::new(facade, format, TextureKind::Stencil, width, height, None),
         })
     }
 }
@@ -221,14 +259,33 @@ pub struct DepthStencilRenderBuffer {
 
 impl DepthStencilRenderBuffer {
     /// Builds a new render buffer.
-    pub fn new<F: ?Sized>(facade: &F, format: DepthStencilFormat, width: u32, height: u32)
-                  -> Result<DepthStencilRenderBuffer, CreationError> where F: Facade
+    pub fn new<F: ?Sized>(
+        facade: &F,
+        format: DepthStencilFormat,
+        width: u32,
+        height: u32,
+    ) -> Result<DepthStencilRenderBuffer, CreationError>
+    where
+        F: Facade,
     {
-        let format = image_format::TextureFormatRequest::Specific(image_format::TextureFormat::DepthStencilFormat(format));
-        let format = image_format::format_request_to_glenum(&facade.get_context(), format, image_format::RequestType::Renderbuffer)?;
+        let format = image_format::TextureFormatRequest::Specific(
+            image_format::TextureFormat::DepthStencilFormat(format),
+        );
+        let format = image_format::format_request_to_glenum(
+            &facade.get_context(),
+            format,
+            image_format::RequestType::Renderbuffer,
+        )?;
 
         Ok(DepthStencilRenderBuffer {
-            buffer: RenderBufferAny::new(facade, format, TextureKind::DepthStencil, width, height, None)
+            buffer: RenderBufferAny::new(
+                facade,
+                format,
+                TextureKind::DepthStencil,
+                width,
+                height,
+                None,
+            ),
         })
     }
 }
@@ -277,9 +334,16 @@ pub struct RenderBufferAny {
 
 impl RenderBufferAny {
     /// Builds a new render buffer.
-    fn new<F: ?Sized>(facade: &F, format: gl::types::GLenum, kind: TextureKind, width: u32, height: u32,
-              samples: Option<u32>) -> RenderBufferAny
-        where F: Facade
+    fn new<F: ?Sized>(
+        facade: &F,
+        format: gl::types::GLenum,
+        kind: TextureKind,
+        width: u32,
+        height: u32,
+        samples: Option<u32>,
+    ) -> RenderBufferAny
+    where
+        F: Facade,
     {
         unsafe {
             // TODO: check that dimensions don't exceed GL_MAX_RENDERBUFFER_SIZE
@@ -287,25 +351,32 @@ impl RenderBufferAny {
             let mut ctxt = facade.get_context().make_current();
             let mut id = 0;
 
-            if ctxt.version >= &Version(Api::Gl, 4, 5) ||
-               ctxt.extensions.gl_arb_direct_state_access
+            if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_direct_state_access
             {
                 ctxt.gl.CreateRenderbuffers(1, &mut id);
                 if let Some(samples) = samples {
-                    ctxt.gl.NamedRenderbufferStorageMultisample(id, samples as gl::types::GLsizei,
-                                                                format, width as gl::types::GLsizei,
-                                                                height as gl::types::GLsizei);
+                    ctxt.gl.NamedRenderbufferStorageMultisample(
+                        id,
+                        samples as gl::types::GLsizei,
+                        format,
+                        width as gl::types::GLsizei,
+                        height as gl::types::GLsizei,
+                    );
                 } else {
-                    ctxt.gl.NamedRenderbufferStorage(id, format, width as gl::types::GLsizei,
-                                                     height as gl::types::GLsizei);
+                    ctxt.gl.NamedRenderbufferStorage(
+                        id,
+                        format,
+                        width as gl::types::GLsizei,
+                        height as gl::types::GLsizei,
+                    );
                 }
-
-            } else if samples.is_some() && (ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                                            ctxt.version >= &Version(Api::GlEs, 3, 0) ||
-                                            ctxt.extensions.gl_apple_framebuffer_multisample ||
-                                            ctxt.extensions.gl_angle_framebuffer_multisample ||
-                                            ctxt.extensions.gl_ext_multisampled_render_to_texture ||
-                                            ctxt.extensions.gl_nv_framebuffer_multisample)
+            } else if samples.is_some()
+                && (ctxt.version >= &Version(Api::Gl, 3, 0)
+                    || ctxt.version >= &Version(Api::GlEs, 3, 0)
+                    || ctxt.extensions.gl_apple_framebuffer_multisample
+                    || ctxt.extensions.gl_angle_framebuffer_multisample
+                    || ctxt.extensions.gl_ext_multisampled_render_to_texture
+                    || ctxt.extensions.gl_nv_framebuffer_multisample)
             {
                 ctxt.gl.GenRenderbuffers(1, &mut id);
                 ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
@@ -313,79 +384,90 @@ impl RenderBufferAny {
 
                 let samples = samples.unwrap();
 
-                if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                   ctxt.version >= &Version(Api::GlEs, 3, 0)
+                if ctxt.version >= &Version(Api::Gl, 3, 0)
+                    || ctxt.version >= &Version(Api::GlEs, 3, 0)
                 {
-                    ctxt.gl.RenderbufferStorageMultisample(gl::RENDERBUFFER,
-                                                           samples as gl::types::GLsizei,
-                                                           format,
-                                                           width as gl::types::GLsizei,
-                                                           height as gl::types::GLsizei);
-
+                    ctxt.gl.RenderbufferStorageMultisample(
+                        gl::RENDERBUFFER,
+                        samples as gl::types::GLsizei,
+                        format,
+                        width as gl::types::GLsizei,
+                        height as gl::types::GLsizei,
+                    );
                 } else if ctxt.extensions.gl_apple_framebuffer_multisample {
-                    ctxt.gl.RenderbufferStorageMultisampleAPPLE(gl::RENDERBUFFER,
-                                                                samples as gl::types::GLsizei,
-                                                                format,
-                                                                width as gl::types::GLsizei,
-                                                                height as gl::types::GLsizei);
-
+                    ctxt.gl.RenderbufferStorageMultisampleAPPLE(
+                        gl::RENDERBUFFER,
+                        samples as gl::types::GLsizei,
+                        format,
+                        width as gl::types::GLsizei,
+                        height as gl::types::GLsizei,
+                    );
                 } else if ctxt.extensions.gl_angle_framebuffer_multisample {
-                    ctxt.gl.RenderbufferStorageMultisampleANGLE(gl::RENDERBUFFER,
-                                                                samples as gl::types::GLsizei,
-                                                                format,
-                                                                width as gl::types::GLsizei,
-                                                                height as gl::types::GLsizei);
-
+                    ctxt.gl.RenderbufferStorageMultisampleANGLE(
+                        gl::RENDERBUFFER,
+                        samples as gl::types::GLsizei,
+                        format,
+                        width as gl::types::GLsizei,
+                        height as gl::types::GLsizei,
+                    );
                 } else if ctxt.extensions.gl_ext_multisampled_render_to_texture {
-                    ctxt.gl.RenderbufferStorageMultisampleEXT(gl::RENDERBUFFER,
-                                                              samples as gl::types::GLsizei,
-                                                              format,
-                                                              width as gl::types::GLsizei,
-                                                              height as gl::types::GLsizei);
-
+                    ctxt.gl.RenderbufferStorageMultisampleEXT(
+                        gl::RENDERBUFFER,
+                        samples as gl::types::GLsizei,
+                        format,
+                        width as gl::types::GLsizei,
+                        height as gl::types::GLsizei,
+                    );
                 } else if ctxt.extensions.gl_nv_framebuffer_multisample {
-                    ctxt.gl.RenderbufferStorageMultisampleNV(gl::RENDERBUFFER,
-                                                             samples as gl::types::GLsizei,
-                                                             format,
-                                                             width as gl::types::GLsizei,
-                                                             height as gl::types::GLsizei);
-
+                    ctxt.gl.RenderbufferStorageMultisampleNV(
+                        gl::RENDERBUFFER,
+                        samples as gl::types::GLsizei,
+                        format,
+                        width as gl::types::GLsizei,
+                        height as gl::types::GLsizei,
+                    );
                 } else {
                     unreachable!();
                 }
-
-            } else if samples.is_none() && (ctxt.version >= &Version(Api::Gl, 3, 0) ||
-                                            ctxt.version >= &Version(Api::GlEs, 2, 0))
+            } else if samples.is_none()
+                && (ctxt.version >= &Version(Api::Gl, 3, 0)
+                    || ctxt.version >= &Version(Api::GlEs, 2, 0))
             {
                 ctxt.gl.GenRenderbuffers(1, &mut id);
                 ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, id);
                 ctxt.state.renderbuffer = id;
-                ctxt.gl.RenderbufferStorage(gl::RENDERBUFFER, format,
-                                            width as gl::types::GLsizei,
-                                            height as gl::types::GLsizei);
-
-            } else if samples.is_some() && ctxt.extensions.gl_ext_framebuffer_object &&
-                      ctxt.extensions.gl_ext_framebuffer_multisample
+                ctxt.gl.RenderbufferStorage(
+                    gl::RENDERBUFFER,
+                    format,
+                    width as gl::types::GLsizei,
+                    height as gl::types::GLsizei,
+                );
+            } else if samples.is_some()
+                && ctxt.extensions.gl_ext_framebuffer_object
+                && ctxt.extensions.gl_ext_framebuffer_multisample
             {
                 ctxt.gl.GenRenderbuffersEXT(1, &mut id);
                 ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, id);
                 ctxt.state.renderbuffer = id;
 
                 let samples = samples.unwrap();
-                ctxt.gl.RenderbufferStorageMultisampleEXT(gl::RENDERBUFFER_EXT,
-                                                          samples as gl::types::GLsizei,
-                                                          format,
-                                                          width as gl::types::GLsizei,
-                                                          height as gl::types::GLsizei);
-
+                ctxt.gl.RenderbufferStorageMultisampleEXT(
+                    gl::RENDERBUFFER_EXT,
+                    samples as gl::types::GLsizei,
+                    format,
+                    width as gl::types::GLsizei,
+                    height as gl::types::GLsizei,
+                );
             } else if samples.is_none() && ctxt.extensions.gl_ext_framebuffer_object {
                 ctxt.gl.GenRenderbuffersEXT(1, &mut id);
                 ctxt.gl.BindRenderbufferEXT(gl::RENDERBUFFER_EXT, id);
                 ctxt.state.renderbuffer = id;
-                ctxt.gl.RenderbufferStorageEXT(gl::RENDERBUFFER_EXT, format,
-                                               width as gl::types::GLsizei,
-                                               height as gl::types::GLsizei);
-
+                ctxt.gl.RenderbufferStorageEXT(
+                    gl::RENDERBUFFER_EXT,
+                    format,
+                    width as gl::types::GLsizei,
+                    height as gl::types::GLsizei,
+                );
             } else {
                 unreachable!();
             }
@@ -434,8 +516,16 @@ impl RenderBufferAny {
             let mut stencil_bits: gl::types::GLint = 0;
             ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, self.id);
             // FIXME: GL version considerations
-            ctxt.gl.GetRenderbufferParameteriv(gl::RENDERBUFFER, gl::RENDERBUFFER_DEPTH_SIZE, &mut depth_bits);
-            ctxt.gl.GetRenderbufferParameteriv(gl::RENDERBUFFER, gl::RENDERBUFFER_STENCIL_SIZE, &mut stencil_bits);
+            ctxt.gl.GetRenderbufferParameteriv(
+                gl::RENDERBUFFER,
+                gl::RENDERBUFFER_DEPTH_SIZE,
+                &mut depth_bits,
+            );
+            ctxt.gl.GetRenderbufferParameteriv(
+                gl::RENDERBUFFER,
+                gl::RENDERBUFFER_STENCIL_SIZE,
+                &mut stencil_bits,
+            );
             ctxt.gl.BindRenderbuffer(gl::RENDERBUFFER, 0);
             (depth_bits as u16, stencil_bits as u16)
         }
@@ -450,22 +540,19 @@ impl Drop for RenderBufferAny {
             // removing FBOs which contain this buffer
             FramebuffersContainer::purge_renderbuffer(&mut ctxt, self.id);
 
-            if ctxt.version >= &Version(Api::Gl, 3, 0) ||
-               ctxt.version >= &Version(Api::GlEs, 2, 0)
+            if ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.version >= &Version(Api::GlEs, 2, 0)
             {
                 if ctxt.state.renderbuffer == self.id {
                     ctxt.state.renderbuffer = 0;
                 }
 
-                ctxt.gl.DeleteRenderbuffers(1, [ self.id ].as_ptr());
-
+                ctxt.gl.DeleteRenderbuffers(1, [self.id].as_ptr());
             } else if ctxt.extensions.gl_ext_framebuffer_object {
                 if ctxt.state.renderbuffer == self.id {
                     ctxt.state.renderbuffer = 0;
                 }
 
-                ctxt.gl.DeleteRenderbuffersEXT(1, [ self.id ].as_ptr());
-
+                ctxt.gl.DeleteRenderbuffersEXT(1, [self.id].as_ptr());
             } else {
                 unreachable!();
             }

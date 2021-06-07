@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
 
-use std::io::Cursor;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
+use std::io::Cursor;
 
 mod support;
 
@@ -15,17 +15,26 @@ fn main() {
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-                            image::ImageFormat::Png).unwrap().to_rgba8();
+    let image = image::load(
+        Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
+        image::ImageFormat::Png,
+    )
+    .unwrap()
+    .to_rgba8();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+    let image =
+        glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::Texture2d::new(&display, image).unwrap();
 
     // building a 1024x1024 empty texture
-    let dest_texture = glium::Texture2d::empty_with_format(&display,
-                                               glium::texture::UncompressedFloatFormat::U8U8U8U8,
-                                               glium::texture::MipmapsOption::NoMipmap,
-                                               1024, 1024).unwrap();
+    let dest_texture = glium::Texture2d::empty_with_format(
+        &display,
+        glium::texture::UncompressedFloatFormat::U8U8U8U8,
+        glium::texture::MipmapsOption::NoMipmap,
+        1024,
+        1024,
+    )
+    .unwrap();
     dest_texture.as_surface().clear_color(0.0, 0.0, 0.0, 1.0);
 
     // the main loop
@@ -40,18 +49,23 @@ fn main() {
                 height: (dimensions * dest_texture.get_height().unwrap() as f32) as i32,
             };
 
-            opengl_texture.as_surface().blit_whole_color_to(&dest_texture.as_surface(), &dest_rect,
-                                                            glium::uniforms::MagnifySamplerFilter::Linear);
+            opengl_texture.as_surface().blit_whole_color_to(
+                &dest_texture.as_surface(),
+                &dest_rect,
+                glium::uniforms::MagnifySamplerFilter::Linear,
+            );
         }
 
         // drawing a frame
         let target = display.draw();
-        dest_texture.as_surface().fill(&target, glium::uniforms::MagnifySamplerFilter::Linear);
+        dest_texture
+            .as_surface()
+            .fill(&target, glium::uniforms::MagnifySamplerFilter::Linear);
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
 
-            // handling the events received by the window since the last frame
+        // handling the events received by the window since the last frame
         for event in events {
             match event {
                 glutin::event::Event::WindowEvent { event, .. } => match event {

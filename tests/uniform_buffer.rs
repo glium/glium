@@ -20,7 +20,7 @@ fn uniform_buffer_mapping_read() {
 
     let mut vb = match glium::uniforms::UniformBuffer::new(&display, 12) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
     let mapping = vb.map();
@@ -35,7 +35,7 @@ fn uniform_buffer_mapping_write() {
 
     let mut vb = match glium::uniforms::UniformBuffer::new(&display, 6) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
     {
@@ -55,13 +55,13 @@ fn uniform_buffer_read() {
 
     let vb = match glium::uniforms::UniformBuffer::new(&display, 12) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data, 12);
@@ -75,7 +75,7 @@ fn uniform_buffer_write() {
 
     let vb = match glium::uniforms::UniformBuffer::new(&display, 5) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
     vb.write(&24);
@@ -83,7 +83,7 @@ fn uniform_buffer_write() {
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data, 24);
@@ -97,7 +97,8 @@ fn block() {
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -119,12 +120,13 @@ fn block() {
                 gl_FragColor = vec4(color, 1.0);
             }
         ",
-        None);
+        None,
+    );
 
     // ignoring test in case of compilation error (version may not be supported)
     let program = match program {
         Ok(p) => p,
-        Err(_) => return
+        Err(_) => return,
     };
 
     #[derive(Copy, Clone)]
@@ -134,18 +136,26 @@ fn block() {
 
     implement_uniform_block!(Data, color);
 
-    let buffer = match glium::uniforms::UniformBuffer::new(&display, Data { color: (1.0f32, 1.0f32, 0.0f32) }) {
+    let buffer = match glium::uniforms::UniformBuffer::new(
+        &display,
+        Data {
+            color: (1.0f32, 1.0f32, 0.0f32),
+        },
+    ) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
-    let uniforms = uniform!{
+    let uniforms = uniform! {
         MyBlock: &buffer
     };
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &uniforms, &Default::default())
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
@@ -163,7 +173,8 @@ fn block_wrong_type() {
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -185,20 +196,21 @@ fn block_wrong_type() {
                 gl_FragColor = vec4(color, 1.0);
             }
         ",
-        None);
+        None,
+    );
 
     // ignoring test in case of compilation error (version may not be supported)
     let program = match program {
         Ok(p) => p,
-        Err(_) => return
+        Err(_) => return,
     };
 
     let buffer = match glium::uniforms::UniformBuffer::new(&display, 2) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
-    let uniforms = uniform!{
+    let uniforms = uniform! {
         MyBlock: &buffer
     };
 
@@ -207,8 +219,11 @@ fn block_wrong_type() {
 
     match target.draw(&vb, &ib, &program, &uniforms, &Default::default()) {
         Err(glium::DrawError::UniformBlockLayoutMismatch { ref name, .. })
-            if name == &"MyBlock" => (),
-        a => panic!("{:?}", a)
+            if name == &"MyBlock" =>
+        {
+            ()
+        }
+        a => panic!("{:?}", a),
     }
 
     target.finish().unwrap();
@@ -222,7 +237,7 @@ fn buffer_write() {
 
     let mut buf = match glium::uniforms::UniformBuffer::new(&display, (5, 3)) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
     {
@@ -242,7 +257,8 @@ fn persistent_block_race_condition() {
 
     let (vb, ib) = support::build_rectangle_vb_ib(&display);
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 110
 
@@ -264,12 +280,13 @@ fn persistent_block_race_condition() {
                 gl_FragColor = vec4(color, 1.0);
             }
         ",
-        None);
+        None,
+    );
 
     // ignoring test in case of compilation error (version may not be supported)
     let program = match program {
         Ok(p) => p,
-        Err(_) => return
+        Err(_) => return,
     };
 
     #[derive(Copy, Clone)]
@@ -279,16 +296,21 @@ fn persistent_block_race_condition() {
 
     implement_uniform_block!(Data, color);
 
-    let mut buffer = match glium::uniforms::UniformBuffer::new(&display, Data { color: (0.5f32, 0.5f32, 0.5f32) }) {
+    let mut buffer = match glium::uniforms::UniformBuffer::new(
+        &display,
+        Data {
+            color: (0.5f32, 0.5f32, 0.5f32),
+        },
+    ) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
     // checking for synchronization issues by quickly drawing and modifying the buffer
     let texture = support::build_renderable_texture(&display);
     let mut target = texture.as_surface();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    for _ in 0 .. 1000 {
+    for _ in 0..1000 {
         {
             let mut mapping = buffer.map();
             mapping.color.0 = rand::random();
@@ -296,9 +318,17 @@ fn persistent_block_race_condition() {
             mapping.color.2 = rand::random();
         }
 
-        target.draw(&vb, &ib, &program, &uniform!{
-            MyBlock: &buffer
-        }, &Default::default()).unwrap();
+        target
+            .draw(
+                &vb,
+                &ib,
+                &program,
+                &uniform! {
+                    MyBlock: &buffer
+                },
+                &Default::default(),
+            )
+            .unwrap();
     }
     {
         let mut mapping = buffer.map();
@@ -306,9 +336,17 @@ fn persistent_block_race_condition() {
         mapping.color.1 = 1.0;
         mapping.color.2 = 1.0;
     }
-    target.draw(&vb, &ib, &program, &uniform!{
-        MyBlock: &buffer
-    }, &Default::default()).unwrap();
+    target
+        .draw(
+            &vb,
+            &ib,
+            &program,
+            &uniform! {
+                MyBlock: &buffer
+            },
+            &Default::default(),
+        )
+        .unwrap();
     {
         let mut mapping = buffer.map();
         mapping.color.0 = 0.0;
@@ -332,7 +370,7 @@ fn empty_uniform_buffer() {
 
     let _ = match glium::uniforms::UniformBuffer::new(&display, ()) {
         Err(_) => return,
-        Ok(b) => b
+        Ok(b) => b,
     };
 
     display.assert_no_error(None);

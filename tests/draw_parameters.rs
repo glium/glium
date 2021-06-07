@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate glium;
 
-use glium::Surface;
 use glium::index::PrimitiveType;
+use glium::Surface;
 
 mod support;
 
@@ -12,14 +12,17 @@ fn color_mask() {
 
     let params = glium::DrawParameters {
         color_mask: (false, true, true, true),
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
@@ -42,7 +45,7 @@ fn viewport_too_large() {
             width: 4294967295,
             height: 4294967295,
         }),
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -50,7 +53,7 @@ fn viewport_too_large() {
     let mut frame = display.draw();
     match frame.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
         Err(glium::DrawError::ViewportTooLarge) => (),
-        a => panic!("{:?}", a)
+        a => panic!("{:?}", a),
     };
     frame.finish().unwrap();
 
@@ -64,9 +67,9 @@ fn wrong_depth_range() {
     let params = glium::DrawParameters {
         depth: glium::Depth {
             range: (-0.1, 1.0),
-            .. Default::default()
+            ..Default::default()
         },
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
@@ -74,7 +77,7 @@ fn wrong_depth_range() {
     let mut frame = display.draw();
     match frame.draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
         Err(glium::DrawError::InvalidDepthRange) => (),
-        a => panic!("{:?}", a)
+        a => panic!("{:?}", a),
     };
     frame.finish().unwrap();
 
@@ -92,14 +95,17 @@ fn scissor() {
             width: 1,
             height: 1,
         }),
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -128,15 +134,17 @@ fn scissor_followed_by_clear() {
             width: 2,
             height: 2,
         }),
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
-                              &params).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+        .unwrap();
     texture.as_surface().clear_color(1.0, 0.0, 1.0, 1.0);
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
@@ -160,15 +168,17 @@ fn viewport_followed_by_clear() {
             width: 2,
             height: 2,
         }),
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms,
-                              &params).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+        .unwrap();
     texture.as_surface().clear_color(1.0, 0.0, 1.0, 1.0);
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
@@ -192,14 +202,17 @@ fn viewport() {
             width: 1,
             height: 1,
         }),
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -223,17 +236,20 @@ fn dont_draw_primitives() {
 
     let params = glium::DrawParameters {
         draw_primitives: false,
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 1.0, 0.0, 0.0);
-    match texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+    match texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+    {
         Ok(_) => (),
         Err(glium::DrawError::RasterizerDiscardNotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     }
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
@@ -252,19 +268,31 @@ fn dont_draw_primitives_then_draw() {
 
     let params = glium::DrawParameters {
         draw_primitives: false,
-        .. Default::default()
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 1.0, 0.0, 0.0);
-    match texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params) {
+    match texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+    {
         Ok(_) => (),
         Err(glium::DrawError::RasterizerDiscardNotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     }
-    texture.as_surface().draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vb,
+            &ib,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
@@ -288,18 +316,34 @@ fn cull_clockwise() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { position: [-1.0,  1.0] },      // top-left
-            Vertex { position: [ 1.0,  1.0] },      // top-right
-            Vertex { position: [-1.0, -1.0] },      // bottom-left
-            Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: [-1.0, 1.0],
+                }, // top-left
+                Vertex {
+                    position: [1.0, 1.0],
+                }, // top-right
+                Vertex {
+                    position: [-1.0, -1.0],
+                }, // bottom-left
+                Vertex {
+                    position: [1.0, -1.0],
+                }, // bottom-right
+            ],
+        )
+        .unwrap()
     };
 
     // first triangle covers the top-left side of the screen and is clockwise
     // second triangle covers the bottom-right side of the screen and is ccw
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                               &[0u16, 1, 2, 1, 2, 3]).unwrap();
+    let index_buffer = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::TrianglesList,
+        &[0u16, 1, 2, 1, 2, 3],
+    )
+    .unwrap();
 
     let program = program!(&display,
         140 => {
@@ -357,15 +401,24 @@ fn cull_clockwise() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
-        &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullClockwise,
-            .. Default::default()
-        }).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vertex_buffer,
+            &index_buffer,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &glium::DrawParameters {
+                backface_culling: glium::BackfaceCullingMode::CullClockwise,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(read_back[0].last().unwrap(), &(255, 0, 0, 255));
@@ -386,18 +439,34 @@ fn cull_counterclockwise() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { position: [-1.0,  1.0] },      // top-left
-            Vertex { position: [ 1.0,  1.0] },      // top-right
-            Vertex { position: [-1.0, -1.0] },      // bottom-left
-            Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: [-1.0, 1.0],
+                }, // top-left
+                Vertex {
+                    position: [1.0, 1.0],
+                }, // top-right
+                Vertex {
+                    position: [-1.0, -1.0],
+                }, // bottom-left
+                Vertex {
+                    position: [1.0, -1.0],
+                }, // bottom-right
+            ],
+        )
+        .unwrap()
     };
 
     // first triangle covers the top-left side of the screen and is clockwise
     // second triangle covers the bottom-right side of the screen and is ccw
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                               &[0u16, 1, 2, 1, 2, 3]).unwrap();
+    let index_buffer = glium::IndexBuffer::new(
+        &display,
+        PrimitiveType::TrianglesList,
+        &[0u16, 1, 2, 1, 2, 3],
+    )
+    .unwrap();
 
     let program = program!(&display,
         140 => {
@@ -455,15 +524,24 @@ fn cull_counterclockwise() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
-        &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullCounterClockwise,
-            .. Default::default()
-        }).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vertex_buffer,
+            &index_buffer,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &glium::DrawParameters {
+                backface_culling: glium::BackfaceCullingMode::CullCounterClockwise,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(read_back[0].last().unwrap(), &(0, 0, 0, 0));
@@ -484,17 +562,29 @@ fn cull_clockwise_trianglestrip() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { position: [-1.0,  1.0] },      // top-left
-            Vertex { position: [ 1.0,  1.0] },      // top-right
-            Vertex { position: [-1.0, -1.0] },      // bottom-left
-            Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: [-1.0, 1.0],
+                }, // top-left
+                Vertex {
+                    position: [1.0, 1.0],
+                }, // top-right
+                Vertex {
+                    position: [-1.0, -1.0],
+                }, // bottom-left
+                Vertex {
+                    position: [1.0, -1.0],
+                }, // bottom-right
+            ],
+        )
+        .unwrap()
     };
 
     // both triangles are clockwise
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[0u16, 1, 2, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         140 => {
@@ -552,15 +642,24 @@ fn cull_clockwise_trianglestrip() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
-        &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullClockwise,
-            .. Default::default()
-        }).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vertex_buffer,
+            &index_buffer,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &glium::DrawParameters {
+                backface_culling: glium::BackfaceCullingMode::CullClockwise,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(read_back[0][0], (0, 0, 0, 0));
@@ -581,17 +680,29 @@ fn cull_counterclockwise_trianglestrip() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { position: [-1.0,  1.0] },      // top-left
-            Vertex { position: [ 1.0,  1.0] },      // top-right
-            Vertex { position: [-1.0, -1.0] },      // bottom-left
-            Vertex { position: [ 1.0, -1.0] }       // bottom-right
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: [-1.0, 1.0],
+                }, // top-left
+                Vertex {
+                    position: [1.0, 1.0],
+                }, // top-right
+                Vertex {
+                    position: [-1.0, -1.0],
+                }, // bottom-left
+                Vertex {
+                    position: [1.0, -1.0],
+                }, // bottom-right
+            ],
+        )
+        .unwrap()
     };
 
     // both triangles are clockwise
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[0u16, 1, 2, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
         140 => {
@@ -649,15 +760,24 @@ fn cull_counterclockwise_trianglestrip() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vertex_buffer, &index_buffer, &program, &glium::uniforms::EmptyUniforms,
-        &glium::DrawParameters {
-            backface_culling: glium::BackfaceCullingMode::CullCounterClockwise,
-            .. Default::default()
-        }).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vertex_buffer,
+            &index_buffer,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &glium::DrawParameters {
+                backface_culling: glium::BackfaceCullingMode::CullCounterClockwise,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(read_back[0][0], (255, 0, 0, 255));
@@ -758,19 +878,32 @@ macro_rules! blending_test {
     )
 }
 
+blending_test!(
+    min_blending,
+    glium::BlendingFunction::Min,
+    (0.0, 0.2, 0.3, 0.0),
+    (1.0, 0.0, 0.0, 1.0),
+    (0, 0, 0, 0)
+);
 
-blending_test!(min_blending, glium::BlendingFunction::Min,
-               (0.0, 0.2, 0.3, 0.0), (1.0, 0.0, 0.0, 1.0), (0, 0, 0, 0));
+blending_test!(
+    max_blending,
+    glium::BlendingFunction::Max,
+    (0.4, 1.0, 1.0, 0.2),
+    (1.0, 0.0, 0.0, 1.0),
+    (255, 255, 255, 255)
+);
 
-blending_test!(max_blending, glium::BlendingFunction::Max,
-               (0.4, 1.0, 1.0, 0.2), (1.0, 0.0, 0.0, 1.0), (255, 255, 255, 255));
-
-blending_test!(one_plus_one, glium::BlendingFunction::Addition {
-                   source: glium::LinearBlendingFactor::One,
-                   destination: glium::LinearBlendingFactor::One,
-               },
-               (0.0, 1.0, 1.0, 0.0), (1.0, 0.0, 0.0, 1.0), (255, 255, 255, 255));
-
+blending_test!(
+    one_plus_one,
+    glium::BlendingFunction::Addition {
+        source: glium::LinearBlendingFactor::One,
+        destination: glium::LinearBlendingFactor::One,
+    },
+    (0.0, 1.0, 1.0, 0.0),
+    (1.0, 0.0, 0.0, 1.0),
+    (255, 255, 255, 255)
+);
 
 #[test]
 fn provoking_vertex_last() {
@@ -784,14 +917,22 @@ fn provoking_vertex_last() {
 
         implement_vertex!(Vertex, value);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { value: (-1.0, 1.0) },
-            Vertex { value: (1.0, -1.0) },
-            Vertex { value: (-1.0, -1.0) },
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex { value: (-1.0, 1.0) },
+                Vertex { value: (1.0, -1.0) },
+                Vertex {
+                    value: (-1.0, -1.0),
+                },
+            ],
+        )
+        .unwrap()
     };
 
-    let program = glium::Program::from_source(&display, "
+    let program = glium::Program::from_source(
+        &display,
+        "
             #version 100
 
             attribute lowp vec2 value;
@@ -810,21 +951,29 @@ fn provoking_vertex_last() {
             void main() {
                 gl_FragColor = vec4(1.0, (v_value + 1.0) * 0.5, 0.0, 1.0);
             }
-        ", None);
+        ",
+        None,
+    );
     let program = match program {
         Err(_) => return,
-        Ok(p) => p
+        Ok(p) => p,
     };
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vertex_buffer,
-        &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList), &program,
-        &glium::uniforms::EmptyUniforms,
-        &glium::DrawParameters {
-            provoking_vertex: glium::draw_parameters::ProvokingVertex::LastVertex,
-            .. Default::default()
-        }).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vertex_buffer,
+            &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &glium::DrawParameters {
+                provoking_vertex: glium::draw_parameters::ProvokingVertex::LastVertex,
+                ..Default::default()
+            },
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -850,14 +999,22 @@ fn provoking_vertex_first() {
 
         implement_vertex!(Vertex, value);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { value: (-1.0, 1.0) },
-            Vertex { value: (1.0, -1.0) },
-            Vertex { value: (-1.0, -1.0) },
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex { value: (-1.0, 1.0) },
+                Vertex { value: (1.0, -1.0) },
+                Vertex {
+                    value: (-1.0, -1.0),
+                },
+            ],
+        )
+        .unwrap()
     };
 
-    let program = glium::Program::from_source(&display, "
+    let program = glium::Program::from_source(
+        &display,
+        "
             #version 100
 
             attribute lowp vec2 value;
@@ -876,28 +1033,33 @@ fn provoking_vertex_first() {
             void main() {
                 gl_FragColor = vec4(1.0, (v_value + 1.0) * 0.5, 0.0, 1.0);
             }
-        ", None);
+        ",
+        None,
+    );
     let program = match program {
         Err(_) => return,
-        Ok(p) => p
+        Ok(p) => p,
     };
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    let res = texture.as_surface().draw(&vertex_buffer,
-        &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList), &program,
+    let res = texture.as_surface().draw(
+        &vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+        &program,
         &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             provoking_vertex: glium::draw_parameters::ProvokingVertex::FirstVertex,
-            .. Default::default()
-        });
+            ..Default::default()
+        },
+    );
 
     match res {
         Ok(_) => (),
         Err(glium::DrawError::ProvokingVertexNotSupported) => {
             display.assert_no_error(None);
             return;
-        },
+        }
         e => e.unwrap(),
     }
 
@@ -925,12 +1087,24 @@ fn depth_clamp_all() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { position: (-1.0, 1.0, -3.0) },
-            Vertex { position: (1.0, 1.0, 3.0) },
-            Vertex { position: (-1.0, -1.0, -3.0) },
-            Vertex { position: (1.0, -1.0, 3.0) },
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: (-1.0, 1.0, -3.0),
+                },
+                Vertex {
+                    position: (1.0, 1.0, 3.0),
+                },
+                Vertex {
+                    position: (-1.0, -1.0, -3.0),
+                },
+                Vertex {
+                    position: (1.0, -1.0, 3.0),
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let program = program!(&display,
@@ -989,27 +1163,31 @@ fn depth_clamp_all() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    let res = texture.as_surface().draw(&vertex_buffer,
-        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
+    let res = texture.as_surface().draw(
+        &vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
+        &program,
         &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             depth: glium::Depth {
                 clamp: glium::draw_parameters::DepthClamp::Clamp,
-                .. Default::default()
+                ..Default::default()
             },
-            .. Default::default()
-        });
+            ..Default::default()
+        },
+    );
 
     match res {
         Ok(_) => (),
         Err(glium::DrawError::DepthClampNotSupported) => {
             display.assert_no_error(None);
             return;
-        },
+        }
         e => e.unwrap(),
     }
 
@@ -1036,12 +1214,24 @@ fn depth_clamp_near() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { position: (-1.0, 1.0, -3.0) },
-            Vertex { position: (1.0, 1.0, 3.0) },
-            Vertex { position: (-1.0, -1.0, -3.0) },
-            Vertex { position: (1.0, -1.0, 3.0) },
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: (-1.0, 1.0, -3.0),
+                },
+                Vertex {
+                    position: (1.0, 1.0, 3.0),
+                },
+                Vertex {
+                    position: (-1.0, -1.0, -3.0),
+                },
+                Vertex {
+                    position: (1.0, -1.0, 3.0),
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let program = program!(&display,
@@ -1100,27 +1290,31 @@ fn depth_clamp_near() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    let res = texture.as_surface().draw(&vertex_buffer,
-        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
+    let res = texture.as_surface().draw(
+        &vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
+        &program,
         &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             depth: glium::Depth {
                 clamp: glium::draw_parameters::DepthClamp::ClampNear,
-                .. Default::default()
+                ..Default::default()
             },
-            .. Default::default()
-        });
+            ..Default::default()
+        },
+    );
 
     match res {
         Ok(_) => (),
         Err(glium::DrawError::DepthClampNotSupported) => {
             display.assert_no_error(None);
             return;
-        },
+        }
         e => e.unwrap(),
     }
 
@@ -1155,12 +1349,24 @@ fn depth_clamp_far() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            Vertex { position: (-1.0, 1.0, -3.0) },
-            Vertex { position: (1.0, 1.0, 3.0) },
-            Vertex { position: (-1.0, -1.0, -3.0) },
-            Vertex { position: (1.0, -1.0, 3.0) },
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: (-1.0, 1.0, -3.0),
+                },
+                Vertex {
+                    position: (1.0, 1.0, 3.0),
+                },
+                Vertex {
+                    position: (-1.0, -1.0, -3.0),
+                },
+                Vertex {
+                    position: (1.0, -1.0, 3.0),
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let program = program!(&display,
@@ -1219,27 +1425,31 @@ fn depth_clamp_far() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    let res = texture.as_surface().draw(&vertex_buffer,
-        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &program,
+    let res = texture.as_surface().draw(
+        &vertex_buffer,
+        &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
+        &program,
         &glium::uniforms::EmptyUniforms,
         &glium::DrawParameters {
             depth: glium::Depth {
                 clamp: glium::draw_parameters::DepthClamp::ClampFar,
-                .. Default::default()
+                ..Default::default()
             },
-            .. Default::default()
-        });
+            ..Default::default()
+        },
+    );
 
     match res {
         Ok(_) => (),
         Err(glium::DrawError::DepthClampNotSupported) => {
             display.assert_no_error(None);
             return;
-        },
+        }
         e => e.unwrap(),
     }
 
@@ -1267,22 +1477,23 @@ fn primitive_bounding_box() {
     let display = support::build_display();
 
     let params = glium::DrawParameters {
-        primitive_bounding_box: (0.0 .. 1.0, -0.2 .. 0.3, 0.0 .. 1.0, -1.0 .. 1.0),
-        .. Default::default()
+        primitive_bounding_box: (0.0..1.0, -0.2..0.3, 0.0..1.0, -1.0..1.0),
+        ..Default::default()
     };
 
     let (vb, ib, program) = support::build_fullscreen_red_pipeline(&display);
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface()
-           .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params).unwrap();
+    texture
+        .as_surface()
+        .draw(&vb, &ib, &program, &glium::uniforms::EmptyUniforms, &params)
+        .unwrap();
 
     display.assert_no_error(None);
 }
 
 #[test]
 fn primitive_restart_index() {
-
     let display = support::build_display();
 
     // make two horizontal lines
@@ -1290,7 +1501,6 @@ fn primitive_restart_index() {
     // on success, they will connect like a =
 
     let vertex_buffer = {
-
         #[derive(Copy, Clone)]
         struct Vertex {
             position: (f32, f32, f32),
@@ -1298,18 +1508,34 @@ fn primitive_restart_index() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display, &[
-            // lower line
-            Vertex { position: (-0.5, -0.5, 0.0) },
-            Vertex { position: ( 0.5, -0.5, 0.0) },
-            // upper line
-            Vertex { position: (-0.5,  0.5, 0.0) },
-            Vertex { position: ( 0.5,  0.5, 0.0) },
-        ]).unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                // lower line
+                Vertex {
+                    position: (-0.5, -0.5, 0.0),
+                },
+                Vertex {
+                    position: (0.5, -0.5, 0.0),
+                },
+                // upper line
+                Vertex {
+                    position: (-0.5, 0.5, 0.0),
+                },
+                Vertex {
+                    position: (0.5, 0.5, 0.0),
+                },
+            ],
+        )
+        .unwrap()
     };
 
-    let index_buffer = glium::IndexBuffer::<u8>::new(&display, glium::index::PrimitiveType::LineStrip,
-                                                     &[0, 1, 255, 2, 3]).unwrap();
+    let index_buffer = glium::IndexBuffer::<u8>::new(
+        &display,
+        glium::index::PrimitiveType::LineStrip,
+        &[0, 1, 255, 2, 3],
+    )
+    .unwrap();
     let program = program!(&display,
         140 => {
             vertex: "
@@ -1366,27 +1592,31 @@ fn primitive_restart_index() {
                 }
             "
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(1.0, 1.0, 1.0, 1.0);
 
     let options = glium::DrawParameters {
-           primitive_restart_index: true,
-        .. Default::default()
+        primitive_restart_index: true,
+        ..Default::default()
     };
 
-    let res = texture.as_surface().draw(&vertex_buffer,
-        &index_buffer, &program,
+    let res = texture.as_surface().draw(
+        &vertex_buffer,
+        &index_buffer,
+        &program,
         &glium::uniforms::EmptyUniforms,
-        &options);
+        &options,
+    );
 
     match res {
         Ok(_) => (),
         Err(glium::DrawError::DepthClampNotSupported) => {
             display.assert_no_error(None);
             return;
-        },
+        }
         e => e.unwrap(),
     }
 
@@ -1401,7 +1631,7 @@ fn primitive_restart_index() {
 
     // sometimes the sampling can be a few pixels off
     for row in (mid_y - 2)..(mid_y + 2) {
-        for pixel in (mid_x - 2)..(mid_x + 2){
+        for pixel in (mid_x - 2)..(mid_x + 2) {
             assert_eq!(data[row][pixel], (255, 255, 255, 255));
         }
     }

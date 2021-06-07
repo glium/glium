@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
 
+use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
-use glium::index::PrimitiveType;
 
 fn main() {
     // building the display, ie. the main object
@@ -22,18 +22,29 @@ fn main() {
 
         implement_vertex!(Vertex, position, color);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-0.5, -0.5], color: [0.0, 1.0, 0.0] },
-                Vertex { position: [ 0.0,  0.5], color: [0.0, 0.0, 1.0] },
-                Vertex { position: [ 0.5, -0.5], color: [1.0, 0.0, 0.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-0.5, -0.5],
+                    color: [0.0, 1.0, 0.0],
+                },
+                Vertex {
+                    position: [0.0, 0.5],
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    position: [0.5, -0.5],
+                    color: [1.0, 0.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     // building the index buffer
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                               &[0u16, 1, 2]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[0u16, 1, 2]).unwrap();
 
     // compiling shaders and linking them together
     let program = program!(&display,
@@ -91,7 +102,8 @@ fn main() {
                 }
             ",
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // drawing once
 
@@ -108,12 +120,21 @@ fn main() {
     // drawing a frame
     let mut target = display.draw();
     target.clear_color(0.0, 0.0, 0.0, 0.0);
-    target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
+    target
+        .draw(
+            &vertex_buffer,
+            &index_buffer,
+            &program,
+            &uniforms,
+            &Default::default(),
+        )
+        .unwrap();
     target.finish().unwrap();
 
     // reading the front buffer into an image
     let image: glium::texture::RawImage2d<'_, u8> = display.read_front_buffer().unwrap();
-    let image = image::ImageBuffer::from_raw(image.width, image.height, image.data.into_owned()).unwrap();
+    let image =
+        image::ImageBuffer::from_raw(image.width, image.height, image.data.into_owned()).unwrap();
     let image = image::DynamicImage::ImageRgba8(image).flipv();
     image.save("glium-example-screenshot.png").unwrap();
 }

@@ -130,9 +130,9 @@ with, or else you will get an error.
 use std::iter::Chain;
 use std::option::IntoIter;
 
-pub use self::buffer::{VertexBuffer, VertexBufferAny};
-pub use self::buffer::VertexBufferSlice;
 pub use self::buffer::CreationError as BufferCreationError;
+pub use self::buffer::VertexBufferSlice;
+pub use self::buffer::{VertexBuffer, VertexBufferAny};
 pub use self::format::{AttributeType, VertexFormat};
 pub use self::transform_feedback::{is_transform_feedback_supported, TransformFeedbackSession};
 
@@ -173,7 +173,10 @@ pub struct EmptyVertexAttributes {
 impl<'a> From<EmptyVertexAttributes> for VerticesSource<'a> {
     #[inline]
     fn from(this: EmptyVertexAttributes) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: this.len, per_instance: false }
+        VerticesSource::Marker {
+            len: this.len,
+            per_instance: false,
+        }
     }
 }
 
@@ -186,7 +189,10 @@ pub struct EmptyInstanceAttributes {
 impl<'a> From<EmptyInstanceAttributes> for VerticesSource<'a> {
     #[inline]
     fn from(this: EmptyInstanceAttributes) -> VerticesSource<'a> {
-        VerticesSource::Marker { len: this.len, per_instance: true }
+        VerticesSource::Marker {
+            len: this.len,
+            per_instance: true,
+        }
     }
 }
 
@@ -210,7 +216,8 @@ pub trait MultiVerticesSource<'a> {
 }
 
 impl<'a, T> MultiVerticesSource<'a> for T
-    where T: Into<VerticesSource<'a>>
+where
+    T: Into<VerticesSource<'a>>,
 {
     type Iterator = IntoIter<VerticesSource<'a>>;
 
@@ -287,7 +294,10 @@ pub trait Vertex: Copy + Sized {
     fn build_bindings() -> VertexFormat;
 
     /// Returns true if the backend supports this vertex format.
-    fn is_supported<C: ?Sized>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C: ?Sized>(caps: &C) -> bool
+    where
+        C: CapabilitiesSource,
+    {
         let format = Self::build_bindings();
 
         for &(_, _, ref ty, _) in format.iter() {
@@ -307,7 +317,10 @@ pub unsafe trait Attribute: Sized {
 
     /// Returns true if the backend supports this type of attribute.
     #[inline]
-    fn is_supported<C: ?Sized>(caps: &C) -> bool where C: CapabilitiesSource {
+    fn is_supported<C: ?Sized>(caps: &C) -> bool
+    where
+        C: CapabilitiesSource,
+    {
         Self::get_type().is_supported(caps)
     }
 }

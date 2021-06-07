@@ -29,8 +29,9 @@ fn program_support_for_cube_map_array(type_prefix: &str) {
             ",
             type_prefix
         ),
-        None
-    ).unwrap();
+        None,
+    )
+    .unwrap();
 }
 
 #[test]

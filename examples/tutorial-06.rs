@@ -12,10 +12,15 @@ fn main() {
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")),
-                            image::ImageFormat::Png).unwrap().to_rgba8();
+    let image = image::load(
+        Cursor::new(&include_bytes!("../tests/fixture/opengl.png")),
+        image::ImageFormat::Png,
+    )
+    .unwrap()
+    .to_rgba8();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+    let image =
+        glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let texture = glium::texture::Texture2d::new(&display, image).unwrap();
 
     #[derive(Copy, Clone)]
@@ -26,9 +31,18 @@ fn main() {
 
     implement_vertex!(Vertex, position, tex_coords);
 
-    let vertex1 = Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] };
-    let vertex2 = Vertex { position: [ 0.0,  0.5], tex_coords: [0.0, 1.0] };
-    let vertex3 = Vertex { position: [ 0.5, -0.25], tex_coords: [1.0, 0.0] };
+    let vertex1 = Vertex {
+        position: [-0.5, -0.5],
+        tex_coords: [0.0, 0.0],
+    };
+    let vertex2 = Vertex {
+        position: [0.0, 0.5],
+        tex_coords: [0.0, 1.0],
+    };
+    let vertex3 = Vertex {
+        position: [0.5, -0.25],
+        tex_coords: [1.0, 0.0],
+    };
     let shape = vec![vertex1, vertex2, vertex3];
 
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
@@ -62,17 +76,18 @@ fn main() {
         }
     "#;
 
-    let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
+    let program =
+        glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None)
+            .unwrap();
 
     let mut t = -0.5;
     event_loop.run(move |event, _, control_flow| {
-
         match event {
             glutin::event::Event::WindowEvent { event, .. } => match event {
                 glutin::event::WindowEvent::CloseRequested => {
                     *control_flow = glutin::event_loop::ControlFlow::Exit;
                     return;
-                },
+                }
                 _ => return,
             },
             glutin::event::Event::NewEvents(cause) => match cause {
@@ -83,8 +98,8 @@ fn main() {
             _ => return,
         }
 
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
+        let next_frame_time =
+            std::time::Instant::now() + std::time::Duration::from_nanos(16_666_667);
         *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
         // we update `t`
@@ -106,8 +121,15 @@ fn main() {
             tex: &texture,
         };
 
-        target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                    &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &indices,
+                &program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
     });
 }

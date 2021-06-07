@@ -3,9 +3,9 @@ extern crate glium;
 
 use std::io::Cursor;
 
+use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
-use glium::index::PrimitiveType;
 
 mod support;
 
@@ -17,10 +17,15 @@ fn main() {
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
     // building a texture with "OpenGL" drawn on it
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
-                            image::ImageFormat::Png).unwrap().to_rgba8();
+    let image = image::load(
+        Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),
+        image::ImageFormat::Png,
+    )
+    .unwrap()
+    .to_rgba8();
     let image_dimensions = image.dimensions();
-    let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
+    let image =
+        glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
     let opengl_texture = glium::texture::CompressedSrgbTexture2d::new(&display, image).unwrap();
 
     // building the vertex buffer, which contains all the vertices that we will draw
@@ -33,19 +38,34 @@ fn main() {
 
         implement_vertex!(Vertex, position, tex_coords);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-1.0, -1.0], tex_coords: [0.0, 0.0] },
-                Vertex { position: [-1.0,  1.0], tex_coords: [0.0, 1.0] },
-                Vertex { position: [ 1.0,  1.0], tex_coords: [1.0, 1.0] },
-                Vertex { position: [ 1.0, -1.0], tex_coords: [1.0, 0.0] }
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-1.0, -1.0],
+                    tex_coords: [0.0, 0.0],
+                },
+                Vertex {
+                    position: [-1.0, 1.0],
+                    tex_coords: [0.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, 1.0],
+                    tex_coords: [1.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, -1.0],
+                    tex_coords: [1.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     // building the index buffer
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[1 as u16, 2, 0, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[1 as u16, 2, 0, 3])
+            .unwrap();
 
     // compiling shaders and linking them together
     let program = program!(&display,
@@ -133,7 +153,8 @@ fn main() {
                 }
             ",
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // the main loop
     support::start_loop(event_loop, move |events| {
@@ -151,7 +172,15 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer, &index_buffer, &program, &uniforms, &Default::default()).unwrap();
+        target
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                &program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
         target.finish().unwrap();
 
         // polling and handling the events received by the window
@@ -160,11 +189,11 @@ fn main() {
             match event {
                 glutin::event::Event::WindowEvent { event, .. } => match event {
                     glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
-                    _ => ()
+                    _ => (),
                 },
                 _ => (),
             }
-        };
+        }
 
         action
     });

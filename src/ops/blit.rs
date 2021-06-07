@@ -8,13 +8,18 @@ use crate::fbo::FramebuffersContainer;
 use crate::fbo::ValidatedAttachments;
 
 use crate::gl;
-use crate::version::Version;
 use crate::version::Api;
+use crate::version::Version;
 
-pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
-            target: Option<&ValidatedAttachments<'_>>, mask: gl::types::GLbitfield,
-            src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
-{
+pub fn blit(
+    context: &Context,
+    source: Option<&ValidatedAttachments<'_>>,
+    target: Option<&ValidatedAttachments<'_>>,
+    mask: gl::types::GLbitfield,
+    src_rect: &Rect,
+    target_rect: &BlitTarget,
+    filter: gl::types::GLenum,
+) {
     unsafe {
         let mut ctxt = context.make_current();
 
@@ -30,14 +35,20 @@ pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
 
         // trying to do a named blit if possible
         if ctxt.version >= &Version(Api::Gl, 4, 5) {
-            ctxt.gl.BlitNamedFramebuffer(source, target,
+            ctxt.gl.BlitNamedFramebuffer(
+                source,
+                target,
                 src_rect.left as gl::types::GLint,
                 src_rect.bottom as gl::types::GLint,
                 (src_rect.left + src_rect.width) as gl::types::GLint,
                 (src_rect.bottom + src_rect.height) as gl::types::GLint,
-                target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
+                target_rect.left as gl::types::GLint,
+                target_rect.bottom as gl::types::GLint,
                 (target_rect.left as i32 + target_rect.width) as gl::types::GLint,
-                (target_rect.bottom as i32 + target_rect.height) as gl::types::GLint, mask, filter);
+                (target_rect.bottom as i32 + target_rect.height) as gl::types::GLint,
+                mask,
+                filter,
+            );
 
             return;
         }
@@ -47,7 +58,6 @@ pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
             if ctxt.version >= &Version(Api::Gl, 3, 0) {
                 ctxt.gl.BindFramebuffer(gl::READ_FRAMEBUFFER, source);
                 ctxt.state.read_framebuffer = source;
-
             } else {
                 ctxt.gl.BindFramebufferEXT(gl::READ_FRAMEBUFFER_EXT, source);
                 ctxt.state.read_framebuffer = source;
@@ -59,7 +69,6 @@ pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
             if ctxt.version >= &Version(Api::Gl, 3, 0) {
                 ctxt.gl.BindFramebuffer(gl::DRAW_FRAMEBUFFER, target);
                 ctxt.state.draw_framebuffer = target;
-
             } else {
                 ctxt.gl.BindFramebufferEXT(gl::DRAW_FRAMEBUFFER_EXT, target);
                 ctxt.state.draw_framebuffer = target;
@@ -68,22 +77,31 @@ pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
 
         // doing the blit
         if ctxt.version >= &Version(Api::Gl, 3, 0) {
-            ctxt.gl.BlitFramebuffer(src_rect.left as gl::types::GLint,
+            ctxt.gl.BlitFramebuffer(
+                src_rect.left as gl::types::GLint,
                 src_rect.bottom as gl::types::GLint,
                 (src_rect.left + src_rect.width) as gl::types::GLint,
                 (src_rect.bottom + src_rect.height) as gl::types::GLint,
-                target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
+                target_rect.left as gl::types::GLint,
+                target_rect.bottom as gl::types::GLint,
                 (target_rect.left as i32 + target_rect.width) as gl::types::GLint,
-                (target_rect.bottom as i32 + target_rect.height) as gl::types::GLint, mask, filter);
-
+                (target_rect.bottom as i32 + target_rect.height) as gl::types::GLint,
+                mask,
+                filter,
+            );
         } else {
-            ctxt.gl.BlitFramebufferEXT(src_rect.left as gl::types::GLint,
+            ctxt.gl.BlitFramebufferEXT(
+                src_rect.left as gl::types::GLint,
                 src_rect.bottom as gl::types::GLint,
                 (src_rect.left + src_rect.width) as gl::types::GLint,
                 (src_rect.bottom + src_rect.height) as gl::types::GLint,
-                target_rect.left as gl::types::GLint, target_rect.bottom as gl::types::GLint,
+                target_rect.left as gl::types::GLint,
+                target_rect.bottom as gl::types::GLint,
                 (target_rect.left as i32 + target_rect.width) as gl::types::GLint,
-                (target_rect.bottom as i32 + target_rect.height) as gl::types::GLint, mask, filter);
+                (target_rect.bottom as i32 + target_rect.height) as gl::types::GLint,
+                mask,
+                filter,
+            );
         }
     }
 }

@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate glium;
 
-use glium::Surface;
 use glium::index::PrimitiveType;
+use glium::Surface;
 
 mod support;
 
@@ -18,14 +18,24 @@ fn multiple_buffers_source() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-1.0,  1.0] },
-                Vertex { position: [ 1.0,  1.0] },
-                Vertex { position: [-1.0, -1.0] },
-                Vertex { position: [ 1.0, -1.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-1.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, 1.0],
+                },
+                Vertex {
+                    position: [-1.0, -1.0],
+                },
+                Vertex {
+                    position: [1.0, -1.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let buffer2 = {
@@ -36,22 +46,32 @@ fn multiple_buffers_source() {
 
         implement_vertex!(Vertex, color);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { color: [1.0, 0.0, 0.0] },
-                Vertex { color: [1.0, 0.0, 0.0] },
-                Vertex { color: [1.0, 0.0, 0.0] },
-                Vertex { color: [1.0, 0.0, 0.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    color: [1.0, 0.0, 0.0],
+                },
+                Vertex {
+                    color: [1.0, 0.0, 0.0],
+                },
+                Vertex {
+                    color: [1.0, 0.0, 0.0],
+                },
+                Vertex {
+                    color: [1.0, 0.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[0u16, 1, 2, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
-        110 => {
-            vertex: "
+    110 => {
+        vertex: "
                 #version 110
 
                 attribute vec2 position;
@@ -64,7 +84,7 @@ fn multiple_buffers_source() {
                     v_color = color;
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 110
                 varying vec3 v_color;
 
@@ -72,9 +92,9 @@ fn multiple_buffers_source() {
                     gl_FragColor = vec4(v_color, 1.0);
                 }
             ",
-        },
-        100 => {
-            vertex: "
+    },
+    100 => {
+        vertex: "
                 #version 100
 
                 attribute lowp vec2 position;
@@ -87,7 +107,7 @@ fn multiple_buffers_source() {
                     v_color = color;
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 100
                 varying lowp vec3 v_color;
 
@@ -95,12 +115,21 @@ fn multiple_buffers_source() {
                     gl_FragColor = vec4(v_color, 1.0);
                 }
             ",
-        }).unwrap();
+    })
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw((&buffer1, &buffer2), &index_buffer, &program, &uniform!{},
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            (&buffer1, &buffer2),
+            &index_buffer,
+            &program,
+            &uniform! {},
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
@@ -123,8 +152,8 @@ fn slice_draw_indices() {
 
     let display = support::build_display();
     let program = program!(&display,
-        110 => {
-            vertex: "
+    110 => {
+        vertex: "
                 #version 110
 
                 attribute vec2 position;
@@ -133,16 +162,16 @@ fn slice_draw_indices() {
                     gl_Position = vec4(position, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 110
 
                 void main() {
                     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
-        },
-        100 => {
-            vertex: "
+    },
+    100 => {
+        vertex: "
                 #version 100
 
                 attribute lowp vec2 position;
@@ -151,27 +180,50 @@ fn slice_draw_indices() {
                     gl_Position = vec4(position, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 100
 
                 void main() {
                     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
-        }).unwrap();
+    })
+    .unwrap();
 
-    let vb = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    let vb = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
-    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          &[0u16, 1, 2]).unwrap();
+    let indices =
+        glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[0u16, 1, 2]).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(vb.slice(1 .. 4).unwrap(), &indices, &program,
-                &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            vb.slice(1..4).unwrap(),
+            &indices,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(data.last().unwrap()[0], (0, 0, 0, 0));
@@ -191,8 +243,8 @@ fn slice_draw_noindices() {
 
     let display = support::build_display();
     let program = program!(&display,
-        110 => {
-            vertex: "
+    110 => {
+        vertex: "
                 #version 110
 
                 attribute vec2 position;
@@ -201,16 +253,16 @@ fn slice_draw_noindices() {
                     gl_Position = vec4(position, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 110
 
                 void main() {
                     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
-        },
-        100 => {
-            vertex: "
+    },
+    100 => {
+        vertex: "
                 #version 100
 
                 attribute lowp vec2 position;
@@ -219,26 +271,49 @@ fn slice_draw_noindices() {
                     gl_Position = vec4(position, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 100
 
                 void main() {
                     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
-        }).unwrap();
+    })
+    .unwrap();
 
-    let vb = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    let vb = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(vb.slice(1 .. 4).unwrap(), &indices, &program,
-                &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            vb.slice(1..4).unwrap(),
+            &indices,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(data.last().unwrap()[0], (0, 0, 0, 0));
@@ -265,8 +340,8 @@ fn slice_draw_multiple() {
 
     let display = support::build_display();
     let program = program!(&display,
-        110 => {
-            vertex: "
+    110 => {
+        vertex: "
                 #version 110
 
                 attribute vec2 position;
@@ -280,17 +355,17 @@ fn slice_draw_multiple() {
                     }
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 110
 
                 void main() {
                     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
-        },
+    },
 
-        100 => {
-            vertex: "
+    100 => {
+        vertex: "
                 #version 100
 
                 attribute lowp vec2 position;
@@ -304,37 +379,89 @@ fn slice_draw_multiple() {
                     }
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 100
 
                 void main() {
                     gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             ",
-        }).unwrap();
+    })
+    .unwrap();
 
     // the 3 last elements will be drawn
-    let vb1 = glium::VertexBuffer::new(&display, &[
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [-1.0, 1.0] },
-        Vertex { position: [-1.0,  1.0] }, Vertex { position: [1.0,  1.0] },
-        Vertex { position: [-1.0, -1.0] }, Vertex { position: [1.0, -1.0] },
-    ]).unwrap();
+    let vb1 = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
     // the 3 last elements will be drawn
-    let vb2 = glium::VertexBuffer::new(&display, &[
-        Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [-1.0, 1.0] },
-        Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [-1.0, 1.0] },
-        Vertex2 { position2: [-1.0,  1.0] }, Vertex2 { position2: [1.0,  1.0] },
-        Vertex2 { position2: [-1.0, -1.0] }, Vertex2 { position2: [1.0, -1.0] },
-    ]).unwrap();
+    let vb2 = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex2 {
+                position2: [-1.0, 1.0],
+            },
+            Vertex2 {
+                position2: [-1.0, 1.0],
+            },
+            Vertex2 {
+                position2: [-1.0, 1.0],
+            },
+            Vertex2 {
+                position2: [-1.0, 1.0],
+            },
+            Vertex2 {
+                position2: [-1.0, 1.0],
+            },
+            Vertex2 {
+                position2: [1.0, 1.0],
+            },
+            Vertex2 {
+                position2: [-1.0, -1.0],
+            },
+            Vertex2 {
+                position2: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
-    let indices = glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList,
-                                          &[2u16, 3, 4]).unwrap();
+    let indices =
+        glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[2u16, 3, 4]).unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw((vb1.slice(1 .. 4).unwrap(), vb2.slice(3 .. 6).unwrap()), &indices,
-                &program, &glium::uniforms::EmptyUniforms, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            (vb1.slice(1..4).unwrap(), vb2.slice(3..6).unwrap()),
+            &indices,
+            &program,
+            &glium::uniforms::EmptyUniforms,
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     assert_eq!(data.last().unwrap()[0], (0, 0, 0, 0));
@@ -347,7 +474,8 @@ fn slice_draw_multiple() {
 fn attributes_marker() {
     let display = support::build_display();
 
-    let program = match glium::Program::from_source(&display,
+    let program = match glium::Program::from_source(
+        &display,
         "
             #version 140
 
@@ -372,17 +500,24 @@ fn attributes_marker() {
                 color = vec4(1.0, 0.0, 0.0, 1.0);
             }
         ",
-        None) {
+        None,
+    ) {
         Ok(p) => p,
-        _ => return
+        _ => return,
     };
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(glium::vertex::EmptyVertexAttributes { len: 4 },
-                              &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
-                              &program, &uniform!{},
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            glium::vertex::EmptyVertexAttributes { len: 4 },
+            &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
+            &program,
+            &uniform! {},
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
@@ -398,7 +533,8 @@ fn attributes_marker() {
 fn attributes_marker_indices() {
     let display = support::build_display();
 
-    let program = match glium::Program::from_source(&display,
+    let program = match glium::Program::from_source(
+        &display,
         "
             #version 140
 
@@ -423,19 +559,28 @@ fn attributes_marker_indices() {
                 color = vec4(1.0, 0.0, 0.0, 1.0);
             }
         ",
-        None) {
+        None,
+    ) {
         Ok(p) => p,
-        _ => return
+        _ => return,
     };
 
-    let indices = glium::index::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                                 &[0u16, 1, 2, 3]).unwrap();
+    let indices =
+        glium::index::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3])
+            .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(glium::vertex::EmptyVertexAttributes { len: 4 },
-                              &indices, &program, &uniform!{},
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            glium::vertex::EmptyVertexAttributes { len: 4 },
+            &indices,
+            &program,
+            &uniform! {},
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
@@ -459,14 +604,24 @@ fn instancing() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-1.0,  1.0] },
-                Vertex { position: [ 1.0,  1.0] },
-                Vertex { position: [-1.0, -1.0] },
-                Vertex { position: [ 1.0, -1.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-1.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, 1.0],
+                },
+                Vertex {
+                    position: [-1.0, -1.0],
+                },
+                Vertex {
+                    position: [1.0, -1.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let buffer2 = {
@@ -477,25 +632,36 @@ fn instancing() {
 
         implement_vertex!(Vertex, color);
 
-        glium::vertex::VertexBuffer::new(&display,
+        glium::vertex::VertexBuffer::new(
+            &display,
             &[
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [1.0, 0.0, 0.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [1.0, 0.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let buffer2 = match buffer2.per_instance() {
         Ok(b) => b,
-        Err(_) => return
+        Err(_) => return,
     };
 
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[0u16, 1, 2, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3]).unwrap();
 
-    let program = match glium::Program::from_source(&display,
+    let program = match glium::Program::from_source(
+        &display,
         "
             #version 330
 
@@ -524,15 +690,24 @@ fn instancing() {
                 gl_FragColor = vec4(v_color, 1.0);
             }
         ",
-        None) {
+        None,
+    ) {
         Ok(p) => p,
-        _ => return
+        _ => return,
     };
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw((&buffer1, buffer2), &index_buffer, &program, &uniform!{},
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            (&buffer1, buffer2),
+            &index_buffer,
+            &program,
+            &uniform! {},
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for row in data.iter() {
@@ -556,14 +731,24 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-1.0,  1.0] },
-                Vertex { position: [ 1.0,  1.0] },
-                Vertex { position: [-1.0, -1.0] },
-                Vertex { position: [ 1.0, -1.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-1.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, 1.0],
+                },
+                Vertex {
+                    position: [-1.0, -1.0],
+                },
+                Vertex {
+                    position: [1.0, -1.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let buffer2 = {
@@ -574,19 +759,29 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, color);
 
-        glium::vertex::VertexBuffer::new(&display,
+        glium::vertex::VertexBuffer::new(
+            &display,
             &[
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [1.0, 0.0, 0.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [1.0, 0.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let buffer2 = match buffer2.per_instance() {
         Ok(b) => b,
-        Err(_) => return
+        Err(_) => return,
     };
 
     let buffer3 = {
@@ -597,63 +792,76 @@ fn per_instance_length_mismatch() {
 
         implement_vertex!(Vertex, color);
 
-        glium::vertex::VertexBuffer::new(&display,
+        glium::vertex::VertexBuffer::new(
+            &display,
             &[
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [0.0, 0.0, 1.0] },
-                Vertex { color: [0.0, 0.0, 1.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    color: [0.0, 0.0, 1.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let buffer3 = match buffer3.per_instance() {
         Ok(b) => b,
-        Err(_) => return
+        Err(_) => return,
     };
 
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[0u16, 1, 2, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
-        110 => {
-            vertex: "
+    110 => {
+        vertex: "
                 #version 110
 
                 void main() {
                     gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 110
 
                 void main() {
                     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
                 }
             ",
-        },
-        100 => {
-            vertex: "
+    },
+    100 => {
+        vertex: "
                 #version 100
 
                 void main() {
                     gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 100
 
                 void main() {
                     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
                 }
             ",
-        }).unwrap();
+    })
+    .unwrap();
 
     let mut frame = display.draw();
-    match frame.draw((&buffer1, buffer2, buffer3), &index_buffer, &program, &uniform!{},
-                     &Default::default())
-    {
+    match frame.draw(
+        (&buffer1, buffer2, buffer3),
+        &index_buffer,
+        &program,
+        &uniform! {},
+        &Default::default(),
+    ) {
         Err(glium::DrawError::InstancesCountMismatch) => (),
-        a => panic!("{:?}", a)
+        a => panic!("{:?}", a),
     }
 
     frame.finish().unwrap();
@@ -662,7 +870,7 @@ fn per_instance_length_mismatch() {
 
 #[test]
 fn normalized_vertex() {
-        let display = support::build_display();
+    let display = support::build_display();
 
     let buffer1 = {
         #[derive(Copy, Clone)]
@@ -672,14 +880,24 @@ fn normalized_vertex() {
 
         implement_vertex!(Vertex, position);
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
-                Vertex { position: [-1.0,  1.0] },
-                Vertex { position: [ 1.0,  1.0] },
-                Vertex { position: [-1.0, -1.0] },
-                Vertex { position: [ 1.0, -1.0] },
-            ]
-        ).unwrap()
+                Vertex {
+                    position: [-1.0, 1.0],
+                },
+                Vertex {
+                    position: [1.0, 1.0],
+                },
+                Vertex {
+                    position: [-1.0, -1.0],
+                },
+                Vertex {
+                    position: [1.0, -1.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     let buffer2 = {
@@ -690,22 +908,24 @@ fn normalized_vertex() {
 
         implement_vertex!(Vertex, color normalize(true));
 
-        glium::VertexBuffer::new(&display,
+        glium::VertexBuffer::new(
+            &display,
             &[
                 Vertex { color: [0, 0, 0] },
                 Vertex { color: [128, 0, 0] },
                 Vertex { color: [0, 128, 0] },
                 Vertex { color: [0, 0, 128] },
-            ]
-        ).unwrap()
+            ],
+        )
+        .unwrap()
     };
 
-    let index_buffer = glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip,
-                                               &[0u16, 1, 2, 3]).unwrap();
+    let index_buffer =
+        glium::IndexBuffer::new(&display, PrimitiveType::TriangleStrip, &[0u16, 1, 2, 3]).unwrap();
 
     let program = program!(&display,
-        110 => {
-            vertex: "
+    110 => {
+        vertex: "
                 #version 110
 
                 attribute vec2 position;
@@ -718,7 +938,7 @@ fn normalized_vertex() {
                     v_color = color;
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 110
                 varying vec3 v_color;
 
@@ -726,9 +946,9 @@ fn normalized_vertex() {
                     gl_FragColor = vec4(v_color, 1.0);
                 }
             ",
-        },
-        100 => {
-            vertex: "
+    },
+    100 => {
+        vertex: "
                 #version 100
 
                 attribute lowp vec2 position;
@@ -741,7 +961,7 @@ fn normalized_vertex() {
                     v_color = color;
                 }
             ",
-            fragment: "
+        fragment: "
                 #version 100
                 varying lowp vec3 v_color;
 
@@ -749,12 +969,21 @@ fn normalized_vertex() {
                     gl_FragColor = vec4(v_color, 1.0);
                 }
             ",
-        }).unwrap();
+    })
+    .unwrap();
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw((&buffer1, &buffer2), &index_buffer, &program, &uniform!{},
-                              &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            (&buffer1, &buffer2),
+            &index_buffer,
+            &program,
+            &uniform! {},
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     // If the data wasn't normalized, the 128 would be 255 instead

@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate glium;
 
-use glium::{Surface, BlitTarget, Rect};
+use glium::{BlitTarget, Rect, Surface};
 
 mod support;
 
@@ -28,8 +28,12 @@ fn blit_texture_to_window() {
     let target = support::build_renderable_texture(&display);
     target.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
-    texture.as_surface().blit_color(&src_rect, &target.as_surface(), &dest_rect,
-                                    glium::uniforms::MagnifySamplerFilter::Nearest);
+    texture.as_surface().blit_color(
+        &src_rect,
+        &target.as_surface(),
+        &dest_rect,
+        glium::uniforms::MagnifySamplerFilter::Nearest,
+    );
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = target.read();
 

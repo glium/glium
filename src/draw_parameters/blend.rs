@@ -2,8 +2,8 @@ use crate::context::CommandContext;
 use crate::version::Api;
 use crate::version::Version;
 
-use crate::DrawError;
 use crate::gl;
+use crate::DrawError;
 
 /// Blend effect that the GPU will use for blending.
 ///
@@ -33,9 +33,9 @@ impl Blend {
             },
             alpha: BlendingFunction::Addition {
                 source: LinearBlendingFactor::SourceAlpha,
-                destination: LinearBlendingFactor::OneMinusSourceAlpha
+                destination: LinearBlendingFactor::OneMinusSourceAlpha,
             },
-            constant_value: (0.0, 0.0, 0.0, 0.0)
+            constant_value: (0.0, 0.0, 0.0, 0.0),
         }
     }
 }
@@ -204,73 +204,79 @@ impl LinearBlendingFactor {
 
 pub fn sync_blending(ctxt: &mut CommandContext<'_>, blend: Blend) -> Result<(), DrawError> {
     #[inline(always)]
-    fn blend_eq(ctxt: &mut CommandContext<'_>, blending_function: BlendingFunction)
-                -> Result<gl::types::GLenum, DrawError>
-    {
+    fn blend_eq(
+        ctxt: &mut CommandContext<'_>,
+        blending_function: BlendingFunction,
+    ) -> Result<gl::types::GLenum, DrawError> {
         match blending_function {
-            BlendingFunction::AlwaysReplace |
-            BlendingFunction::Addition { .. } => Ok(gl::FUNC_ADD),
+            BlendingFunction::AlwaysReplace | BlendingFunction::Addition { .. } => Ok(gl::FUNC_ADD),
             BlendingFunction::Subtraction { .. } => Ok(gl::FUNC_SUBTRACT),
             BlendingFunction::ReverseSubtraction { .. } => Ok(gl::FUNC_REVERSE_SUBTRACT),
 
             BlendingFunction::Min => {
-                if ctxt.version <= &Version(Api::GlEs, 2, 0) &&
-                   !ctxt.extensions.gl_ext_blend_minmax
+                if ctxt.version <= &Version(Api::GlEs, 2, 0) && !ctxt.extensions.gl_ext_blend_minmax
                 {
                     Err(DrawError::BlendingParameterNotSupported)
                 } else {
                     Ok(gl::MIN)
                 }
-            },
+            }
 
             BlendingFunction::Max => {
-                if ctxt.version <= &Version(Api::GlEs, 2, 0) &&
-                   !ctxt.extensions.gl_ext_blend_minmax
+                if ctxt.version <= &Version(Api::GlEs, 2, 0) && !ctxt.extensions.gl_ext_blend_minmax
                 {
                     Err(DrawError::BlendingParameterNotSupported)
                 } else {
                     Ok(gl::MAX)
                 }
-            },
+            }
         }
     }
 
     #[inline(always)]
-    fn blending_factors(blending_function: BlendingFunction)
-                        -> Option<(LinearBlendingFactor, LinearBlendingFactor)>
-    {
+    fn blending_factors(
+        blending_function: BlendingFunction,
+    ) -> Option<(LinearBlendingFactor, LinearBlendingFactor)> {
         match blending_function {
-            BlendingFunction::AlwaysReplace |
-            BlendingFunction::Min |
-            BlendingFunction::Max => None,
-            BlendingFunction::Addition { source, destination } =>
-                Some((source, destination)),
-            BlendingFunction::Subtraction { source, destination } =>
-                Some((source, destination)),
-            BlendingFunction::ReverseSubtraction { source, destination } =>
-                Some((source, destination)),
+            BlendingFunction::AlwaysReplace | BlendingFunction::Min | BlendingFunction::Max => None,
+            BlendingFunction::Addition {
+                source,
+                destination,
+            } => Some((source, destination)),
+            BlendingFunction::Subtraction {
+                source,
+                destination,
+            } => Some((source, destination)),
+            BlendingFunction::ReverseSubtraction {
+                source,
+                destination,
+            } => Some((source, destination)),
         }
     }
 
     if let (BlendingFunction::AlwaysReplace, BlendingFunction::AlwaysReplace) =
-           (blend.color, blend.alpha)
+        (blend.color, blend.alpha)
     {
         // Both color and alpha always replace. This equals no blending.
         if ctxt.state.enabled_blend {
-            unsafe { ctxt.gl.Disable(gl::BLEND); }
+            unsafe {
+                ctxt.gl.Disable(gl::BLEND);
+            }
             ctxt.state.enabled_blend = false;
         }
-
     } else {
         if !ctxt.state.enabled_blend {
-            unsafe { ctxt.gl.Enable(gl::BLEND); }
+            unsafe {
+                ctxt.gl.Enable(gl::BLEND);
+            }
             ctxt.state.enabled_blend = true;
         }
 
-        let (color_eq, alpha_eq) = (blend_eq(ctxt, blend.color)?,
-                                    blend_eq(ctxt, blend.alpha)?);
+        let (color_eq, alpha_eq) = (blend_eq(ctxt, blend.color)?, blend_eq(ctxt, blend.alpha)?);
         if ctxt.state.blend_equation != (color_eq, alpha_eq) {
-            unsafe { ctxt.gl.BlendEquationSeparate(color_eq, alpha_eq); }
+            unsafe {
+                ctxt.gl.BlendEquationSeparate(color_eq, alpha_eq);
+            }
             ctxt.state.blend_equation = (color_eq, alpha_eq);
         }
 
@@ -281,24 +287,28 @@ pub fn sync_blending(ctxt: &mut CommandContext<'_>, blend: Blend) -> Result<(), 
             .unwrap_or((LinearBlendingFactor::One, LinearBlendingFactor::Zero));
 
         // Updating the blending color if necessary.
-        if (color_factor_src == LinearBlendingFactor::ConstantColor ||
-           color_factor_src == LinearBlendingFactor::OneMinusConstantColor ||
-           color_factor_dst == LinearBlendingFactor::ConstantColor ||
-           color_factor_dst == LinearBlendingFactor::OneMinusConstantColor ||
-           alpha_factor_src == LinearBlendingFactor::ConstantColor ||
-           alpha_factor_src == LinearBlendingFactor::OneMinusConstantColor ||
-           alpha_factor_dst == LinearBlendingFactor::ConstantColor ||
-           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantColor ||
-           color_factor_src == LinearBlendingFactor::ConstantAlpha ||
-           color_factor_src == LinearBlendingFactor::OneMinusConstantAlpha ||
-           color_factor_dst == LinearBlendingFactor::ConstantAlpha ||
-           color_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha ||
-           alpha_factor_src == LinearBlendingFactor::ConstantAlpha ||
-           alpha_factor_src == LinearBlendingFactor::OneMinusConstantAlpha ||
-           alpha_factor_dst == LinearBlendingFactor::ConstantAlpha ||
-           alpha_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha) && ctxt.state.blend_color != blend.constant_value {
+        if (color_factor_src == LinearBlendingFactor::ConstantColor
+            || color_factor_src == LinearBlendingFactor::OneMinusConstantColor
+            || color_factor_dst == LinearBlendingFactor::ConstantColor
+            || color_factor_dst == LinearBlendingFactor::OneMinusConstantColor
+            || alpha_factor_src == LinearBlendingFactor::ConstantColor
+            || alpha_factor_src == LinearBlendingFactor::OneMinusConstantColor
+            || alpha_factor_dst == LinearBlendingFactor::ConstantColor
+            || alpha_factor_dst == LinearBlendingFactor::OneMinusConstantColor
+            || color_factor_src == LinearBlendingFactor::ConstantAlpha
+            || color_factor_src == LinearBlendingFactor::OneMinusConstantAlpha
+            || color_factor_dst == LinearBlendingFactor::ConstantAlpha
+            || color_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha
+            || alpha_factor_src == LinearBlendingFactor::ConstantAlpha
+            || alpha_factor_src == LinearBlendingFactor::OneMinusConstantAlpha
+            || alpha_factor_dst == LinearBlendingFactor::ConstantAlpha
+            || alpha_factor_dst == LinearBlendingFactor::OneMinusConstantAlpha)
+            && ctxt.state.blend_color != blend.constant_value
+        {
             let (r, g, b, a) = blend.constant_value;
-            unsafe { ctxt.gl.BlendColor(r, g, b, a); }
+            unsafe {
+                ctxt.gl.BlendColor(r, g, b, a);
+            }
             ctxt.state.blend_color = blend.constant_value;
         }
 
@@ -307,16 +317,29 @@ pub fn sync_blending(ctxt: &mut CommandContext<'_>, blend: Blend) -> Result<(), 
         let color_factor_dst = color_factor_dst.to_glenum();
         let alpha_factor_src = alpha_factor_src.to_glenum();
         let alpha_factor_dst = alpha_factor_dst.to_glenum();
-        if ctxt.state.blend_func != (color_factor_src, color_factor_dst,
-                                     alpha_factor_src, alpha_factor_dst)
+        if ctxt.state.blend_func
+            != (
+                color_factor_src,
+                color_factor_dst,
+                alpha_factor_src,
+                alpha_factor_dst,
+            )
         {
             unsafe {
-                ctxt.gl.BlendFuncSeparate(color_factor_src, color_factor_dst,
-                                          alpha_factor_src, alpha_factor_dst);
+                ctxt.gl.BlendFuncSeparate(
+                    color_factor_src,
+                    color_factor_dst,
+                    alpha_factor_src,
+                    alpha_factor_dst,
+                );
             }
 
-            ctxt.state.blend_func = (color_factor_src, color_factor_dst,
-                                     alpha_factor_src, alpha_factor_dst);
+            ctxt.state.blend_func = (
+                color_factor_src,
+                color_factor_dst,
+                alpha_factor_src,
+                alpha_factor_dst,
+            );
         }
     }
 

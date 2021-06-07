@@ -3,15 +3,15 @@ extern crate glium;
 
 use std::thread;
 
+use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
-use glium::index::PrimitiveType;
 
 mod screenshot {
     use glium::Surface;
+    use std::borrow::Cow;
     use std::collections::VecDeque;
     use std::vec::Vec;
-    use std::borrow::Cow;
 
     // Container that holds image data as vector of (u8, u8, u8, u8).
     // This is used to take data from PixelBuffer and move it to another thread
@@ -55,12 +55,14 @@ mod screenshot {
             };
 
             // Create temporary texture and blit the front buffer to it
-            let texture = glium::texture::Texture2d::empty(facade, dimensions.0, dimensions.1)
-                .unwrap();
+            let texture =
+                glium::texture::Texture2d::empty(facade, dimensions.0, dimensions.1).unwrap();
             let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(facade, &texture).unwrap();
-            framebuffer.blit_from_frame(&rect,
-                                        &blit_target,
-                                        glium::uniforms::MagnifySamplerFilter::Nearest);
+            framebuffer.blit_from_frame(
+                &rect,
+                &blit_target,
+                glium::uniforms::MagnifySamplerFilter::Nearest,
+            );
 
             // Read the texture into new pixel buffer
             let pixel_buffer = texture.read_to_pixel_buffer();
@@ -82,7 +84,13 @@ mod screenshot {
         type Item = RGBAImageData;
 
         fn next(&mut self) -> Option<RGBAImageData> {
-            if self.0.screenshot_tasks.front().map(|task| task.target_frame) == Some(self.0.frame) {
+            if self
+                .0
+                .screenshot_tasks
+                .front()
+                .map(|task| task.target_frame)
+                == Some(self.0.frame)
+            {
                 let task = self.0.screenshot_tasks.pop_front().unwrap();
                 Some(task.read_image_data())
             } else {
@@ -115,8 +123,10 @@ mod screenshot {
         }
 
         pub fn take_screenshot(&mut self, facade: &dyn glium::backend::Facade) {
-            self.screenshot_tasks
-                .push_back(AsyncScreenshotTask::new(facade, self.frame + self.screenshot_delay));
+            self.screenshot_tasks.push_back(AsyncScreenshotTask::new(
+                facade,
+                self.frame + self.screenshot_delay,
+            ));
         }
     }
 }
@@ -138,20 +148,24 @@ fn main() {
 
         implement_vertex!(Vertex, position, color);
 
-        glium::VertexBuffer::new(&display,
-                                 &[Vertex {
-                                       position: [-0.5, -0.5],
-                                       color: [0.0, 1.0, 0.0],
-                                   },
-                                   Vertex {
-                                       position: [0.0, 0.5],
-                                       color: [0.0, 0.0, 1.0],
-                                   },
-                                   Vertex {
-                                       position: [0.5, -0.5],
-                                       color: [1.0, 0.0, 0.0],
-                                   }])
-            .unwrap()
+        glium::VertexBuffer::new(
+            &display,
+            &[
+                Vertex {
+                    position: [-0.5, -0.5],
+                    color: [0.0, 1.0, 0.0],
+                },
+                Vertex {
+                    position: [0.0, 0.5],
+                    color: [0.0, 0.0, 1.0],
+                },
+                Vertex {
+                    position: [0.5, -0.5],
+                    color: [1.0, 0.0, 0.0],
+                },
+            ],
+        )
+        .unwrap()
     };
 
     // building the index buffer
@@ -215,7 +229,7 @@ fn main() {
             ",
         },
     )
-        .unwrap();
+    .unwrap();
 
     // drawing once
 
@@ -236,14 +250,13 @@ fn main() {
     let mut screenshot_taker = screenshot::AsyncScreenshotTaker::new(5);
 
     event_loop.run(move |event, _, control_flow| {
-
         // React to events
-        use glium::glutin::event::{Event, WindowEvent, ElementState, VirtualKeyCode};
+        use glium::glutin::event::{ElementState, Event, VirtualKeyCode, WindowEvent};
 
         let mut take_screenshot = false;
 
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
+        let next_frame_time =
+            std::time::Instant::now() + std::time::Duration::from_nanos(16_666_667);
         *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
         match event {
@@ -251,14 +264,14 @@ fn main() {
                 WindowEvent::CloseRequested => {
                     *control_flow = glutin::event_loop::ControlFlow::Exit;
                     return;
-                },
+                }
                 WindowEvent::KeyboardInput { input, .. } => {
                     if let ElementState::Pressed = input.state {
                         if let Some(VirtualKeyCode::S) = input.virtual_keycode {
                             take_screenshot = true;
                         }
                     }
-                },
+                }
                 _ => return,
             },
             Event::NewEvents(cause) => match cause {
@@ -275,11 +288,14 @@ fn main() {
         // drawing a frame
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer,
-                  &index_buffer,
-                  &program,
-                  &uniforms,
-                  &Default::default())
+        target
+            .draw(
+                &vertex_buffer,
+                &index_buffer,
+                &program,
+                &uniforms,
+                &Default::default(),
+            )
             .unwrap();
         target.finish().unwrap();
 

@@ -39,8 +39,15 @@ fn clear_color_rect() {
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(1.0, 0.0, 0.0, 1.0);
 
-    let rect = glium::Rect { left: 512, bottom: 0, width: 512, height: 1024 };
-    texture.as_surface().clear(Some(&rect), Some((0.0, 1.0, 0.0, 1.0)), false, None, None);
+    let rect = glium::Rect {
+        left: 512,
+        bottom: 0,
+        width: 512,
+        height: 1024,
+    };
+    texture
+        .as_surface()
+        .clear(Some(&rect), Some((0.0, 1.0, 0.0, 1.0)), false, None, None);
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
 
@@ -76,7 +83,7 @@ fn timestamp_query() {
 
     match (query1, query2) {
         (Some(q1), Some(q2)) => assert!(q2 >= q1 && q1 != 0),
-        _ => ()
+        _ => (),
     };
 
     display.assert_no_error(None);
@@ -108,11 +115,27 @@ fn multiple_displays() {
     texture1.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
     texture2.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
 
-    texture1.as_surface().draw(&vb1, &ib1, &program1, &glium::uniforms::EmptyUniforms,
-                               &Default::default()).unwrap();
+    texture1
+        .as_surface()
+        .draw(
+            &vb1,
+            &ib1,
+            &program1,
+            &glium::uniforms::EmptyUniforms,
+            &Default::default(),
+        )
+        .unwrap();
 
-    texture2.as_surface().draw(&vb2, &ib2, &program2, &glium::uniforms::EmptyUniforms,
-                               &Default::default()).unwrap();
+    texture2
+        .as_surface()
+        .draw(
+            &vb2,
+            &ib2,
+            &program2,
+            &glium::uniforms::EmptyUniforms,
+            &Default::default(),
+        )
+        .unwrap();
     texture2.as_surface().clear_color(0.0, 1.0, 0.0, 0.0);
 
     let read_back: Vec<Vec<(u8, u8, u8, u8)>> = texture1.read();
@@ -140,7 +163,6 @@ fn debug_string() {
     display.insert_debug_marker("Hello world").ok();
     display.assert_no_error(None);
 }
-
 
 #[test]
 fn is_context_lost() {

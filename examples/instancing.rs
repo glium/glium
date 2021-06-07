@@ -7,9 +7,11 @@ use glium::{glutin, Surface};
 mod support;
 
 fn main() {
-    println!("This example draws 10,000 instanced teapots. Each teapot gets a random position and \
+    println!(
+        "This example draws 10,000 instanced teapots. Each teapot gets a random position and \
               direction at initialization. Then the CPU updates and uploads the positions of each \
-              teapot at each frame.");
+              teapot at each frame."
+    );
 
     // building the display, ie. the main object
     let event_loop = glutin::event_loop::EventLoop::new();
@@ -22,7 +24,7 @@ fn main() {
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 
     // list of teapots with position and direction
-    let mut teapots = (0 .. 10000)
+    let mut teapots = (0..10000)
         .map(|_| {
             let pos: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
             let dir: (f32, f32, f32) = (rand::random(), rand::random(), rand::random());
@@ -41,16 +43,18 @@ fn main() {
 
         implement_vertex!(Attr, world_position);
 
-        let data = teapots.iter().map(|_| {
-            Attr {
+        let data = teapots
+            .iter()
+            .map(|_| Attr {
                 world_position: (0.0, 0.0, 0.0),
-            }
-        }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
 
         glium::vertex::VertexBuffer::dynamic(&display, &data).unwrap()
     };
 
-    let program = glium::Program::from_source(&display,
+    let program = glium::Program::from_source(
+        &display,
         "
             #version 140
 
@@ -83,8 +87,9 @@ fn main() {
                 f_color = vec4(color, 1.0);
             }
         ",
-        None)
-        .unwrap();
+        None,
+    )
+    .unwrap();
 
     let camera = support::camera::CameraState::new();
 
@@ -107,16 +112,22 @@ fn main() {
             depth: glium::Depth {
                 test: glium::DepthTest::IfLess,
                 write: true,
-                .. Default::default()
+                ..Default::default()
             },
-            .. Default::default()
+            ..Default::default()
         };
 
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
-        target.draw((&vertex_buffer, per_instance.per_instance().unwrap()),
-                    &indices, &program, &uniform! { matrix: camera.get_perspective() },
-                    &params).unwrap();
+        target
+            .draw(
+                (&vertex_buffer, per_instance.per_instance().unwrap()),
+                &indices,
+                &program,
+                &uniform! { matrix: camera.get_perspective() },
+                &params,
+            )
+            .unwrap();
         target.finish().unwrap();
 
         let mut action = support::Action::Continue;
@@ -130,7 +141,7 @@ fn main() {
                 },
                 _ => (),
             }
-        };
+        }
 
         action
     });

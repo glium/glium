@@ -7,10 +7,10 @@ use glium::{glutin, Surface};
 mod support;
 
 mod fxaa {
-    use glium::{self, Surface};
-    use glium::backend::Facade;
     use glium::backend::Context;
+    use glium::backend::Facade;
     use glium::framebuffer::SimpleFrameBuffer;
+    use glium::{self, Surface};
 
     use std::cell::RefCell;
     use std::rc::Rc;
@@ -33,7 +33,10 @@ mod fxaa {
     implement_vertex!(SpriteVertex, position, i_tex_coords);
 
     impl FxaaSystem {
-        pub fn new<F: ?Sized>(facade: &F) -> FxaaSystem where F: Facade + Clone {
+        pub fn new<F: ?Sized>(facade: &F) -> FxaaSystem
+        where
+            F: Facade + Clone,
+        {
             FxaaSystem {
                 context: facade.get_context().clone(),
 
@@ -154,8 +157,10 @@ mod fxaa {
         }
     }
 
-    pub fn draw<T, F, R>(system: &FxaaSystem, target: &mut T, enabled: bool, mut draw: F)
-                         -> R where T: Surface, F: FnMut(&mut SimpleFrameBuffer<'_>) -> R
+    pub fn draw<T, F, R>(system: &FxaaSystem, target: &mut T, enabled: bool, mut draw: F) -> R
+    where
+        T: Surface,
+        F: FnMut(&mut SimpleFrameBuffer<'_>) -> R,
     {
         let target_dimensions = target.get_dimensions();
 
@@ -164,12 +169,14 @@ mod fxaa {
 
         {
             let clear = if let &Some(ref tex) = &*target_color {
-                tex.get_width() != target_dimensions.0 ||
-                    tex.get_height().unwrap() != target_dimensions.1
+                tex.get_width() != target_dimensions.0
+                    || tex.get_height().unwrap() != target_dimensions.1
             } else {
                 false
             };
-            if clear { *target_color = None; }
+            if clear {
+                *target_color = None;
+            }
         }
 
         {
@@ -178,28 +185,38 @@ mod fxaa {
             } else {
                 false
             };
-            if clear { *target_depth = None; }
+            if clear {
+                *target_depth = None;
+            }
         }
 
         if target_color.is_none() {
-            let texture = glium::texture::Texture2d::empty(&system.context,
-                                                           target_dimensions.0 as u32,
-                                                           target_dimensions.1 as u32).unwrap();
+            let texture = glium::texture::Texture2d::empty(
+                &system.context,
+                target_dimensions.0 as u32,
+                target_dimensions.1 as u32,
+            )
+            .unwrap();
             *target_color = Some(texture);
         }
         let target_color = target_color.as_ref().unwrap();
 
         if target_depth.is_none() {
-            let texture = glium::framebuffer::DepthRenderBuffer::new(&system.context,
-                                                                      glium::texture::DepthFormat::I24,
-                                                                      target_dimensions.0 as u32,
-                                                                      target_dimensions.1 as u32).unwrap();
+            let texture = glium::framebuffer::DepthRenderBuffer::new(
+                &system.context,
+                glium::texture::DepthFormat::I24,
+                target_dimensions.0 as u32,
+                target_dimensions.1 as u32,
+            )
+            .unwrap();
             *target_depth = Some(texture);
         }
         let target_depth = target_depth.as_ref().unwrap();
 
-        let output = draw(&mut SimpleFrameBuffer::with_depth_buffer(&system.context, target_color,
-                                                                                     target_depth).unwrap());
+        let output = draw(
+            &mut SimpleFrameBuffer::with_depth_buffer(&system.context, target_color, target_depth)
+                .unwrap(),
+        );
 
         let uniforms = uniform! {
             tex: &*target_color,
@@ -207,18 +224,27 @@ mod fxaa {
             resolution: (target_dimensions.0 as f32, target_dimensions.1 as f32)
         };
 
-        target.draw(&system.vertex_buffer, &system.index_buffer, &system.program, &uniforms,
-                    &Default::default()).unwrap();
+        target
+            .draw(
+                &system.vertex_buffer,
+                &system.index_buffer,
+                &system.program,
+                &uniforms,
+                &Default::default(),
+            )
+            .unwrap();
 
         output
     }
 }
 
 fn main() {
-    println!("This example demonstrates FXAA. Is is an anti-aliasing technique done at the \
+    println!(
+        "This example demonstrates FXAA. Is is an anti-aliasing technique done at the \
               post-processing stage. This example draws the teapot to a framebuffer and then \
               copies from the texture to the main framebuffer by applying a filter to it.\n\
-              You can use the space bar to switch fxaa on and off.");
+              You can use the space bar to switch fxaa on and off."
+    );
 
     // building the display, ie. the main object
     let event_loop = glutin::event_loop::EventLoop::new();
@@ -335,7 +361,8 @@ fn main() {
                 }
             ",
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     //
     let mut camera = support::camera::CameraState::new();
@@ -357,18 +384,24 @@ fn main() {
             depth: glium::Depth {
                 test: glium::DepthTest::IfLess,
                 write: true,
-                .. Default::default()
+                ..Default::default()
             },
-            .. Default::default()
+            ..Default::default()
         };
 
         // drawing a frame
         let mut target = display.draw();
         fxaa::draw(&fxaa, &mut target, fxaa_enabled, |target| {
             target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
-            target.draw(&vertex_buffer,
-                        &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
-                        &program, &uniforms, &params).unwrap();
+            target
+                .draw(
+                    &vertex_buffer,
+                    &glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList),
+                    &program,
+                    &uniforms,
+                    &params,
+                )
+                .unwrap();
         });
         target.finish().unwrap();
 
@@ -380,24 +413,34 @@ fn main() {
                 glutin::event::Event::WindowEvent { event, .. } => {
                     camera.process_input(&event);
                     match event {
-                        glutin::event::WindowEvent::CloseRequested => action = support::Action::Stop,
-                        glutin::event::WindowEvent::KeyboardInput { input, .. } => match input.state {
-                            glutin::event::ElementState::Pressed => match input.virtual_keycode {
-                                Some(glutin::event::VirtualKeyCode::Escape) => action = support::Action::Stop,
-                                Some(glutin::event::VirtualKeyCode::Space) => {
-                                    fxaa_enabled = !fxaa_enabled;
-                                    println!("FXAA is now {}", if fxaa_enabled { "enabled" } else { "disabled" });
+                        glutin::event::WindowEvent::CloseRequested => {
+                            action = support::Action::Stop
+                        }
+                        glutin::event::WindowEvent::KeyboardInput { input, .. } => {
+                            match input.state {
+                                glutin::event::ElementState::Pressed => match input.virtual_keycode
+                                {
+                                    Some(glutin::event::VirtualKeyCode::Escape) => {
+                                        action = support::Action::Stop
+                                    }
+                                    Some(glutin::event::VirtualKeyCode::Space) => {
+                                        fxaa_enabled = !fxaa_enabled;
+                                        println!(
+                                            "FXAA is now {}",
+                                            if fxaa_enabled { "enabled" } else { "disabled" }
+                                        );
+                                    }
+                                    _ => (),
                                 },
                                 _ => (),
-                            },
-                            _ => (),
-                        },
+                            }
+                        }
                         _ => (),
                     }
-                },
+                }
                 _ => (),
             }
-        };
+        }
 
         action
     });

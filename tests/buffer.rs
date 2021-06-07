@@ -3,8 +3,8 @@ extern crate glium;
 
 mod support;
 
-use glium::Surface;
 use glium::buffer::BufferMode;
+use glium::Surface;
 use std::mem;
 
 #[test]
@@ -19,13 +19,24 @@ fn buffer_immutable_creation() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::new(&display,
+    glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
-            Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
-            Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [-0.5, -0.5, 0.0],
+                field2: [0.0, 1.0, 0.0],
+            },
+            Vertex {
+                field1: [0.0, 0.5, 1.0],
+                field2: [0.0, 0.0, 1.0],
+            },
+            Vertex {
+                field1: [0.5, -0.5, 0.0],
+                field2: [1.0, 0.0, 0.0],
+            },
+        ],
+    )
+    .unwrap();
 
     display.assert_no_error(None);
 }
@@ -42,13 +53,24 @@ fn buffer_dynamic_creation() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    glium::VertexBuffer::dynamic(&display,
+    glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { field1: [-0.5, -0.5, 0.0], field2: [0.0, 1.0, 0.0] },
-            Vertex { field1: [ 0.0,  0.5, 1.0], field2: [0.0, 0.0, 1.0] },
-            Vertex { field1: [ 0.5, -0.5, 0.0], field2: [1.0, 0.0, 0.0] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [-0.5, -0.5, 0.0],
+                field2: [0.0, 1.0, 0.0],
+            },
+            Vertex {
+                field1: [0.0, 0.5, 1.0],
+                field2: [0.0, 0.0, 1.0],
+            },
+            Vertex {
+                field1: [0.5, -0.5, 0.0],
+                field2: [1.0, 0.0, 0.0],
+            },
+        ],
+    )
+    .unwrap();
 
     display.assert_no_error(None);
 }
@@ -101,12 +123,20 @@ fn buffer_immutable_mapping_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::new(&display,
+    let mut vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
     let mapping = vb.map();
     assert_eq!(mapping[0].field1, [2, 3]);
@@ -127,12 +157,20 @@ fn buffer_dynamic_mapping_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::dynamic(&display,
+    let mut vb = glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
     let mapping = vb.map();
     assert_eq!(mapping[0].field1, [2, 3]);
@@ -153,12 +191,20 @@ fn buffer_immutable_mapping_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::new(&display,
+    let mut vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
     {
         let mut mapping = vb.map();
@@ -184,12 +230,20 @@ fn buffer_dynamic_mapping_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let mut vb = glium::VertexBuffer::dynamic(&display,
+    let mut vb = glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
     {
         let mut mapping = vb.map();
@@ -245,17 +299,25 @@ fn buffer_immutable_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display,
+    let vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -276,17 +338,25 @@ fn buffer_dynamic_read() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display,
+    let vb = glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -307,17 +377,25 @@ fn buffer_immutable_read_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display,
+    let vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
-    let data = match vb.slice(1 .. 2).unwrap().read() {
+    let data = match vb.slice(1..2).unwrap().read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field2, [15, 17]);
@@ -337,17 +415,25 @@ fn buffer_dynamic_read_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display,
+    let vb = glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
-    let data = match vb.slice(1 .. 2).unwrap().read() {
+    let data = match vb.slice(1..2).unwrap().read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field2, [15, 17]);
@@ -367,14 +453,22 @@ fn buffer_slice_out_of_bounds() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display,
+    let vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [12, 13], field2: [15, 17] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [12, 13],
+                field2: [15, 17],
+            },
+        ],
+    )
+    .unwrap();
 
-    assert!(vb.slice(0 .. 3).is_none());
+    assert!(vb.slice(0..3).is_none());
 
     display.assert_no_error(None);
 }
@@ -391,22 +485,36 @@ fn buffer_immutable_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display,
+    let vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [ 0,  0], field2: [ 0,  0] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [0, 0],
+                field2: [0, 0],
+            },
+        ],
+    )
+    .unwrap();
 
     vb.write(&[
-        Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-        Vertex { field1: [12, 13], field2: [15, 17] }
+        Vertex {
+            field1: [2, 3],
+            field2: [5, 7],
+        },
+        Vertex {
+            field1: [12, 13],
+            field2: [15, 17],
+        },
     ]);
 
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -429,22 +537,36 @@ fn buffer_dynamic_write() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display,
+    let vb = glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [ 0,  0], field2: [ 0,  0] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [0, 0],
+                field2: [0, 0],
+            },
+        ],
+    )
+    .unwrap();
 
     vb.write(&[
-        Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-        Vertex { field1: [12, 13], field2: [15, 17] }
+        Vertex {
+            field1: [2, 3],
+            field2: [5, 7],
+        },
+        Vertex {
+            field1: [12, 13],
+            field2: [15, 17],
+        },
     ]);
 
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -467,19 +589,30 @@ fn buffer_immutable_write_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::new(&display,
+    let vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [ 0,  0], field2: [ 0,  0] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [0, 0],
+                field2: [0, 0],
+            },
+        ],
+    )
+    .unwrap();
 
-    vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
+    vb.slice(1..2).unwrap().write(&[Vertex {
+        field1: [12, 13],
+        field2: [15, 17],
+    }]);
 
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -502,19 +635,30 @@ fn buffer_dynamic_write_slice() {
 
     implement_vertex!(Vertex, field1, field2);
 
-    let vb = glium::VertexBuffer::dynamic(&display,
+    let vb = glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { field1: [ 2,  3], field2: [ 5,  7] },
-            Vertex { field1: [ 0,  0], field2: [ 0,  0] },
-        ]
-    ).unwrap();
+            Vertex {
+                field1: [2, 3],
+                field2: [5, 7],
+            },
+            Vertex {
+                field1: [0, 0],
+                field2: [0, 0],
+            },
+        ],
+    )
+    .unwrap();
 
-    vb.slice(1 .. 2).unwrap().write(&[Vertex { field1: [12, 13], field2: [15, 17] }]);
+    vb.slice(1..2).unwrap().write(&[Vertex {
+        field1: [12, 13],
+        field2: [15, 17],
+    }]);
 
     let data = match vb.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[0].field1, [2, 3]);
@@ -564,12 +708,12 @@ fn invalidate() {
     let display = support::build_display();
 
     #[derive(Copy, Clone)]
-    struct Vertex { field: f32 }
+    struct Vertex {
+        field: f32,
+    }
     implement_vertex!(Vertex, field);
 
-    let buffer = glium::VertexBuffer::new(&display,
-        &[ Vertex { field: 2.0 } ]
-    ).unwrap();
+    let buffer = glium::VertexBuffer::new(&display, &[Vertex { field: 2.0 }]).unwrap();
 
     buffer.invalidate();
 
@@ -581,14 +725,22 @@ fn invalidate_range() {
     let display = support::build_display();
 
     #[derive(Copy, Clone)]
-    struct Vertex { field: f32 }
+    struct Vertex {
+        field: f32,
+    }
     implement_vertex!(Vertex, field);
 
-    let buffer = glium::VertexBuffer::new(&display,
-        &[ Vertex { field: 1.0 }, Vertex { field: 2.0 }, Vertex { field: 3.0 } ]
-    ).unwrap();
+    let buffer = glium::VertexBuffer::new(
+        &display,
+        &[
+            Vertex { field: 1.0 },
+            Vertex { field: 2.0 },
+            Vertex { field: 3.0 },
+        ],
+    )
+    .unwrap();
 
-    buffer.slice(1 .. 2).unwrap().invalidate();
+    buffer.slice(1..2).unwrap().invalidate();
 
     display.assert_no_error(None);
 }
@@ -597,10 +749,13 @@ fn invalidate_range() {
 fn immutable_mapping_forget_then_remap() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer,
-                                                 BufferMode::Immutable)
-                                                 .unwrap();
+    let mut buf = glium::buffer::BufferView::new(
+        &display,
+        &[1, 2, 3],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Immutable,
+    )
+    .unwrap();
 
     {
         let mut mapping = buf.map();
@@ -619,10 +774,13 @@ fn immutable_mapping_forget_then_remap() {
 fn immutable_mapping_forget_then_read() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer,
-                                                 BufferMode::Immutable)
-                                                 .unwrap();
+    let mut buf = glium::buffer::BufferView::new(
+        &display,
+        &[1, 2, 3],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Immutable,
+    )
+    .unwrap();
 
     {
         let mut mapping = buf.map();
@@ -633,7 +791,7 @@ fn immutable_mapping_forget_then_read() {
     let data = match buf.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[1], 2);
@@ -646,10 +804,13 @@ fn immutable_mapping_forget_then_read() {
 fn immutable_mapping_forget_then_invalidate() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer,
-                                                 BufferMode::Immutable)
-                                                 .unwrap();
+    let mut buf = glium::buffer::BufferView::new(
+        &display,
+        &[1, 2, 3],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Immutable,
+    )
+    .unwrap();
 
     {
         let mut mapping = buf.map();
@@ -667,19 +828,29 @@ fn immutable_mapping_forget_then_draw() {
 
     #[derive(Copy, Clone)]
     struct Vertex {
-        position: [f32; 2]
+        position: [f32; 2],
     }
 
     implement_vertex!(Vertex, position);
 
-    let mut vb = glium::VertexBuffer::new(&display,
+    let mut vb = glium::VertexBuffer::new(
+        &display,
         &[
-            Vertex { position: [-1.0,  1.0] },
-            Vertex { position: [ 1.0,  1.0] },
-            Vertex { position: [-1.0, -1.0] },
-            Vertex { position: [ 1.0, -1.0] },
-        ]
-    ).unwrap();
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
     let program = program!(&display,
         140 => {
@@ -737,7 +908,8 @@ fn immutable_mapping_forget_then_draw() {
                 }
             ",
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     {
         let mapping = vb.map();
@@ -746,8 +918,16 @@ fn immutable_mapping_forget_then_draw() {
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
-                              &program, &uniform!{}, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vb,
+            &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
+            &program,
+            &uniform! {},
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for pixel in data.iter().flat_map(|e| e.iter()) {
@@ -761,10 +941,13 @@ fn immutable_mapping_forget_then_draw() {
 fn persistent_mapping_forget_then_remap() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer,
-                                                 BufferMode::Persistent)
-                                                 .unwrap();
+    let mut buf = glium::buffer::BufferView::new(
+        &display,
+        &[1, 2, 3],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Persistent,
+    )
+    .unwrap();
 
     {
         let mut mapping = buf.map();
@@ -783,10 +966,13 @@ fn persistent_mapping_forget_then_remap() {
 fn persistent_mapping_forget_then_read() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer,
-                                                 BufferMode::Persistent)
-                                                 .unwrap();
+    let mut buf = glium::buffer::BufferView::new(
+        &display,
+        &[1, 2, 3],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Persistent,
+    )
+    .unwrap();
 
     {
         let mut mapping = buf.map();
@@ -797,7 +983,7 @@ fn persistent_mapping_forget_then_read() {
     let data = match buf.read() {
         Ok(r) => r,
         Err(glium::buffer::ReadError::NotSupported) => return,
-        e => e.unwrap()
+        e => e.unwrap(),
     };
 
     assert_eq!(data[1], 2);
@@ -810,10 +996,13 @@ fn persistent_mapping_forget_then_read() {
 fn persistent_mapping_forget_then_invalidate() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                                 glium::buffer::BufferType::ArrayBuffer,
-                                                 BufferMode::Persistent)
-                                                 .unwrap();
+    let mut buf = glium::buffer::BufferView::new(
+        &display,
+        &[1, 2, 3],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Persistent,
+    )
+    .unwrap();
 
     {
         let mut mapping = buf.map();
@@ -831,19 +1020,29 @@ fn dynamic_mapping_forget_then_draw() {
 
     #[derive(Copy, Clone)]
     struct Vertex {
-        position: [f32; 2]
+        position: [f32; 2],
     }
 
     implement_vertex!(Vertex, position);
 
-    let mut vb = glium::VertexBuffer::dynamic(&display,
+    let mut vb = glium::VertexBuffer::dynamic(
+        &display,
         &[
-            Vertex { position: [-1.0,  1.0] },
-            Vertex { position: [ 1.0,  1.0] },
-            Vertex { position: [-1.0, -1.0] },
-            Vertex { position: [ 1.0, -1.0] },
-        ]
-    ).unwrap();
+            Vertex {
+                position: [-1.0, 1.0],
+            },
+            Vertex {
+                position: [1.0, 1.0],
+            },
+            Vertex {
+                position: [-1.0, -1.0],
+            },
+            Vertex {
+                position: [1.0, -1.0],
+            },
+        ],
+    )
+    .unwrap();
 
     let program = program!(&display,
         140 => {
@@ -901,7 +1100,8 @@ fn dynamic_mapping_forget_then_draw() {
                 }
             ",
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     {
         let mapping = vb.map();
@@ -910,8 +1110,16 @@ fn dynamic_mapping_forget_then_draw() {
 
     let texture = support::build_renderable_texture(&display);
     texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
-    texture.as_surface().draw(&vb, &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
-                              &program, &uniform!{}, &Default::default()).unwrap();
+    texture
+        .as_surface()
+        .draw(
+            &vb,
+            &glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip),
+            &program,
+            &uniform! {},
+            &Default::default(),
+        )
+        .unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
     for pixel in data.iter().flat_map(|e| e.iter()) {
@@ -925,14 +1133,20 @@ fn dynamic_mapping_forget_then_draw() {
 fn copy_to() {
     let display = support::build_display();
 
-    let buf1 = glium::buffer::BufferView::new(&display, &[1, 2, 3],
-                                              glium::buffer::BufferType::ArrayBuffer,
-                                              BufferMode::Persistent);
+    let buf1 = glium::buffer::BufferView::new(
+        &display,
+        &[1, 2, 3],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Persistent,
+    );
     let buf1 = if let Ok(buf) = buf1 { buf } else { return };
 
-    let buf2 = glium::buffer::BufferView::new(&display, &[0, 0, 0],
-                                              glium::buffer::BufferType::ArrayBuffer,
-                                              BufferMode::Persistent);
+    let buf2 = glium::buffer::BufferView::new(
+        &display,
+        &[0, 0, 0],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Persistent,
+    );
     let buf2 = if let Ok(buf) = buf2 { buf } else { return };
 
     if buf1.copy_to(buf2.as_slice()).is_err() {
@@ -941,7 +1155,7 @@ fn copy_to() {
 
     let result = match buf2.read() {
         Ok(r) => r,
-        Err(_) => return
+        Err(_) => return,
     };
 
     assert_eq!(result, [1, 2, 3]);
@@ -953,23 +1167,29 @@ fn copy_to() {
 fn copy_to_slice() {
     let display = support::build_display();
 
-    let buf1 = glium::buffer::BufferView::<[u8]>::new(&display, &[1, 2],
-                                                      glium::buffer::BufferType::ArrayBuffer,
-                                                      BufferMode::Persistent);
+    let buf1 = glium::buffer::BufferView::<[u8]>::new(
+        &display,
+        &[1, 2],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Persistent,
+    );
     let buf1 = if let Ok(buf) = buf1 { buf } else { return };
 
-    let buf2 = glium::buffer::BufferView::<[u8]>::new(&display, &[0, 0, 0],
-                                                      glium::buffer::BufferType::ArrayBuffer,
-                                                      BufferMode::Persistent);
+    let buf2 = glium::buffer::BufferView::<[u8]>::new(
+        &display,
+        &[0, 0, 0],
+        glium::buffer::BufferType::ArrayBuffer,
+        BufferMode::Persistent,
+    );
     let buf2 = if let Ok(buf) = buf2 { buf } else { return };
 
-    if buf1.copy_to(buf2.slice(1 .. 3).unwrap()).is_err() {
+    if buf1.copy_to(buf2.slice(1..3).unwrap()).is_err() {
         return;
     }
 
     let result = match buf2.read() {
         Ok(r) => r,
-        Err(_) => return
+        Err(_) => return,
     };
 
     assert_eq!(result, [0, 1, 2]);

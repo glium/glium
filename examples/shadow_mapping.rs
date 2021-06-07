@@ -1,11 +1,11 @@
 #[macro_use]
 extern crate glium;
 
+use crate::glutin::dpi::LogicalSize;
 use cgmath::SquareMatrix;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
 use std::time::Instant;
-use crate::glutin::dpi::LogicalSize;
 
 fn main() {
     let win_size = LogicalSize {
@@ -25,10 +25,18 @@ fn main() {
     // Create the boxes to render in the scene
     let (model_vertex_buffer, model_index_buffer) = create_box(&display);
     let mut model_data = [
-        ModelData::color([0.4, 0.4, 0.4]).translate([0.0, -2.5, 0.0]).scale(5.0),
-        ModelData::color([0.6, 0.1, 0.1]).translate([0.0, 0.252, 0.0]).scale(0.5),
-        ModelData::color([0.1, 0.6, 0.1]).translate([0.9, 0.5, 0.1]).scale(0.5),
-        ModelData::color([0.1, 0.1, 0.6]).translate([-0.8, 0.75, 0.1]).scale(0.5),
+        ModelData::color([0.4, 0.4, 0.4])
+            .translate([0.0, -2.5, 0.0])
+            .scale(5.0),
+        ModelData::color([0.6, 0.1, 0.1])
+            .translate([0.0, 0.252, 0.0])
+            .scale(0.5),
+        ModelData::color([0.1, 0.6, 0.1])
+            .translate([0.9, 0.5, 0.1])
+            .scale(0.5),
+        ModelData::color([0.1, 0.1, 0.6])
+            .translate([-0.8, 0.75, 0.1])
+            .scale(0.5),
     ];
 
     let shadow_map_shaders = glium::Program::from_source(
@@ -50,7 +58,9 @@ fn main() {
                 fragmentdepth = gl_FragCoord.z;
             }
         ",
-        None).unwrap();
+        None,
+    )
+    .unwrap();
 
     let render_shaders = glium::Program::from_source(
         &display,
@@ -110,12 +120,14 @@ fn main() {
             DebugVertex::new([1.0, -0.25], [1.0, 1.0]),
             DebugVertex::new([1.0, -1.0], [1.0, 0.0]),
         ],
-    ).unwrap();
+    )
+    .unwrap();
     let debug_index_buffer = glium::IndexBuffer::new(
         &display,
         glium::index::PrimitiveType::TrianglesList,
         &[0u16, 1, 2, 0, 2, 3],
-    ).unwrap();
+    )
+    .unwrap();
     let debug_shadow_map_shaders = glium::Program::from_source(
         &display,
         // Vertex Shader
@@ -139,9 +151,12 @@ fn main() {
 				f_color = vec4(texture(tex, v_tex_coords).rgb, 1.0);
 			}
         ",
-        None).unwrap();
+        None,
+    )
+    .unwrap();
 
-    let shadow_texture = glium::texture::DepthTexture2d::empty(&display, shadow_map_size, shadow_map_size).unwrap();
+    let shadow_texture =
+        glium::texture::DepthTexture2d::empty(&display, shadow_map_size, shadow_map_size).unwrap();
 
     let mut start = Instant::now();
 
@@ -322,38 +337,114 @@ fn main() {
 }
 
 fn create_box(display: &glium::Display) -> (glium::VertexBuffer<Vertex>, glium::IndexBuffer<u16>) {
-    let box_vertex_buffer = glium::VertexBuffer::new(display, &[
-        // Max X
-        Vertex { position: [ 0.5,-0.5,-0.5, 1.0], normal: [ 1.0, 0.0, 0.0, 0.0] },
-        Vertex { position: [ 0.5,-0.5, 0.5, 1.0], normal: [ 1.0, 0.0, 0.0, 0.0] },
-        Vertex { position: [ 0.5, 0.5, 0.5, 1.0], normal: [ 1.0, 0.0, 0.0, 0.0] },
-        Vertex { position: [ 0.5, 0.5,-0.5, 1.0], normal: [ 1.0, 0.0, 0.0, 0.0] },
-        // Min X
-        Vertex { position: [-0.5,-0.5,-0.5, 1.0], normal: [-1.0, 0.0, 0.0, 0.0] },
-        Vertex { position: [-0.5, 0.5,-0.5, 1.0], normal: [-1.0, 0.0, 0.0, 0.0] },
-        Vertex { position: [-0.5, 0.5, 0.5, 1.0], normal: [-1.0, 0.0, 0.0, 0.0] },
-        Vertex { position: [-0.5,-0.5, 0.5, 1.0], normal: [-1.0, 0.0, 0.0, 0.0] },
-        // Max Y
-        Vertex { position: [-0.5, 0.5,-0.5, 1.0], normal: [ 0.0, 1.0, 0.0, 0.0] },
-        Vertex { position: [ 0.5, 0.5,-0.5, 1.0], normal: [ 0.0, 1.0, 0.0, 0.0] },
-        Vertex { position: [ 0.5, 0.5, 0.5, 1.0], normal: [ 0.0, 1.0, 0.0, 0.0] },
-        Vertex { position: [-0.5, 0.5, 0.5, 1.0], normal: [ 0.0, 1.0, 0.0, 0.0] },
-        // Min Y
-        Vertex { position: [-0.5,-0.5,-0.5, 1.0], normal: [ 0.0,-1.0, 0.0, 0.0] },
-        Vertex { position: [-0.5,-0.5, 0.5, 1.0], normal: [ 0.0,-1.0, 0.0, 0.0] },
-        Vertex { position: [ 0.5,-0.5, 0.5, 1.0], normal: [ 0.0,-1.0, 0.0, 0.0] },
-        Vertex { position: [ 0.5,-0.5,-0.5, 1.0], normal: [ 0.0,-1.0, 0.0, 0.0] },
-        // Max Z
-        Vertex { position: [-0.5,-0.5, 0.5, 1.0], normal: [ 0.0, 0.0, 1.0, 0.0] },
-        Vertex { position: [-0.5, 0.5, 0.5, 1.0], normal: [ 0.0, 0.0, 1.0, 0.0] },
-        Vertex { position: [ 0.5, 0.5, 0.5, 1.0], normal: [ 0.0, 0.0, 1.0, 0.0] },
-        Vertex { position: [ 0.5,-0.5, 0.5, 1.0], normal: [ 0.0, 0.0, 1.0, 0.0] },
-        // Min Z
-        Vertex { position: [-0.5,-0.5,-0.5, 1.0], normal: [ 0.0, 0.0,-1.0, 0.0] },
-        Vertex { position: [ 0.5,-0.5,-0.5, 1.0], normal: [ 0.0, 0.0,-1.0, 0.0] },
-        Vertex { position: [ 0.5, 0.5,-0.5, 1.0], normal: [ 0.0, 0.0,-1.0, 0.0] },
-        Vertex { position: [-0.5, 0.5,-0.5, 1.0], normal: [ 0.0, 0.0,-1.0, 0.0] },
-        ]).unwrap();
+    let box_vertex_buffer = glium::VertexBuffer::new(
+        display,
+        &[
+            // Max X
+            Vertex {
+                position: [0.5, -0.5, -0.5, 1.0],
+                normal: [1.0, 0.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, -0.5, 0.5, 1.0],
+                normal: [1.0, 0.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.5, 0.5, 1.0],
+                normal: [1.0, 0.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.5, -0.5, 1.0],
+                normal: [1.0, 0.0, 0.0, 0.0],
+            },
+            // Min X
+            Vertex {
+                position: [-0.5, -0.5, -0.5, 1.0],
+                normal: [-1.0, 0.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.5, -0.5, 1.0],
+                normal: [-1.0, 0.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.5, 0.5, 1.0],
+                normal: [-1.0, 0.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, -0.5, 0.5, 1.0],
+                normal: [-1.0, 0.0, 0.0, 0.0],
+            },
+            // Max Y
+            Vertex {
+                position: [-0.5, 0.5, -0.5, 1.0],
+                normal: [0.0, 1.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.5, -0.5, 1.0],
+                normal: [0.0, 1.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.5, 0.5, 1.0],
+                normal: [0.0, 1.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.5, 0.5, 1.0],
+                normal: [0.0, 1.0, 0.0, 0.0],
+            },
+            // Min Y
+            Vertex {
+                position: [-0.5, -0.5, -0.5, 1.0],
+                normal: [0.0, -1.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, -0.5, 0.5, 1.0],
+                normal: [0.0, -1.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, -0.5, 0.5, 1.0],
+                normal: [0.0, -1.0, 0.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, -0.5, -0.5, 1.0],
+                normal: [0.0, -1.0, 0.0, 0.0],
+            },
+            // Max Z
+            Vertex {
+                position: [-0.5, -0.5, 0.5, 1.0],
+                normal: [0.0, 0.0, 1.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.5, 0.5, 1.0],
+                normal: [0.0, 0.0, 1.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.5, 0.5, 1.0],
+                normal: [0.0, 0.0, 1.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, -0.5, 0.5, 1.0],
+                normal: [0.0, 0.0, 1.0, 0.0],
+            },
+            // Min Z
+            Vertex {
+                position: [-0.5, -0.5, -0.5, 1.0],
+                normal: [0.0, 0.0, -1.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, -0.5, -0.5, 1.0],
+                normal: [0.0, 0.0, -1.0, 0.0],
+            },
+            Vertex {
+                position: [0.5, 0.5, -0.5, 1.0],
+                normal: [0.0, 0.0, -1.0, 0.0],
+            },
+            Vertex {
+                position: [-0.5, 0.5, -0.5, 1.0],
+                normal: [0.0, 0.0, -1.0, 0.0],
+            },
+        ],
+    )
+    .unwrap();
 
     let mut indexes = Vec::new();
     for face in 0..6u16 {
@@ -364,7 +455,12 @@ fn create_box(display: &glium::Display) -> (glium::VertexBuffer<Vertex>, glium::
         indexes.push(4 * face + 2);
         indexes.push(4 * face + 3);
     }
-    let box_index_buffer = glium::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &indexes).unwrap();
+    let box_index_buffer = glium::IndexBuffer::new(
+        display,
+        glium::index::PrimitiveType::TrianglesList,
+        &indexes,
+    )
+    .unwrap();
     (box_vertex_buffer, box_index_buffer)
 }
 
@@ -402,7 +498,7 @@ impl ModelData {
 #[derive(Clone, Copy, Debug)]
 struct DebugVertex {
     position: [f32; 2],
-	tex_coords: [f32; 2],
+    tex_coords: [f32; 2],
 }
 implement_vertex!(DebugVertex, position, tex_coords);
 impl DebugVertex {

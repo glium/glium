@@ -1,55 +1,71 @@
 //! Items related to creating an OpenGL program.
 
-use std::fmt;
-use std::error::Error;
-use std::sync::Mutex;
 use crate::CapabilitiesSource;
+use std::error::Error;
+use std::fmt;
+use std::sync::Mutex;
 
 use crate::gl;
 use crate::version::Api;
 use crate::version::Version;
 
-pub use self::compute::{ComputeShader, ComputeCommand};
+pub use self::compute::{ComputeCommand, ComputeShader};
 pub use self::program::Program;
-pub use self::reflection::{Uniform, UniformBlock, BlockLayout, OutputPrimitives};
-pub use self::reflection::{Attribute, TransformFeedbackVarying, TransformFeedbackBuffer, TransformFeedbackMode};
+pub use self::reflection::{
+    Attribute, TransformFeedbackBuffer, TransformFeedbackMode, TransformFeedbackVarying,
+};
+pub use self::reflection::{BlockLayout, OutputPrimitives, Uniform, UniformBlock};
 pub use self::reflection::{ShaderStage, SubroutineData, SubroutineUniform};
 
+mod binary_header;
 mod compute;
 mod program;
 mod raw;
 mod reflection;
 mod shader;
 mod uniforms_storage;
-mod binary_header;
 
 /// Returns true if the backend supports geometry shaders.
 #[inline]
-pub fn is_geometry_shader_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_geometry_shader_supported<C: ?Sized>(ctxt: &C) -> bool
+where
+    C: CapabilitiesSource,
+{
     shader::check_shader_type_compatibility(ctxt, gl::GEOMETRY_SHADER)
 }
 
 /// Returns true if the backend supports tessellation shaders.
 #[inline]
-pub fn is_tessellation_shader_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_tessellation_shader_supported<C: ?Sized>(ctxt: &C) -> bool
+where
+    C: CapabilitiesSource,
+{
     shader::check_shader_type_compatibility(ctxt, gl::TESS_CONTROL_SHADER)
 }
 
 /// Returns true if the backend supports creating and retrieving binary format.
 #[inline]
-pub fn is_binary_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
-    ctxt.get_version() >= &Version(Api::Gl, 4, 1) || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
+pub fn is_binary_supported<C: ?Sized>(ctxt: &C) -> bool
+where
+    C: CapabilitiesSource,
+{
+    ctxt.get_version() >= &Version(Api::Gl, 4, 1)
+        || ctxt.get_version() >= &Version(Api::GlEs, 2, 0)
         || ctxt.get_extensions().gl_arb_get_programy_binary
 }
 
 /// Returns true if the backend supports shader subroutines.
 #[inline]
-pub fn is_subroutine_supported<C: ?Sized>(ctxt: &C) -> bool where C: CapabilitiesSource {
+pub fn is_subroutine_supported<C: ?Sized>(ctxt: &C) -> bool
+where
+    C: CapabilitiesSource,
+{
     // WORKAROUND: Windows only; NVIDIA doesn't actually return a valid function pointer for
     //              GetProgramStageiv despite supporting ARB_shader_subroutine; see #1439
     if cfg!(target_os = "windows")
         && ctxt.get_version() <= &Version(Api::Gl, 4, 0)
-        && ctxt.get_capabilities().vendor == "NVIDIA Corporation" {
+        && ctxt.get_capabilities().vendor == "NVIDIA Corporation"
+    {
         return false;
     }
     ctxt.get_version() >= &Version(Api::Gl, 4, 0) || ctxt.get_extensions().gl_arb_shader_subroutine
@@ -100,7 +116,7 @@ impl ShaderType {
             gl::FRAGMENT_SHADER => ShaderType::Fragment,
             gl::TESS_CONTROL_SHADER => ShaderType::TesselationControl,
             gl::TESS_EVALUATION_SHADER => ShaderType::TesselationEvaluation,
-            gl::COMPUTE_SHADER  => ShaderType::Compute,
+            gl::COMPUTE_SHADER => ShaderType::Compute,
             _ => {
                 panic!("Unsupported shader type")
             }
@@ -141,36 +157,29 @@ impl fmt::Display for ProgramCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         use self::ProgramCreationError::*;
         let desc = match *self {
-            CompilationError(_,typ) => {
-                match typ {
-                    ShaderType::Vertex => "Compilation error in vertex shader",
-                    ShaderType::Geometry => "Compilation error in geometry shader",
-                    ShaderType::Fragment => "Compilation error in fragment shader",
-                    ShaderType::TesselationControl => "Compilation error in tesselation control shader",
-                    ShaderType::TesselationEvaluation => "Compilation error in tesselation evaluation shader",
-                    ShaderType::Compute => "Compilation error in compute shader"
+            CompilationError(_, typ) => match typ {
+                ShaderType::Vertex => "Compilation error in vertex shader",
+                ShaderType::Geometry => "Compilation error in geometry shader",
+                ShaderType::Fragment => "Compilation error in fragment shader",
+                ShaderType::TesselationControl => "Compilation error in tesselation control shader",
+                ShaderType::TesselationEvaluation => {
+                    "Compilation error in tesselation evaluation shader"
                 }
+                ShaderType::Compute => "Compilation error in compute shader",
             },
-            LinkingError(_) =>
-                "Error while linking shaders together",
-            ShaderTypeNotSupported =>
-                "One of the request shader type is not supported by the backend",
-            CompilationNotSupported =>
-                "The backend doesn't support shaders compilation",
-            TransformFeedbackNotSupported =>
-                "Transform feedback is not supported by the backend.",
-            PointSizeNotSupported =>
-                "Point size is not supported by the backend.",
-            BinaryHeaderError =>
-                "The glium-specific binary header was not found or is corrupt.",
+            LinkingError(_) => "Error while linking shaders together",
+            ShaderTypeNotSupported => {
+                "One of the request shader type is not supported by the backend"
+            }
+            CompilationNotSupported => "The backend doesn't support shaders compilation",
+            TransformFeedbackNotSupported => "Transform feedback is not supported by the backend.",
+            PointSizeNotSupported => "Point size is not supported by the backend.",
+            BinaryHeaderError => "The glium-specific binary header was not found or is corrupt.",
         };
         match *self {
-            CompilationError(ref s, _) =>
-                write!(fmt, "{}: {}", desc, s),
-            LinkingError(ref s) =>
-                write!(fmt, "{}: {}", desc, s),
-            _ =>
-                write!(fmt, "{}", desc),
+            CompilationError(ref s, _) => write!(fmt, "{}: {}", desc, s),
+            LinkingError(ref s) => write!(fmt, "{}: {}", desc, s),
+            _ => write!(fmt, "{}", desc),
         }
     }
 }
@@ -193,7 +202,9 @@ impl fmt::Display for ProgramChooserCreationError {
         use self::ProgramChooserCreationError::*;
         match *self {
             ProgramCreationError(ref err) => write!(fmt, "{}", err),
-            NoVersion => fmt.write_str("No version of the program has been found for the current OpenGL version."),
+            NoVersion => fmt.write_str(
+                "No version of the program has been found for the current OpenGL version.",
+            ),
         }
     }
 }
@@ -339,13 +350,19 @@ impl<'a> SpirvProgram<'a> {
     }
 
     /// Builder method to set `tessellation_control_shader`.
-    pub fn tessellation_control_shader(mut self, tessellation_control_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+    pub fn tessellation_control_shader(
+        mut self,
+        tessellation_control_shader: Option<SpirvEntryPoint<'a>>,
+    ) -> Self {
         self.tessellation_control_shader = tessellation_control_shader;
         self
     }
 
     /// Builder method to set `tessellation_evaluation_shader`.
-    pub fn tessellation_evaluation_shader(mut self, tessellation_evaluation_shader: Option<SpirvEntryPoint<'a>>) -> Self {
+    pub fn tessellation_evaluation_shader(
+        mut self,
+        tessellation_evaluation_shader: Option<SpirvEntryPoint<'a>>,
+    ) -> Self {
         self.tessellation_evaluation_shader = tessellation_evaluation_shader;
         self
     }
@@ -357,7 +374,10 @@ impl<'a> SpirvProgram<'a> {
     }
 
     /// Builder method to set `transform_feedback_varyings`.
-    pub fn transform_feedback_varyings(mut self, transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>) -> Self {
+    pub fn transform_feedback_varyings(
+        mut self,
+        transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
+    ) -> Self {
         self.transform_feedback_varyings = transform_feedback_varyings;
         self
     }
@@ -406,8 +426,13 @@ pub struct SourceCode<'a> {
 impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
     #[inline]
     fn from(code: SourceCode<'a>) -> ProgramCreationInput<'a> {
-        let SourceCode { vertex_shader, fragment_shader, geometry_shader,
-                         tessellation_control_shader, tessellation_evaluation_shader } = code;
+        let SourceCode {
+            vertex_shader,
+            fragment_shader,
+            geometry_shader,
+            tessellation_control_shader,
+            tessellation_evaluation_shader,
+        } = code;
 
         ProgramCreationInput::SourceCode {
             vertex_shader,

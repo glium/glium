@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate glium;
 
+use crate::glutin::dpi::PhysicalSize;
 #[allow(unused_imports)]
 use glium::glutin;
-use crate::glutin::dpi::PhysicalSize;
 
 fn main() {
     let event_loop = glium::glutin::event_loop::EventLoop::new();
@@ -13,12 +13,12 @@ fn main() {
         height: 600,
     };
     let context = cb.build_headless(&event_loop, size).unwrap();
-    let context = unsafe {
-        context.treat_as_current()
-    };
+    let context = unsafe { context.treat_as_current() };
     let display = glium::backend::glutin::headless::Headless::new(context).unwrap();
 
-    let program = glium::program::ComputeShader::from_source(&display, r#"\
+    let program = glium::program::ComputeShader::from_source(
+        &display,
+        r#"\
 
             #version 430
             layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
@@ -34,7 +34,9 @@ fn main() {
                 values[gl_GlobalInvocationID.x] = pow(val, vec4(power));
             }
 
-        "#).unwrap();
+        "#,
+    )
+    .unwrap();
 
     const NUM_VALUES: usize = 4096;
 
@@ -49,13 +51,18 @@ fn main() {
     implement_uniform_block!(Data, power, values);
 
     let mut buffer: glium::uniforms::UniformBuffer<Data> =
-              glium::uniforms::UniformBuffer::empty(&display).unwrap();
+        glium::uniforms::UniformBuffer::empty(&display).unwrap();
 
     {
         let mut mapping = buffer.map();
         mapping.power = rand::random();
         for val in mapping.values.iter_mut() {
-            *val = [rand::random::<f32>(),rand::random::<f32>(),rand::random::<f32>(),rand::random::<f32>()];
+            *val = [
+                rand::random::<f32>(),
+                rand::random::<f32>(),
+                rand::random::<f32>(),
+                rand::random::<f32>(),
+            ];
         }
     }
 

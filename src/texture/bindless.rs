@@ -58,11 +58,11 @@ the texture.
 
 */
 use crate::texture::any::TextureAny;
-use crate::TextureExt;
 use crate::GlObject;
+use crate::TextureExt;
 
-use crate::ContextExt;
 use crate::gl;
+use crate::ContextExt;
 
 use std::marker::PhantomData;
 use std::ops::{Deref, DerefMut};
@@ -70,10 +70,10 @@ use std::ops::{Deref, DerefMut};
 use crate::program::BlockLayout;
 use crate::uniforms::AsUniformValue;
 use crate::uniforms::LayoutMismatchError;
-use crate::uniforms::UniformBlock;
-use crate::uniforms::UniformValue;
-use crate::uniforms::UniformType;
 use crate::uniforms::SamplerBehavior;
+use crate::uniforms::UniformBlock;
+use crate::uniforms::UniformType;
+use crate::uniforms::UniformValue;
 
 /// A texture that is resident in video memory. This allows you to use bindless textures in your
 /// shaders.
@@ -184,10 +184,12 @@ impl<'a> AsUniformValue for TextureHandle<'a> {
 }
 
 impl<'a> UniformBlock for TextureHandle<'a> {
-    fn matches(layout: &BlockLayout, base_offset: usize)
-               -> Result<(), LayoutMismatchError>
-    {
-        if let BlockLayout::BasicType { ty, offset_in_buffer } = *layout {
+    fn matches(layout: &BlockLayout, base_offset: usize) -> Result<(), LayoutMismatchError> {
+        if let BlockLayout::BasicType {
+            ty,
+            offset_in_buffer,
+        } = *layout
+        {
             // TODO: unfortunately we have no idea what the exact type of this handle is
             //       strong typing should be considered
             //
@@ -235,10 +237,12 @@ impl<'a> UniformBlock for TextureHandle<'a> {
                 UniformType::Sampler2dArrayShadow => (),
                 UniformType::SamplerCubeArrayShadow => (),
 
-                _ => return Err(LayoutMismatchError::TypeMismatch {
-                    expected: ty,
-                    obtained: UniformType::Sampler2d,       // TODO: wrong
-                })
+                _ => {
+                    return Err(LayoutMismatchError::TypeMismatch {
+                        expected: ty,
+                        obtained: UniformType::Sampler2d, // TODO: wrong
+                    });
+                }
             }
 
             if offset_in_buffer != base_offset {
@@ -249,28 +253,25 @@ impl<'a> UniformBlock for TextureHandle<'a> {
             }
 
             Ok(())
-
         } else if let BlockLayout::Struct { members } = layout {
             if members.len() == 1 {
                 <TextureHandle<'_> as UniformBlock>::matches(&members[0].1, base_offset)
-
             } else {
                 Err(LayoutMismatchError::LayoutMismatch {
                     expected: layout.clone(),
                     obtained: BlockLayout::BasicType {
-                        ty: UniformType::Sampler2d,       // TODO: wrong
+                        ty: UniformType::Sampler2d, // TODO: wrong
                         offset_in_buffer: base_offset,
-                    }
+                    },
                 })
             }
-
         } else {
             Err(LayoutMismatchError::LayoutMismatch {
                 expected: layout.clone(),
                 obtained: BlockLayout::BasicType {
-                    ty: UniformType::Sampler2d,       // TODO: wrong
+                    ty: UniformType::Sampler2d, // TODO: wrong
                     offset_in_buffer: base_offset,
-                }
+                },
             })
         }
     }
@@ -278,7 +279,7 @@ impl<'a> UniformBlock for TextureHandle<'a> {
     #[inline]
     fn build_layout(base_offset: usize) -> BlockLayout {
         BlockLayout::BasicType {
-            ty: UniformType::Sampler2d,       // TODO: wrong
+            ty: UniformType::Sampler2d, // TODO: wrong
             offset_in_buffer: base_offset,
         }
     }
@@ -292,8 +293,8 @@ pub struct BindlessTexturesNotSupportedError;
 
 #[cfg(test)]
 mod test {
-    use std::mem;
     use super::TextureHandle;
+    use std::mem;
 
     #[test]
     fn texture_handle_size() {
