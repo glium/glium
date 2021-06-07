@@ -632,23 +632,25 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext<'_>, backface_culling: B
 
 fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext<'_>, clip_planes_bitmask: u32)
                             -> Result<(), DrawError> {
+    // Not supported on GLES
+    if !(ctxt.version >= &Version(Api::Gl, 1, 0)) {
+        return Ok(());
+    }
     unsafe {
         let mut max_clip_planes: gl::types::GLint = 0;
-        if ctxt.version >= &Version(Api::Gl, 1, 0) {
-            ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
-            for i in 0..32 {
-                if clip_planes_bitmask & (1 << i) != ctxt.state.enabled_clip_planes & (1 << i) {
-                    if clip_planes_bitmask & (1 << i) != 0 {
-                        if i < max_clip_planes {
-                            ctxt.gl.Enable(gl::CLIP_DISTANCE0 + i as u32);
-                            ctxt.state.enabled_clip_planes |= 1 << i;
-                        } else {
-                            return Err(DrawError::ClipPlaneIndexOutOfBounds);
-                        }
-                    } else if i < max_clip_planes {
-                        ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
-                        ctxt.state.enabled_clip_planes &= !(1 << i);
+        ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
+        for i in 0..32 {
+            if clip_planes_bitmask & (1 << i) != ctxt.state.enabled_clip_planes & (1 << i) {
+                if clip_planes_bitmask & (1 << i) != 0 {
+                    if i < max_clip_planes {
+                        ctxt.gl.Enable(gl::CLIP_DISTANCE0 + i as u32);
+                        ctxt.state.enabled_clip_planes |= 1 << i;
+                    } else {
+                        return Err(DrawError::ClipPlaneIndexOutOfBounds);
                     }
+                } else if i < max_clip_planes {
+                    ctxt.gl.Disable(gl::CLIP_DISTANCE0 + i as u32);
+                    ctxt.state.enabled_clip_planes &= !(1 << i);
                 }
             }
         }
