@@ -632,6 +632,10 @@ fn sync_polygon_mode(ctxt: &mut context::CommandContext<'_>, backface_culling: B
 
 fn sync_clip_planes_bitmask(ctxt: &mut context::CommandContext<'_>, clip_planes_bitmask: u32)
                             -> Result<(), DrawError> {
+    // Not supported on GLES
+    if !(ctxt.version >= &Version(Api::Gl, 1, 0)) {
+        return Ok(());
+    }
     unsafe {
         let mut max_clip_planes: gl::types::GLint = 0;
         ctxt.gl.GetIntegerv(gl::MAX_CLIP_DISTANCES, &mut max_clip_planes);
