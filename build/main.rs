@@ -1,4 +1,4 @@
-use gl_generator::{Registry, Api, Profile, Fallbacks};
+use gl_generator::{Api, Fallbacks, Profile, Registry};
 use std::env;
 use std::fs::File;
 use std::io::Write;
@@ -17,7 +17,10 @@ fn main() {
     generate_gl_bindings(&mut file_output);
 }
 
-fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
+fn generate_gl_bindings<W>(dest: &mut W)
+where
+    W: Write,
+{
     let gl_registry = Registry::new(
         Api::Gl,
         (4, 6),
@@ -56,6 +59,7 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_ARB_texture_multisample",
             "GL_ARB_texture_rg",
             "GL_ARB_texture_rgb10_a2ui",
+            "GL_ARB_texture_storage",
             "GL_ARB_transform_feedback3",
             "GL_ARB_vertex_buffer_object",
             "GL_ARB_vertex_shader",
@@ -63,6 +67,8 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_ATI_meminfo",
             "GL_EXT_debug_marker",
             "GL_EXT_direct_state_access",
+            "GL_EXT_memory_object",
+            "GL_EXT_memory_object_fd",
             "GL_EXT_framebuffer_blit",
             "GL_EXT_framebuffer_multisample",
             "GL_EXT_framebuffer_object",
@@ -70,6 +76,8 @@ fn generate_gl_bindings<W>(dest: &mut W) where W: Write {
             "GL_EXT_gpu_shader4",
             "GL_EXT_packed_depth_stencil",
             "GL_EXT_provoking_vertex",
+            "GL_EXT_semaphore",
+            "GL_EXT_semaphore_fd",
             "GL_EXT_texture_array",
             "GL_EXT_texture_buffer_object",
             "GL_EXT_texture_compression_s3tc",

@@ -1,7 +1,7 @@
-use std::ffi::CStr;
-use crate::version::Version;
-use crate::version::Api;
 use crate::gl;
+use crate::version::Api;
+use crate::version::Version;
+use std::ffi::CStr;
 
 macro_rules! extensions {
     ($($string:expr => $field:ident,)+) => {
@@ -129,6 +129,8 @@ extensions! {
     "GL_EXT_buffer_storage" => gl_ext_buffer_storage,
     "GL_EXT_debug_marker" => gl_ext_debug_marker,
     "GL_EXT_direct_state_access" => gl_ext_direct_state_access,
+    "GL_EXT_memory_object" => gl_ext_memory_object,
+    "GL_EXT_memory_object_fd" => gl_ext_memory_object_fd,
     "GL_EXT_disjoint_timer_query" => gl_ext_disjoint_timer_query,
     "GL_EXT_framebuffer_blit" => gl_ext_framebuffer_blit,
     "GL_EXT_framebuffer_object" => gl_ext_framebuffer_object,
@@ -147,6 +149,8 @@ extensions! {
     "GL_EXT_robustness" => gl_ext_robustness,
     "GL_EXT_sRGB_write_control" => gl_ext_srgb_write_control,
     "GL_EXT_texture3D" => gl_ext_texture3d,
+    "GL_EXT_semaphore" => gl_ext_semaphore,
+    "GL_EXT_semaphore_fd" => gl_ext_semaphore_fd,
     "GL_EXT_texture_array" => gl_ext_texture_array,
     "GL_EXT_texture_buffer" => gl_ext_texture_buffer,
     "GL_EXT_texture_buffer_object" => gl_ext_texture_buffer_object,
