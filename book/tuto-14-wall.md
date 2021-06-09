@@ -187,7 +187,7 @@ Thanks to this we can calculate the *real* normal, in other words the normal of 
 at the given pixel:
 
 ```glsl
-mat3 tbn = cotangent_frame(v_normal, v_position, v_tex_coords);
+mat3 tbn = cotangent_frame(v_normal, -v_position, v_tex_coords);
 vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
 ```
 
