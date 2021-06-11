@@ -25,7 +25,7 @@ pub struct Semaphore {
 }
 
 impl Semaphore {
-    /// Creates a semaphore imported from a opaque file descriptor.
+    /// Creates a semaphore imported from an opaque file descriptor.
     #[cfg(target_os = "linux")]
     pub unsafe fn new_from_fd<F: Facade + ?Sized>(
         facade: &F,
