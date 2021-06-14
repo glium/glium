@@ -155,6 +155,7 @@ pub mod pixel_buffer;
 pub mod program;
 pub mod uniforms;
 pub mod vertex;
+pub mod semaphore;
 pub mod texture;
 pub mod field;
 
