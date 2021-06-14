@@ -2,6 +2,7 @@
 Contains everything related to external API semaphores.
 */
 #![cfg(feature = "vk_interop")]
+// TODO: Add Windows support via EXT_external_objects_win32
 
 use std::{fs::File, rc::Rc};
 
