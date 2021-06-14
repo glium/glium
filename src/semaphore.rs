@@ -1,8 +1,8 @@
 #![cfg(feature = "vk_interop")]
 
-use std::{fs::File, mem, rc::Rc};
+use std::{fs::File, rc::Rc};
 
-use crate::{Context, ContextExt};
+use crate::{Context, ContextExt, GlObject};
 
 use crate::{backend::Facade, context::CommandContext, gl};
 
@@ -57,7 +57,7 @@ impl Semaphore {
         if ctxt.extensions.gl_ext_semaphore {
             let id = unsafe {
                 let mut id: gl::types::GLuint = 0;
-                ctxt.gl.GenSemaphoresEXT(1, mem::transmute(&mut id));
+                ctxt.gl.GenSemaphoresEXT(1, &mut id as *mut u32);
                 id
             };
 
@@ -102,9 +102,18 @@ impl Semaphore {
     }
 }
 
+impl GlObject for Semaphore {
+    type Id = gl::types::GLuint;
+
+    #[inline]
+    fn get_id(&self) -> gl::types::GLuint {
+        self.id
+    }
+}
+
 impl Drop for Semaphore {
     fn drop(&mut self) {
         let ctxt = self.context.get_context().make_current();
-        unsafe { ctxt.gl.DeleteSemaphoresEXT(1, mem::transmute(&self.id)) };
+        unsafe { ctxt.gl.DeleteSemaphoresEXT(1, &mut self.id as *mut u32) };
     }
 }
