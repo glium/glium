@@ -141,30 +141,28 @@ impl Semaphore {
     {
         let ctxt = self.context.get_context().make_current();
 
-        let (buffer_ids, buffer_num, _) = match buffers {
-            Some(buffs) => {
-                let ids = buffs.iter().map(|b| b.get_id()).collect::<Vec<_>>();
-                (ids.as_ptr(), buffs.len(), Some(ids))
-            }
-            None => (std::ptr::null(), 0, None),
+        let (buffer_ids, buffer_num, _) = if let Some(buffs) = buffers {
+            let ids = buffs.iter().map(|b| b.get_id()).collect::<Vec<_>>();
+            (ids.as_ptr(), buffs.len(), Some(ids))
+        } else {
+            (std::ptr::null(), 0, None)
         };
 
-        let (texture_ids, texture_layouts, textures_num, _, _) = match textures {
-            Some(textures) => {
-                let ids = textures.iter().map(|t| t.0.get_id()).collect::<Vec<_>>();
-                let layouts = textures
-                    .iter()
-                    .map(|t| t.1.into())
-                    .collect::<Vec<gl::types::GLenum>>();
-                (
-                    ids.as_ptr(),
-                    layouts.as_ptr(),
-                    textures.len(),
-                    Some(ids),
-                    Some(layouts),
-                )
-            }
-            None => (std::ptr::null(), std::ptr::null(), 0, None, None),
+        let (texture_ids, texture_layouts, textures_num, _, _) = if let Some(textures) = textures {
+            let ids = textures.iter().map(|t| t.0.get_id()).collect::<Vec<_>>();
+            let layouts = textures
+                .iter()
+                .map(|t| t.1.into())
+                .collect::<Vec<gl::types::GLenum>>();
+            (
+                ids.as_ptr(),
+                layouts.as_ptr(),
+                textures.len(),
+                Some(ids),
+                Some(layouts),
+            )
+        } else {
+            (std::ptr::null(), std::ptr::null(), 0, None, None)
         };
 
         unsafe {
@@ -195,33 +193,32 @@ impl Semaphore {
     ) where
         T: Content,
     {
-        let (buffer_ids, buffer_num, _) = match buffers {
-            Some(buffs) => {
-                let ids = buffs.iter().map(|b| b.get_id()).collect::<Vec<_>>();
-                (ids.as_ptr(), buffs.len(), Some(ids))
-            }
-            None => (std::ptr::null(), 0, None),
-        };
-
-        let (texture_ids, texture_layouts, textures_num, _, _) = match textures {
-            Some(textures) => {
-                let ids = textures.iter().map(|t| t.0.get_id()).collect::<Vec<_>>();
-                let layouts = textures
-                    .iter()
-                    .map(|t| t.1.into())
-                    .collect::<Vec<gl::types::GLenum>>();
-                (
-                    ids.as_ptr(),
-                    layouts.as_ptr(),
-                    textures.len(),
-                    Some(ids),
-                    Some(layouts),
-                )
-            }
-            None => (std::ptr::null(), std::ptr::null(), 0, None, None),
-        };
-
         let ctxt = self.context.get_context().make_current();
+
+        let (buffer_ids, buffer_num, _) = if let Some(buffs) = buffers {
+            let ids = buffs.iter().map(|b| b.get_id()).collect::<Vec<_>>();
+            (ids.as_ptr(), buffs.len(), Some(ids))
+        } else {
+            (std::ptr::null(), 0, None)
+        };
+
+        let (texture_ids, texture_layouts, textures_num, _, _) = if let Some(textures) = textures {
+            let ids = textures.iter().map(|t| t.0.get_id()).collect::<Vec<_>>();
+            let layouts = textures
+                .iter()
+                .map(|t| t.1.into())
+                .collect::<Vec<gl::types::GLenum>>();
+            (
+                ids.as_ptr(),
+                layouts.as_ptr(),
+                textures.len(),
+                Some(ids),
+                Some(layouts),
+            )
+        } else {
+            (std::ptr::null(), std::ptr::null(), 0, None, None)
+        };
+
         unsafe {
             ctxt.gl.SignalSemaphoreEXT(
                 self.id,
