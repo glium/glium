@@ -1,3 +1,6 @@
+/*!
+Contains everything related to external API semaphores.
+*/
 #![cfg(feature = "vk_interop")]
 
 use std::{fs::File, rc::Rc};
