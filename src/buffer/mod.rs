@@ -82,7 +82,8 @@ pub unsafe trait Content {
     type Owned;
 
     /// Prepares an output buffer, then turns this buffer into an `Owned`.
-    fn read<F, E>(size: usize, _: F) -> Result<Self::Owned, E>
+    /// User-provided closure `F` must only write to and not read from `&mut Self`.
+    unsafe fn read<F, E>(size: usize, _: F) -> Result<Self::Owned, E>
                   where F: FnOnce(&mut Self) -> Result<(), E>;
 
     /// Returns the size of each element.
@@ -102,13 +103,13 @@ unsafe impl<T> Content for T where T: Copy {
     type Owned = T;
 
     #[inline]
-    fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
+    unsafe fn read<F, E>(size: usize, f: F) -> Result<T, E> where F: FnOnce(&mut T) -> Result<(), E> {
         assert!(size == mem::size_of::<T>());
         // Note(Lokathor): This is brittle and dangerous if `T` isn't a type
         // that can be zeroed. However, it's a breaking change to adjust the API
         // here (eg: extra trait bound or something) so someone with more
         // authority than me needs to look at and fix this.
-        let mut value = unsafe { mem::zeroed() };
+        let mut value = mem::zeroed();
         f(&mut value)?;
         Ok(value)
     }
@@ -142,13 +143,13 @@ unsafe impl<T> Content for [T] where T: Copy {
     type Owned = Vec<T>;
 
     #[inline]
-    fn read<F, E>(size: usize, f: F) -> Result<Vec<T>, E>
+    unsafe fn read<F, E>(size: usize, f: F) -> Result<Vec<T>, E>
                   where F: FnOnce(&mut [T]) -> Result<(), E>
     {
         assert!(size % mem::size_of::<T>() == 0);
         let len = size / mem::size_of::<T>();
         let mut value = Vec::with_capacity(len);
-        unsafe { value.set_len(len) };
+        value.set_len(len);
         f(&mut value)?;
         Ok(value)
     }
