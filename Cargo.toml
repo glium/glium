@@ -23,7 +23,7 @@ repository = "https://github.com/glium/glium"
 readme = "README.md"
 license = "Apache-2.0"
 build = "build/main.rs"
-exclude = ["doc", ".travis.yml", "circle.yml"]
+exclude = ["doc"]
 edition = "2018"
 
 [features]
