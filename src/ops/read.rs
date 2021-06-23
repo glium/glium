@@ -288,6 +288,7 @@ fn client_format_to_gl_enum(format: &ClientFormat, integer: bool)
         ClientFormat::U5U6U5 => (gl::RGB, gl::UNSIGNED_SHORT_5_6_5),
         ClientFormat::U4U4U4U4 => (gl::RGBA, gl::UNSIGNED_SHORT_4_4_4_4),
         ClientFormat::U5U5U5U1 => (gl::RGBA, gl::UNSIGNED_SHORT_5_5_5_1),
+        ClientFormat::U1U5U5U5Reversed => (gl::RGBA, gl::UNSIGNED_SHORT_1_5_5_5_REV),
         ClientFormat::U10U10U10U2 => (gl::RGBA, gl::UNSIGNED_INT_10_10_10_2),
         ClientFormat::F16 => (gl::RED, gl::HALF_FLOAT),
         ClientFormat::F16F16 => (gl::RG, gl::HALF_FLOAT),
