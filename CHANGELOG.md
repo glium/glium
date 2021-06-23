@@ -1,5 +1,14 @@
 # Change Log
 
+## Version 0.30.0 (2021-06-23)
+
+- Updated glutin to version 0.30.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0270-2021-06-01)
+- Replaced unmaintained `rental` with `ouroboros`.
+- Allow instancing on GLES3 or later.
+- Support for importing and using Vulkan semaphores.
+- Made `Content::read` an unsafe API.
+- Modernized and fixed the third chapter of the tutorial.
+
 ## Version 0.29.1 (2021-04-22)
 
 - Updated rand to 0.8.
