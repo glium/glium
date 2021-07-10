@@ -19,7 +19,7 @@ pub struct Dt {
 
 #[self_referencing]
 struct Data {
-    dt: Box<Dt>,
+    dt: Dt,
     #[borrows(dt)]
     #[covariant]
     buffs: (glium::framebuffer::MultiOutputFrameBuffer<'this>, glium::framebuffer::SimpleFrameBuffer<'this>, &'this Dt),
@@ -284,11 +284,11 @@ fn main() {
     let light_texture = glium::texture::Texture2d::empty_with_format(&display, glium::texture::UncompressedFloatFormat::F32F32F32F32, glium::texture::MipmapsOption::NoMipmap, 800, 500).unwrap();
 
     let mut tenants = DataBuilder {
-        dt: Box::new(Dt {
+        dt: Dt {
             depthtexture,
             textures: [texture1, texture2, texture3, texture4],
             light_texture,
-        }),
+        },
         buffs_builder: |dt| {
             let output = [("output1", &dt.textures[0]), ("output2", &dt.textures[1]), ("output3", &dt.textures[2]), ("output4", &dt.textures[3])];
             let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::with_depth_buffer(&display, output.iter().cloned(), &dt.depthtexture).unwrap();
