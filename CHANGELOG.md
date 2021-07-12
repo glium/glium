@@ -1,8 +1,13 @@
-# Change Log
+# Changelog
+
+## Version 0.30.1 (2021-07-12)
+
+- Added `ClientFormat::U1U5U5U5Reversed`.
+- Updated `ouroboros` to 0.10.
 
 ## Version 0.30.0 (2021-06-23)
 
-- Updated glutin to version 0.30.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0270-2021-06-01)
+- Updated glutin to version 0.30.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0270-2021-06-01).
 - Replaced unmaintained `rental` with `ouroboros`.
 - Allow instancing on GLES3 or later.
 - Support for importing and using Vulkan semaphores.
