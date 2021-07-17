@@ -204,7 +204,7 @@ macro_rules! implement_buffer_content {
                 type Owned = Box<$struct_name<$($gs)*>>;
 
                 #[inline]
-                fn read<F, E>(size: usize, f: F) -> ::std::result::Result<Box<$struct_name<$($gs)*>>, E>
+                unsafe fn read<F, E>(size: usize, f: F) -> ::std::result::Result<Box<$struct_name<$($gs)*>>, E>
                               where F: FnOnce(&mut $struct_name<$($gs)*>) -> ::std::result::Result<(), E>
                 {
                     use std::mem;
@@ -224,7 +224,14 @@ macro_rules! implement_buffer_content {
                 fn get_elements_size() -> usize {
                     use std::mem;
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
+                    // We don't really care what address fake_ptr points to. But it must
+                    // not point to 0, because this will trigger bad code generation in LLVM.
+                    // Choose 0x1000 since this is likely to be correctly aligned for any value.
+                    // Creating invalid references out of thin air like this is probably UB, so there
+                    // is no guarantee that this will continue working.
+                    // Using std::mem::align_of<$struct_name> does not work since it doesn't work
+                    // with DSTs.
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0x1000, 0usize)) };
                     mem::size_of_val(fake_ptr)
                 }
 
@@ -239,10 +246,17 @@ macro_rules! implement_buffer_content {
                 fn ref_from_ptr(ptr: *mut (), size: usize) -> Option<*mut $struct_name<$($gs)*>> {
                     use std::mem;
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
+                    // We don't really care what address fake_ptr points to. But it must
+                    // not point to 0, because this will trigger bad code generation in LLVM.
+                    // Choose 0x1000 since this is likely to be correctly aligned for any value.
+                    // Creating invalid references out of thin air like this is probably UB, so there
+                    // is no guarantee that this will continue working.
+                    // Using std::mem::align_of<$struct_name> does not work since it doesn't work
+                    // with DSTs.
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0x1000, 0usize)) };
                     let min_size = mem::size_of_val(fake_ptr);
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0x1000, 1usize)) };
                     let step = mem::size_of_val(fake_ptr) - min_size;
 
                     if size < min_size {
@@ -261,10 +275,17 @@ macro_rules! implement_buffer_content {
                 fn is_size_suitable(size: usize) -> bool {
                     use std::mem;
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
+                    // We don't really care what address fake_ptr points to. But it must
+                    // not point to 0, because this will trigger bad code generation in LLVM.
+                    // Choose 0x1000 since this is likely to be correctly aligned for any value.
+                    // Creating invalid references out of thin air like this is probably UB, so there
+                    // is no guarantee that this will continue working.
+                    // Using std::mem::align_of<$struct_name> does not work since it doesn't work
+                    // with DSTs.
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0x1000, 0usize)) };
                     let min_size = mem::size_of_val(fake_ptr);
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
+                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0x1000, 1usize)) };
                     let step = mem::size_of_val(fake_ptr) - min_size;
 
                     size > min_size && (size - min_size) % step == 0
