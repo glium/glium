@@ -180,6 +180,17 @@ macro_rules! implement_vertex {
 ///
 /// **Only use this macro on structs.** Using it with anything else will result in a segfault.
 ///
+/// Unfortunately this macro only works on nightly rust. Previously, it was available even on
+/// stable, but the way it was implemented caused undefined behavior and possible miscompiles
+/// on more recent rustc-versions.
+///
+/// To use this macro, you  must place the following at your crate root:
+///
+/// ```
+/// #![feature(layout_for_ptr)]
+/// #![feature(ptr_metadata)]
+/// ```
+///
 /// ## Example
 ///
 /// ```
@@ -204,7 +215,7 @@ macro_rules! implement_buffer_content {
                 type Owned = Box<$struct_name<$($gs)*>>;
 
                 #[inline]
-                fn read<F, E>(size: usize, f: F) -> ::std::result::Result<Box<$struct_name<$($gs)*>>, E>
+                unsafe fn read<F, E>(size: usize, f: F) -> ::std::result::Result<Box<$struct_name<$($gs)*>>, E>
                               where F: FnOnce(&mut $struct_name<$($gs)*>) -> ::std::result::Result<(), E>
                 {
                     use std::mem;
@@ -224,8 +235,9 @@ macro_rules! implement_buffer_content {
                 fn get_elements_size() -> usize {
                     use std::mem;
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
-                    mem::size_of_val(fake_ptr)
+                    let fake_ptr: *const $struct_name = std::ptr::from_raw_parts::<$struct_name>(std::ptr::null(), 0);
+                    // Safety: The metadata-part must be an initialized integer. It is a literal 0.
+                    unsafe { mem::size_of_val_raw(fake_ptr) }
                 }
 
                 #[inline]
@@ -239,11 +251,13 @@ macro_rules! implement_buffer_content {
                 fn ref_from_ptr(ptr: *mut (), size: usize) -> Option<*mut $struct_name<$($gs)*>> {
                     use std::mem;
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
-                    let min_size = mem::size_of_val(fake_ptr);
+                    let fake_ptr: *const $struct_name = std::ptr::from_raw_parts::<$struct_name>(std::ptr::null(), 0);
+                    // Safety: The metadata-part must be an initialized integer. It is a literal 0.
+                    let min_size = unsafe { mem::size_of_val_raw(fake_ptr) };
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
-                    let step = mem::size_of_val(fake_ptr) - min_size;
+                    let fake_ptr: *const $struct_name = std::ptr::from_raw_parts::<$struct_name>(std::ptr::null(), 1);
+                    // Safety: The metadata-part must be an initialized integer. It is a literal 1.
+                    let step = unsafe { mem::size_of_val_raw(fake_ptr) - min_size };
 
                     if size < min_size {
                         return None;
@@ -261,11 +275,13 @@ macro_rules! implement_buffer_content {
                 fn is_size_suitable(size: usize) -> bool {
                     use std::mem;
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 0usize)) };
-                    let min_size = mem::size_of_val(fake_ptr);
+                    let fake_ptr: *const $struct_name = std::ptr::from_raw_parts::<$struct_name>(std::ptr::null(), 0);
+                    // Safety: The metadata-part must be an initialized integer. It is a literal 0.
+                    let min_size = unsafe { mem::size_of_val_raw(fake_ptr) };
 
-                    let fake_ptr: &$struct_name = unsafe { mem::transmute((0usize, 1usize)) };
-                    let step = mem::size_of_val(fake_ptr) - min_size;
+                    let fake_ptr: *const $struct_name = std::ptr::from_raw_parts::<$struct_name>(std::ptr::null(), 1);
+                    // Safety: The metadata-part must be an initialized integer. It is a literal 1.
+                    let step = unsafe { mem::size_of_val_raw(fake_ptr) - min_size };
 
                     size > min_size && (size - min_size) % step == 0
                 }
