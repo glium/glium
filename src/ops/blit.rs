@@ -15,6 +15,10 @@ pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
             target: Option<&ValidatedAttachments<'_>>, mask: gl::types::GLbitfield,
             src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
 {
+    assert!(
+        (mask & gl::DEPTH_BUFFER_BIT == 0 && mask & gl::STENCIL_BUFFER_BIT == 0) || filter == gl::NEAREST,
+        "Blitting the depth and/or stencil buffer with filter being anything other than GL_NEAREST is an invalid operation."
+    );
     unsafe {
         let mut ctxt = context.make_current();
 

@@ -73,7 +73,7 @@ use crate::texture::TextureAnyImage;
 
 use crate::backend::Facade;
 use crate::context::Context;
-use crate::CapabilitiesSource;
+use crate::{CapabilitiesSource, BlitMask};
 use crate::version::Version;
 use crate::version::Api;
 
@@ -88,7 +88,7 @@ use crate::uniforms;
 use crate::{Program, Surface};
 use crate::DrawError;
 
-use crate::{fbo, gl};
+use crate::fbo;
 
 pub use self::default_fb::{DefaultFramebufferAttachment, DefaultFramebuffer};
 pub use self::render_buffer::{RenderBuffer, RenderBufferAny, DepthRenderBuffer};
@@ -96,6 +96,7 @@ pub use self::render_buffer::{StencilRenderBuffer, DepthStencilRenderBuffer};
 pub use self::render_buffer::CreationError as RenderBufferCreationError;
 pub use crate::fbo::is_dimensions_mismatch_supported;
 pub use crate::fbo::ValidationError;
+use crate::uniforms::MagnifySamplerFilter;
 
 mod default_fb;
 mod render_buffer;
@@ -323,29 +324,21 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
         ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 }
 
@@ -591,29 +584,21 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
         ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 }
 
@@ -760,29 +745,30 @@ impl Surface for EmptyFrameBuffer {
     }
 
     #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
+    fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                       filter: uniforms::MagnifySamplerFilter, mask: BlitMask)
     {
         ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>,
+    fn blit_buffers_from_simple_framebuffer(&self, source: &SimpleFrameBuffer<'_>,
                                     source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
+                                    filter: uniforms::MagnifySamplerFilter, mask: BlitMask)
     {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
     #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>,
+    fn blit_buffers_from_multioutput_framebuffer(&self, source: &MultiOutputFrameBuffer<'_>,
                                          source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
+                                         filter: uniforms::MagnifySamplerFilter,
+                                         mask: BlitMask)
     {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 }
 

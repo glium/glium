@@ -91,6 +91,16 @@ pub fn build_unicolor_texture2d<F: ?Sized>(facade: &F, red: f32, green: f32, blu
     ]).unwrap()
 }
 
+/// Builds a 2x2 depth texture.
+pub fn build_constant_depth_texture<F>(facade: &F, depth: f32) -> glium::texture::DepthTexture2d
+where F: Facade + ?Sized
+{
+    glium::texture::DepthTexture2d::new(facade, vec![
+        vec![depth, depth],
+        vec![depth, depth],
+    ]).unwrap()
+}
+
 /// Builds a vertex buffer, index buffer, and program, to draw red `(1.0, 0.0, 0.0, 1.0)` to the whole screen.
 pub fn build_fullscreen_red_pipeline<F: ?Sized>(facade: &F) -> (glium::vertex::VertexBufferAny,
     glium::index::IndexBufferAny, glium::Program) where F: Facade
