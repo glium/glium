@@ -2,12 +2,12 @@
 
 What's wrong with the teapot of the previous section?
 
-![The teapot](tuto-08-result.png)
+![The teapot](resources/tuto-08-result.png)
 
 The problem is that faces that are in the back of the model are displayed *above* faces that are
 in the front of the model.
 
-![The problem](tuto-09-problem.png)
+![The problem](resources/tuto-09-problem.png)
 
 This may seem like a stupid problem, but GPUs are nothing more than computers and computers only
 do what you tell them to do.
@@ -99,11 +99,11 @@ process. This structure will be used a lot in the future.
 
 And here is the result:
 
-![Result](tuto-09-result.png)
+![Result](resources/tuto-09-result.png)
 
 If you use an OpenGL debugger, you can see the content of the depth buffer where values are
 represented as shades of gray. Here is our depth buffer after drawing the teapot:
 
-![Depth buffer](tuto-09-depth.png)
+![Depth buffer](resources/tuto-09-depth.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-09.rs).**
