@@ -510,25 +510,39 @@ pub struct BlitMask {
 impl BlitMask {
 
     /// Constructs a bit mask, that will only copy the color buffer
-    pub fn color() -> Self { BlitMask { color: true, depth: false, stencil: false} }
+    pub fn color() -> Self {
+        BlitMask { color: true, depth: false, stencil: false }
+    }
 
     /// Constructs a bit mask, that will only copy the depth buffer
-    pub fn depth() -> Self { BlitMask { color: false, depth: true, stencil: false} }
+    pub fn depth() -> Self {
+        BlitMask { color: false, depth: true, stencil: false }
+    }
 
     /// Constructs a bit mask, that will only copy the stencil buffer
-    pub fn stencil() -> Self { BlitMask { color: false, depth: false, stencil: true} }
+    pub fn stencil() -> Self {
+        BlitMask { color: false, depth: false, stencil: true }
+    }
 
     /// Constructs a bit mask, that will copy the color and the depth buffer.
-    pub fn color_and_depth() -> Self { BlitMask { color: true, depth: true, stencil: false} }
+    pub fn color_and_depth() -> Self {
+        BlitMask { color: true, depth: true, stencil: false }
+    }
 
     /// Constructs a bit mask, that will copy the color and the stencil buffer.
-    pub fn color_and_stencil() -> Self { BlitMask { color: true, depth: false, stencil: true} }
+    pub fn color_and_stencil() -> Self {
+        BlitMask { color: true, depth: false, stencil: true }
+    }
 
     /// Constructs a bit mask, that will copy the depth and the stencil buffer.
-    pub fn depth_and_stencil() -> Self { BlitMask { color: false, depth: true, stencil: true} }
+    pub fn depth_and_stencil() -> Self {
+        BlitMask { color: false, depth: true, stencil: true }
+    }
 
     /// Constructs a bit mask, that will copy the color, depth and stencil buffer.
-    pub fn color_and_depth_and_stencil() -> Self { BlitMask { color: true, depth: true, stencil: true} }
+    pub fn color_and_depth_and_stencil() -> Self {
+        BlitMask { color: true, depth: true, stencil: true }
+    }
 }
 
 impl ToGlEnum for BlitMask {
@@ -876,18 +890,18 @@ pub trait Surface {
                                          filter: uniforms::MagnifySamplerFilter)
     {
         self.blit_buffers_from_multioutput_framebuffer(source, source_rect, target_rect, filter,
-                                                       BlitMask::color() )
+                                                       BlitMask::color())
     }
 
     /// Blits from the default framebuffer.
     fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                                filter: uniforms::MagnifySamplerFilter, mask: BlitMask);
+                               filter: uniforms::MagnifySamplerFilter, mask: BlitMask);
 
     /// Blits from a simple framebuffer.
     fn blit_buffers_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer<'_>,
                                             source_rect: &Rect, target_rect: &BlitTarget,
                                             filter: uniforms::MagnifySamplerFilter,
-                                             mask: BlitMask);
+                                            mask: BlitMask);
 
     /// Blits from a multi-output framebuffer.
     fn blit_buffers_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer<'_>,

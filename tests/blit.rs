@@ -87,10 +87,9 @@ fn blit_color_and_depth_buffer() {
     // check result
     let color_data: Vec<Vec<(u8, u8, u8, u8)>> = dst_tex_color.read();
     assert_eq!(color_data, vec![
-        vec![(0, 127, 255, 255), (0, 127, 255, 255), ],
-        vec![(0, 127, 255, 255), (0, 127, 255, 255), ],
+        vec![(0, 127, 255, 255), (0, 127, 255, 255),],
+        vec![(0, 127, 255, 255), (0, 127, 255, 255),],
     ]);
     // todo: how to check dst_tex_depth? There is no .read() on a DepthTexture2d...
     display.assert_no_error(None);
-
 }
