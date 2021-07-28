@@ -186,6 +186,7 @@ pub use memoffset::offset_of as __glium_offset_of;
 pub use crate::backend::glutin::Display;
 #[cfg(feature = "glutin")]
 pub use crate::backend::glutin::headless::Headless as HeadlessRenderer;
+use crate::uniforms::MagnifySamplerFilter;
 
 /// Trait for objects that describe the capabilities of an OpenGL backend.
 pub trait CapabilitiesSource {
@@ -492,6 +493,75 @@ pub struct BlitTarget {
     pub height: i32,
 }
 
+/// Mask specifying, which kinds of buffers to copy when blitting between two frame buffers.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct BlitMask {
+
+    /// If the color buffer should be copied.
+    pub color: bool,
+
+    /// If the depth buffer should be copied.
+    pub depth: bool,
+
+    /// If the stencil buffer should be copied.
+    pub stencil: bool,
+}
+
+impl BlitMask {
+
+    /// Constructs a bit mask, that will only copy the color buffer
+    pub fn color() -> Self {
+        BlitMask { color: true, depth: false, stencil: false }
+    }
+
+    /// Constructs a bit mask, that will only copy the depth buffer
+    pub fn depth() -> Self {
+        BlitMask { color: false, depth: true, stencil: false }
+    }
+
+    /// Constructs a bit mask, that will only copy the stencil buffer
+    pub fn stencil() -> Self {
+        BlitMask { color: false, depth: false, stencil: true }
+    }
+
+    /// Constructs a bit mask, that will copy the color and the depth buffer.
+    pub fn color_and_depth() -> Self {
+        BlitMask { color: true, depth: true, stencil: false }
+    }
+
+    /// Constructs a bit mask, that will copy the color and the stencil buffer.
+    pub fn color_and_stencil() -> Self {
+        BlitMask { color: true, depth: false, stencil: true }
+    }
+
+    /// Constructs a bit mask, that will copy the depth and the stencil buffer.
+    pub fn depth_and_stencil() -> Self {
+        BlitMask { color: false, depth: true, stencil: true }
+    }
+
+    /// Constructs a bit mask, that will copy the color, depth and stencil buffer.
+    pub fn color_and_depth_and_stencil() -> Self {
+        BlitMask { color: true, depth: true, stencil: true }
+    }
+}
+
+impl ToGlEnum for BlitMask {
+    #[inline]
+    fn to_glenum(&self) -> gl::types::GLenum {
+        let mut mask = 0;
+        if self.color {
+            mask = mask | gl::COLOR_BUFFER_BIT;
+        }
+        if self.depth {
+            mask = mask | gl::DEPTH_BUFFER_BIT;
+        }
+        if self.stencil {
+            mask = mask | gl::STENCIL_BUFFER_BIT;
+        }
+        mask
+    }
+}
+
 /// Object that can be drawn upon.
 ///
 /// # What does the GPU do when you draw?
@@ -796,18 +866,49 @@ pub trait Surface {
         U: uniforms::Uniforms;
 
     /// Blits from the default framebuffer.
+    #[inline]
     fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter);
+                       filter: uniforms::MagnifySamplerFilter)
+    {
+        self.blit_buffers_from_frame(source_rect, target_rect, filter, BlitMask::color())
+    }
 
     /// Blits from a simple framebuffer.
+    #[inline]
     fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer<'_>,
                                     source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter);
+                                    filter: uniforms::MagnifySamplerFilter)
+    {
+        self.blit_buffers_from_simple_framebuffer(source, source_rect, target_rect, filter,
+                                                  BlitMask::color())
+    }
 
     /// Blits from a multi-output framebuffer.
+    #[inline]
     fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer<'_>,
                                          source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter);
+                                         filter: uniforms::MagnifySamplerFilter)
+    {
+        self.blit_buffers_from_multioutput_framebuffer(source, source_rect, target_rect, filter,
+                                                       BlitMask::color())
+    }
+
+    /// Blits from the default framebuffer.
+    fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
+                               filter: uniforms::MagnifySamplerFilter, mask: BlitMask);
+
+    /// Blits from a simple framebuffer.
+    fn blit_buffers_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer<'_>,
+                                            source_rect: &Rect, target_rect: &BlitTarget,
+                                            filter: uniforms::MagnifySamplerFilter,
+                                            mask: BlitMask);
+
+    /// Blits from a multi-output framebuffer.
+    fn blit_buffers_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer<'_>,
+                                                 source_rect: &Rect, target_rect: &BlitTarget,
+                                                 filter: uniforms::MagnifySamplerFilter,
+                                                 mask: BlitMask);
+
 
     /// Copies a rectangle of pixels from this surface to another surface.
     ///
@@ -823,6 +924,7 @@ pub trait Surface {
     /// copies pixels.
     fn blit_color<S>(&self, source_rect: &Rect, target: &S, target_rect: &BlitTarget,
                      filter: uniforms::MagnifySamplerFilter) where S: Surface;
+
 
     /// Copies the entire surface to a target surface. See `blit_color`.
     #[inline]
@@ -1216,30 +1318,26 @@ impl Surface for Frame {
         target.blit_from_frame(source_rect, target_rect, filter)
     }
 
-    #[inline]
-    fn blit_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
-                       filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
         ops::blit(&self.context, None, self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
-    #[inline]
-    fn blit_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer<'_>,
-                                    source_rect: &Rect, target_rect: &BlitTarget,
-                                    filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_simple_framebuffer(&self, source: &framebuffer::SimpleFrameBuffer<'_>,
+                                            source_rect: &Rect, target_rect: &BlitTarget,
+                                            filter: uniforms::MagnifySamplerFilter,
+                                            mask: BlitMask) {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
-    #[inline]
-    fn blit_from_multioutput_framebuffer(&self, source: &framebuffer::MultiOutputFrameBuffer<'_>,
-                                         source_rect: &Rect, target_rect: &BlitTarget,
-                                         filter: uniforms::MagnifySamplerFilter)
-    {
+    fn blit_buffers_from_multioutput_framebuffer(&self,
+                                                 source: &framebuffer::MultiOutputFrameBuffer<'_>,
+                                                 source_rect: &Rect, target_rect: &BlitTarget,
+                                                 filter: uniforms::MagnifySamplerFilter,
+                                                 mask: BlitMask) {
         ops::blit(&self.context, source.get_attachments(), self.get_attachments(),
-                  gl::COLOR_BUFFER_BIT, source_rect, target_rect, filter.to_glenum())
+                  mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 }
 
