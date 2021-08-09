@@ -425,6 +425,13 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                                 }}
                             }}
 
+                            impl AsUniformValue for {myname} {{
+                                #[inline]
+                                fn as_uniform_value(&self) -> UniformValue {{
+                                    UniformValue::{myname}(self, None)
+                                }}
+                            }}
+
                             impl<'a> AsUniformValue for Sampler<'a, {myname}> {{
                                 #[inline]
                                 fn as_uniform_value(&self) -> UniformValue {{
