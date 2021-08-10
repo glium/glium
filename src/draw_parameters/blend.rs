@@ -178,6 +178,22 @@ pub enum LinearBlendingFactor {
     /// Multiply the source or destination component by `1.0` minus the alpha value of
     /// `Blend::const_value`.
     OneMinusConstantAlpha,
+
+    /// Multiply the source or destination component by its corresponding value
+    /// in source index one (you need to explicitly specify `layout(location=0, index=1)`
+    /// to bind it in your shader.
+    /// This is useful in Dual Source Blending
+    /// <https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_blend_func_extended.txt>
+    SourceOneColor,
+
+    /// Equivalent to `1 - SourceOneColor`.
+    OneMinusSourceOneColor,
+
+    /// Multiply the source or destination component by the alpha value of source index 1.
+    SourceOneAlpha,
+
+    /// Multiply the source or destination component by `1.0` minus the alpha value of source index 1.
+    OneMinusSourceOneAlpha,
 }
 
 impl LinearBlendingFactor {
@@ -198,6 +214,11 @@ impl LinearBlendingFactor {
             LinearBlendingFactor::OneMinusConstantColor => gl::ONE_MINUS_CONSTANT_COLOR,
             LinearBlendingFactor::ConstantAlpha => gl::CONSTANT_ALPHA,
             LinearBlendingFactor::OneMinusConstantAlpha => gl::ONE_MINUS_CONSTANT_ALPHA,
+            LinearBlendingFactor::SourceOneColor => gl::SRC1_COLOR,
+            LinearBlendingFactor::OneMinusSourceOneColor => gl::ONE_MINUS_SRC1_COLOR,
+            LinearBlendingFactor::SourceOneAlpha => gl::SRC1_ALPHA,
+            LinearBlendingFactor::OneMinusSourceOneAlpha => gl::ONE_MINUS_SRC1_ALPHA,
+
         }
     }
 }
