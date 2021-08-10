@@ -30,6 +30,7 @@ where
             "GL_AMD_depth_clamp_separate",
             "GL_APPLE_vertex_array_object",
             "GL_ARB_bindless_texture",
+            "GL_ARB_blend_func_extended",
             "GL_ARB_buffer_storage",
             "GL_ARB_compute_shader",
             "GL_ARB_copy_buffer",
