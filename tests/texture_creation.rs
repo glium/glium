@@ -87,6 +87,29 @@ fn texture_2d_creation() {
 }
 
 #[test]
+fn texture_2d_as_uniform_value_lifetime() {
+    let display = support::build_display();
+
+    let texture = glium::texture::Texture2d::new(&display, vec![
+        vec![(0, 0, 0, 0), (0, 0, 0, 0)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0)],
+        vec![(0, 0, 0, 0), (0, 0, 0, 0u8)],
+    ]).unwrap();
+
+    // A function that takes texture reference should be able to return UniformValue (with lifetime
+    // inherited from the reference).
+    fn get_uniforms(texture: &glium::texture::Texture2d) -> glium::uniforms::UniformValue {
+        use glium::uniforms::AsUniformValue;
+        texture.as_uniform_value()
+    }
+
+    let uniforms = get_uniforms(&texture);
+    assert!(matches!(uniforms, glium::uniforms::UniformValue::Texture2d(..)));
+
+    display.assert_no_error(None);
+}
+
+#[test]
 fn empty_texture2d_u8u8u8u8() {
     let display = support::build_display();
 
