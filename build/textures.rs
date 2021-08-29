@@ -197,9 +197,8 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     let data_source_trait = match dimensions {
         TextureDimensions::Texture1d | TextureDimensions::Texture1dArray => "Texture1dDataSource",
         TextureDimensions::Texture2d | TextureDimensions::Texture2dArray => "Texture2dDataSource",
-        TextureDimensions::Texture3d => "Texture3dDataSource",
-        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray |
-        TextureDimensions::Cubemap | TextureDimensions::CubemapArray => {
+        TextureDimensions::Texture3d | TextureDimensions::Cubemap | TextureDimensions::CubemapArray => "Texture3dDataSource",
+        TextureDimensions::Texture2dMultisample | TextureDimensions::Texture2dMultisampleArray => {
             "unreachable"
         },
     };
@@ -646,10 +645,10 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     }
 
     // writing the `new_impl` function
-    if !dimensions.is_multisample() && !dimensions.is_cube() {
+    if !dimensions.is_multisample() {
         let param = match dimensions {
             TextureDimensions::Texture1d | TextureDimensions::Texture2d |
-            TextureDimensions::Texture3d => "T",
+            TextureDimensions::Texture3d | TextureDimensions::Cubemap | TextureDimensions::CubemapArray => "T",
 
             TextureDimensions::Texture1dArray |
             TextureDimensions::Texture2dArray => "Vec<T>",
@@ -687,6 +686,19 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             TextureDimensions::Texture3d => (write!(dest, "
                     let RawImage3d {{ data, width, height, depth, format: client_format }} =
                                             data.into_raw();
+                ")).unwrap(),
+
+            TextureDimensions::Cubemap => (write!(dest, "
+                    let RawImage3d {{ data, width, height, depth, format: client_format }} =
+                                            data.into_raw();
+                    let dimension = width;
+                ")).unwrap(),
+
+            TextureDimensions::CubemapArray => (write!(dest, "
+                    let RawImage3d {{ data, width, height, depth, format: client_format }} =
+                                            data.into_raw();
+                    let dimension = width;
+                    let array_size = depth / 6;
                 ")).unwrap(),
 
             TextureDimensions::Texture1dArray => (write!(dest, "

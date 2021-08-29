@@ -789,6 +789,75 @@ impl<P> Texture3dDataSink<P> for Vec<Vec<Vec<P>>> where P: Copy + Clone {
     }
 }
 
+
+/// wrap RawCubemap in RawImage3d
+pub struct RawCubemap<'a, T: Clone> {
+    data: RawImage3d<'a, T>,
+    dimension: u32,
+}
+
+impl<'a, T: Clone + 'a> RawCubemap<'a, T> {
+    /// transform RawImage3d into RawImage directly
+    pub fn from_texture3d(data: RawImage3d<'a, T>) -> Self {
+        if data.width != data.height { panic!("width does't equal height"); }
+        let dimension = data.width;
+        Self {
+            data,
+            dimension,
+        }
+    }
+
+    /// create Cubemap with 6 RawImage2d
+    pub fn from_texture2d(
+        pos_x: RawImage2d<'a, T>,
+        neg_x: RawImage2d<'a, T>,
+        pos_y: RawImage2d<'a, T>,
+        neg_y: RawImage2d<'a, T>,
+        pos_z: RawImage2d<'a, T>,
+        neg_z: RawImage2d<'a, T>,
+    ) -> Self {
+        let mut arr = Vec::<RawImage2d<'a, T>>::with_capacity(6);
+        let dimension = pos_x.width;
+        arr.push(pos_x);arr.push(neg_x);
+        arr.push(pos_y);arr.push(neg_y);
+        arr.push(pos_z);arr.push(neg_z);
+        arr.iter().for_each(|i| {
+            if i.width != i.height {
+                panic!("width does't equal height");
+            }
+        });
+        arr.iter().zip(arr.iter()).for_each(|(a, b)| {
+            if a.width != b.width { panic!("the size of images for cubemap are different"); }
+        });
+        Self {
+            data: RawImage3d::from_vec_raw2d(&arr),
+            dimension: dimension,
+        }
+    }
+
+    /// get Cubemap layer
+    pub fn get_layer(&self, layer: CubeLayer) -> RawImage2d<'a, T> {
+        let dimension2 = (self.dimension * self.dimension) as usize;
+        let (_, right) = self.data.data.split_at(dimension2 * layer.get_layer_index() + 1);
+        let (raw, _) = right.split_at( dimension2 * (layer.get_layer_index() + 1) + 1 );
+        RawImage2d {
+            data: Cow::Owned(raw.to_vec()),
+            width: self.dimension,
+            height: self.dimension,
+            format: self.data.format,
+        }
+    }
+}
+
+impl<'a, P: PixelValue + Clone> Texture3dDataSource<'a> for RawCubemap<'a, P> {
+    type Data = P;
+
+    #[inline]
+    fn into_raw(self) -> RawImage3d<'a, P> {
+        self.data
+    }
+}
+
 /// Error that can happen when creating a texture.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TextureCreationError {

@@ -88,7 +88,7 @@ fn extract_dimensions(ty: Dimensions)
         Dimensions::Texture2dMultisample { width, height, samples } => (width, Some(height), None, None, Some(samples)),
         Dimensions::Texture2dMultisampleArray { width, height, array_size, samples } => (width, Some(height), None, Some(array_size), Some(samples)),
         Dimensions::Texture3d { width, height, depth } => (width, Some(height), Some(depth), None, None),
-        Dimensions::Cubemap { dimension } => (dimension, Some(dimension), None, None, None),
+        Dimensions::Cubemap { dimension } => (dimension, Some(dimension), None, Some(6), None),
         Dimensions::CubemapArray { dimension, array_size } => (dimension, Some(dimension), None, Some(array_size * 6), None),
     }
 }
@@ -151,7 +151,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
 
     // getting the `GLenum` corresponding to this texture type
     let bind_point = get_bind_point(ty);
-    if bind_point == gl::TEXTURE_CUBE_MAP || bind_point == gl::TEXTURE_CUBE_MAP_ARRAY {
+    if bind_point == gl::TEXTURE_CUBE_MAP_ARRAY {
         assert!(data.is_none());        // TODO: not supported
     }
 
@@ -217,15 +217,27 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
             ctxt.state.texture_units[act].texture = id;
         }
 
-        if !is_multisampled {
-            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
-            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, filtering as i32);
+        match ty {
+            Dimensions::Texture2dMultisample { .. } => (),
+            Dimensions::Texture2dMultisampleArray { .. } => (),
+            Dimensions::Cubemap { .. } | Dimensions::CubemapArray { .. } => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::CLAMP_TO_EDGE as i32);
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, filtering as i32);
+            },
+            _ => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, filtering as i32);
+            }
         }
+
 
         match ty {
             Dimensions::Texture1d { .. } => (),
             Dimensions::Texture2dMultisample { .. } => (),
             Dimensions::Texture2dMultisampleArray { .. } => (),
+            Dimensions::Cubemap { .. } | Dimensions::CubemapArray { .. } => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_T, gl::CLAMP_TO_EDGE as i32);
+            },
             _ => {
                 ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
             },
@@ -235,6 +247,9 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
             Dimensions::Texture1d { .. } => (),
             Dimensions::Texture2d { .. } => (),
             Dimensions::Texture2dMultisample { .. } => (),
+            Dimensions::Cubemap { .. } | Dimensions::CubemapArray { .. } => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_R, gl::CLAMP_TO_EDGE as i32);
+            }
             _ => {
                 ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
             },
@@ -256,7 +271,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
         }
 
         if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY ||
-           bind_point == gl::TEXTURE_CUBE_MAP_ARRAY
+           bind_point == gl::TEXTURE_CUBE_MAP || bind_point == gl::TEXTURE_CUBE_MAP_ARRAY
         {
             let mut data_raw = data_raw;
 
@@ -275,7 +290,23 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
                 a => a
             };
 
-            if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
+            if bind_point == gl::TEXTURE_CUBE_MAP {
+                let mut cube_data_raw = if let Some((_, ref data)) = data {
+                    data.chunks( (width * height) as usize)
+                } else {
+                    unreachable!()
+                };
+                let cube_map_label = [
+                    gl::TEXTURE_CUBE_MAP_POSITIVE_X, gl::TEXTURE_CUBE_MAP_NEGATIVE_X,
+                    gl::TEXTURE_CUBE_MAP_POSITIVE_Y, gl::TEXTURE_CUBE_MAP_NEGATIVE_Y,
+                    gl::TEXTURE_CUBE_MAP_POSITIVE_Z, gl::TEXTURE_CUBE_MAP_NEGATIVE_Z,
+                ];
+                // TODO CubemapArray
+                cube_map_label.iter().for_each(|label| {
+                    ctxt.gl.TexImage2D(*label, 0, teximg_internal_format as i32, width,
+                        height, 0, client_format as u32, client_type, cube_data_raw.next().unwrap().as_ptr() as *const c_void);
+                });
+            } else if storage_internal_format.is_some() && (ctxt.version >= &Version(Api::Gl, 4, 2) || ctxt.extensions.gl_arb_texture_storage) {
                 ctxt.gl.TexStorage3D(bind_point, texture_levels,
                                      storage_internal_format.unwrap() as gl::types::GLenum,
                                      width, height, depth);
@@ -300,8 +331,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
                                    data_raw);
             }
 
-        } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY ||
-                  bind_point == gl::TEXTURE_CUBE_MAP
+        } else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY
         {
             let mut data_raw = data_raw;
 
