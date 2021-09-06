@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.30.2 (2021-09-06)
+
+- Added depth and stencil buffer blitting.
+- Added dual source blending.
+- Implemented AsUniformValue for Texture2d directly.
+
 ## Version 0.30.1 (2021-07-12)
 
 - Added `ClientFormat::U1U5U5U5Reversed`.
