@@ -16,7 +16,7 @@ fn main() {
                             image::ImageFormat::Png).unwrap().to_rgba8();
     let image_dimensions = image.dimensions();
     let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
-    let texture = glium::texture::Texture2d::new(&display, image).unwrap();
+    let texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
 
     #[derive(Copy, Clone)]
     struct Vertex {
