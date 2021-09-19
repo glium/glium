@@ -790,7 +790,7 @@ impl<P> Texture3dDataSink<P> for Vec<Vec<Vec<P>>> where P: Copy + Clone {
 }
 
 
-/// wrap RawCubemap in RawImage3d
+/// Wraps a RawImage3d into a cube map
 pub struct RawCubemap<'a, T: Clone> {
     data: RawImage3d<'a, T>,
     dimension: u32,
