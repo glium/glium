@@ -15,7 +15,7 @@ use crate::{
 use crate::{backend::Facade, context::CommandContext, gl};
 
 /// Describes an error encountered during semaphore creation
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SemaphoreCreationError {
     /// Driver does not support EXT_semaphore
     SemaphoreObjectNotSupported,
@@ -24,6 +24,21 @@ pub enum SemaphoreCreationError {
     /// OpenGL returned a null pointer when creating semaphore
     NullResult,
 }
+
+impl std::fmt::Display for SemaphoreCreationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use self::SemaphoreCreationError::*;
+
+	let desc = match *self {
+	    SemaphoreObjectNotSupported => "Driver does not support EXT_semaphore",
+	    SemaphoreObjectFdNotSupported => "Driver does not support EXT_semaphore_fd",
+	    NullResult => "OpenGL returned a null pointer when creating semaphore",
+	};
+	f.write_str(desc)
+    }
+}
+
+impl std::error::Error for SemaphoreCreationError {}
 
 /// Describes a Vulkan image layout that a texture can be in. See https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkImageLayout.html
 #[derive(Debug, Clone, Copy)]

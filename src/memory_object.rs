@@ -13,6 +13,7 @@ use crate::ContextExt;
 use std::{fs::File, mem, rc::Rc};
 
 /// Describes an error encountered during memory object creation
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum MemoryObjectCreationError {
     /// Driver does not support EXT_memory_object
     MemoryObjectNotSupported,
@@ -21,6 +22,21 @@ pub enum MemoryObjectCreationError {
     /// OpenGL returned a null pointer when creating memory object
     NullResult,
 }
+
+impl std::fmt::Display for MemoryObjectCreationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use self::MemoryObjectCreationError::*;
+
+	let desc = match *self {
+	    MemoryObjectNotSupported => "Driver does not support EXT_memory_object",
+	    MemoryObjectFdNotSupported => "Driver does not support EXT_memory_object_fd",
+	    NullResult => "OpenGL returned a null pointer when creating memory object",
+	};
+	f.write_str(desc)
+    }
+}
+
+impl std::error::Error for MemoryObjectCreationError {}
 
 /// Describes a memory object created by an external API. In OpenGL there is no distinction
 /// between a texture or buffer and its underlying memory. However, in other API's like Vulkan
