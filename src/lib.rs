@@ -151,6 +151,7 @@ pub mod debug;
 pub mod draw_parameters;
 pub mod framebuffer;
 pub mod index;
+pub mod memory_object;
 pub mod pixel_buffer;
 pub mod program;
 pub mod uniforms;
