@@ -86,8 +86,7 @@ impl Into<crate::gl::types::GLenum> for TextureLayout {
 /// Similar to a GL sync object, this describes a semaphore which can be used for OpenGL-Vulkan command queue synchronization.
 pub struct Semaphore {
     context: Rc<Context>,
-    id: gl::types::GLuint,
-    backing_fd: Option<File>,
+    id: gl::types::GLuint,    
 }
 
 impl Semaphore {
@@ -130,7 +129,6 @@ impl Semaphore {
             Ok(Self {
                 context: facade.get_context().clone(),
                 id,
-                backing_fd: None,
             })
         } else {
             Err(SemaphoreCreationError::SemaphoreObjectNotSupported)
