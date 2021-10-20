@@ -1,7 +1,6 @@
 /*!
 Contains everything related to external API semaphores.
 */
-#![cfg(feature = "vk_interop")]
 // TODO: Add Windows support via EXT_external_objects_win32
 
 use std::{fs::File, rc::Rc};
@@ -138,7 +137,7 @@ impl Semaphore {
         }
     }
     /// Same as `wait` but without `buffers` parameter
-    pub fn wait_textures(&self, textures: Option<&[(TextureAny, TextureLayout)]>) {
+    pub fn wait_textures(&self, textures: Option<&[(&TextureAny, TextureLayout)]>) {
         // Don't care about type parameter
         self.wait::<u32>(textures, None)
     }
@@ -147,10 +146,15 @@ impl Semaphore {
     /// After this completes, the semaphore is returned to the unsignalled state.
     /// Once the operation is complete, the memory corresponding to the passed `textures` and `buffers` is made available to OpenGL.
     /// The layouts given with each texture must match the image layout used in Vulkan directly before the semaphore is signalled by it.
+    ///
+    /// # Caution
+    ///
+    /// - You must make sure that a command to signal the semaphore you are waiting on has been flushed to the command queue (Possibly
+    ///   by the external API). Failure to do so may result in segfaults depending on the driver used.
     pub fn wait<T: ?Sized>(
         &self,
-        textures: Option<&[(TextureAny, TextureLayout)]>,
-        buffers: Option<&[Buffer<T>]>,
+        textures: Option<&[(&TextureAny, TextureLayout)]>,
+        buffers: Option<&[&Buffer<T>]>,
     ) where
         T: Content,
     {
@@ -193,7 +197,7 @@ impl Semaphore {
     }
 
     /// Same as `signal`, but without buffers parameter
-    pub fn signal_textures(&self, textures: Option<&[(TextureAny, TextureLayout)]>) {
+    pub fn signal_textures(&self, textures: Option<&[(&TextureAny, TextureLayout)]>) {
         // Don't care about type parameter.
         self.signal::<u32>(textures, None)
     }
@@ -203,8 +207,8 @@ impl Semaphore {
     /// Before signalling the semaphore, the `textures` are transitioned into the layout specified.
     pub fn signal<T: ?Sized>(
         &self,
-        textures: Option<&[(TextureAny, TextureLayout)]>,
-        buffers: Option<&[Buffer<T>]>,
+        textures: Option<&[(&TextureAny, TextureLayout)]>,
+        buffers: Option<&[&Buffer<T>]>,
     ) where
         T: Content,
     {
@@ -242,7 +246,8 @@ impl Semaphore {
                 textures_num as u32,
                 texture_ids,
                 texture_layouts,
-            )
+            );
+	    ctxt.gl.Flush(); // Must flush after signalling semaphore
         }
     }
 }
