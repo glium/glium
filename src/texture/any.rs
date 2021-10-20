@@ -1,7 +1,9 @@
+use crate::ToGlEnum;
 use crate::gl;
 use crate::GlObject;
 
 use crate::backend::Facade;
+use crate::memory_object::MemoryObject;
 use crate::version::Version;
 use crate::context::Context;
 use crate::context::CommandContext;
@@ -40,6 +42,8 @@ use std::ffi::c_void;
 use crate::ops;
 use crate::fbo;
 
+use super::TextureImportError;
+
 /// Type of a texture.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[allow(missing_docs)]      // TODO: document and remove
@@ -74,7 +78,10 @@ pub struct TextureAny {
     generate_mipmaps: bool,
 
     /// Is this texture owned by us? If not, we won't clean it up on drop.
-    owned: bool
+    owned: bool,
+
+    /// If this texture was created in Vulkan for example, it may be backed by external memory.
+    memory: Option<MemoryObject>
 }
 
 fn extract_dimensions(ty: Dimensions)
@@ -451,7 +458,8 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
         ty,
         levels: texture_levels as u32,
         generate_mipmaps: should_generate_mipmaps,
-        owned: true
+        owned: true,
+	memory: None
     })
 }
 
@@ -481,8 +489,133 @@ pub unsafe fn from_id<F: Facade + ?Sized>(facade: &F,
         ty,
         levels: mipmap_levels,
         generate_mipmaps: should_generate_mipmaps,
-        owned
+        owned,
+	memory: None,
     }
+}
+
+/// Builds a new texture reference from an existing texture, externally created by a foreign
+/// API like Vulkan. The texture is imported via an opaque file descriptor.
+#[cfg(target_os = "linux")]
+pub unsafe fn new_from_fd<F: Facade + ?Sized>(facade: &F,
+					      format: TextureFormat,
+					      mipmaps: MipmapsOption,
+					      ty: Dimensions,
+					      params: super::ImportParameters,
+					      fd: std::fs::File) -> Result<TextureAny,TextureImportError> {
+    let memory = MemoryObject::new_from_fd(facade, params.dedicated_memory, fd, params.size)?;
+    
+    let (width, height, depth, array_size, samples) = extract_dimensions(ty);
+    let mipmap_levels = mipmaps.num_levels(width, height, depth);
+						  
+    let should_generate_mipmaps = mipmaps.should_generate();
+    let texture_levels = mipmaps.num_levels(width, height, depth) as gl::types::GLsizei;
+    
+    let bind_point = get_bind_point(ty);
+
+    let storage_internal_format = format.to_glenum();
+
+     let (filtering, mipmap_filtering) = match format {
+        TextureFormat::UncompressedIntegral(_) => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        TextureFormat::UncompressedUnsigned(_) => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        TextureFormat::StencilFormat(_) => (gl::NEAREST, gl::NEAREST_MIPMAP_NEAREST),
+        _ => (gl::LINEAR, gl::LINEAR_MIPMAP_LINEAR),
+     };
+
+    let is_multisampled = matches!(ty, Dimensions::Texture2dMultisample {..}
+				   | Dimensions::Texture2dMultisampleArray {..});
+    
+    let ctxt = facade.get_context().make_current();
+
+    let id = {
+	let has_mipmaps = texture_levels > 1;
+
+	let mut id: gl::types::GLuint = 0;
+        ctxt.gl.GenTextures(1, &mut id as *mut u32);
+	
+	ctxt.gl.BindTexture(bind_point, id);
+	let gl_tiling: crate::gl::types::GLenum = params.tiling.into();
+
+	ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_TILING_EXT, gl_tiling as i32);
+
+	if !is_multisampled {
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_S, gl::REPEAT as i32);
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAG_FILTER, filtering as i32);
+        }
+
+	match ty {
+            Dimensions::Texture1d { .. } => (),
+            Dimensions::Texture2dMultisample { .. } => (),
+            Dimensions::Texture2dMultisampleArray { .. } => (),
+            _ => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_T, gl::REPEAT as i32);
+            },
+        };
+
+        match ty {
+            Dimensions::Texture1d { .. } => (),
+            Dimensions::Texture2d { .. } => (),
+            Dimensions::Texture2dMultisample { .. } => (),
+            _ => {
+                ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_WRAP_R, gl::REPEAT as i32);
+            },
+        };
+
+        if has_mipmaps {
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
+                                  mipmap_filtering as i32);
+        } else if !is_multisampled {
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MIN_FILTER,
+                                  filtering as i32);
+        }
+
+        if !has_mipmaps && (ctxt.version >= &Version(Api::Gl, 1, 2) ||
+                            ctxt.version >= &Version(Api::GlEs, 3, 0))
+        {
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_BASE_LEVEL, 0);
+            ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_MAX_LEVEL, 0);
+        }
+
+	if bind_point == gl::TEXTURE_3D || bind_point == gl::TEXTURE_2D_ARRAY || bind_point == gl::TEXTURE_CUBE_MAP_ARRAY {
+	    ctxt.gl.TexStorageMem3DEXT(bind_point, texture_levels, storage_internal_format,
+				       width as gl::types::GLsizei, height.unwrap() as gl::types::GLsizei,
+				       depth.unwrap() as gl::types::GLsizei, memory.get_id(), params.offset);
+	} else if bind_point == gl::TEXTURE_2D || bind_point == gl::TEXTURE_1D_ARRAY || bind_point == gl::TEXTURE_CUBE_MAP {
+	    ctxt.gl.TexStorageMem2DEXT(bind_point, texture_levels, storage_internal_format as gl::types::GLenum,
+				       width as gl::types::GLsizei, height.unwrap() as gl::types::GLsizei, memory.get_id(),
+				       params.offset);		
+	} else if bind_point == gl::TEXTURE_2D_MULTISAMPLE {
+	    ctxt.gl.TexStorageMem2DMultisampleEXT(bind_point, samples.unwrap() as gl::types::GLsizei,
+						  storage_internal_format, width as gl::types::GLsizei,
+						  height.unwrap() as gl::types::GLsizei, gl::TRUE, memory.get_id(), params.offset);
+	} else if bind_point == gl::TEXTURE_2D_MULTISAMPLE_ARRAY {
+	    ctxt.gl.TexStorageMem3DMultisampleEXT(bind_point, samples.unwrap() as gl::types::GLsizei,
+						  storage_internal_format, width as gl::types::GLsizei,
+						  height.unwrap() as gl::types::GLsizei, array_size.unwrap() as gl::types::GLsizei,
+						  gl::TRUE, memory.get_id(), params.offset);
+	} else if bind_point == gl::TEXTURE_1D {
+	    ctxt.gl.TexStorageMem1DEXT(bind_point, texture_levels, storage_internal_format, width as gl::types::GLsizei,
+				       memory.get_id(), params.offset);
+	}
+
+	if should_generate_mipmaps {
+            generate_mipmaps(&ctxt, bind_point);
+        }
+
+	id
+    };
+    
+    Ok (TextureAny {
+        context: facade.get_context().clone(),
+        id,
+        requested_format: TextureFormatRequest::Specific(format),
+	actual_format: Cell::new(None),
+        ty,
+        levels: mipmap_levels,
+        generate_mipmaps: should_generate_mipmaps,
+        owned: false,
+	memory: Some(memory)
+    })
 }
 
 impl TextureAny {

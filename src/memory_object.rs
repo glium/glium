@@ -1,4 +1,7 @@
-#![cfg(feature = "vk_interop")]
+/*!
+Contains everything related to external API memory objects.
+*/
+
 // TODO: Add Windows support via EXT_external_objects_win32
 
 use crate::GlObject;
@@ -10,7 +13,7 @@ use crate::version::Version;
 use crate::backend::Facade;
 use crate::context::Context;
 use crate::ContextExt;
-use std::{fs::File, mem, rc::Rc};
+use std::{fs::File, rc::Rc};
 
 /// Describes an error encountered during memory object creation
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -73,7 +76,7 @@ impl MemoryObject {
             ctxt.gl.MemoryObjectParameterivEXT(
                 mem_obj.id,
                 gl::DEDICATED_MEMORY_OBJECT_EXT,
-                mem::transmute(&dedicated),
+                &dedicated as *const i32,
             );
 
             ctxt.gl.ImportMemoryFdEXT(
@@ -97,8 +100,8 @@ impl MemoryObject {
             && ctxt.extensions.gl_ext_memory_object
         {
             let id = unsafe {
-                let id: gl::types::GLuint = 0;
-                ctxt.gl.CreateMemoryObjectsEXT(1, mem::transmute(&id));
+                let mut id: gl::types::GLuint = 0;
+                ctxt.gl.CreateMemoryObjectsEXT(1, &mut id as *mut u32);
 
                 if ctxt.gl.IsMemoryObjectEXT(id) == gl::FALSE {
                     Err(MemoryObjectCreationError::NullResult)
