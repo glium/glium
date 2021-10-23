@@ -1,4 +1,4 @@
-use crate::ToGlEnum;
+
 use crate::gl;
 use crate::GlObject;
 
@@ -41,8 +41,6 @@ use std::ffi::c_void;
 
 use crate::ops;
 use crate::fbo;
-
-use super::TextureImportError;
 
 /// Type of a texture.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -502,7 +500,8 @@ pub unsafe fn new_from_fd<F: Facade + ?Sized>(facade: &F,
 					      mipmaps: MipmapsOption,
 					      ty: Dimensions,
 					      params: super::ImportParameters,
-					      fd: std::fs::File) -> Result<TextureAny,TextureImportError> {
+					      fd: std::fs::File) -> Result<TextureAny,super::TextureImportError> {
+    use crate::ToGlEnum;
     let memory = MemoryObject::new_from_fd(facade, params.dedicated_memory, fd, params.size)?;
     
     let (width, height, depth, array_size, samples) = extract_dimensions(ty);

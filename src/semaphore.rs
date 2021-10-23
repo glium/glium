@@ -3,7 +3,7 @@ Contains everything related to external API semaphores.
 */
 // TODO: Add Windows support via EXT_external_objects_win32
 
-use std::{fs::File, rc::Rc};
+use std::rc::Rc;
 
 use crate::{
     buffer::{Buffer, Content},
@@ -94,7 +94,7 @@ impl Semaphore {
     #[cfg(target_os = "linux")]
     pub unsafe fn new_from_fd<F: Facade + ?Sized>(
         facade: &F,
-        fd: File,
+        fd: std::fs::File,
     ) -> Result<Self, SemaphoreCreationError> {
         use std::os::unix::io::AsRawFd;
 

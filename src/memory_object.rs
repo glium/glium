@@ -13,7 +13,7 @@ use crate::version::Version;
 use crate::backend::Facade;
 use crate::context::Context;
 use crate::ContextExt;
-use std::{fs::File, rc::Rc};
+use std::rc::Rc;
 
 /// Describes an error encountered during memory object creation
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -57,7 +57,7 @@ impl MemoryObject {
     pub unsafe fn new_from_fd<F: Facade + ?Sized>(
         facade: &F,
         dedicated: bool,
-        fd: File,
+        fd: std::fs::File,
         size: u64,
     ) -> Result<Self, MemoryObjectCreationError> {
 	use std::os::unix::io::AsRawFd;
