@@ -47,11 +47,11 @@ pub enum TextureImportError {
 impl fmt::Display for TextureImportError {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::TextureImportError::*;
-	match *self {
-	    FormatNotPresent => write!(fmt, "A specific format for the texture was not given."),
-	    MemoryObjectCreation(e) => e.fmt(fmt),
-	    FormatNotSupported(e) => e.fmt(fmt),
-	}
+        match *self {
+            FormatNotPresent => write!(fmt, "A specific format for the texture was not given."),
+            MemoryObjectCreation(e) => e.fmt(fmt),
+            FormatNotSupported(e) => e.fmt(fmt),
+        }
     }
 }
 

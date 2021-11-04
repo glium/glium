@@ -1387,3 +1387,4 @@ fn get_gl_error(ctxt: &mut context::CommandContext<'_>) -> Option<&'static str> 
         _ => Some("Unknown glGetError return value")
     }
 }
+

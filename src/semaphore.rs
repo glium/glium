@@ -28,12 +28,12 @@ impl std::fmt::Display for SemaphoreCreationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use self::SemaphoreCreationError::*;
 
-	let desc = match *self {
-	    SemaphoreObjectNotSupported => "Driver does not support EXT_semaphore",
-	    SemaphoreObjectFdNotSupported => "Driver does not support EXT_semaphore_fd",
-	    NullResult => "OpenGL returned a null pointer when creating semaphore",
-	};
-	f.write_str(desc)
+        let desc = match *self {
+            SemaphoreObjectNotSupported => "Driver does not support EXT_semaphore",
+            SemaphoreObjectFdNotSupported => "Driver does not support EXT_semaphore_fd",
+            NullResult => "OpenGL returned a null pointer when creating semaphore",
+        };
+        f.write_str(desc)
     }
 }
 
@@ -245,7 +245,7 @@ impl Semaphore {
                 texture_ids,
                 texture_layouts,
             );
-	    ctxt.gl.Flush(); // Must flush after signalling semaphore
+            ctxt.gl.Flush(); // Must flush after signalling semaphore
         }
     }
 }

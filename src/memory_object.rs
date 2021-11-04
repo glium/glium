@@ -30,12 +30,12 @@ impl std::fmt::Display for MemoryObjectCreationError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use self::MemoryObjectCreationError::*;
 
-	let desc = match *self {
-	    MemoryObjectNotSupported => "Driver does not support EXT_memory_object",
-	    MemoryObjectFdNotSupported => "Driver does not support EXT_memory_object_fd",
-	    NullResult => "OpenGL returned a null pointer when creating memory object",
-	};
-	f.write_str(desc)
+        let desc = match *self {
+            MemoryObjectNotSupported => "Driver does not support EXT_memory_object",
+            MemoryObjectFdNotSupported => "Driver does not support EXT_memory_object_fd",
+            NullResult => "OpenGL returned a null pointer when creating memory object",
+        };
+        f.write_str(desc)
     }
 }
 
@@ -60,7 +60,7 @@ impl MemoryObject {
         fd: std::fs::File,
         size: u64,
     ) -> Result<Self, MemoryObjectCreationError> {
-	use std::os::unix::io::AsRawFd;
+        use std::os::unix::io::AsRawFd;
         let ctxt = facade.get_context().make_current();
         let mem_obj: Self = Self::new(facade, &ctxt)?;
 
