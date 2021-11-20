@@ -151,6 +151,7 @@ pub mod debug;
 pub mod draw_parameters;
 pub mod framebuffer;
 pub mod index;
+pub mod memory_object;
 pub mod pixel_buffer;
 pub mod program;
 pub mod uniforms;
@@ -1386,3 +1387,4 @@ fn get_gl_error(ctxt: &mut context::CommandContext<'_>) -> Option<&'static str> 
         _ => Some("Unknown glGetError return value")
     }
 }
+

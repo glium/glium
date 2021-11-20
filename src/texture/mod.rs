@@ -132,6 +132,9 @@ pub use self::ty_support::{is_texture_3d_supported, is_texture_1d_array_supporte
 pub use self::ty_support::{is_texture_2d_array_supported, is_texture_2d_multisample_supported};
 pub use self::ty_support::{is_texture_2d_multisample_array_supported, is_cubemaps_supported};
 pub use self::ty_support::is_cubemap_arrays_supported;
+pub use self::texture_import::ExternalTilingMode;
+pub use self::texture_import::ImportParameters;
+pub use self::texture_import::TextureImportError;
 
 pub mod bindless;
 pub mod buffer_texture;
@@ -140,7 +143,9 @@ pub mod pixel_buffer;
 mod any;
 mod get_format;
 mod pixel;
+mod texture_import;
 mod ty_support;
+
 
 mod textures {
     #![allow(clippy::all)]

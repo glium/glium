@@ -1,10 +1,9 @@
 /*!
 Contains everything related to external API semaphores.
 */
-#![cfg(feature = "vk_interop")]
 // TODO: Add Windows support via EXT_external_objects_win32
 
-use std::{fs::File, rc::Rc};
+use std::rc::Rc;
 
 use crate::{
     buffer::{Buffer, Content},
@@ -15,7 +14,7 @@ use crate::{
 use crate::{backend::Facade, context::CommandContext, gl};
 
 /// Describes an error encountered during semaphore creation
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SemaphoreCreationError {
     /// Driver does not support EXT_semaphore
     SemaphoreObjectNotSupported,
@@ -24,6 +23,21 @@ pub enum SemaphoreCreationError {
     /// OpenGL returned a null pointer when creating semaphore
     NullResult,
 }
+
+impl std::fmt::Display for SemaphoreCreationError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use self::SemaphoreCreationError::*;
+
+        let desc = match *self {
+            SemaphoreObjectNotSupported => "Driver does not support EXT_semaphore",
+            SemaphoreObjectFdNotSupported => "Driver does not support EXT_semaphore_fd",
+            NullResult => "OpenGL returned a null pointer when creating semaphore",
+        };
+        f.write_str(desc)
+    }
+}
+
+impl std::error::Error for SemaphoreCreationError {}
 
 /// Describes a Vulkan image layout that a texture can be in. See https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkImageLayout.html
 #[derive(Debug, Clone, Copy)]
@@ -72,8 +86,7 @@ impl Into<crate::gl::types::GLenum> for TextureLayout {
 /// Similar to a GL sync object, this describes a semaphore which can be used for OpenGL-Vulkan command queue synchronization.
 pub struct Semaphore {
     context: Rc<Context>,
-    id: gl::types::GLuint,
-    backing_fd: Option<File>,
+    id: gl::types::GLuint,    
 }
 
 impl Semaphore {
@@ -81,7 +94,7 @@ impl Semaphore {
     #[cfg(target_os = "linux")]
     pub unsafe fn new_from_fd<F: Facade + ?Sized>(
         facade: &F,
-        fd: File,
+        fd: std::fs::File,
     ) -> Result<Self, SemaphoreCreationError> {
         use std::os::unix::io::AsRawFd;
 
@@ -116,14 +129,13 @@ impl Semaphore {
             Ok(Self {
                 context: facade.get_context().clone(),
                 id,
-                backing_fd: None,
             })
         } else {
             Err(SemaphoreCreationError::SemaphoreObjectNotSupported)
         }
     }
     /// Same as `wait` but without `buffers` parameter
-    pub fn wait_textures(&self, textures: Option<&[(TextureAny, TextureLayout)]>) {
+    pub fn wait_textures(&self, textures: Option<&[(&TextureAny, TextureLayout)]>) {
         // Don't care about type parameter
         self.wait::<u32>(textures, None)
     }
@@ -132,10 +144,15 @@ impl Semaphore {
     /// After this completes, the semaphore is returned to the unsignalled state.
     /// Once the operation is complete, the memory corresponding to the passed `textures` and `buffers` is made available to OpenGL.
     /// The layouts given with each texture must match the image layout used in Vulkan directly before the semaphore is signalled by it.
+    ///
+    /// # Caution
+    ///
+    /// - You must make sure that a command to signal the semaphore you are waiting on has been flushed to the command queue (Possibly
+    ///   by the external API). Failure to do so may result in segfaults depending on the driver used.
     pub fn wait<T: ?Sized>(
         &self,
-        textures: Option<&[(TextureAny, TextureLayout)]>,
-        buffers: Option<&[Buffer<T>]>,
+        textures: Option<&[(&TextureAny, TextureLayout)]>,
+        buffers: Option<&[&Buffer<T>]>,
     ) where
         T: Content,
     {
@@ -178,7 +195,7 @@ impl Semaphore {
     }
 
     /// Same as `signal`, but without buffers parameter
-    pub fn signal_textures(&self, textures: Option<&[(TextureAny, TextureLayout)]>) {
+    pub fn signal_textures(&self, textures: Option<&[(&TextureAny, TextureLayout)]>) {
         // Don't care about type parameter.
         self.signal::<u32>(textures, None)
     }
@@ -188,8 +205,8 @@ impl Semaphore {
     /// Before signalling the semaphore, the `textures` are transitioned into the layout specified.
     pub fn signal<T: ?Sized>(
         &self,
-        textures: Option<&[(TextureAny, TextureLayout)]>,
-        buffers: Option<&[Buffer<T>]>,
+        textures: Option<&[(&TextureAny, TextureLayout)]>,
+        buffers: Option<&[&Buffer<T>]>,
     ) where
         T: Content,
     {
@@ -227,7 +244,8 @@ impl Semaphore {
                 textures_num as u32,
                 texture_ids,
                 texture_layouts,
-            )
+            );
+            ctxt.gl.Flush(); // Must flush after signalling semaphore
         }
     }
 }
