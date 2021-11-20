@@ -5,7 +5,7 @@ use crate::debug;
 use crate::context;
 use crate::backend::{self, Backend};
 use std::rc::Rc;
-use std::cell::RefCell;
+use std::cell::{Ref, RefCell};
 use std::ops::Deref;
 use std::os::raw::c_void;
 use super::glutin;
@@ -118,6 +118,11 @@ impl Headless {
         let glutin_backend = GlutinBackend(glutin_context.clone());
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         Ok(Headless { context, glutin: glutin_context })
+    }
+
+    /// Borrow the inner glutin context
+    pub fn gl_context(&self) -> Ref<'_, Takeable<glutin::Context<Pc>>> {
+        self.glutin.borrow()
     }
 
     /// Start drawing on the backbuffer.
