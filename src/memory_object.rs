@@ -104,11 +104,11 @@ impl MemoryObject {
                 ctxt.gl.CreateMemoryObjectsEXT(1, &mut id as *mut u32);
 
                 if ctxt.gl.IsMemoryObjectEXT(id) == gl::FALSE {
-                    Err(MemoryObjectCreationError::NullResult)
+                    return Err(MemoryObjectCreationError::NullResult);
                 } else {
-                    Ok(id)
+                    id
                 }
-            }?;
+            };
 
             Ok(Self {
                 context: facade.get_context().clone(),

@@ -79,7 +79,7 @@ pub struct TextureAny {
     owned: bool,
 
     /// If this texture was created in Vulkan for example, it may be backed by external memory.
-    memory: Option<MemoryObject>
+    memory: Option<MemoryObject>,
 }
 
 fn extract_dimensions(ty: Dimensions)
@@ -604,7 +604,7 @@ pub unsafe fn new_from_fd<F: Facade + ?Sized>(facade: &F,
         id
     };
     
-    Ok (TextureAny {
+    Ok(TextureAny {
         context: facade.get_context().clone(),
         id,
         requested_format: TextureFormatRequest::Specific(format),
