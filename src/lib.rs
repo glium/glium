@@ -1309,7 +1309,7 @@ impl Surface for Frame {
         }
 
         ops::draw(&self.context, None, vertex_buffer, index_buffer.into(), program,
-                  uniforms, draw_parameters, (self.dimensions.0 as u32, self.dimensions.1 as u32))
+                  uniforms, draw_parameters, self.dimensions)
     }
 
     #[inline]
