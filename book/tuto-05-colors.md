@@ -43,6 +43,6 @@ In the example above, the value of `my_attr` returned by the vertex shader corre
 
 And the result should look like this:
 
-![The result](tuto-05-linear.png)
+![The result](assets/tuto-05-linear.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-05.rs).**

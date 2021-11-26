@@ -119,7 +119,7 @@ target.draw((&positions, &normals), &indices, &program, &uniform! { matrix: matr
 
 And if you execute this code, you will see...
 
-![The result](tuto-07-wrong.png)
+![The result](assets/tuto-07-wrong.png)
 
 ...wait, something's wrong!
 
@@ -142,7 +142,7 @@ let matrix = [
 
 And you should now get the correct result:
 
-![The correct result](tuto-07-correct.png)
+![The correct result](assets/tuto-07-correct.png)
 
 This looks very primitive, but it is a good first step towards 3D rendering.
 

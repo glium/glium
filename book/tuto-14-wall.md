@@ -36,7 +36,7 @@ target.draw(&shape, glium::index::NoIndices(glium::index::PrimitiveType::Triangl
 
 The rest of the code is mostly the same as before. You should know by now how to draw something!
 
-![What it looks like after step 1](tuto-14-step1.png)
+![What it looks like after step 1](assets/tuto-14-step1.png)
 
 ## Applying a texture
 
@@ -103,7 +103,7 @@ vec3 ambient_color = diffuse_color * 0.1;
 
 And we should get a textured wall!
 
-![The textured wall](tuto-14-step2.png)
+![The textured wall](assets/tuto-14-step2.png)
 
 ## Normal mapping
 
@@ -124,7 +124,7 @@ fine-grained.
 
 Here is what a *normal map* is:
 
-![The normal map](tuto-14-normal.png)
+![The normal map](assets/tuto-14-normal.png)
 
 As you can see there are a lot of similarities with the regular texture. Each pixel of the normal
 map represents the value of the normal at this pixel's location. Instead of storing colors we
@@ -196,7 +196,7 @@ The rest of the code is the same as before. We apply phong shading, except that 
 
 And here is the result:
 
-![Final result](tuto-14-step3.png)
+![Final result](assets/tuto-14-step3.png)
 
 This is much more convincing!
 
