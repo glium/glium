@@ -63,3 +63,5 @@ let params = glium::DrawParameters {
 However we are not going to enable this for the teapot because the model is not closed. You can
 look through holes and not see anything inside. 3D models are usually entirely closed, but not
 our teapot.
+
+[Previous (Adjusting the perspective)](tuto-10-perspective.md) | [Next (The camera and summary of the vertex processing stages)](tuto-12-camera.md)

@@ -135,3 +135,5 @@ target.draw(&vertex_buffer, &indices, &program, &uniform! { t: t },
 ```
 
 Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of `t` (a single float) instead of the whole shape.
+
+[Previous (Drawing a Triangle)](tuto-02-triangle.md) | [Next (Matrices)](tuto-04-matrices.md)

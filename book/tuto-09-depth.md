@@ -107,3 +107,5 @@ represented as shades of gray. Here is our depth buffer after drawing the teapot
 ![Depth buffer](assets/tuto-09-depth.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-09.rs).**
+ 
+[Previous (Gouraud shading)](tuto-08-gouraud.md) | [Next (Adjusting the perspective)](tuto-10-perspective.md)

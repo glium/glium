@@ -134,3 +134,5 @@ The "draw command" designation could make you think that drawing is a heavy oper
 ![Our final result](assets/tuto-02-triangle.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-02.rs).**
+
+[Previous (Opening a window)](tuto-01-getting-started.md) | [Next (Uniforms)](tuto-03-animated-triangle.md)

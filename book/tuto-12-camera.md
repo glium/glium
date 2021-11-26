@@ -119,3 +119,5 @@ And here is the result:
 ![Result](assets/tuto-12-result.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-12.rs).**
+
+[Previous (Backface culling)](tuto-11-backface-culling.md) | [Next (Blinn-phong shading)](tuto-13-phong.md)

@@ -120,3 +120,5 @@ Now that we have brightness we can see that there are more things that are wrong
 our rendering, this will be covered in the next sections!
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-08.rs).**
+
+[Previous (A more complex shape)](tuto-07-shape.md) | [Next (Depth testing)](tuto-09-depth.md)

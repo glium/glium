@@ -46,3 +46,5 @@ And the result should look like this:
 ![The result](assets/tuto-05-linear.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-05.rs).**
+
+[Previous (Matrices)](tuto-04-matrices.md) | [Next (Adding a texture)](tuto-06-texture.md)

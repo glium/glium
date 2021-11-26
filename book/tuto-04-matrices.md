@@ -69,3 +69,5 @@ let uniforms = uniform! {
 ```
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-04.rs).**
+
+[Previous (Uniforms)](tuto-03-animated-triangle.md) | [Next (Adding colors)](tuto-05-colors.md)

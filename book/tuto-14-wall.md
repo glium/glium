@@ -201,3 +201,5 @@ And here is the result:
 This is much more convincing!
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-14.rs).**
+
+[Previous (Blinn-phong shading)](tuto-13-phong.md) | [Next (Performances)](perf-intro.md)

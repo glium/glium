@@ -148,3 +148,5 @@ fn main() {
     });
 }
 ```
+
+[Next (Drawing a triangle)](tuto-02-triangle.md)

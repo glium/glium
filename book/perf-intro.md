@@ -63,3 +63,5 @@ More precisely:
 
 Therefore if you have a lot of things to draw, you should group objects by program, draw parameters,
 and source of vertices.
+
+[Previous (Normal mapping)](tuto-14-wall.md) | [Next (Synchronization)](perf-sync.md)

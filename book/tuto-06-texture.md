@@ -110,3 +110,5 @@ And here is the result:
 ![The result](assets/tuto-06-texture.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-06.rs).**
+
+[Previous (Adding colors)](tuto-05-colors.md) | [Next (A more complex shape)](tuto-07-shape.md)

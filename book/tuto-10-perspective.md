@@ -147,3 +147,5 @@ If you compare this to the previous screenshot, you can also see how the teapot 
 much better.
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-10.rs).**
+
+[Previous (Depth testing)](tuto-09-depth.md) | [Next (Backface culling)](tuto-11-backface-culling.md)

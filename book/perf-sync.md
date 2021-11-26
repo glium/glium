@@ -53,3 +53,5 @@ that. This is where **invalidating** a buffer or a texture comes into play. By c
 `.invalidate()`, you tell the OpenGL implementation that you don't care about what was already
 in the buffer. This allows it to use the same optimization as when you rewrite the entire
 buffer or texture.
+
+[Previous (Performances)](perf-intro.md)
