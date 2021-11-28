@@ -2,5 +2,5 @@
 authors = ["The glium contributors"]
 language = "en"
 multilingual = false
-src = "src"
-title = "Glium tutorials"
+src = "."
+title = "Glium Tutorials"
