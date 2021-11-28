@@ -15,7 +15,7 @@ A shape represents the geometry of an object. When you think "geometry", you may
 
 Here is an example of an object's shape. As you can see, it is made of hundreds of triangles and only triangles.
 
-![The famous Utah Teapot](tuto-02-teapot.png)
+![The famous Utah Teapot](resources/tuto-02-teapot.png)
 
 Each triangle is made of three vertices, which means that a shape is just a collection of vertices linked together to form triangles. The first step to describe a shape like this with glium is to create a struct named `Vertex` (the actual name doesn't matter) whose purpose is to describe each individual vertex. Our collection of vertices can later be represented by a `Vec<Vertex>`.
 
@@ -30,11 +30,11 @@ implement_vertex!(Vertex, position);
 
 Our struct contains a `position` field which we will use to store the position of each vertex on the window. Being a true vectorial renderer, OpenGL doesn't use coordinates in pixels. Instead it considers that the window has a width and a height of 2 units, and that the origin is at the center of the window.
 
-![The windows coordinates system](tuto-02-window-coords.svg)
+![The windows coordinates system](resources/tuto-02-window-coords.svg)
 
 When we give positions to OpenGL, we need to use this coordinate system. Let's pick a shape for our triangle, for example this one:
 
-![Finding the coordinates of our triangle](tuto-02-triangle-coords.svg)
+![Finding the coordinates of our triangle](resources/tuto-02-triangle-coords.svg)
 
 Which translates into this code:
 
@@ -63,7 +63,7 @@ When OpenGL was first created in the 1990s, drawing an object simply consisted i
 
 In order to draw a triangle, you will need some basic understanding about how the drawing process (also called the *pipeline*) works.
 
-![The graphics pipeline](tuto-02-pipeline.svg)
+![The graphics pipeline](resources/tuto-02-pipeline.svg)
 
 The list of coordinates at the left of the schema represents the vertices of the shape that we have created earlier. When we will ask the GPU to draw this shape, it will first execute what is called a *vertex shader*, once for each vertex (that means three times here). A vertex shader is a small program whose purpose is to tell the GPU what the screen coordinates of each vertex is. Then the GPU builds our triangle and determines which pixels of the screen are inside of it. It will then execute a *fragment shader* once for each of these pixels. A fragment shader is a small program whose purpose is to tell the GPU what the color of each pixel needs to be.
 
@@ -131,6 +131,6 @@ target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
 
 The "draw command" designation could make you think that drawing is a heavy operation that takes a lot of time. In reality drawing a triangle takes less than a few microseconds, and if everything goes well you should see a nice little triangle:
 
-![Our final result](tuto-02-triangle.png)
+![Our final result](resources/tuto-02-triangle.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-02.rs).**

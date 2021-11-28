@@ -116,6 +116,6 @@ and requires a lot of code that would be out of scope.
 
 And here is the result:
 
-![Result](tuto-12-result.png)
+![Result](resources/tuto-12-result.png)
 
 **[You can find the entire source code here](https://github.com/glium/glium/blob/master/examples/tutorial-12.rs).**
