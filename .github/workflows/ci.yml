@@ -6,8 +6,9 @@ jobs:
   build:
 
     strategy:
+      fail-fast: false
       matrix:
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
         toolchain: [stable, beta, nightly]
 
     runs-on: ${{ matrix.os }}
