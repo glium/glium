@@ -33,7 +33,7 @@ test_headless = []  # used for testing headless display
 vk_interop = [] # used for texture import from Vulkan
 
 [dependencies.glutin]
-version = "0.27"
+version = "0.28"
 features = []
 optional = true
 
@@ -49,7 +49,7 @@ fnv = "1.0.5"
 gl_generator = "0.14"
 
 [dev-dependencies]
-ouroboros = "0.13"
+ouroboros = "0.14"
 cgmath = "0.18"
 genmesh = "0.6"
 image = "0.23"
