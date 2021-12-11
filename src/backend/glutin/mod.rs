@@ -162,7 +162,7 @@ impl Display {
 
     /// Borrow the inner glutin WindowedContext.
     #[inline]
-    pub fn gl_window(&self) -> Ref<'_, Takeable<glutin::WindowedContext<Pc>>> {
+    pub fn gl_window(&self) -> Ref<'_, impl Deref<Target = glutin::WindowedContext<Pc>>> {
         self.gl_window.borrow()
     }
 
@@ -240,7 +240,7 @@ impl backend::Facade for Display {
 impl Deref for GlutinBackend {
     type Target = Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>>;
     #[inline]
-    fn deref(&self) -> &Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>> {
+    fn deref(&self) -> &Self::Target {
         &self.0
     }
 }

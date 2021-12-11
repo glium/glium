@@ -30,7 +30,7 @@ impl Deref for Headless {
 
 impl Deref for GlutinBackend {
     type Target = Rc<RefCell<Takeable<glutin::Context<Pc>>>>;
-    fn deref(&self) -> &Rc<RefCell<Takeable<glutin::Context<Pc>>>> {
+    fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
@@ -121,7 +121,7 @@ impl Headless {
     }
 
     /// Borrow the inner glutin context
-    pub fn gl_context(&self) -> Ref<'_, Takeable<glutin::Context<Pc>>> {
+    pub fn gl_context(&self) -> Ref<'_, impl Deref<Target = glutin::Context<Pc>>> {
         self.glutin.borrow()
     }
 
