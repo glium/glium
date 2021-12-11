@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.31 (2021-12-11)
+
+- Updated glutin to version 0.31.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0280-2021-12-02).
+- Use mdbook for the book.
+
 ## Version 0.30.2 (2021-09-06)
 
 - Added depth and stencil buffer blitting.
