@@ -24,7 +24,6 @@ use std::fmt;
 use std::ops::Deref;
 use std::os::raw::c_void;
 use std::rc::Rc;
-use takeable_option::Takeable;
 use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
 
 /// A GL context combined with a facade for drawing upon.
@@ -37,7 +36,7 @@ pub struct Display {
     // contains everything related to the current context and its state
     context: Rc<context::Context>,
     // The glutin Window alongside its associated GL Context.
-    gl_window: Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>>,
+    gl_window: Rc<RefCell<Option<glutin::WindowedContext<Pc>>>>,
     // Used to check whether the framebuffer dimensions have changed between frames. If they have,
     // the glutin context must be resized accordingly.
     last_framebuffer_dimensions: Cell<(u32, u32)>,
@@ -45,7 +44,7 @@ pub struct Display {
 
 /// An implementation of the `Backend` trait for glutin.
 #[derive(Clone)]
-pub struct GlutinBackend(Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>>);
+pub struct GlutinBackend(Rc<RefCell<Option<glutin::WindowedContext<Pc>>>>);
 
 /// Error that can happen while creating a glium display.
 #[derive(Debug)]
@@ -118,7 +117,7 @@ impl Display {
         checked: bool,
     ) -> Result<Self, IncompatibleOpenGl> {
         let gl_window = unsafe { gl_window.treat_as_current() };
-        let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
+        let gl_window = Rc::new(RefCell::new(Some(gl_window)));
         let glutin_backend = GlutinBackend(gl_window.clone());
         let framebuffer_dimensions = glutin_backend.get_framebuffer_dimensions();
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
@@ -142,7 +141,7 @@ impl Display {
         // Share the display lists of the existing context.
         let new_gl_window = {
             let gl_window = self.gl_window.borrow();
-            let cb = cb.with_shared_lists(gl_window.context());
+            let cb = cb.with_shared_lists(gl_window.as_ref().unwrap().context());
             cb.build_windowed(wb, events_loop)?
         };
         let new_gl_window = unsafe { new_gl_window.treat_as_current() };
@@ -150,7 +149,7 @@ impl Display {
         // Replace the stored WindowedContext with the new one.
         {
             let mut gl_window = self.gl_window.borrow_mut();
-            Takeable::insert(&mut gl_window, new_gl_window);
+            *gl_window = Some(new_gl_window);
         }
 
         // Rebuild the Context.
@@ -162,7 +161,7 @@ impl Display {
 
     /// Borrow the inner glutin WindowedContext.
     #[inline]
-    pub fn gl_window(&self) -> Ref<'_, Takeable<glutin::WindowedContext<Pc>>> {
+    pub fn gl_window(&self) -> Ref<'_, Option<glutin::WindowedContext<Pc>>> {
         self.gl_window.borrow()
     }
 
@@ -182,7 +181,7 @@ impl Display {
         // If the size of the framebuffer has changed, resize the context.
         if self.last_framebuffer_dimensions.get() != (w, h) {
             self.last_framebuffer_dimensions.set((w, h));
-            self.gl_window.borrow().resize((w, h).into());
+            self.gl_window.borrow().as_ref().unwrap().resize((w, h).into());
         }
 
         Frame::new(self.context.clone(), (w, h))
@@ -238,9 +237,9 @@ impl backend::Facade for Display {
 }
 
 impl Deref for GlutinBackend {
-    type Target = Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>>;
+    type Target = Rc<RefCell<Option<glutin::WindowedContext<Pc>>>>;
     #[inline]
-    fn deref(&self) -> &Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>> {
+    fn deref(&self) -> &Rc<RefCell<Option<glutin::WindowedContext<Pc>>>> {
         &self.0
     }
 }
@@ -248,7 +247,7 @@ impl Deref for GlutinBackend {
 unsafe impl Backend for GlutinBackend {
     #[inline]
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
-        match self.borrow().swap_buffers() {
+        match self.borrow().as_ref().unwrap().swap_buffers() {
             Ok(()) => Ok(()),
             Err(glutin::ContextError::IoError(e)) => {
                 panic!("I/O Error while swapping buffers: {:?}", e)
@@ -269,27 +268,27 @@ unsafe impl Backend for GlutinBackend {
 
     #[inline]
     unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
-        self.borrow().get_proc_address(symbol) as *const _
+        self.borrow().as_ref().unwrap().get_proc_address(symbol) as *const _
     }
 
     #[inline]
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         let gl_window_takeable = self.borrow();
-        let gl_window = gl_window_takeable.window();
+        let gl_window = gl_window_takeable.as_ref().unwrap().window();
         let (width, height) = gl_window.inner_size().into();
         (width, height)
     }
 
     #[inline]
     fn is_current(&self) -> bool {
-        self.borrow().is_current()
+        self.borrow().as_ref().unwrap().is_current()
     }
 
     #[inline]
     unsafe fn make_current(&self) {
         let mut gl_window_takeable = self.borrow_mut();
-        let gl_window = Takeable::take(&mut gl_window_takeable);
+        let gl_window = gl_window_takeable.take().unwrap();
         let new_gl_window = gl_window.make_current().unwrap();
-        Takeable::insert(&mut gl_window_takeable, new_gl_window);
+        *gl_window_takeable = Some(new_gl_window);
     }
 }
