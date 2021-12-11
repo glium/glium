@@ -35,3 +35,13 @@ jobs:
         RUSTFLAGS: -D warnings
       run: |
         cargo doc --all --all-features
+  book:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Install mdbook
+      run: |
+        sudo snap install mdbook
+    - name: Run mdbook
+      run: |
+        cd book && mdbook build
