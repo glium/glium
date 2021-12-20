@@ -308,18 +308,6 @@ trait ContextExt {
     fn capabilities(&self) -> &context::Capabilities;
 }
 
-/// Trait to get driver and devices UUIDs from context.
-pub trait ContextUuidExt {
-    /// Error preventing the retrieval of the uuid.
-    type Error: std::error::Error + Sized;
-    /// Returns the UUID of the driver currently being used by this context. Useful to
-    /// ensure compatibility when sharing resources with an external API.
-    fn driver_uuid(&self) -> Result<[u8; 16], Self::Error>;
-    /// Returns the UUIDs of the devices being used by this context. Useful to ensure
-    /// compatibility when sharing resources with an external API.
-    fn device_uuids(&self) -> Result<Vec<[u8; 16]>, Self::Error>;
-}
-
 /// Internal trait for programs.
 trait ProgramExt {
     /// Calls `glUseProgram` and enables/disables `GL_PROGRAM_POINT_SIZE` and

@@ -1,11 +1,9 @@
-use crate::ContextUuidExt;
-
 use super::Context;
 
 /// Describes an error preventing the retrieval of the uuid.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum UuidError {
-    /// EXT_external_objects is not supported by the driver
+     /// EXT_external_objects is not supported by the driver
     ExtensionNotPresent,
 }
 
@@ -21,12 +19,10 @@ impl std::fmt::Display for UuidError {
 
 impl std::error::Error for UuidError {}
 
-
-
-impl ContextUuidExt for Context {
-    type Error = UuidError;
-
-    fn driver_uuid(&self) -> Result<[u8; 16], Self::Error> {
+impl Context {
+    /// Returns the UUID of the driver currently being used by this context. Useful to
+    /// ensure compatibility when sharing resources with an external API.
+    pub fn driver_uuid(&self) -> Result<[u8; 16], UuidError> {
         if !self.extensions.gl_ext_semaphore && !self.extensions.gl_ext_memory_object {
 	    return Err(UuidError::ExtensionNotPresent)
 	}
@@ -35,7 +31,9 @@ impl ContextUuidExt for Context {
 	Ok(data)
     }
 
-    fn device_uuids(&self) -> Result<Vec<[u8; 16]>, Self::Error> {
+    /// Returns the UUIDs of the devices being used by this context. Useful to ensure
+    /// compatibility when sharing resources with an external API.
+    pub fn device_uuids(&self) -> Result<Vec<[u8; 16]>, UuidError> {
 	if !self.extensions.gl_ext_semaphore && !self.extensions.gl_ext_memory_object {
 	    return Err(UuidError::ExtensionNotPresent)
 	}
@@ -55,3 +53,5 @@ impl ContextUuidExt for Context {
 	Ok(res)
     }
 }
+
+
