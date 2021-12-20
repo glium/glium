@@ -36,10 +36,12 @@ use crate::vertex_array_object;
 pub use self::capabilities::{ReleaseBehavior, Capabilities, Profile};
 pub use self::extensions::ExtensionsList;
 pub use self::state::GlState;
+pub use self::uuid::UuidError;
 
 mod capabilities;
 mod extensions;
 mod state;
+mod uuid;
 
 /// Stores the state and information required for glium to execute commands. Most public glium
 /// functions require passing a `Rc<Context>`.

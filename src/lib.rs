@@ -117,7 +117,7 @@ extern crate lazy_static;
 
 #[cfg(feature = "glutin")]
 pub use crate::backend::glutin::glutin;
-pub use crate::context::Profile;
+pub use crate::context::{Profile, UuidError};
 pub use crate::draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use crate::draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
 pub use crate::draw_parameters::{Smooth};
@@ -306,6 +306,18 @@ trait ContextExt {
 
     /// Returns the capabilities of the backend.
     fn capabilities(&self) -> &context::Capabilities;
+}
+
+/// Trait to get driver and devices UUIDs from context.
+pub trait ContextUuidExt {
+    /// Error preventing the retrieval of the uuid.
+    type Error: std::error::Error + Sized;
+    /// Returns the UUID of the driver currently being used by this context. Useful to
+    /// ensure compatibility when sharing resources with an external API.
+    fn driver_uuid(&self) -> Result<[u8; 16], Self::Error>;
+    /// Returns the UUIDs of the devices being used by this context. Useful to ensure
+    /// compatibility when sharing resources with an external API.
+    fn device_uuids(&self) -> Result<Vec<[u8; 16]>, Self::Error>;
 }
 
 /// Internal trait for programs.
