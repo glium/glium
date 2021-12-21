@@ -29,8 +29,7 @@ impl Context {
         }
         let mut data = [0u8; 16];
         unsafe {
-            self.gl
-                .GetUnsignedBytevEXT(crate::gl::DRIVER_UUID_EXT, data.as_mut_ptr())
+            self.gl.GetUnsignedBytevEXT(crate::gl::DRIVER_UUID_EXT, data.as_mut_ptr())
         };
         Ok(data)
     }
@@ -44,8 +43,7 @@ impl Context {
         }
         let mut n = std::mem::MaybeUninit::<i32>::uninit();
         let n = unsafe {
-            self.gl
-                .GetIntegerv(crate::gl::NUM_DEVICE_UUIDS_EXT, n.as_mut_ptr());
+            self.gl.GetIntegerv(crate::gl::NUM_DEVICE_UUIDS_EXT, n.as_mut_ptr());
             n.assume_init()
         };
 
