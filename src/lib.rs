@@ -117,7 +117,7 @@ extern crate lazy_static;
 
 #[cfg(feature = "glutin")]
 pub use crate::backend::glutin::glutin;
-pub use crate::context::Profile;
+pub use crate::context::{Profile, UuidError};
 pub use crate::draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use crate::draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
 pub use crate::draw_parameters::{Smooth};
