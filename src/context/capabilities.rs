@@ -301,8 +301,11 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             // `glGetFramebufferAttachmentParameteriv` incorrectly returns GL_INVALID_ENUM on some
             // drivers, so we prefer using `glGetIntegerv` if possible.
             if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_ext_framebuffer_srgb {
+                let mut fb = 0;
+                gl.GetIntegerv(gl::DRAW_FRAMEBUFFER_BINDING, &mut fb);
+                let attachment = if fb == 0 { gl::FRONT_LEFT } else { gl::COLOR_ATTACHMENT0 };
                 let mut value = 0;
-                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::FRONT_LEFT,
+                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, attachment,
                                                        gl::FRAMEBUFFER_ATTACHMENT_COLOR_ENCODING,
                                                        &mut value);
                 value as gl::types::GLenum == gl::SRGB
@@ -327,15 +330,18 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             // doesn't even though it provides this extension. I'm not sure whether this is a bug
             // with OS/X or just the extension actually not providing it.
             if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility {
+                let mut fb = 0;
+                gl.GetIntegerv(gl::DRAW_FRAMEBUFFER_BINDING, &mut fb);
+                let attachment = if fb == 0 { gl::DEPTH } else { gl::DEPTH_ATTACHMENT };
                 let mut ty = 0;
-                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
+                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, attachment,
                                                        gl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
                                                        &mut ty);
 
                 if ty as gl::types::GLenum == gl::NONE {
                     value = 0;
                 } else {
-                    gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::DEPTH,
+                    gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, attachment,
                                                            gl::FRAMEBUFFER_ATTACHMENT_DEPTH_SIZE,
                                                            &mut value);
                 }
@@ -360,15 +366,18 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
             // doesn't even though it provides this extension. I'm not sure whether this is a bug
             // with OS/X or just the extension actually not providing it.
             if version >= &Version(Api::Gl, 3, 0) && !extensions.gl_arb_compatibility {
+                let mut fb = 0;
+                gl.GetIntegerv(gl::DRAW_FRAMEBUFFER_BINDING, &mut fb);
+                let attachment = if fb == 0 { gl::STENCIL } else { gl::STENCIL_ATTACHMENT };
                 let mut ty = 0;
-                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
+                gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, attachment,
                                                        gl::FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE,
                                                        &mut ty);
 
                 if ty as gl::types::GLenum == gl::NONE {
                     value = 0;
                 } else {
-                    gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, gl::STENCIL,
+                    gl.GetFramebufferAttachmentParameteriv(gl::FRAMEBUFFER, attachment,
                                                            gl::FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE,
                                                            &mut value);
                 }
