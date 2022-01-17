@@ -64,7 +64,7 @@ void main() {
 
 We also need to multiply the normal by the matrix, but the transformations are a bit different
 and the calculation a bit weird. Since I didn't go into details about how matrices work,
-I won't go into details about why you have to use the transpose of the inverse.
+I won't go into details about why you have to use the transpose of the inverse ([click for details](https://stackoverflow.com/questions/13654401/why-transform-normals-with-the-transpose-of-the-inverse-of-the-modelview-matrix)).
 
 If you recall the section about colors, the attributes that we pass from the vertex shader
 to the fragment shader are interpolated per fragment. This means that each fragment will get
