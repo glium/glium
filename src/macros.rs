@@ -99,7 +99,7 @@ macro_rules! dynamic_uniform{
         {
             let mut tmp = $crate::uniforms::DynamicUniforms::new();
             $(
-                tmp.add(stringify!($field), value);
+                tmp.add(stringify!($field), $value);
             )*
             tmp
         }
