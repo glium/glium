@@ -57,6 +57,7 @@ impl<'n, T, R> Uniforms for UniformsStorage<'n, T, R> where T: AsUniformValue, R
 }
 
 /// Stores Uniforms dynamicly in a HashMap.
+#[derive(Clone)]
 pub struct DynamicUniforms<'a, 's>{
     map: HashMap<&'s str, UniformValue<'a>>,
 }
