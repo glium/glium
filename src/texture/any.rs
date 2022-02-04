@@ -523,16 +523,19 @@ pub unsafe fn new_from_fd<F: Facade + ?Sized>(facade: &F,
 
     let is_multisampled = matches!(ty, Dimensions::Texture2dMultisample {..}
                                    | Dimensions::Texture2dMultisampleArray {..});
-    
-    let ctxt = facade.get_context().make_current();
+
+    let mut ctxt = facade.get_context().make_current();
 
     let id = {
         let has_mipmaps = texture_levels > 1;
 
         let mut id: gl::types::GLuint = 0;
         ctxt.gl.GenTextures(1, &mut id as *mut u32);
-        
+
         ctxt.gl.BindTexture(bind_point, id);
+        let act = ctxt.state.active_texture as usize;
+        ctxt.state.texture_units[act].texture = id;
+
         let gl_tiling: crate::gl::types::GLenum = params.tiling.into();
 
         ctxt.gl.TexParameteri(bind_point, gl::TEXTURE_TILING_EXT, gl_tiling as i32);
