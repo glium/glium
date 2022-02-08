@@ -1,0 +1,279 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Uniforms - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html" class="active"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="tuto-03-animated-triangle.html#animating-our-triangle" id="animating-our-triangle"><h1>Animating our triangle</h1></a>
+<p>Now that we have a triangle, we are going to try animating it. Remember that OpenGL is like a drawing software. If we want to make a change on the screen, we have to draw over the existing content to replace what is already there. Fortunately we already have a <code>loop</code> that continuously draws on the window, so our changes will almost instantly be reflected on the window.</p>
+<a class="header" href="tuto-03-animated-triangle.html#the-naive-approach" id="the-naive-approach"><h1>The naive approach</h1></a>
+<p>Our first approach will be to create a variable named <code>t</code> which represents the step in the animation. We update the value of <code>t</code> at each loop, and add it to the coordinates of our triangle at each frame:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let mut t: f32 = -0.5;
+event_loop.run(move |event, _, control_flow| {
+
+    match event {
+        glutin::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glutin::event::WindowEvent::CloseRequested =&gt; {
+                *control_flow = glutin::event_loop::ControlFlow::Exit;
+                return;
+            },
+            _ =&gt; return,
+        },
+        glutin::event::Event::NewEvents(cause) =&gt; match cause {
+            glutin::event::StartCause::ResumeTimeReached { .. } =&gt; (),
+            glutin::event::StartCause::Init =&gt; (),
+            _ =&gt; return,
+        },
+        _ =&gt; return,
+    }
+
+    let next_frame_time = std::time::Instant::now() +
+            std::time::Duration::from_nanos(16_666_667);
+    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
+    // we update `t`
+    t += 0.0002;
+    if t &gt; 0.5 {
+        t = -0.5;
+    }
+    
+    let vertex1 = Vertex { position: [-0.5 + t, -0.5] };
+    let vertex2 = Vertex { position: [ 0.0 + t,  0.5] };
+    let vertex3 = Vertex { position: [ 0.5 + t, -0.25] };
+    let shape = vec![vertex1, vertex2, vertex3];
+
+    let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 1.0, 1.0);
+    target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
+            &amp;Default::default()).unwrap();
+    target.finish().unwrap();
+});
+#}</code></pre></pre>
+<p>If you run this code, you should see your triangle going from the left to the right of the screen, then jumping back to the left!</p>
+<p>This method is approximately what game programmers were doing in the 1990s. This works perfectly fine when you have small shapes (like a single triangle), but it is highly inefficient when you manipulate models with thousands of polygons. There are two reasons for this:</p>
+<ul>
+<li>
+<p>The CPU would spend a lot of time calculating the coordinates every time you draw (with one operation for each vertex for each model, at the end you reach hundreds of thousands of operations).</p>
+</li>
+<li>
+<p>It takes some time to upload our shape from the RAM to the video memory. This time is totally wasted as the GPU has to wait until the transfer is finished to start its work.</p>
+</li>
+</ul>
+<a class="header" href="tuto-03-animated-triangle.html#uniforms" id="uniforms"><h1>Uniforms</h1></a>
+<p>Do you remember vertex shaders? Our vertex shader takes as input the attributes of each vertex, and outputs its position on the window. Instead of doing the addition in our program and upload the result, we are going to ask the GPU to do this operation.</p>
+<p>Let's reset our program to what it was at the end of the first tutorial, but keep <code>t</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let vertex1 = Vertex { position: [-0.5, -0.5] };
+let vertex2 = Vertex { position: [ 0.0,  0.5] };
+let vertex3 = Vertex { position: [ 0.5, -0.25] };
+let shape = vec![vertex1, vertex2, vertex3];
+
+let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
+let mut t: f32 = -0.5;
+event_loop.run(move |event, _, control_flow| {
+
+    match event {
+        glutin::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glutin::event::WindowEvent::CloseRequested =&gt; {
+                *control_flow = glutin::event_loop::ControlFlow::Exit;
+                return;
+            },
+            _ =&gt; return,
+        },
+        glutin::event::Event::NewEvents(cause) =&gt; match cause {
+            glutin::event::StartCause::ResumeTimeReached { .. } =&gt; (),
+            glutin::event::StartCause::Init =&gt; (),
+            _ =&gt; return,
+        },
+        _ =&gt; return,
+    }
+
+    let next_frame_time = std::time::Instant::now() +
+        std::time::Duration::from_nanos(16_666_667);
+    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
+    // we update `t`
+    t += 0.0002;
+    if t &gt; 0.5 {
+        t = -0.5;
+    }
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 1.0, 1.0);
+    target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
+            &amp;Default::default()).unwrap();
+    target.finish().unwrap();
+});
+#}</code></pre></pre>
+<p>And instead we are going to do a small change in our vertex shader:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let vertex_shader_src = r#&quot;
+    #version 140
+
+    in vec2 position;
+
+    uniform float t;
+
+    void main() {
+        vec2 pos = position;
+        pos.x += t;
+        gl_Position = vec4(pos, 0.0, 1.0);
+    }
+&quot;#;
+#}</code></pre></pre>
+<p>You may notice that this is exactly the operation that we've been doing above, except that this time it is done on the GPU side. We have added a variable <code>t</code> in our shader, which is declared as a <strong>uniform</strong>. A uniform is a global variable whose value is set when we draw by passing its value to the <code>draw</code> function. The easiest way to do so is to use the <code>uniform!</code> macro:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { t: t },
+            &amp;Default::default()).unwrap();
+#}</code></pre></pre>
+<p>Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of <code>t</code> (a single float) instead of the whole shape.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="tuto-02-triangle.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="tuto-04-matrices.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="tuto-02-triangle.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="tuto-04-matrices.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

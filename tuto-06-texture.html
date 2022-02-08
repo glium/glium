@@ -1,0 +1,238 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Adding a texture - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html" class="active"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="tuto-06-texture.html#uploading-a-texture" id="uploading-a-texture"><h1>Uploading a texture</h1></a>
+<p>A texture is an image or a collection of images loaded in the video memory.</p>
+<p>In order to load a texture, we must first decode the image format that stores our image (for example, PNG). To do so, we are going to use the <code>image</code> library. Let's add it to the Cargo.toml file:</p>
+<pre><code class="language-toml">[dependencies]
+image = &quot;*&quot;
+</code></pre>
+<p>And to the crate root:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+extern crate image;
+#}</code></pre></pre>
+<p>In order to load the image, we just need to use <code>image::load</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+use std::io::Cursor;
+let image = image::load(Cursor::new(&amp;include_bytes!(&quot;/path/to/image.png&quot;)),
+                        image::ImageFormat::Png).unwrap().to_rgba8();
+let image_dimensions = image.dimensions();
+let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_raw(), image_dimensions);
+#}</code></pre></pre>
+<p>And in order to upload the image as a texture, it's as simple as:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let texture = glium::texture::SrgbTexture2d::new(&amp;display, image).unwrap();
+#}</code></pre></pre>
+<a class="header" href="tuto-06-texture.html#using-the-texture" id="using-the-texture"><h1>Using the texture</h1></a>
+<p>There is no automatic way to display a texture over a shape with OpenGL. Just like any other rendering techniques, it must be done manually. This means that we must manually load color values from our texture and return them with our fragment shader.</p>
+<p>To do so, we first have to modify a bit our shape in order to indicate to which location of the texture each vertex is attached to:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[derive(Copy, Clone)]
+struct Vertex {
+    position: [f32; 2],
+    tex_coords: [f32; 2],       // &lt;- this is new
+}
+
+implement_vertex!(Vertex, position, tex_coords);        // don't forget to add `tex_coords` here
+
+let vertex1 = Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] };
+let vertex2 = Vertex { position: [ 0.0,  0.5], tex_coords: [0.0, 1.0] };
+let vertex3 = Vertex { position: [ 0.5, -0.25], tex_coords: [1.0, 0.0] };
+let shape = vec![vertex1, vertex2, vertex3];
+#}</code></pre></pre>
+<p>Texture coordinates range from <code>0.0</code> to <code>1.0</code>. The coordinates <code>(0.0, 0.0)</code> correspond to the bottom-left hand corner of the texture, and <code>(1.0, 1.0)</code> to the top-right hand corner.</p>
+<p>This new <code>tex_coords</code> attribute will be passed to the vertex shader, just like <code>position</code>. We don't have anything to do with it, and we are just going to pass it through to the fragment shader:</p>
+<pre><code class="language-glsl">#version 140
+
+in vec2 position;
+in vec2 tex_coords;
+out vec2 v_tex_coords;
+
+uniform mat4 matrix;
+
+void main() {
+    v_tex_coords = tex_coords;
+    gl_Position = matrix * vec4(position, 0.0, 1.0);
+}
+</code></pre>
+<p>Similarly to the <code>my_attr</code> variable, the value of <code>v_tex_coords</code> will be interpolated so that each pixel gets a value that corresponds to its position. This value corresponds here to the coordinates in the texture that this pixel is attached to.</p>
+<p>All that's left to do in our fragment shader is to get the value of the color at these coordinates in the texture with the <code>texture()</code> function that is provided by OpenGL.</p>
+<pre><code class="language-glsl">#version 140
+
+in vec2 v_tex_coords;
+out vec4 color;
+
+uniform sampler2D tex;
+
+void main() {
+    color = texture(tex, v_tex_coords);
+}
+</code></pre>
+<p>As you can see, a texture is a <code>uniform</code> of type <code>sampler2D</code>. There are many types of textures and texture uniforms, and <code>sampler2D</code> corresponds to a simple two-dimensional texture.</p>
+<p>Since the texture is a uniform, we have to pass a reference to it when drawing in the Rust code:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let uniforms = uniform! {
+    matrix: [
+        [1.0, 0.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0, 0.0],
+        [0.0, 0.0, 1.0, 0.0],
+        [ t , 0.0, 0.0, 1.0f32],
+    ],
+    tex: &amp;texture,
+};
+#}</code></pre></pre>
+<p>And here is the result:</p>
+<p><img src="resources/tuto-06-texture.png" alt="The result" /></p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-06.rs">You can find the entire source code here</a>.</strong></p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="tuto-05-colors.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="tuto-07-shape.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="tuto-05-colors.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="tuto-07-shape.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

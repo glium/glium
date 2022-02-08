@@ -1,0 +1,6 @@
+[book]
+authors = ["The glium contributors"]
+language = "en"
+multilingual = false
+src = "."
+title = "Glium Tutorials"

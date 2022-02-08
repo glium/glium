@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Synchronization - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html" class="active"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="perf-sync.html#synchronization" id="synchronization"><h1>Synchronization</h1></a>
+<p>Almost all OpenGL implementations today are hardware-accelerated. This means that when you execute
+OpenGL commands, it is in fact your video card that does the hard work instead of your CPU.</p>
+<p>In order to improve performances, calling an OpenGL function does not wait for the the operation
+to be over. Instead it just sends a command and returns immediately. In a good application, the
+CPU adds commands to a queue while the GPU reads them and processes them in parallel.</p>
+<p><em>Note: If the GPU processes commands faster than the CPU sends them, we say that the application
+is CPU-bound. In the other case, the application is GPU-bound. AAA video games are almost always
+GPU-bound.</em></p>
+<p>But there's a problem: in some situations there is no other choice but to wait for the commands to
+have finished being executed. For example if you read the content of a texture which you have just
+drawn to, there is technically no other choice but to wait for the rendering to be finished before
+reading. This is called a <strong>synchronization</strong>, because the CPU and the GPU must synchronize instead
+of executing things in parallel.</p>
+<p>It is your job, as an OpenGL programmer, to avoid at all costs operations that cause a
+synchronization.</p>
+<a class="header" href="perf-sync.html#reading-from-a-texture-or-from-the-framebuffer" id="reading-from-a-texture-or-from-the-framebuffer"><h2>Reading from a texture or from the framebuffer</h2></a>
+<p>In order to read a texture or the framebuffer without causing a synchronization, we have to use
+a <strong>pixel buffer</strong>. Instead of directly reading the texture, we ask the GPU to copy its content
+to a buffer, and we read the buffer later or at the next frame.</p>
+<p>Just like any other operation, copying from the texture to the pixel buffer is a regular command
+that the GPU will execute. If we wait enough time, the buffer will no longer be in use and we can
+read it without waiting.</p>
+<a class="header" href="perf-sync.html#about-write-only-operations" id="about-write-only-operations"><h2>About write-only operations</h2></a>
+<p>One common operation that is often done in graphics programming is streaming data to the
+GPU. In other words, you send data to a buffer or a texture just before using it. This is done
+for example when rendering particles (which move a lot) or when decoding a video.</p>
+<p>Since creating a buffer or a texture can be expensive, it is preferred to use always the same
+buffer or texture and write data to it.</p>
+<p>There are two possibilities here:</p>
+<ul>
+<li>You rewrite the content of the entire buffer or texture.</li>
+<li>You write only some parts of the buffer or texture.</li>
+</ul>
+<p>These two situations are very different. If you rewrite the entire buffer or texture, then the
+OpenGL implementation is usually smart enough to actually allocate a new buffer or texture and put
+your data in it instead of reusing the same memory. This is done in a totally transparent way.</p>
+<p>Instead if you write only some parts of the buffer or texture, then the implementation can't do
+that. This is where <strong>invalidating</strong> a buffer or a texture comes into play. By calling
+<code>.invalidate()</code>, you tell the OpenGL implementation that you don't care about what was already
+in the buffer. This allows it to use the same optimization as when you rewrite the entire
+buffer or texture.</p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="perf-intro.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+
+            </div>
+
+            
+                <a href="perf-intro.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

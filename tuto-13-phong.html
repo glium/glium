@@ -1,0 +1,214 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Blinn-phong shading - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html" class="active"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="tuto-13-phong.html#blinn-phong-shading" id="blinn-phong-shading"><h1>Blinn-phong shading</h1></a>
+<p>Our current lighting model is a bit primitive.
+We are going to modify it to use what is called <em>Blinn-Phong shading</em>.</p>
+<p>This model is still very often used in commercial games, and has only recently been
+superseded by physical-based rendering.</p>
+<a class="header" href="tuto-13-phong.html#specular-reflection" id="specular-reflection"><h2>Specular reflection</h2></a>
+<p>So what exactly is wrong with our current lighting?</p>
+<p>When light hits an object, the light rays are split in two:</p>
+<ul>
+<li>Some rays will be reflected in all directions. This is diffuse reflection.</li>
+<li>Some rays will be reflected perpendicularly to the surface's normal, as if the object was a
+mirror. This is specular reflection.</li>
+</ul>
+<p>When you take an individual fragment, the fragment's color is a combination of its diffuse and
+specular reflections. Our current shader only takes into account diffuse reflection and not
+specular.</p>
+<p>So how does the calculation look like?</p>
+<pre><code class="language-glsl">#version 140
+
+in vec3 v_normal;
+in vec3 v_position;
+
+out vec4 color;
+
+uniform vec3 u_light;
+
+const vec3 ambient_color = vec3(0.2, 0.0, 0.0);
+const vec3 diffuse_color = vec3(0.6, 0.0, 0.0);
+const vec3 specular_color = vec3(1.0, 1.0, 1.0);
+
+void main() {
+    float diffuse = max(dot(normalize(v_normal), normalize(u_light)), 0.0);
+
+    vec3 camera_dir = normalize(-v_position);
+    vec3 half_direction = normalize(normalize(u_light) + camera_dir);
+    float specular = pow(max(dot(half_direction, normalize(v_normal)), 0.0), 16.0);
+
+    color = vec4(ambient_color + diffuse * diffuse_color + specular * specular_color, 1.0);
+}
+</code></pre>
+<p>The first line of the main function is more or less the same as what our previous shader was,
+except that this time we fix the value so that it cannot be negative. This was not necessary
+before because we used the <code>mix</code> function (which automatically handles this), but now we must
+do it.</p>
+<p>Then we calculate <code>camera_dir</code>, which is the direction of the camera relative to the object.
+Since the camera is always at <code>(0, 0, 0)</code>, this is calculated simply by taking the opposite
+of the position of the vector.</p>
+<p><img src="resources/resources/tuto-13-specular.png" alt="A schema of what's happening" /></p>
+<p>Afterwards we calculate <code>half_direction</code>, which is the direction of the camera relative to
+the light if the camera and the light were both one unit away from the object. We then
+calculate the cosine of the angle between <code>half_direction</code> and <code>v_normal</code> with
+<code>dot(half_direction, normalize(v_normal))</code>.</p>
+<p>If the <code>half_direction</code> is perpendicular to the normal, that means that the light rays coming
+from the light bounce directly into the camera. The result of the calculation will be <code>1.0</code>.
+Then we ensure that this value is positive and elevate it to the power 16. This means that
+values like <code>0.98</code> will stay high, but values like <code>0.8</code> will almost drop to 0. The role of this
+power is to mark a border between high values and low values. This is our specular coefficient.</p>
+<p>The last step is to add everything together: ambient lighting (which is the lighting that
+is present even if there is no light source) + diffuse lighting + specular lighting. Note that
+in some circumstances the value can go above <code>1.0</code>, but OpenGL will automatically clamp it
+to <code>1.0</code>.</p>
+<p>Don't forget to modify our vertex shader to pass the additional <code>v_position</code> attribute by
+adding this line at the end:</p>
+<pre><code class="language-glsl">v_position = gl_Position.xyz / gl_Position.w;
+</code></pre>
+<p>And here is the result:</p>
+<p><img src="resources/tuto-13-result.png" alt="Result" /> <img src="resources/tuto-13-result.png" alt="Result" /></p>
+<p>The big white spots are the specular reflection.</p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-13.rs">You can find the entire source code here</a>.</strong></p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="tuto-12-camera.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="tuto-14-wall.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="tuto-12-camera.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="tuto-14-wall.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

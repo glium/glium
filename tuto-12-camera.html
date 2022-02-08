@@ -1,0 +1,257 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>The camera and summary of the vertex processing stages - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html" class="active"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="tuto-12-camera.html#the-camera-and-summary-of-the-vertex-processing-stages" id="the-camera-and-summary-of-the-vertex-processing-stages"><h1>The camera and summary of the vertex processing stages</h1></a>
+<p>With the current code, you can move, rotate or rescale the teapot by adjusting the content of
+<code>matrix</code>.</p>
+<p>But in a real game, you need to organize things differently. Objects are inside a scene and
+viewed from a camera. You can't just modify each object's characteristic by thinking
+about how it will be viewed on the screen. You need a better organization.</p>
+<p>In a real game engine, computing the position of a vertex (from the <code>position</code> attribute to
+<code>gl_Position</code>) is usually done in three steps:</p>
+<ul>
+<li>
+<p>Turning the coordinates relative to the model's center (the <code>position</code> attribute) into
+coordinates relative to the scene (where coordinates <code>(0, 0)</code> are common to all objects
+of the scene). This uses the object's position, rotation and scale.</p>
+</li>
+<li>
+<p>Turning the coordinates relative to the scene into coordinates relative to the camera's
+position and rotation. This uses what is called a <em>view matrix</em> (we will see this below).</p>
+</li>
+<li>
+<p>Turning the coordinates relative to the camera into coordinates relative to the screen,
+with the perspective matrix.</p>
+</li>
+</ul>
+<p><em>Note</em>: This gets a bit more complex when dealing with animated models.</p>
+<p>Consequently you have three matrices:</p>
+<ul>
+<li>The <em>model</em> matrix, built using the object's position, rotation and scale in the scene.</li>
+<li>The <em>view</em> matrix, built with the camera's position and rotation in the scene.</li>
+<li>The <em>perspective</em> matrix, built with the field of view and aspect ratio of the screen.</li>
+</ul>
+<p>The first two matrices are sometimes combined into one <em>modelview</em> matrix before being
+uploaded to your shaders. But for the sake of simplicity, we are going to use two matrices.</p>
+<a class="header" href="tuto-12-camera.html#the-view-matrix" id="the-view-matrix"><h2>The view matrix</h2></a>
+<p>Just like the perspective matrix, here is the view matrix:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+fn view_matrix(position: &amp;[f32; 3], direction: &amp;[f32; 3], up: &amp;[f32; 3]) -&gt; [[f32; 4]; 4] {
+    let f = {
+        let f = direction;
+        let len = f[0] * f[0] + f[1] * f[1] + f[2] * f[2];
+        let len = len.sqrt();
+        [f[0] / len, f[1] / len, f[2] / len]
+    };
+
+    let s = [up[1] * f[2] - up[2] * f[1],
+             up[2] * f[0] - up[0] * f[2],
+             up[0] * f[1] - up[1] * f[0]];
+
+    let s_norm = {
+        let len = s[0] * s[0] + s[1] * s[1] + s[2] * s[2];
+        let len = len.sqrt();
+        [s[0] / len, s[1] / len, s[2] / len]
+    };
+
+    let u = [f[1] * s_norm[2] - f[2] * s_norm[1],
+             f[2] * s_norm[0] - f[0] * s_norm[2],
+             f[0] * s_norm[1] - f[1] * s_norm[0]];
+
+    let p = [-position[0] * s_norm[0] - position[1] * s_norm[1] - position[2] * s_norm[2],
+             -position[0] * u[0] - position[1] * u[1] - position[2] * u[2],
+             -position[0] * f[0] - position[1] * f[1] - position[2] * f[2]];
+
+    [
+        [s_norm[0], u[0], f[0], 0.0],
+        [s_norm[1], u[1], f[1], 0.0],
+        [s_norm[2], u[2], f[2], 0.0],
+        [p[0], p[1], p[2], 1.0],
+    ]
+}
+#}</code></pre></pre>
+<p>The function takes three arguments:</p>
+<ul>
+<li>The <code>position</code> of the camera in the scene.</li>
+<li>The <code>direction</code> the camera is facing in scene coordinates.</li>
+<li>The <code>up</code> vector, representing the direction in scene coordinates of the top of the screen.</li>
+</ul>
+<p>We need to reorganize our vertex shader one more time:</p>
+<pre><code class="language-glsl">#version 140
+
+in vec3 position;
+in vec3 normal;
+
+out vec3 v_normal;
+
+uniform mat4 perspective;
+uniform mat4 view;
+uniform mat4 model;
+
+void main() {
+    mat4 modelview = view * model;
+    v_normal = transpose(inverse(mat3(modelview))) * normal;
+    gl_Position = perspective * modelview * vec4(position, 1.0);
+}
+</code></pre>
+<p>Remember that the order of multiplications is the inverse of the order in which the
+transformations must be applied. The matrix to apply first is the nearest to the input.</p>
+<p>As usual, we need to pass a new uniform:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let view = view_matrix(&amp;[2.0, -1.0, 1.0], &amp;[-2.0, 1.0, 1.0], &amp;[0.0, 1.0, 0.0]);
+
+target.draw((&amp;positions, &amp;normals), &amp;indices, &amp;program,
+            &amp;uniform! { model: model, view: view, perspective: perspective, u_light: light },
+            &amp;params).unwrap();
+#}</code></pre></pre>
+<p>We are using fixed coordinates for the example. A first person camera is not that easy to create
+and requires a lot of code that would be out of scope.</p>
+<p>And here is the result:</p>
+<p><img src="resources/tuto-12-result.png" alt="Result" /></p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-12.rs">You can find the entire source code here</a>.</strong></p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="tuto-11-backface-culling.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="tuto-13-phong.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="tuto-11-backface-culling.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="tuto-13-phong.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

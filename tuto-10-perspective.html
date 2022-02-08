@@ -1,0 +1,272 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Adjusting the perspective - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html" class="active"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="tuto-10-perspective.html#the-perspective" id="the-perspective"><h1>The perspective</h1></a>
+<p>The matrix that we pass to the shader when drawing our teapot contains the position, rotation
+and scale of our teapot model. The third row of the fourth column, for example, holds the z
+coordinate of the object. If we change it to <code>0.5</code> it will increase the z position of the
+object by <code>0.5</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let matrix = [
+    [0.01, 0.0, 0.0, 0.0],
+    [0.0, 0.01, 0.0, 0.0],
+    [0.0, 0.0, 0.01, 0.0],
+    [0.0, 0.0, 0.5, 1.0f32]
+];
+#}</code></pre></pre>
+<p><em>Note: this is really the third row of the fourth column. Matrices are stored in column-major
+order, meaning that we store the first column, then the second column, then the third column,
+then the fourth column.</em></p>
+<p>...except that there is absolutely no change and our model is still in the same position. This
+works, however, if you change the x or y coordinate.</p>
+<p>The reason why changing the depth of the object has no effect is that our scene doesn't have
+any perspective! The depth is only used in conjunction with the depth buffer (see previous
+section) and that's it. In the real life, the further an object is from the eye the smaller it
+should appear.</p>
+<a class="header" href="tuto-10-perspective.html#correcting-the-perspective" id="correcting-the-perspective"><h2>Correcting the perspective</h2></a>
+<p>In order to make objects further away look smaller, the solution is simple: divide the x and y
+coordinates by the z coordinate (multiplied by a constant). Since the coordinate <code>(0, 0)</code> is
+at the center of the screen, objects that are far away will look like they are more towards
+the center of the screen, which is the <a href="https://en.wikipedia.org/wiki/Vanishing_point">vanishing point</a>.</p>
+<p>But it is not possible with simple matrix multiplications to divide x and y by z. This is where
+the fourth coordinate of <code>gl_Position</code> comes into play! Instead of dividing x and y, we are
+going to put the factor in the <code>w</code> coordinate. After the vertex shader is executed, the first
+three coordinates will be divided by <code>w</code>.</p>
+<p>Don't worry if this seem confusing. The most important thing to remember is that this fourth
+coordinate exists to serve as a mathematical trick for perspective correction.</p>
+<a class="header" href="tuto-10-perspective.html#aspect-ratio" id="aspect-ratio"><h2>Aspect ratio</h2></a>
+<p>Another thing that you may have noticed is that our teapot will stretch to fill the whole window.
+This is normal since the coordinates <code>-1</code> to <code>1</code> correspond to the borders of the window.</p>
+<p>However in video games the scene is not stretched. Instead if you resize the window you will
+notice that you will see a larger or smaller part of the scene.</p>
+<p>To fix this we need to multiply the x coordinate by the height/width ratio of the screen.
+We compress the objects of our scene so that when they are stretched out to match the window's
+dimensions they get back to their original aspect.</p>
+<a class="header" href="tuto-10-perspective.html#introducing-the-perspective-matrix" id="introducing-the-perspective-matrix"><h2>Introducing the perspective matrix</h2></a>
+<p>The reason why these two problems are in the same tutorial is because graphics engines usually
+solve both with one matrix: the <strong>perspective matrix</strong>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let perspective = {
+    let (width, height) = target.get_dimensions();
+    let aspect_ratio = height as f32 / width as f32;
+
+    let fov: f32 = 3.141592 / 3.0;
+    let zfar = 1024.0;
+    let znear = 0.1;
+
+    let f = 1.0 / (fov / 2.0).tan();
+
+    [
+        [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
+        [         0.0         ,     f ,              0.0              ,   0.0],
+        [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
+        [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
+    ]
+};
+#}</code></pre></pre>
+<p><em>Note: there are actually two different conventions: left-handed and right-handed.
+For this tutorial we are using the left-handed because it doesn't invert the z coordinate.</em></p>
+<p>There are four parameters used when building the matrix:</p>
+<ul>
+<li>The aspect ratio, which is <code>height / width</code>.</li>
+<li>The <em>field of view</em> (or <em>fov</em>), which is the angle of the camera. If you have played
+first person shooters, you probably know about this. There is no &quot;right&quot; value as it
+depends on the user's preferences and setup. If you play on a computer you usually
+need a higher fov than if you play on a television.</li>
+<li><code>znear</code> and <code>zfar</code> are the minimal and maximal depth values that are within the
+player's field of view. These values do not impact the visual aspect of the scene
+but they can be important for the precision of the depth buffer.</li>
+</ul>
+<p>Don't worry if you don't understand precisely what is going on. This matrix is required to
+make the scene look realistic.</p>
+<p>Since we don't want to multiply our normals by our perspective matrix, we are going to
+use two different matrices: the regular matrix containing the regular transformations
+of our object, and the perspective matrix.</p>
+<pre><code class="language-glsl">#version 140
+
+in vec3 position;
+in vec3 normal;
+
+out vec3 v_normal;
+
+uniform mat4 perspective;       // new
+uniform mat4 matrix;
+
+void main() {
+    v_normal = transpose(inverse(mat3(matrix))) * normal;
+    gl_Position = perspective * matrix * vec4(position, 1.0);       // new
+}
+</code></pre>
+<p>Don't forget to pass the additional uniform:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+target.draw((&amp;positions, &amp;normals), &amp;indices, &amp;program,
+            &amp;uniform! { matrix: matrix, perspective: perspective, u_light: light },
+            &amp;params).unwrap();
+#}</code></pre></pre>
+<p>The scene now has a correct perspective calculation! We can now move the teapot between
+any value between <code>znear</code> and <code>zfar</code>. For example <code>2.0</code>:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let matrix = [
+    [0.01, 0.0, 0.0, 0.0],
+    [0.0, 0.01, 0.0, 0.0],
+    [0.0, 0.0, 0.01, 0.0],
+    [0.0, 0.0, 2.0, 1.0f32]
+];
+#}</code></pre></pre>
+<p>And here is the result:</p>
+<p><img src="resources/tuto-10-result.png" alt="Result" /></p>
+<p>Also note that the object keeps its regular look even when we resize the dimension and is no
+longer stretched.</p>
+<p>If you compare this to the previous screenshot, you can also see how the teapot now looks
+much better.</p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-10.rs">You can find the entire source code here</a>.</strong></p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="tuto-09-depth.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="tuto-11-backface-culling.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="tuto-09-depth.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="tuto-11-backface-culling.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

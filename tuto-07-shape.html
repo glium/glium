@@ -1,0 +1,270 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>A more complex shape - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html" class="active"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="tuto-07-shape.html#a-more-complex-shape" id="a-more-complex-shape"><h1>A more complex shape</h1></a>
+<p>Instead of drawing a triangle, we are now going to draw a more complex shape: a teapot.
+The Utah teapot is a famous 3D model that is often considered as one of the &quot;hello world&quot;s of
+graphics programming.</p>
+<p>In a real application, complex models (by &quot;complex&quot; I mean anything more than a few vertices)
+are loaded from files at runtime. But for the purpose of this tutorial, we are going to use a Rust
+file that contains the already-parsed model instead.
+<a href="tuto-07-teapot.rs"><strong>You can find it here</strong></a>.</p>
+<p>This file provides three arrays:</p>
+<ul>
+<li>An array of vertex positions (called <code>VERTICES</code>).</li>
+<li>An array containing the normals (<code>NORMALS</code>) of each vertex. The normal of a vertex is
+the vertex perpendicular to the object's shape at this point. We are going to load this data
+but use it only in the following tutorials.</li>
+<li>An array containing the indices (<code>INDICES</code>).</li>
+</ul>
+<p>All shapes in graphics programming are made of triangles. In a real 3D model multiple triangles
+often use the same vertex, therefore to avoid duplicating vertices we store the list of triangles
+and list of vertices separately.</p>
+<p>Each element of <code>INDICES</code> is in fact an index in the <code>VERTICES</code> and <code>NORMALS</code> arrays, and each
+group of three indices forms a triangle. For example the first three elements of <code>INDICES</code> are
+7, 6 and 1. This declares a triangle that will connect the vertex 7, 6 and 1 whose data is
+in <code>VERTICES</code> and <code>NORMALS</code>.</p>
+<a class="header" href="tuto-07-shape.html#loading-the-shape" id="loading-the-shape"><h2>Loading the shape</h2></a>
+<p>We are going to use the Rust file containing the model as a module named <code>teapot</code>.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+mod teapot;
+#}</code></pre></pre>
+<p>Loading the data is then very straight-forward:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let positions = glium::VertexBuffer::new(&amp;display, &amp;teapot::VERTICES).unwrap();
+let normals = glium::VertexBuffer::new(&amp;display, &amp;teapot::NORMALS).unwrap();
+let indices = glium::IndexBuffer::new(&amp;display, glium::index::PrimitiveType::TrianglesList,
+                                      &amp;teapot::INDICES).unwrap();
+#}</code></pre></pre>
+<p>We have a new type here: the <code>IndexBuffer</code>. As you can tell from its name, it is a buffer whose
+purpose is to stores indices.
+When we create it, we have to indicate the kind of primitives that are inside the buffer, here a
+list of triangles. There are several kind of primitives but the triangles list is the
+most common.</p>
+<a class="header" href="tuto-07-shape.html#the-program" id="the-program"><h2>The program</h2></a>
+<p>We need to make a few changes to the vertex shader.</p>
+<p>Instead of just one, we are going to get two attributes now: <code>position</code> and <code>normal</code>.
+Also, <code>position</code> is now a <code>vec3</code> instead of a <code>vec2</code>.</p>
+<pre><code class="language-glsl">#version 140
+
+in vec3 position;
+in vec3 normal;
+
+uniform mat4 matrix;
+
+void main() {
+    gl_Position = matrix * vec4(position, 1.0);
+}
+</code></pre>
+<p>The value that we set to the <code>gl_Position</code> variable is the position of the vertex in window
+coordinates. Why does it have four components? Here is the answer:</p>
+<ul>
+<li>The window coordinates space is in fact in 3D! OpenGL treats our screen as three-dimensional.</li>
+<li>The first three coordinates are divided by the fourth coordinate immediately after our vertex
+shader is executed. The fourth coordinate is then discarded.</li>
+</ul>
+<p>For example if we output <code>gl_Position = vec4(2.0, -4.0, 6.0, 2.0);</code>, the GPU will divide the
+first three coordinates by <code>2.0</code> and obtain <code>(1.0, -2.0, 3.0)</code>, which are the screen coordinates.</p>
+<p>The first two coordinates (<code>1.0</code> and <code>-2.0</code>) then represent the position of the vertex on the
+screen, and the third (<code>3.0</code>) represents the depth of the vertex. This depth value is for the
+moment discarded, but we will use it in a later tutorial.</p>
+<p>As for the fragment shader, let's just output the color red for the moment:</p>
+<pre><code class="language-glsl">#version 140
+
+out vec4 color;
+
+void main() {
+    color = vec4(1.0, 0.0, 0.0, 1.0);
+}
+</code></pre>
+<a class="header" href="tuto-07-shape.html#drawing" id="drawing"><h2>Drawing</h2></a>
+<p>Compared to the previous sections, there are two differences when drawing:</p>
+<ul>
+<li>We have two vertex buffers. This is solved by passing a tuple of the buffers. The first
+parameter of the <code>draw</code> function must implement the <code>MultiVerticesSource</code> trait, which
+includes single buffers and tuples of buffers.</li>
+<li>We have indices, therefore we pass a reference to our index buffer to the <code>draw</code>
+function.</li>
+</ul>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let matrix = [
+    [1.0, 0.0, 0.0, 0.0],
+    [0.0, 1.0, 0.0, 0.0],
+    [0.0, 0.0, 1.0, 0.0],
+    [0.0, 0.0, 0.0, 1.0f32]
+];
+
+target.draw((&amp;positions, &amp;normals), &amp;indices, &amp;program, &amp;uniform! { matrix: matrix },
+            &amp;Default::default()).unwrap();
+#}</code></pre></pre>
+<p>And if you execute this code, you will see...</p>
+<p><img src="resources/tuto-07-wrong.png" alt="The result" /></p>
+<p>...wait, something's wrong!</p>
+<p>It is very common in graphics programming to have problems like this, where you don't always
+understand what is going on. Try to guess what the problem is here!</p>
+<p>The answer here is that the model is too large to fit in the screen. The coordinates of
+the model range between approximately <code>-100</code> and <code>+100</code>, but the logical coordinates of our screen
+range between <code>-1.0</code> and <code>1.0</code>. To fix this, let's adjust our matrix to rescale the model to
+1/100th of its size:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let matrix = [
+    [0.01, 0.0, 0.0, 0.0],
+    [0.0, 0.01, 0.0, 0.0],
+    [0.0, 0.0, 0.01, 0.0],
+    [0.0, 0.0, 0.0, 1.0f32]
+];
+#}</code></pre></pre>
+<p>And you should now get the correct result:</p>
+<p><img src="resources/tuto-07-correct.png" alt="The correct result" /></p>
+<p>This looks very primitive, but it is a good first step towards 3D rendering.</p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-07.rs">You can find the entire source code here</a>.</strong></p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="tuto-06-texture.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="tuto-08-gouraud.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="tuto-06-texture.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="tuto-08-gouraud.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>

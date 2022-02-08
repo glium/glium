@@ -1,0 +1,305 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Normal mapping - Glium Tutorials</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <base href="">
+
+        <link rel="stylesheet" href="book.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <link rel="shortcut icon" href="favicon.png">
+
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme -->
+        
+
+        
+
+        <!-- Fetch Clipboard.js from CDN but have a local fallback -->
+        <script src="https://cdn.jsdelivr.net/clipboard.js/1.6.1/clipboard.min.js"></script>
+        <script>
+            if (typeof Clipboard == 'undefined') {
+                document.write(unescape("%3Cscript src='clipboard.min.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch JQuery from CDN but have a local fallback -->
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script>
+            if (typeof jQuery == 'undefined') {
+                document.write(unescape("%3Cscript src='jquery.js'%3E%3C/script%3E"));
+            }
+        </script>
+
+        <!-- Fetch store.js from local - TODO add CDN when 2.x.x is available on cdnjs -->
+        <script src="store.js"></script>
+
+    </head>
+    <body class="light">
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme = store.get('mdbook-theme');
+            if (theme === null || theme === undefined) { theme = 'light'; }
+            $('body').removeClass().addClass(theme);
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var sidebar = store.get('mdbook-sidebar');
+            if (sidebar === "hidden") { $("html").addClass("sidebar-hidden") }
+            else if (sidebar === "visible") { $("html").addClass("sidebar-visible") }
+        </script>
+
+        <div id="sidebar" class="sidebar">
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html" class="active"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+        </div>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page" tabindex="-1">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div class="left-buttons">
+                        <i id="sidebar-toggle" class="fa fa-bars" title="Toggle sidebar"></i>
+                        <i id="theme-toggle" class="fa fa-paint-brush" title="Change theme"></i>
+                    </div>
+
+                    <h1 class="menu-title">Glium Tutorials</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html">
+                            <i id="print-button" class="fa fa-print" title="Print this book"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="content" class="content">
+                    <a class="header" href="tuto-14-wall.html#a-textured-wall" id="a-textured-wall"><h1>A textured wall</h1></a>
+<p>For this next section, we are going to discard the teapot and draw a wall instead.</p>
+<a class="header" href="tuto-14-wall.html#the-wall" id="the-wall"><h2>The wall</h2></a>
+<p>Since this is a pretty simple shape, we can build it ourselves:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[derive(Copy, Clone)]
+struct Vertex {
+    position: [f32; 3],
+    normal: [f32; 3],
+}
+
+implement_vertex!(Vertex, position, normal);
+
+let shape = glium::vertex::VertexBuffer::new(&amp;display, &amp;[
+        Vertex { position: [-1.0,  1.0, 0.0], normal: [0.0, 0.0, -1.0] },
+        Vertex { position: [ 1.0,  1.0, 0.0], normal: [0.0, 0.0, -1.0] },
+        Vertex { position: [-1.0, -1.0, 0.0], normal: [0.0, 0.0, -1.0] },
+        Vertex { position: [ 1.0, -1.0, 0.0], normal: [0.0, 0.0, -1.0] },
+    ]).unwrap();
+#}</code></pre></pre>
+<p>We only have four vertices. The reason is that we are going to use a triangle strip. With
+a triangle strip, the GPU will draw one triangle with vertices 0, 1 and 2, and another
+triangle with vertices 1, 2, and 3. A triangle strip is very useful when drawing rectangles
+or rectangular shapes.</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+target.draw(&amp;shape, glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &amp;program,
+            &amp;uniform! { model: model, view: view, perspective: perspective, u_light: light },
+            &amp;params).unwrap();
+#}</code></pre></pre>
+<p>The rest of the code is mostly the same as before. You should know by now how to draw something!</p>
+<p><img src="resources/tuto-14-step1.png" alt="What it looks like after step 1" /></p>
+<a class="header" href="tuto-14-wall.html#applying-a-texture" id="applying-a-texture"><h2>Applying a texture</h2></a>
+<p>To apply a texture, we do exactly the same thing as a few sections earlier:</p>
+<ul>
+<li>We load the texture at initialization.</li>
+<li>We add a <code>tex_coords</code> attribute to the vertices.</li>
+<li>We pass the texture as a uniform.</li>
+<li>We get the ambient and diffuse colors from the texture.</li>
+</ul>
+<p>Loading the texture is done like we have already done before:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let image = image::load(Cursor::new(&amp;include_bytes!(&quot;../book/tuto-14-diffuse.jpg&quot;)),
+                        image::JPEG).unwrap().to_rgba8();
+let image_dimensions = image.dimensions();
+let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_raw(), image_dimensions);
+let diffuse_texture = glium::texture::SrgbTexture2d::new(&amp;display, image).unwrap();
+#}</code></pre></pre>
+<p>Adding the texture coordinates is also very easy:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[derive(Copy, Clone)]
+struct Vertex {
+    position: [f32; 3],
+    normal: [f32; 3],
+    tex_coords: [f32; 2],
+}
+
+implement_vertex!(Vertex, position, normal, tex_coords);
+#}</code></pre></pre>
+<p>Passing the texture involves adding a new uniform in our fragment shader:</p>
+<pre><code class="language-glsl">uniform sampler2D diffuse_tex;
+</code></pre>
+<p>And passing it when drawing:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+target.draw(&amp;shape, glium::index::NoIndices(glium::index::PrimitiveType::TriangleStrip), &amp;program,
+            &amp;uniform! { model: model, view: view, perspective: perspective,
+                        u_light: light, diffuse_tex: &amp;diffuse_texture },
+            &amp;params).unwrap();
+#}</code></pre></pre>
+<p>And then in the fragment shader, we load the diffuse and ambient colors from the texture instead.</p>
+<p>We just replace this:</p>
+<pre><code class="language-glsl">const vec3 ambient_color = vec3(0.2, 0.0, 0.0);
+const vec3 diffuse_color = vec3(0.6, 0.0, 0.0);
+</code></pre>
+<p>With this:</p>
+<pre><code class="language-glsl">vec3 diffuse_color = texture(diffuse_tex, v_tex_coords).rgb;
+vec3 ambient_color = diffuse_color * 0.1;
+</code></pre>
+<p>And we should get a textured wall!</p>
+<p><img src="resources/tuto-14-step2.png" alt="The textured wall" /></p>
+<a class="header" href="tuto-14-wall.html#normal-mapping" id="normal-mapping"><h2>Normal mapping</h2></a>
+<p>However the outcome is not great. You can clearly see that it's just a rectangle with a wall
+drawn on it and not an actual wall.</p>
+<p>There is a technique that can greatly improve the quality of the rendering: normal mapping.</p>
+<p>The problem with our current rendering is that the light doesn't penetrate between the rocks.
+If each individual stone was drawn one by one the rendering would be much better thanks to
+lighting.</p>
+<p>Normal mapping consists in adjusting the lighting calculation of our rectangle in order to do
+as if there were individual stones in there. This is done by providing a normal <em>per-fragment</em>.
+If you remember, a normal is a vector perpendicular to the surface at a location. By using
+more fine-grained normals, we can also make the user believe that the surface itself is
+fine-grained.</p>
+<p>Here is what a <em>normal map</em> is:</p>
+<p><img src="resources/tuto-14-normal.png" alt="The normal map" /></p>
+<p>As you can see there are a lot of similarities with the regular texture. Each pixel of the normal
+map represents the value of the normal at this pixel's location. Instead of storing colors we
+store arbitrary values that represent the normal. For example normal maps are often blue because
+blue is the value <code>(0.0, 0.0, 1.0)</code> which is a vector pointing to the outside.</p>
+<p>Let's start with the beginning. We load the normal map into a texture:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let image = image::load(Cursor::new(&amp;include_bytes!(&quot;../book/tuto-14-normal.png&quot;)),
+                        image::PNG).unwrap().to_rgba8();
+let image_dimensions = image.dimensions();
+let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_raw(), image_dimensions);
+let normal_map = glium::texture::Texture2d::new(&amp;display, image).unwrap();
+#}</code></pre></pre>
+<p>And we add a new uniform in our fragment shader:</p>
+<pre><code class="language-glsl">uniform sampler2D normal_tex;
+</code></pre>
+<p>Now instead of using the value of <code>v_normal</code> that comes from our vertex shader, we are going to
+load the normal from the normal map, similarly to how we load the diffuse color from the diffuse
+texture.</p>
+<pre><code class="language-glsl">vec3 normal_map = texture(normal_tex, v_tex_coords).rgb;
+</code></pre>
+<p>However there is a problem. The value stored in the normal map contains the normal vectors
+relative to the surface of the object. But during our calculations we are in scene coordinates
+relative to the camera. We need to multiply the value we load from the normal map by a matrix
+in order to get usable values. This matrix is called the <strong>TBN</strong> matrix (for
+<em>Tangent Binormal Normal</em>).</p>
+<p>In the past, some of the calculations required for this matrix were precomputed and passed
+as attributes. But calculating this on the fly is really practical. Here is a function from
+<a href="http://www.thetenthplanet.de/archives/1180">http://www.thetenthplanet.de/archives/1180</a> that
+calculates it:</p>
+<pre><code class="language-glsl">mat3 cotangent_frame(vec3 normal, vec3 pos, vec2 uv) {
+    vec3 dp1 = dFdx(pos);
+    vec3 dp2 = dFdy(pos);
+    vec2 duv1 = dFdx(uv);
+    vec2 duv2 = dFdy(uv);
+
+    vec3 dp2perp = cross(dp2, normal);
+    vec3 dp1perp = cross(normal, dp1);
+    vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+    vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+
+    float invmax = inversesqrt(max(dot(T, T), dot(B, B)));
+    return mat3(T * invmax, B * invmax, normal);
+}
+</code></pre>
+<p>Thanks to this we can calculate the <em>real</em> normal, in other words the normal of the surface
+at the given pixel:</p>
+<pre><code class="language-glsl">mat3 tbn = cotangent_frame(v_normal, v_position, v_tex_coords);
+vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
+</code></pre>
+<p>The rest of the code is the same as before. We apply phong shading, except that we use
+<code>real_normal</code> instead of <code>v_normal</code>.</p>
+<p>And here is the result:</p>
+<p><img src="resources/tuto-14-step3.png" alt="Final result" /></p>
+<p>This is much more convincing!</p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-14.rs">You can find the entire source code here</a>.</strong></p>
+
+                </div>
+
+                <!-- Mobile navigation buttons -->
+                
+                    <a rel="prev" href="tuto-13-phong.html" class="mobile-nav-chapters previous" title="Previous chapter">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                
+
+                
+                    <a rel="next" href="perf-intro.html" class="mobile-nav-chapters next" title="Next chapter">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+                
+
+            </div>
+
+            
+                <a href="tuto-13-phong.html" class="nav-chapters previous" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-left"></i>
+                </a>
+            
+
+            
+                <a href="perf-intro.html" class="nav-chapters next" title="You can navigate through the chapters using the arrow keys">
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            
+
+        </div>
+
+
+        <!-- Local fallback for Font Awesome -->
+        <script>
+            if ($(".fa").css("font-family") !== "FontAwesome") {
+                $('<link rel="stylesheet" type="text/css" href="_FontAwesome/css/font-awesome.css">').prependTo('head');
+            }
+        </script>
+
+        <!-- Livereload script (if served using the cli tool) -->
+        
+
+        
+
+        
+
+        
+
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS script -->
+        
+
+    </body>
+</html>
