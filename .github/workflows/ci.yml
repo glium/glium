@@ -45,3 +45,9 @@ jobs:
     - name: Run mdbook
       run: |
         cd book && mdbook build
+    - name: Deploy to gh pages
+      uses: JamesIves/github-pages-deploy-action@v4.2.3
+      with:
+        branch: gh-pages
+        folder: book/book
+      if: github.event_name == 'push'
