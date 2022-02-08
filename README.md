@@ -34,7 +34,7 @@ Its objectives:
 
 If you have some knowledge of OpenGL, the documentation and the examples should get you easily started.
 
-## [Link to a work-in-progress tutorial](https://github.com/glium/glium/tree/master/book)
+## [Link to a work-in-progress tutorial](https://glium.github.io/glium/book/)
 
 ## Why should I use Glium instead of raw OpenGL calls?
 
