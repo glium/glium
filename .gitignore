@@ -3,3 +3,4 @@
 /macros/target
 /macros/Cargo.lock
 /book/_book
+/.vscode

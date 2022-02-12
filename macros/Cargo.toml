@@ -2,15 +2,21 @@
 name = "glium_macros"
 version = "0.0.2"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
+edition = "2018"
 
 [lib]
 name = "glium_macros"
 path = "src/lib.rs"
-plugin = true
+proc_macro = true
 
-[dependencies.glslang]
-git = "https://github.com/tomaka/glslang-rs"
-optional = true
+[dependencies]
+proc-macro2 = "1.0"
+syn = { version = "1.0", features = ["full"] }
+quote = "1.0"
+
+# [dependencies.glslang]
+# git = "https://github.com/tomaka/glslang-rs"
+# optional = true
 
 [dev-dependencies.glium]
 default-features = false

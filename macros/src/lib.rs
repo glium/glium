@@ -1,36 +1,34 @@
-#![feature(core, rustc_private)]
-#![feature(plugin_registrar)]
-#![feature(quote)]
-#![feature(unboxed_closures)]
+extern crate proc_macro;
 
-#[cfg(feature = "glslang")]
-extern crate glslang;
+// #[cfg(feature = "glslang")]
+// extern crate glslang;
 
-extern crate rustc;
-extern crate syntax;
+// #[cfg(feature = "glslang")]
+// mod shaders;
 
-#[cfg(feature = "glslang")]
-mod shaders;
 mod uniforms;
 mod vertex;
 
-#[doc(hidden)]
-#[plugin_registrar]
-pub fn registrar(registry: &mut rustc::plugin::Registry) {
-    use syntax::parse::token;
+use proc_macro::TokenStream;
 
-    #[cfg(feature = "glslang")]
-    fn register_verify_shader(registry: &mut rustc::plugin::Registry) {
-        registry.register_macro("verify_shader", shaders::verify_shader);
-    }
-    #[cfg(not(feature = "glslang"))]
-    fn register_verify_shader(_: &mut rustc::plugin::Registry) {
-    }
-    register_verify_shader(registry);
+// #[cfg(feature = "glslang")]
+// #[proc_macro]
+// pub fn verify_shader(input: TokenStream) -> TokenStream {
+//     shaders::verify_shader(input.into())
+//         .unwrap_or_else(syn::Error::into_compile_error)
+//         .into()
+// }
 
-    registry.register_syntax_extension(token::intern("uniforms"),
-        syntax::ext::base::Decorator(Box::new(uniforms::expand)));
-    registry.register_syntax_extension(token::intern("vertex_format"),
-        syntax::ext::base::Decorator(Box::new(vertex::expand)));
+#[proc_macro_derive(Uniform)]
+pub fn uniform(input: TokenStream) -> TokenStream {
+    uniforms::expand(input.into())
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
 }
 
+#[proc_macro_derive(Vertex)]
+pub fn vertex(input: TokenStream) -> TokenStream {
+    vertex::expand(input.into())
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
+}
