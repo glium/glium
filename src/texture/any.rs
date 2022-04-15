@@ -213,8 +213,8 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
 
         BufferAny::unbind_pixel_unpack(&mut ctxt);
 
-        let id: gl::types::GLuint = 0;
-        ctxt.gl.GenTextures(1, mem::transmute(&id));
+        let mut id: gl::types::GLuint = 0;
+        ctxt.gl.GenTextures(1, &mut id);
 
         {
             ctxt.gl.BindTexture(bind_point, id);
