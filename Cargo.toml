@@ -49,10 +49,10 @@ fnv = "1.0.5"
 gl_generator = "0.14"
 
 [dev-dependencies]
-ouroboros = "0.14"
+ouroboros = "0.15"
 cgmath = "0.18"
 genmesh = "0.6"
-image = "0.23"
+image = "0.24"
 obj = { version = "0.10", features = ["genmesh"] }
 rand = "0.8"
 libc = "0.2.62"
