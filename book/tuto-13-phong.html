@@ -133,7 +133,7 @@ do it.</p>
 <p>Then we calculate <code>camera_dir</code>, which is the direction of the camera relative to the object.
 Since the camera is always at <code>(0, 0, 0)</code>, this is calculated simply by taking the opposite
 of the position of the vector.</p>
-<p><img src="resources/resources/tuto-13-specular.png" alt="A schema of what's happening" /></p>
+<p><img src="resources/tuto-13-specular.png" alt="A schema of what's happening" /></p>
 <p>Afterwards we calculate <code>half_direction</code>, which is the direction of the camera relative to
 the light if the camera and the light were both one unit away from the object. We then
 calculate the cosine of the angle between <code>half_direction</code> and <code>v_normal</code> with
