@@ -1472,7 +1472,7 @@ calculates it:</p>
 </code></pre>
 <p>Thanks to this we can calculate the <em>real</em> normal, in other words the normal of the surface
 at the given pixel:</p>
-<pre><code class="language-glsl">mat3 tbn = cotangent_frame(v_normal, v_position, v_tex_coords);
+<pre><code class="language-glsl">mat3 tbn = cotangent_frame(v_normal, -v_position, v_tex_coords);
 vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
 </code></pre>
 <p>The rest of the code is the same as before. We apply phong shading, except that we use
