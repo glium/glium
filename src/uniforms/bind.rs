@@ -791,9 +791,10 @@ fn bind_image_uniform<P, T>(
     program.set_uniform(ctxt, location,
                         &RawUniformValue::SignedInt(image_unit as gl::types::GLint));
 
+    // "If layered is false, then only a single level identified by <layer> will be bound"
     let (layered, layer) = match unit_behavior.layer {
-        None => (false, 0),
-        Some(l) => (true, l)
+        None => (true, 0),
+        Some(l) => (false, l)
     };
 
     unsafe {

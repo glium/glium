@@ -1,13 +1,48 @@
 //! Image units, views into specific planes of textures
-use ToGlEnum;
-use gl;
+use crate::ToGlEnum;
+use crate::gl;
+use crate::texture;
+use crate::texture::GetFormatError;
+
+#[derive(Debug)]
+/// Represents an error related to the use of an Image Unit
+pub enum ImageUnitError {
+    /// The texture does not contain a mipmap at the requested level
+    NoMipmapAtLevel(u32),
+    /// This type of texture is not layered
+    LayeringNotSupported(texture::Dimensions),
+    /// The layer requested is out of the bounds of this texture
+    LayerOutOfBounds(u32),
+    /// The format of the texture and the requested format are not compatible
+    BadFormatClass(usize, usize),
+    /// Error while trying to get the format of the passed texture
+    GetFormat(GetFormatError),
+}
+
+impl std::fmt::Display for ImageUnitError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use self::ImageUnitError::*;
+
+        let desc = match *self {
+            NoMipmapAtLevel(level) => write!(f, "No mipmap level {} found", level),
+            LayeringNotSupported(kind) => write!(f, "Layering is not supported with textures of dimensions {:?}", kind),
+            LayerOutOfBounds(layer) => write!(f, "Request layer {} is out of bounds", layer),
+            BadFormatClass(tbits, ibits) => write!(f, "Texture format has {} bits but image format has {} bits", tbits, ibits),
+            GetFormat(error) => write!(f, "{}", error),
+        };
+        Ok(())
+    }
+}
+
+impl std::error::Error for ImageUnitError {}
+
 
 /// How we bind a texture to an image unit
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct ImageUnitBehavior {
     /// The mip level to bind
-    pub level: usize,
-    pub(crate) layer: Option<usize>,
+    pub level: u32,
+    pub(crate) layer: Option<u32>,
     /// How the shader will access the image unit
     pub access: ImageUnitAccess,
     /// How the shader should interpret the image
@@ -20,32 +55,63 @@ impl Default for ImageUnitBehavior {
         ImageUnitBehavior {
             level: 0,
             layer: None,
-            access: ImageUnitAccess::Read,
+            access: ImageUnitAccess::ReadWrite,
             format: ImageUnitFormat::R32I,
         }
     }
 }
 
 /// An image unit uniform marker
-pub struct ImageUnit<'t, T: 't>(pub &'t T, pub ImageUnitBehavior);
+pub struct ImageUnit<'t, T: 't + core::ops::Deref<Target = crate::texture::TextureAny>>(pub &'t T, pub ImageUnitBehavior);
 
-impl<'t, T: 't> ImageUnit<'t, T> {
+impl<'t, T: 't + core::ops::Deref<Target = crate::texture::TextureAny>> ImageUnit<'t, T> {
     /// Create a new marker
-    pub fn new(texture: &'t T) -> ImageUnit<'t, T> {
-        ImageUnit(texture, Default::default())
+    pub fn new(texture: &'t T, format: ImageUnitFormat) -> Result<ImageUnit<'t, T>, ImageUnitError> {
+        let tbits = texture.get_internal_format().unwrap().get_total_bits();
+        if tbits != format.get_total_bits() {
+            return Err(ImageUnitError::BadFormatClass(tbits, format.get_total_bits()))
+        }
+
+        Ok(ImageUnit(texture, ImageUnitBehavior {
+	    format,
+	    ..Default::default()
+	}))
     }
 
     /// Set the mip level that will be bound
-    pub fn set_level(mut self, level: usize) -> Self {
+    pub fn set_level(mut self, level: u32) -> Result<Self, ImageUnitError> {
+        self.0.mipmap(level).ok_or(ImageUnitError::NoMipmapAtLevel(level))?;
         self.1.level = level;
-        self
+        Ok(self)
     }
 
     /// Sets the layer of the texture to bind, or None to disable layer binding
     /// TODO: only implement this for texture types where layering makes sense
-    pub fn set_layer(mut self, layer: Option<usize>) -> Self {
+    pub fn set_layer(mut self, layer: Option<u32>) -> Result<Self, ImageUnitError> {
+        if let Some(layer) = layer {
+            match self.0.dimensions() {
+                texture::Dimensions::Texture1d { width } =>
+                    Err(ImageUnitError::LayeringNotSupported(self.0.dimensions())),
+                texture::Dimensions::Texture2d { width, height } =>
+                    Err(ImageUnitError::LayeringNotSupported(self.0.dimensions())),
+                texture::Dimensions::Texture2dMultisample { width, height, samples } =>
+                    Err(ImageUnitError::LayeringNotSupported(self.0.dimensions())),
+                texture::Dimensions::Texture1dArray { width, array_size } =>
+                    if layer >= array_size { Err(ImageUnitError::LayerOutOfBounds(layer))} else { Ok(()) },
+                texture::Dimensions::Texture2dArray { width, height, array_size } =>
+                    if layer >= array_size { Err(ImageUnitError::LayerOutOfBounds(layer))} else { Ok(()) },
+                texture::Dimensions::Texture2dMultisampleArray { width, height, array_size, samples } =>
+                    if layer >= array_size { Err(ImageUnitError::LayerOutOfBounds(layer))} else { Ok(()) },
+                texture::Dimensions::Texture3d { width, height, depth } =>
+                    if layer >= depth { Err(ImageUnitError::LayerOutOfBounds(layer))} else { Ok(()) },
+                texture::Dimensions::Cubemap { dimension } =>
+                    if layer >= 6 { Err(ImageUnitError::LayerOutOfBounds(layer))} else { Ok(()) },
+                texture::Dimensions::CubemapArray { dimension, array_size } =>
+                    if layer >= 6*array_size { Err(ImageUnitError::LayerOutOfBounds(layer))} else { Ok(()) },
+            }?;
+        }
         self.1.layer = layer;
-        self
+        Ok(self)
     }
 
     /// State how the shader will access the image unit
@@ -54,11 +120,6 @@ impl<'t, T: 't> ImageUnit<'t, T> {
         self
     }
 
-    /// State how the shader should interpret the image data
-    pub fn set_format(mut self, format: ImageUnitFormat) -> Self {
-        self.1.format = format;
-        self
-    }
 }
 
 /// States how the shader will access the image unit
@@ -82,6 +143,8 @@ impl ToGlEnum for ImageUnitAccess {
         }
     }
 }
+
+
 
 /// How the shader should interpret the data in the image
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
@@ -170,6 +233,56 @@ pub enum ImageUnitFormat {
     R8snorm,
 }
 
+impl ImageUnitFormat {
+    fn get_total_bits(&self) -> usize {
+        match self {
+            ImageUnitFormat::RGBA32F => 4*32,
+            ImageUnitFormat::RGBA16F => 2*32,
+            ImageUnitFormat::RG32F => 2*32,
+            ImageUnitFormat::RG16F => 1*32,
+            ImageUnitFormat::R11FG11FB10F => 1*32,
+            ImageUnitFormat::R32F => 1*32,
+            ImageUnitFormat::R16F => 1*16,
+
+            ImageUnitFormat::RGBA32UI => 4*32,
+            ImageUnitFormat::RGBA16UI => 2*32,
+            ImageUnitFormat::RGB10A2UI => 1*32,
+            ImageUnitFormat::RGBA8UI => 1*32,
+            ImageUnitFormat::RG32UI => 2*32,
+            ImageUnitFormat::RG16UI => 1*32,
+            ImageUnitFormat::RG8UI => 1*16,
+            ImageUnitFormat::R32UI => 1*32,
+            ImageUnitFormat::R16UI => 1*16,
+            ImageUnitFormat::R8UI => 1*8,
+
+            ImageUnitFormat::RGBA32I => 4*32,
+            ImageUnitFormat::RGBA16I => 2*32,
+            ImageUnitFormat::RGBA8I => 1*32,
+            ImageUnitFormat::RG32I => 2*32,
+            ImageUnitFormat::RG16I => 1*32,
+            ImageUnitFormat::RG8I => 1*16,
+            ImageUnitFormat::R32I => 1*32,
+            ImageUnitFormat::R16I => 1*16,
+            ImageUnitFormat::R8I => 1*8,
+
+            ImageUnitFormat::RGBA16 => 2*32,
+            ImageUnitFormat::RGB10A2 => 1*32,
+            ImageUnitFormat::RGBA8 => 1*32,
+            ImageUnitFormat::RG16 => 1*32,
+            ImageUnitFormat::RG8 => 1*16,
+            ImageUnitFormat::R16 => 1*16,
+            ImageUnitFormat::R8 => 1*8,
+
+            ImageUnitFormat::RGBA16snorm => 2*32,
+            ImageUnitFormat::RGBA8snorm => 1*32,
+            ImageUnitFormat::RG16snorm => 1*32,
+            ImageUnitFormat::RG8snorm => 1*16,
+            ImageUnitFormat::R16snorm => 1*16,
+            ImageUnitFormat::R8snorm => 1*8,
+        }
+    }
+}
+
 impl ToGlEnum for ImageUnitFormat {
     #[inline]
     fn to_glenum(&self) -> gl::types::GLenum {
@@ -220,3 +333,4 @@ impl ToGlEnum for ImageUnitFormat {
         }
     }
 }
+

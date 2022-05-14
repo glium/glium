@@ -322,7 +322,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             use crate::image_format::{{CompressedSrgbFormat, SrgbFormat, UncompressedUintFormat}};
 
             use crate::backend::Facade;
-            use crate::uniforms::{{UniformValue, AsUniformValue, Sampler, ImageUnit}};
+            use crate::uniforms::{{UniformValue, AsUniformValue, Sampler, ImageUnit, ImageUnitError, ImageUnitFormat}};
             use crate::framebuffer;
             use Rect;
 
@@ -482,8 +482,8 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                         /// Builds an image unit marker object that allows you to indicate how the
                         /// texture should be bound to an image unit.
                         #[inline]
-                        pub fn image_unit(&self) -> ImageUnit<{myname}> {{
-                             ImageUnit(self, Default::default())
+                        pub fn image_unit(&self, format: ImageUnitFormat) -> Result<ImageUnit<{myname}>, ImageUnitError> {{
+                             ImageUnit::new(self, format)
                         }}
                     }}
                 ", myname = name, valname = image_variant).unwrap();
