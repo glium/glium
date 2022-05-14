@@ -289,7 +289,6 @@ fn bind_atomic_counter<'a, P>(ctxt: &mut context::CommandContext<'_>, value: &Un
     }
 }
 
-
 fn bind_uniform<P>(ctxt: &mut context::CommandContext,
                    value: &UniformValue, program: &P, location: gl::types::GLint,
                    texture_bind_points: &mut Bitsfield,
@@ -702,6 +701,8 @@ fn bind_texture_uniform<P, T>(ctxt: &mut context::CommandContext<'_>,
                               texture_bind_points: &mut Bitsfield)
                               -> Result<(), DrawError> where P: ProgramExt, T: TextureExt
 {
+    texture.prepare_for_access(ctxt, crate::TextureAccess::TextureFetch);
+    
     let sampler = if let Some(sampler) = sampler {
         Some(crate::sampler_object::get_sampler(ctxt, &sampler)?)
     } else {
@@ -786,6 +787,7 @@ fn bind_image_uniform<P, T>(
         Some(unit) => unit,
         None => return Err(DrawError::InsufficientImageUnits),
     };
+    image_unit_bind_points.set_used(image_unit);
 
     // Update the program to use the right unit
     program.set_uniform(ctxt, location,
@@ -796,6 +798,11 @@ fn bind_image_uniform<P, T>(
         None => (true, 0),
         Some(l) => (false, l)
     };
+    use crate::uniforms::ImageUnitAccess;
+    let will_write =
+        unit_behavior.access.eq(&ImageUnitAccess::Write) | unit_behavior.access.eq(&ImageUnitAccess::ReadWrite);
+    
+    texture.prepare_for_access(ctxt, crate::TextureAccess::ImageUnit { will_write });
 
     unsafe {
         ctxt.gl.BindImageTexture(

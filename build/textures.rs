@@ -869,7 +869,20 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 ///
                 #[inline]
                 pub fn as_surface<'a>(&'a self) -> framebuffer::SimpleFrameBuffer<'a> {{
+                    self.sync_shader_writes_for_surface();
                     framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self).unwrap()
+                }}
+
+                /// Call this function if you write to this texture in a shader with Image Store
+                /// operations, and you want to use the texture as a Surface or Framebuffer Object.
+                ///
+                /// This function issues a memory barrier if the texture has been written to in a
+                /// shader via Image Store operations.
+                #[inline]
+                pub fn sync_shader_writes_for_surface(&self) {{
+                    use crate::ContextExt;
+                    let mut ctxt = self.0.get_context().make_current();
+                    self.0.prepare_for_access(&mut ctxt, crate::TextureAccess::Framebuffer);
                 }}
             ")).unwrap();
     }

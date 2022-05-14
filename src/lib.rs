@@ -380,6 +380,20 @@ trait TextureExt {
     /// Makes sure that the texture is bound to the current texture unit and returns the
     /// bind point to use to access the texture (eg. `GL_TEXTURE_2D`, `GL_TEXTURE_3D`, etc.).
     fn bind_to_current(&self, _: &mut CommandContext<'_>) -> gl::types::GLenum;
+
+    /// Prepares the texture to be accessed, after possibly being modified in a shader
+    /// with image load/store
+    fn prepare_for_access(&self, _: &mut CommandContext<'_>, access_type: TextureAccess);
+}
+
+/// Ways a texture could possibly be accessed after being written to in a shader via an image unit
+enum TextureAccess {
+    /// Regular texture fetches within shaders
+    TextureFetch,
+    /// Texture being used as an image unit inside of a shader
+    ImageUnit{ will_write: bool},
+    /// Texture being used as a framebuffer object
+    Framebuffer,
 }
 
 /// Internal trait for textures.
