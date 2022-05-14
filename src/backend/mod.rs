@@ -25,7 +25,6 @@ use crate::version::Version;
 
 pub use crate::context::Context;
 pub use crate::context::ReleaseBehavior;
-pub use crate::context::MemoryBarrier;
 
 
 #[cfg(feature = "glutin")]
