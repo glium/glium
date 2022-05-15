@@ -80,6 +80,9 @@ pub struct TextureAny {
 
     /// If this texture was created in Vulkan for example, it may be backed by external memory.
     memory: Option<MemoryObject>,
+
+    /// ID of the draw call where the texture was last written as a texture unit.
+    latest_shader_write: Cell<u64>,
 }
 
 fn extract_dimensions(ty: Dimensions)
@@ -457,7 +460,8 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
         levels: texture_levels as u32,
         generate_mipmaps: should_generate_mipmaps,
         owned: true,
-        memory: None
+        memory: None,
+        latest_shader_write: Cell::new(0),
     })
 }
 
@@ -489,6 +493,7 @@ pub unsafe fn from_id<F: Facade + ?Sized>(facade: &F,
         generate_mipmaps: should_generate_mipmaps,
         owned,
         memory: None,
+        latest_shader_write: Cell::new(0),
     }
 }
 
@@ -616,7 +621,8 @@ pub unsafe fn new_from_fd<F: Facade + ?Sized>(facade: &F,
         levels: mipmap_levels,
         generate_mipmaps: should_generate_mipmaps,
         owned: false,
-        memory: Some(memory)
+        memory: Some(memory),
+        latest_shader_write: Cell::new(0),
     })
 }
 
@@ -851,6 +857,37 @@ impl TextureExt for TextureAny {
 
         bind_point
     }
+
+    fn prepare_for_access(&self, ctxt: &mut CommandContext<'_>, access_type: crate::TextureAccess) {
+        match access_type {
+            crate::TextureAccess::TextureFetch => {
+                if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_texture_fetch {
+                    unsafe { ctxt.gl.MemoryBarrier(gl::TEXTURE_FETCH_BARRIER_BIT); }
+                    ctxt.state.latest_memory_barrier_texture_fetch = ctxt.state.next_draw_call_id;
+                }
+            },
+            crate::TextureAccess::ImageUnit { will_write } =>{
+                if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_shader_image_access {
+                    unsafe { ctxt.gl.MemoryBarrier(gl::SHADER_IMAGE_ACCESS_BARRIER_BIT); }
+                    ctxt.state.latest_memory_barrier_shader_image_access = ctxt.state.next_draw_call_id;
+                }
+
+                if will_write {
+                    self.latest_shader_write.set(ctxt.state.next_draw_call_id);
+                }
+            },
+            crate::TextureAccess::Framebuffer => {
+                if self.latest_shader_write.get() >= ctxt.state.latest_memory_barrier_framebuffer {
+                    unsafe { ctxt.gl.MemoryBarrier(gl::FRAMEBUFFER_BARRIER_BIT); }
+                    ctxt.state.latest_memory_barrier_framebuffer = ctxt.state.next_draw_call_id;
+                }
+            },
+        }        
+    }
+
+
+
+
 }
 
 impl GlObject for TextureAny {
