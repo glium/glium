@@ -1165,7 +1165,7 @@ impl fmt::Display for DrawError {
                 "Tried to use more image uniforms that the implementation has support for",
         };
 
-        match *self {
+        match self {
             UniformTypeMismatch { ref name, ref expected } =>
                 write!(
                     fmt,

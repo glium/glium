@@ -324,8 +324,6 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             use crate::backend::Facade;
             use crate::uniforms::{{UniformValue, AsUniformValue, Sampler, ImageUnit, ImageUnitError, ImageUnitFormat}};
             use crate::framebuffer;
-            use Rect;
-
 
             use crate::Rect;
 

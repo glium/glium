@@ -780,7 +780,7 @@ fn bind_image_uniform<P, T>(
 ) -> Result<(), DrawError>
   where P: ProgramExt, T: TextureExt
 {
-    use ToGlEnum;
+    use crate::ToGlEnum;
 
     let unit_behavior = unit_behavior.expect("Unit behavior should always be provided");
     let image_unit = match image_unit_bind_points.get_unused() {
