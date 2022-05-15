@@ -388,7 +388,7 @@ enum TextureAccess {
     /// Regular texture fetches within shaders
     TextureFetch,
     /// Texture being used as an image unit inside of a shader
-    ImageUnit{ will_write: bool},
+    ImageUnit { will_write: bool },
     /// Texture being used as a framebuffer object
     Framebuffer,
 }
@@ -1164,7 +1164,6 @@ impl fmt::Display for DrawError {
             InsufficientImageUnits =>
                 "Tried to use more image uniforms that the implementation has support for",
         };
-
         match self {
             UniformTypeMismatch { ref name, ref expected } =>
                 write!(

@@ -86,7 +86,7 @@ impl<'t, T: 't + core::ops::Deref<Target = crate::texture::TextureAny>> ImageUni
     }
 
     /// Sets the layer of the texture to bind, or None to disable layer binding
-    /// TODO: only implement this for texture types where layering makes sense
+    // TODO: only implement this for texture types where layering makes sense
     pub fn set_layer(mut self, layer: Option<u32>) -> Result<Self, ImageUnitError> {
         if let Some(layer) = layer {
             match self.0.dimensions() {
@@ -237,46 +237,46 @@ impl ImageUnitFormat {
     fn get_total_bits(&self) -> usize {
         match self {
             ImageUnitFormat::RGBA32F => 4*32,
-            ImageUnitFormat::RGBA16F => 2*32,
+            ImageUnitFormat::RGBA16F => 4*16,
             ImageUnitFormat::RG32F => 2*32,
-            ImageUnitFormat::RG16F => 1*32,
-            ImageUnitFormat::R11FG11FB10F => 1*32,
+            ImageUnitFormat::RG16F => 2*16,
+            ImageUnitFormat::R11FG11FB10F => 11*2 + 10,
             ImageUnitFormat::R32F => 1*32,
             ImageUnitFormat::R16F => 1*16,
 
             ImageUnitFormat::RGBA32UI => 4*32,
-            ImageUnitFormat::RGBA16UI => 2*32,
-            ImageUnitFormat::RGB10A2UI => 1*32,
-            ImageUnitFormat::RGBA8UI => 1*32,
+            ImageUnitFormat::RGBA16UI => 4*16,
+            ImageUnitFormat::RGB10A2UI => 3*10 + 2,
+            ImageUnitFormat::RGBA8UI => 8*4,
             ImageUnitFormat::RG32UI => 2*32,
-            ImageUnitFormat::RG16UI => 1*32,
-            ImageUnitFormat::RG8UI => 1*16,
+            ImageUnitFormat::RG16UI => 2*16,
+            ImageUnitFormat::RG8UI => 2*8,
             ImageUnitFormat::R32UI => 1*32,
             ImageUnitFormat::R16UI => 1*16,
             ImageUnitFormat::R8UI => 1*8,
 
             ImageUnitFormat::RGBA32I => 4*32,
             ImageUnitFormat::RGBA16I => 2*32,
-            ImageUnitFormat::RGBA8I => 1*32,
+            ImageUnitFormat::RGBA8I => 4*8,
             ImageUnitFormat::RG32I => 2*32,
-            ImageUnitFormat::RG16I => 1*32,
-            ImageUnitFormat::RG8I => 1*16,
+            ImageUnitFormat::RG16I => 2*16,
+            ImageUnitFormat::RG8I => 2*8,
             ImageUnitFormat::R32I => 1*32,
             ImageUnitFormat::R16I => 1*16,
             ImageUnitFormat::R8I => 1*8,
 
-            ImageUnitFormat::RGBA16 => 2*32,
-            ImageUnitFormat::RGB10A2 => 1*32,
-            ImageUnitFormat::RGBA8 => 1*32,
-            ImageUnitFormat::RG16 => 1*32,
-            ImageUnitFormat::RG8 => 1*16,
+            ImageUnitFormat::RGBA16 => 4*16,
+            ImageUnitFormat::RGB10A2 => 3*10+2,
+            ImageUnitFormat::RGBA8 => 4*8,
+            ImageUnitFormat::RG16 => 2*16,
+            ImageUnitFormat::RG8 => 2*8,
             ImageUnitFormat::R16 => 1*16,
             ImageUnitFormat::R8 => 1*8,
 
-            ImageUnitFormat::RGBA16snorm => 2*32,
-            ImageUnitFormat::RGBA8snorm => 1*32,
-            ImageUnitFormat::RG16snorm => 1*32,
-            ImageUnitFormat::RG8snorm => 1*16,
+            ImageUnitFormat::RGBA16snorm => 4*16,
+            ImageUnitFormat::RGBA8snorm => 4*8,
+            ImageUnitFormat::RG16snorm => 2*16,
+            ImageUnitFormat::RG8snorm => 2*8,
             ImageUnitFormat::R16snorm => 1*16,
             ImageUnitFormat::R8snorm => 1*8,
         }
