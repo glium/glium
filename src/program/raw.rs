@@ -572,6 +572,8 @@ impl RawProgram {
             fence.insert(&mut ctxt);
         }
 
+        ctxt.state.next_draw_call_id += 1;
+
         Ok(())
     }
 
@@ -614,6 +616,8 @@ impl RawProgram {
         for fence in fences {
             fence.insert(&mut ctxt);
         }
+
+        ctxt.state.next_draw_call_id += 1;
 
         Ok(())
     }
