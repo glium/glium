@@ -377,6 +377,20 @@ trait TextureExt {
     /// Makes sure that the texture is bound to the current texture unit and returns the
     /// bind point to use to access the texture (eg. `GL_TEXTURE_2D`, `GL_TEXTURE_3D`, etc.).
     fn bind_to_current(&self, _: &mut CommandContext<'_>) -> gl::types::GLenum;
+
+    /// Prepares the texture to be accessed, after possibly being modified in a shader
+    /// with image load/store
+    fn prepare_for_access(&self, _: &mut CommandContext<'_>, access_type: TextureAccess);
+}
+
+/// Ways a texture could possibly be accessed after being written to in a shader via an image unit
+enum TextureAccess {
+    /// Regular texture fetches within shaders
+    TextureFetch,
+    /// Texture being used as an image unit inside of a shader
+    ImageUnit { will_write: bool },
+    /// Texture being used as a framebuffer object
+    Framebuffer,
 }
 
 /// Internal trait for textures.
@@ -1073,6 +1087,9 @@ pub enum DrawError {
 
     /// Tried to enable a clip plane that does not exist.
     ClipPlaneIndexOutOfBounds,
+
+    /// Tried to use too many image units simultaneously
+    InsufficientImageUnits,
 }
 
 impl Error for DrawError {
@@ -1143,10 +1160,12 @@ impl fmt::Display for DrawError {
             FixedIndexRestartingNotSupported =>
                 "Restarting indices (multiple objects per draw call) is not supported by the backend",
             ClipPlaneIndexOutOfBounds =>
-                "Tried to enable a clip plane that does not exist."
+                "Tried to enable a clip plane that does not exist.",
+            InsufficientImageUnits =>
+                "Tried to use more image uniforms that the implementation has support for",
         };
         match self {
-            UniformTypeMismatch { name, expected } =>
+            UniformTypeMismatch { ref name, ref expected } =>
                 write!(
                     fmt,
                     "{}, got: {:?}, expected: {:?}",

@@ -70,7 +70,7 @@ impl Display {
     pub fn new<T: ContextCurrentState, E>(
         wb: glutin::window::WindowBuilder,
         cb: glutin::ContextBuilder<'_, T>,
-        events_loop: &glutin::event_loop::EventLoop<E>,
+        events_loop: &glutin::event_loop::EventLoopWindowTarget<E>,
     ) -> Result<Self, DisplayCreationError> {
         let gl_window = cb.build_windowed(wb, events_loop)?;
         Self::from_gl_window(gl_window).map_err(From::from)

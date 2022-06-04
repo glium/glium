@@ -56,7 +56,7 @@ Then we calculate `camera_dir`, which is the direction of the camera relative to
 Since the camera is always at `(0, 0, 0)`, this is calculated simply by taking the opposite
 of the position of the vector.
 
-![A schema of what's happening](resources/resources/tuto-13-specular.png)
+![A schema of what's happening](resources/tuto-13-specular.png)
 
 Afterwards we calculate `half_direction`, which is the direction of the camera relative to
 the light if the camera and the light were both one unit away from the object. We then

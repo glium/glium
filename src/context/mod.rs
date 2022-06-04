@@ -222,8 +222,8 @@ impl Context {
         {
             let mut ctxt = context.make_current();
             if crate::get_gl_error(&mut ctxt).is_some() {
-                println!("glium has triggered an OpenGL error during initialization. Please report \
-                          this error: https://github.com/glium/glium/issues");
+                eprintln!("glium has triggered an OpenGL error during initialization. Please report \
+                           this error: https://github.com/glium/glium/issues");
             }
             /*assert!(::get_gl_error(&mut ctxt).is_none(),
                     "glium has triggered an OpenGL error during initialization. Please report \
@@ -840,10 +840,10 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
     };
 
     if report_debug_output_errors {
-        print!("Debug message with high or medium severity: `{}`.\n\
-                Please report this error: https://github.com/glium/glium/issues\n\
-                Backtrace:",
-                message);
+        eprint!("Debug message with high or medium severity: `{}`.\n\
+                 Please report this error: https://github.com/glium/glium/issues\n\
+                 Backtrace:",
+                 message);
 
         let mut frame_id = 1;
         backtrace::trace(|frame| {
@@ -867,7 +867,7 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
             true
         });
 
-        println!("\n");
+        eprintln!("\n");
     }
 }
 
@@ -875,8 +875,8 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
 fn printall_debug_callback(source: debug::Source, ty: debug::MessageType, severity: debug::Severity,
                            id: u32, _: bool, message: &str)
 {
-    println!("Source: {src:?}\t\tSeverity: {sev:?}\t\tType: {ty:?}\t\tId: {id}\n{msg}",
-              src = source, sev = severity, ty = ty, id = id, msg = message);
+    eprintln!("Source: {src:?}\t\tSeverity: {sev:?}\t\tType: {ty:?}\t\tId: {id}\n{msg}",
+               src = source, sev = severity, ty = ty, id = id, msg = message);
 }
 
 /// Initializes `GL_KHR_debug`, `GL_ARB_debug`, or a similar extension so that the debug output
