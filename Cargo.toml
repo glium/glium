@@ -1,9 +1,3 @@
-[workspace]
-members = [
-    ".",
-    "macros"
-]
-
 [package]
 name = "glium"
 version = "0.31.0"

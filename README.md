@@ -138,5 +138,5 @@ Limitations:
    internal compiler errors, one-hour compile time, etc. happen more often than in smaller
    libraries.
 
- - Rust plugins are not stable, so you will have to use macros such as
-   `implement_vertex!(MyStruct)` instead of `#[derive(GliumVertex)]`.
+ - Macros are yet work-in-progress; see
+  [`glium-derive`](https://github.com/glium/glium_derive) for details.

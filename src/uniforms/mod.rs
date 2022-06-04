@@ -3,10 +3,7 @@ A uniform is a global variable in your program. In order to draw something, you 
 give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are
 here to do that.
 
-There are two primary ways to do this. The first one is to create your own structure and put
-the `#[uniforms]` attribute on it. See the `glium_macros` crate for more infos.
-
-The second way is to use the `uniform!` macro provided by glium:
+The currently preferred way to do this is to use the `uniform!` macro provided by glium:
 
 ```no_run
 # use glium::uniform;
@@ -20,7 +17,7 @@ let uniforms = uniform! {
 # }
 ```
 
-In both situations, each field must implement the `UniformValue` trait.
+Each field must implement the `UniformValue` trait for this to work.
 
 ## Samplers
 
