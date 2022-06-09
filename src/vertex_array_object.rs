@@ -259,10 +259,22 @@ impl VertexArrayObject {
     {
         // checking the attributes types
         for &(_, ref bindings, _, _, _) in vertex_buffers {
-            for &(ref name, _, ty, _) in bindings.iter() {
-                let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
-                    Some(a) => a,
-                    None => continue
+            for &(ref name, _, location, ty, _) in bindings.iter() {
+                let attribute = match location {
+                    -1 => {
+                        // No location precised in Vertex Format. Check name instead
+                        match program.get_attribute(Borrow::<str>::borrow(name)) {
+                            Some(a) => a,
+                            None => continue,
+                        }
+                    }
+                    _ => {
+                        match program.attributes().into_iter()
+                                .find(|(_, a)| a.location == location) {
+                            Some((_, a)) => a,
+                            None => continue,
+                        }
+                    }
                 };
 
                 if ty.get_num_components() != attribute.ty.get_num_components() ||
@@ -275,10 +287,10 @@ impl VertexArrayObject {
         }
 
         // checking for missing attributes
-        for (&ref name, _) in program.attributes() {
+        for (&ref name, attribute) in program.attributes() {
             let mut found = false;
             for &(_, ref bindings, _, _, _) in vertex_buffers {
-                if bindings.iter().any(|&(ref n, _, _, _)| n == name) {
+                if bindings.iter().any(|&(ref n, _, location, _, _)| (location != -1 && location == attribute.location) || n == name) {
                     found = true;
                     break;
                 }
@@ -520,12 +532,24 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
     }
 
     // binding attributes
-    for &(ref name, offset, ty, normalize) in bindings.iter() {
+    for &(ref name, offset, location, ty, normalize) in bindings.iter() {
         let (data_type, elements_count, instances_count) = vertex_binding_type_to_gl(ty);
 
-        let attribute = match program.get_attribute(Borrow::<str>::borrow(name)) {
-            Some(a) => a,
-            None => continue
+        let attribute = match location {
+            -1 => {
+                // No location precised in Vertex Format. Check name instead
+                match program.get_attribute(Borrow::<str>::borrow(name)) {
+                    Some(a) => a,
+                    None => continue,
+                }
+            }
+            _ => {
+                match program.attributes().into_iter()
+                        .find(|(_, a)| a.location == location) {
+                    Some((_, a)) => a,
+                    None => continue,
+                }
+            }
         };
 
         if attribute.location != -1 {

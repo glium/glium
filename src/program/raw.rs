@@ -428,7 +428,7 @@ impl RawProgram {
         }
 
         for elem in buf.elements.iter() {
-            if format.iter().find(|e| e.1 == elem.offset && e.2 == elem.ty)
+            if format.iter().find(|e| e.1 == elem.offset && e.3 == elem.ty)
                             .is_none()
             {
                 return false;
