@@ -97,10 +97,28 @@ macro_rules! uniform {
 ///
 /// ## Naming convention
 ///
-/// When it comes to using to using your vertex array in a shader you must make sure that all your attribute variables *match* the field names in the struct you are calling calling this macro for.
+/// If not using the location option, when it comes to using to using your vertex array in a shader you must make sure that all your attribute variables *match* the field names in the struct you are calling calling this macro for.
 ///
-/// So, if you have a `vertex_position` atribute/input in your shader, a field named `vertex_position` must be present in the struct. Ohterwise the drawing functions will panic.
+/// So, if you have a `vertex_position` attribute/input in your shader, a field named `vertex_position` must be present in the struct. Otherwise the drawing functions will panic.
 ///
+/// ## Normalize option
+///
+/// You can specify a normalize option for attributes.
+/// ```
+/// # use glium::implement_vertex;
+/// # fn main() {
+/// implement_vertex!(Vertex, position normalize(false), tex_coords normalize(false));
+/// # }
+/// ```
+/// ## Location option
+///
+/// You can specify a location option for attributes.
+/// ```
+/// # use glium::implement_vertex;
+/// # fn main() {
+/// implement_vertex!(Vertex, position location(0), tex_coords location(1));
+/// # }
+/// ```
 #[macro_export]
 macro_rules! implement_vertex {
     ($struct_name:ident, $($field_name:ident),+) => (
