@@ -262,7 +262,7 @@ impl VertexArrayObject {
             for &(ref name, _, location, ty, _) in bindings.iter() {
                 let attribute = match location {
                     -1 => {
-                        // No location precised in Vertex Format. Check name instead
+                        // No location specified in Vertex Format. Check name instead
                         match program.get_attribute(Borrow::<str>::borrow(name)) {
                             Some(a) => a,
                             None => continue,
@@ -549,7 +549,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
 
         let attribute = match location {
             -1 => {
-                // No location precised in Vertex Format. Check name instead
+                // No location specified in Vertex Format. Check name instead
                 match program.get_attribute(Borrow::<str>::borrow(name)) {
                     Some(a) => a,
                     None => continue,
