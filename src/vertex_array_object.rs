@@ -286,6 +286,18 @@ impl VertexArrayObject {
             }
         }
 
+        // checking for duplicate attribute locations
+        for &(_, ref bindings, _, _, _) in vertex_buffers {
+            for i in 0..bindings.len() {
+                for o in 0..bindings.len() {
+                    if i != o && bindings[i].2 == bindings[o].2 {
+                        panic!("The program attribute `{}` has the same binding location as program attribute `{}` (binding location {})",
+                               bindings[i].0, bindings[o].0, bindings[i].2)
+                    }
+                }
+            }
+        }
+
         // checking for missing attributes
         for (&ref name, attribute) in program.attributes() {
             let mut found = false;
