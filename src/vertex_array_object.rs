@@ -288,11 +288,11 @@ impl VertexArrayObject {
 
         // checking for duplicate attribute locations
         for &(_, ref bindings, _, _, _) in vertex_buffers {
-            for i in 0..bindings.len() {
-                for o in 0..bindings.len() {
-                    if i != o && bindings[i].2 == bindings[o].2 {
+            for (i, bi) in bindings.iter().enumerate() {
+                for (o, bo) in bindings.iter().enumerate() {
+                    if i != o && bi.2 == bo.2 {
                         panic!("The program attribute `{}` has the same binding location as program attribute `{}` (binding location {})",
-                               bindings[i].0, bindings[o].0, bindings[i].2)
+                               bi.0, bo.0, bi.2)
                     }
                 }
             }
