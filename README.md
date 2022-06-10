@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/glium/glium/actions/workflows/ci.yml/badge.svg)](https://github.com/glium/glium/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/tomaka/glium/badge.svg?branch=master&service=github)](https://coveralls.io/github/tomaka/glium?branch=master)
 
-[![crates.io page](https://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
+[![crates.io page](https://img.shields.io/crates/v/glium.svg)](https://crates.io/crates/glium)
 
 ## Note to current and future Glium users:
 
