@@ -97,10 +97,28 @@ macro_rules! uniform {
 ///
 /// ## Naming convention
 ///
-/// When it comes to using to using your vertex array in a shader you must make sure that all your attribute variables *match* the field names in the struct you are calling calling this macro for.
+/// If not using the location option, when it comes to using to using your vertex array in a shader you must make sure that all your attribute variables *match* the field names in the struct you are calling calling this macro for.
 ///
-/// So, if you have a `vertex_position` atribute/input in your shader, a field named `vertex_position` must be present in the struct. Ohterwise the drawing functions will panic.
+/// So, if you have a `vertex_position` attribute/input in your shader, a field named `vertex_position` must be present in the struct. Otherwise the drawing functions will panic.
 ///
+/// ## Normalize option
+///
+/// You can specify a normalize option for attributes.
+/// ```
+/// # use glium::implement_vertex;
+/// # fn main() {
+/// implement_vertex!(Vertex, position normalize(false), tex_coords normalize(false));
+/// # }
+/// ```
+/// ## Location option
+///
+/// You can specify a location option for attributes.
+/// ```
+/// # use glium::implement_vertex;
+/// # fn main() {
+/// implement_vertex!(Vertex, position location(0), tex_coords location(1));
+/// # }
+/// ```
 #[macro_export]
 macro_rules! implement_vertex {
     ($struct_name:ident, $($field_name:ident),+) => (
@@ -116,6 +134,7 @@ macro_rules! implement_vertex {
                         (
                             Cow::Borrowed(stringify!($field_name)),
                             $crate::__glium_offset_of!($struct_name, $field_name),
+                            -1,
                             {
                                 // Obtain the type of the $field_name field of $struct_name and
                                 // call get_type on it.
@@ -148,6 +167,7 @@ macro_rules! implement_vertex {
                         (
                             Cow::Borrowed(stringify!($field_name)),
                             $crate::__glium_offset_of!($struct_name, $field_name),
+                            -1,
                             {
                                 // Obtain the type of the $field_name field of $struct_name and
                                 // call get_type on it.
@@ -162,6 +182,41 @@ macro_rules! implement_vertex {
                             {
                                 $should_normalize
                             }
+                        )
+                    ),+
+                ])
+            }
+        }
+    };
+
+    ($struct_name:ident, $($field_name:ident location($location:expr)),+) => {
+        impl $crate::vertex::Vertex for $struct_name {
+            #[inline]
+            fn build_bindings() -> $crate::vertex::VertexFormat {
+                use std::borrow::Cow;
+
+                // TODO: use a &'static [] if possible
+
+                Cow::Owned(vec![
+                    $(
+                        (
+                            Cow::Borrowed(stringify!($field_name)),
+                            $crate::__glium_offset_of!($struct_name, $field_name),
+                            {
+                                $location
+                            },
+                            {
+                                // Obtain the type of the $field_name field of $struct_name and
+                                // call get_type on it.
+                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
+                                    -> $crate::vertex::AttributeType
+                                {
+                                    <T as $crate::vertex::Attribute>::get_type()
+                                }
+                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
+                                attr_type_of_val(field_option)
+                            },
+                            false
                         )
                     ),+
                 ])

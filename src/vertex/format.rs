@@ -410,7 +410,7 @@ impl AttributeType {
 /// third element is the type and the fourth element indicates whether
 /// or not the element should use fixed-point normalization when
 /// binding in a VAO.
-pub type VertexFormat = Cow<'static, [(Cow<'static, str>, usize, AttributeType, bool)]>;
+pub type VertexFormat = Cow<'static, [(Cow<'static, str>, usize, i32, AttributeType, bool)]>;
 
 unsafe impl Attribute for i8 {
     #[inline]
