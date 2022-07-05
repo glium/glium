@@ -259,7 +259,7 @@ macro_rules! implement_buffer_content {
                 type Owned = Box<$struct_name<$($gs)*>>;
 
                 #[inline]
-                fn read<F, E>(size: usize, f: F) -> ::std::result::Result<Box<$struct_name<$($gs)*>>, E>
+                unsafe fn read<F, E>(size: usize, f: F) -> ::std::result::Result<Box<$struct_name<$($gs)*>>, E>
                               where F: FnOnce(&mut $struct_name<$($gs)*>) -> ::std::result::Result<(), E>
                 {
                     use std::mem;
