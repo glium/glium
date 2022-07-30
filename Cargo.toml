@@ -1,6 +1,6 @@
 [package]
 name = "glium"
-version = "0.31.0"
+version = "0.32.0"
 authors = ["Pierre Krieger <pierre.krieger1708@gmail.com>"]
 description = """
 Elegant and safe OpenGL wrapper.
@@ -24,7 +24,7 @@ readme = "README.md"
 license = "Apache-2.0"
 build = "build/main.rs"
 exclude = ["doc"]
-edition = "2018"
+edition = "2021"
 
 [features]
 default = ["glutin"]
@@ -33,7 +33,7 @@ test_headless = []  # used for testing headless display
 vk_interop = [] # used for texture import from Vulkan
 
 [dependencies.glutin]
-version = "0.28"
+version = "0.29"
 features = []
 optional = true
 
