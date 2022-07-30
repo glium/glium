@@ -1,8 +1,13 @@
 # Changelog
 
-## Version 0.32 (2022-07-30)
+## Version 0.32.1 (2022-07-31)
+
+- Bugfix release to not panic when given multiple vertex attributes with unspecified location numbers.
+
+## Version 0.32.0 (2022-07-30)
 
 - Updated glutin to version 0.29.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0290-2022-07-30).
+- Support for location binding for Vertex attributes.
 
 ## Version 0.31 (2021-12-11)
 
