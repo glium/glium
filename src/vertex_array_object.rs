@@ -290,7 +290,7 @@ impl VertexArrayObject {
         for &(_, ref bindings, _, _, _) in vertex_buffers {
             for (i, bi) in bindings.iter().enumerate() {
                 for (o, bo) in bindings.iter().enumerate() {
-                    if i != o && bi.2 == bo.2 {
+                    if i != o && bi.2 == bo.2 && bi.2 != -1 {
                         panic!("The program attribute `{}` has the same binding location as program attribute `{}` (binding location {})",
                                bi.0, bo.0, bi.2)
                     }
