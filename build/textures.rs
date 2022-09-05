@@ -899,7 +899,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     // writing the `read` functions
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
-       (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
+       (ty == TextureType::Regular || ty == TextureType::Srgb || ty == TextureType::Unsigned || is_compressed)
     {
         (write!(dest, r#"
                 /// Reads the content of the texture to RAM. This method may only read `U8U8U8U8`
