@@ -486,7 +486,7 @@ macro_rules! implement_uniform_block {
 ///         vertex: r#"
 ///             #version 300
 ///
-///             fn main() {
+///             void main() {
 ///                 gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 ///             }
 ///         "#,
@@ -494,7 +494,7 @@ macro_rules! implement_uniform_block {
 ///             #version 300
 ///
 ///             out vec4 color;
-///             fn main() {
+///             void main() {
 ///                 color = vec4(1.0, 1.0, 0.0, 1.0);
 ///             }
 ///         "#,
@@ -503,14 +503,14 @@ macro_rules! implement_uniform_block {
 ///         vertex: r#"
 ///             #version 110
 ///
-///             fn main() {
+///             void main() {
 ///                 gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 ///             }
 ///         "#,
 ///         fragment: r#"
 ///             #version 110
 ///
-///             fn main() {
+///             void main() {
 ///                 gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
 ///             }
 ///         "#,
@@ -519,14 +519,14 @@ macro_rules! implement_uniform_block {
 ///         vertex: r#"
 ///             #version 110
 ///
-///             fn main() {
+///             void main() {
 ///                 gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
 ///             }
 ///         "#,
 ///         fragment: r#"
 ///             #version 110
 ///
-///             fn main() {
+///             void main() {
 ///                 gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
 ///             }
 ///         "#,
