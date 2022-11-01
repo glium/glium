@@ -14,7 +14,7 @@ The initialisation of a glium display occurs in several steps.
 extern crate glium;
 
 fn main() {
-    // 1. The **winit::EventsLoop** for handling events.
+    // 1. The **winit::EventLoop** for handling events.
     let mut events_loop = glium::glutin::event_loop::EventLoop::new();
     // 2. Parameters for building the Window.
     let wb = glium::glutin::window::WindowBuilder::new()
