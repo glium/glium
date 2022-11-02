@@ -28,8 +28,8 @@ use std::os::raw::c_void;
 fn main() {
     // building the glutin window
     // note that it's just `build` and not `build_glium`
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
     let gl_window = cb.build_windowed(wb, &event_loop).unwrap();
     let gl_window = unsafe {
@@ -105,10 +105,10 @@ fn main() {
     event_loop.run(|event, _, control_flow| {
         *control_flow = match event {
             glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => glutin::event_loop::ControlFlow::Exit,
-                _ => glutin::event_loop::ControlFlow::Poll,
+                glutin::event::WindowEvent::CloseRequested => winit::event_loop::ControlFlow::Exit,
+                _ => winit::event_loop::ControlFlow::Poll,
             },
-            _ => glutin::event_loop::ControlFlow::Poll,
+            _ => winit::event_loop::ControlFlow::Poll,
         }
     });
 }

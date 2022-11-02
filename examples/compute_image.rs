@@ -19,8 +19,8 @@ use glium::{texture::UnsignedTexture2d, uniform, Surface, Texture2d};
 
 fn main() {
     // building the display, ie. the main object
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new()
         .with_vsync(true)
         .with_gl(glutin::GlRequest::Latest);

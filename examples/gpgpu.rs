@@ -3,10 +3,10 @@ extern crate glium;
 
 #[allow(unused_imports)]
 use glium::glutin;
-use crate::glutin::dpi::PhysicalSize;
+use crate::winit::dpi::PhysicalSize;
 
 fn main() {
-    let event_loop = glium::glutin::event_loop::EventLoop::new();
+    let event_loop = glium::winit::event_loop::EventLoop::new();
     let cb = glutin::ContextBuilder::new();
     let size = PhysicalSize {
         width: 800,

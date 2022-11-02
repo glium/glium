@@ -2,7 +2,7 @@
 use std::time::{Duration, Instant};
 use glium::{self, Display};
 use glium::vertex::VertexBufferAny;
-use glium::glutin::event_loop::{EventLoop, ControlFlow};
+use glium::winit::event_loop::{EventLoop, ControlFlow};
 use glium::glutin::event::{Event, StartCause};
 
 pub mod camera;

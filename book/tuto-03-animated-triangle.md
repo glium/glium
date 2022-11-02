@@ -13,7 +13,7 @@ event_loop.run(move |event, _, control_flow| {
     match event {
         glutin::event::Event::WindowEvent { event, .. } => match event {
             glutin::event::WindowEvent::CloseRequested => {
-                *control_flow = glutin::event_loop::ControlFlow::Exit;
+                *control_flow = winit::event_loop::ControlFlow::Exit;
                 return;
             },
             _ => return,
@@ -28,7 +28,7 @@ event_loop.run(move |event, _, control_flow| {
 
     let next_frame_time = std::time::Instant::now() +
             std::time::Duration::from_nanos(16_666_667);
-    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+    *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
     // we update `t`
     t += 0.0002;
@@ -78,7 +78,7 @@ event_loop.run(move |event, _, control_flow| {
     match event {
         glutin::event::Event::WindowEvent { event, .. } => match event {
             glutin::event::WindowEvent::CloseRequested => {
-                *control_flow = glutin::event_loop::ControlFlow::Exit;
+                *control_flow = winit::event_loop::ControlFlow::Exit;
                 return;
             },
             _ => return,
@@ -93,7 +93,7 @@ event_loop.run(move |event, _, control_flow| {
 
     let next_frame_time = std::time::Instant::now() +
         std::time::Duration::from_nanos(16_666_667);
-    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+    *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
     // we update `t`
     t += 0.0002;

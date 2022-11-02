@@ -7,14 +7,14 @@ use glium::Surface;
 use glium::index::PrimitiveType;
 #[allow(unused_imports)]
 use glium::glutin::event::{self, ElementState, VirtualKeyCode, Event, WindowEvent};
-use glium::glutin::window::Fullscreen;
+use glium::winit::window::Fullscreen;
 
 mod support;
 
 fn main() {
     // building the display, ie. the main object
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
