@@ -1,5 +1,5 @@
 use glium::glutin::{window::WindowBuilder, ContextBuilder};
-use glium::glutin::event_loop::{EventLoop, ControlFlow};
+use glium::winit::event_loop::{EventLoop, ControlFlow};
 use glium::glutin::event::{Event, WindowEvent, ElementState, MouseButton};
 use glium::{Display, Surface};
 

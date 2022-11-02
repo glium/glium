@@ -18,8 +18,8 @@ fn main() {
     const SPRITES_COUNT: usize = 1024;
     println!("Number of sprites: {}", SPRITES_COUNT);
 
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 

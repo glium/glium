@@ -123,8 +123,8 @@ mod screenshot {
 
 fn main() {
     // building the display, ie. the main object
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new().with_title("Press S to take screenshot");
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new().with_title("Press S to take screenshot");
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
@@ -244,12 +244,12 @@ fn main() {
 
         let next_frame_time = std::time::Instant::now() +
             std::time::Duration::from_nanos(16_666_667);
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+        *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
         match event {
             Event::WindowEvent { event, .. } => match event {
                 WindowEvent::CloseRequested => {
-                    *control_flow = glutin::event_loop::ControlFlow::Exit;
+                    *control_flow = winit::event_loop::ControlFlow::Exit;
                     return;
                 },
                 WindowEvent::KeyboardInput { input, .. } => {

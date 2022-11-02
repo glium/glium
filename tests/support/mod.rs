@@ -15,8 +15,8 @@ use std::env;
 #[cfg(not(feature = "test_headless"))]
 pub fn build_display() -> glium::Display {
     let version = parse_version();
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new().with_visible(false);
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new().with_visible(false);
     let cb = glutin::ContextBuilder::new()
         .with_gl_debug_flag(true)
         .with_gl(version);
@@ -41,8 +41,8 @@ pub fn build_display() -> glium::HeadlessRenderer {
 /// invalidated during a rebuild, and this has to be handled by glium.
 pub fn rebuild_display(display: &glium::Display) {
     let version = parse_version();
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new().with_visible(false);
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new().with_visible(false);
     let cb = glutin::ContextBuilder::new()
         .with_gl_debug_flag(true)
         .with_gl(version);

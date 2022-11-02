@@ -5,7 +5,7 @@ use cgmath::SquareMatrix;
 #[allow(unused_imports)]
 use glium::{glutin, Surface};
 use std::time::Instant;
-use crate::glutin::dpi::LogicalSize;
+use crate::winit::dpi::LogicalSize;
 
 fn main() {
     let win_size = LogicalSize {
@@ -15,8 +15,8 @@ fn main() {
     let shadow_map_size = 1024;
 
     // Create the main window
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new()
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new()
         .with_inner_size(win_size)
         .with_title("Shadow Mapping");
     let cb = glutin::ContextBuilder::new().with_vsync(true);
@@ -163,13 +163,13 @@ fn main() {
 
         let next_frame_time = std::time::Instant::now() +
             std::time::Duration::from_nanos(16_666_667);
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+        *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
         // Handle events
         match event {
             glutin::event::Event::WindowEvent { event, .. } => match event {
                 glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = glutin::event_loop::ControlFlow::Exit;
+                    *control_flow = winit::event_loop::ControlFlow::Exit;
                     return;
                 },
                 glutin::event::WindowEvent::KeyboardInput { input, .. } => if input.state == glutin::event::ElementState::Pressed {

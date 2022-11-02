@@ -8,8 +8,8 @@ use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
 
 fn main() {
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
+    let event_loop = winit::event_loop::EventLoop::new();
+    let wb = winit::window::WindowBuilder::new();
     let cb = glutin::ContextBuilder::new();
     let display = glium::Display::new(wb, cb, &event_loop).unwrap();
 
@@ -152,15 +152,15 @@ fn main() {
         *control_flow = match event {
             glutin::event::Event::WindowEvent { event, .. } => match event {
                 // Break from the main loop when the window is closed.
-                glutin::event::WindowEvent::CloseRequested => glutin::event_loop::ControlFlow::Exit,
+                glutin::event::WindowEvent::CloseRequested => winit::event_loop::ControlFlow::Exit,
                 // Redraw the triangle when the window is resized.
                 glutin::event::WindowEvent::Resized(..) => {
                     draw();
-                    glutin::event_loop::ControlFlow::Poll
+                    winit::event_loop::ControlFlow::Poll
                 },
-                _ => glutin::event_loop::ControlFlow::Poll,
+                _ => winit::event_loop::ControlFlow::Poll,
             },
-            _ => glutin::event_loop::ControlFlow::Poll,
+            _ => winit::event_loop::ControlFlow::Poll,
         };
     });
 }

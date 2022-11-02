@@ -15,10 +15,10 @@ extern crate glium;
 
 fn main() {
     // 1. The **winit::EventLoop** for handling events.
-    let mut events_loop = glium::glutin::event_loop::EventLoop::new();
+    let mut events_loop = glium::winit::event_loop::EventLoop::new();
     // 2. Parameters for building the Window.
-    let wb = glium::glutin::window::WindowBuilder::new()
-        .with_inner_size(glium::glutin::dpi::LogicalSize::new(1024.0, 768.0))
+    let wb = glium::winit::window::WindowBuilder::new()
+        .with_inner_size(glium::winit::dpi::LogicalSize::new(1024.0, 768.0))
         .with_title("Hello world");
     // 3. Parameters for building the OpenGL context.
     let cb = glium::glutin::ContextBuilder::new();
