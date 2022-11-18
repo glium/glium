@@ -590,6 +590,14 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
                                                         (buffer_offset + offset + (i * elements_count * 4) as usize) as *const _)
                         }
                     },
+                    gl::HALF_FLOAT => {
+                        for i in 0..instances_count {
+                            ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
+                                                        elements_count as gl::types::GLint, data_type, 0,
+                                                        stride as i32,
+                                                        (buffer_offset + offset + (i * elements_count * 2) as usize) as *const _)
+                        }
+                    },
 
                     gl::DOUBLE | gl::INT64_NV | gl::UNSIGNED_INT64_NV => {
                         for i in 0..instances_count {
