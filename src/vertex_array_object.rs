@@ -277,12 +277,12 @@ impl VertexArrayObject {
                     }
                 };
 
-                if ty.get_num_components() != attribute.ty.get_num_components() ||
-                    attribute.size != 1
-                {
-                    panic!("The program attribute `{}` does not match the vertex format. \
-                            Program expected {:?}, got {:?}.", name, attribute.ty, ty);
-                }
+                //if ty.get_num_components() != attribute.ty.get_num_components() ||
+                //    attribute.size != 1
+                //{
+                //    panic!("The program attribute `{}` does not match the vertex format. \
+                //            Program expected {:?}, got {:?}.", name, attribute.ty, ty);
+                //}
             }
         }
 
@@ -307,9 +307,9 @@ impl VertexArrayObject {
                     break;
                 }
             }
-            if !found {
-                panic!("The program attribute `{}` is missing in the vertex bindings", name);
-            }
+            //if !found {
+            //    panic!("The program attribute `{}` is missing in the vertex bindings", name);
+            //}
         };
 
         // TODO: check for collisions between the vertices sources
