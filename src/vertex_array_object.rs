@@ -543,7 +543,10 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
         ctxt.state.array_buffer_binding = vertex_buffer;
     }
 
-    // binding attributes
+    // Stride value taken from bindings
+    // Calculated based on the size of each vertex in bytes
+    let stride_bindings: usize = bindings.iter().map(|x| x.3.get_size_bytes()).sum();
+
     for &(ref name, offset, location, ty, normalize) in bindings.iter() {
         let (data_type, elements_count, instances_count) = vertex_binding_type_to_gl(ty);
 
@@ -570,7 +573,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
                 for i in 0..instances_count {
                     ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
                                                 elements_count as gl::types::GLint, data_type, 1,
-                                                stride as i32,
+                                                stride_bindings as i32,
                                                 (buffer_offset + offset + (i * elements_count * 4) as usize) as *const _)
                 }
             } else {
@@ -579,14 +582,14 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
                     gl::INT | gl::UNSIGNED_INT =>
                         ctxt.gl.VertexAttribIPointer(attribute.location as u32,
                                                      elements_count as gl::types::GLint, data_type,
-                                                     stride as i32,
+                                                     stride_bindings as i32,
                                                      (buffer_offset + offset) as *const _),
 
                     gl::FLOAT => {
                         for i in 0..instances_count {
-                            ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
+                            ctxt.gl.VertexAttribPointer((attribute.location+i) as u32,
                                                         elements_count as gl::types::GLint, data_type, 0,
-                                                        stride as i32,
+                                                        stride_bindings as i32,
                                                         (buffer_offset + offset + (i * elements_count * 4) as usize) as *const _)
                         }
                     },
@@ -594,7 +597,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
                         for i in 0..instances_count {
                             ctxt.gl.VertexAttribPointer((attribute.location + i) as u32,
                                                         elements_count as gl::types::GLint, data_type, 0,
-                                                        stride as i32,
+                                                        stride_bindings as i32,
                                                         (buffer_offset + offset + (i * elements_count * 2) as usize) as *const _)
                         }
                     },
@@ -603,7 +606,7 @@ unsafe fn bind_attribute(ctxt: &mut CommandContext<'_>, program: &Program,
                         for i in 0..instances_count {
                             ctxt.gl.VertexAttribLPointer((attribute.location + i) as u32,
                                                          elements_count as gl::types::GLint, data_type,
-                                                         stride as i32,
+                                                         stride_bindings as i32,
                                                          (buffer_offset + offset + (i * elements_count * 8) as usize) as *const _)
                         }
                     },
