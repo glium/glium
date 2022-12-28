@@ -82,7 +82,7 @@ impl Program {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
 
-                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 2, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
@@ -103,7 +103,7 @@ impl Program {
             },
 
             ProgramCreationInput::Binary { data, outputs_srgb, uses_point_size } => {
-                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 2, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
@@ -147,7 +147,7 @@ impl Program {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
 
-                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 2, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
