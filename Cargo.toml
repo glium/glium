@@ -28,13 +28,23 @@ edition = "2021"
 
 [features]
 default = ["glutin_backend"]
-glutin_backend = ["glutin", "winit"]
+glutin_backend = ["glutin", "winit", "glutin-winit", "raw-window-handle"]
 unstable = [] # used for benchmarks
 test_headless = []  # used for testing headless display
 vk_interop = [] # used for texture import from Vulkan
 
 [dependencies.glutin]
 version = "0.30"
+features = []
+optional = true
+
+[dependencies.glutin-winit]
+version = "0.2"
+features = []
+optional = true
+
+[dependencies.raw-window-handle]
+version = "0.5"
 features = []
 optional = true
 

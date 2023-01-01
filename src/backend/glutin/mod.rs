@@ -9,23 +9,69 @@ Only available if the 'glutin' feature is enabled.
 
 */
 pub use glutin;
+use glutin::surface::Surface;
+use takeable_option::Takeable;
 
 pub mod headless;
 
+use crate::SwapBuffersError;
 use crate::backend;
 use crate::backend::Backend;
 use crate::backend::Context;
 use crate::context;
 use crate::debug;
-use crate::glutin::{ContextCurrentState, PossiblyCurrent as Pc};
+use crate::glutin::prelude::*;
+use crate::glutin::context::PossiblyCurrentContext;
+use crate::glutin::display::GetGlDisplay;
+use crate::glutin::surface::{SurfaceTypeTrait, ResizeableSurface};
 use std::cell::{Cell, Ref, RefCell};
 use std::error::Error;
+use std::ffi::CString;
 use std::fmt;
+use std::num::NonZeroU32;
 use std::ops::Deref;
 use std::os::raw::c_void;
 use std::rc::Rc;
-use takeable_option::Takeable;
-use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
+use crate::{Frame, IncompatibleOpenGl};
+
+/// Wraps glutin context with a the Surface
+/// This allows us swap the buffers, and determine framebuffer size within glium
+pub struct ContextSurfacePair<T: SurfaceTypeTrait + ResizeableSurface> {
+    context: PossiblyCurrentContext,
+    surface: glutin::surface::Surface<T>,
+}
+
+impl<T: SurfaceTypeTrait + ResizeableSurface> ContextSurfacePair<T> {
+    fn new(context: PossiblyCurrentContext, surface: glutin::surface::Surface<T>) -> Self {
+        Self { context, surface }
+    }
+
+    #[inline]
+    /// Return the stored framebuffer dimensions
+    pub fn get_framebuffer_dimensions(&self) -> (u32, u32) {
+        (self.surface.width().unwrap(), self.surface.height().unwrap())
+    }
+
+    #[inline]
+    /// Return the stored framebuffer dimensions
+    pub fn swap_buffers(&self) -> Result<(), glutin::error::Error> {
+        self.surface.swap_buffers(&self.context)
+    }
+
+    #[inline]
+    /// Resize the associated surface
+    pub fn resize(&self, new_size: (u32, u32)) {
+        self.surface.resize(&self.context, NonZeroU32::new(new_size.0).unwrap(), NonZeroU32::new(new_size.1).unwrap());
+    }
+}
+
+impl<T: SurfaceTypeTrait + ResizeableSurface> Deref for ContextSurfacePair<T> {
+    type Target = PossiblyCurrentContext;
+    #[inline]
+    fn deref(&self) -> &PossiblyCurrentContext {
+        &self.context
+    }
+}
 
 /// A GL context combined with a facade for drawing upon.
 ///
@@ -33,11 +79,11 @@ use crate::{Frame, IncompatibleOpenGl, SwapBuffersError};
 ///
 /// These are stored alongside a glium-specific context.
 #[derive(Clone)]
-pub struct Display {
+pub struct Display<T: SurfaceTypeTrait + ResizeableSurface + 'static> {
     // contains everything related to the current context and its state
     context: Rc<context::Context>,
     // The glutin Window alongside its associated GL Context.
-    gl_window: Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>>,
+    gl_context: Rc<RefCell<Takeable<ContextSurfacePair<T>>>>,
     // Used to check whether the framebuffer dimensions have changed between frames. If they have,
     // the glutin context must be resized accordingly.
     last_framebuffer_dimensions: Cell<(u32, u32)>,
@@ -45,125 +91,96 @@ pub struct Display {
 
 /// An implementation of the `Backend` trait for glutin.
 #[derive(Clone)]
-pub struct GlutinBackend(Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>>);
+pub struct GlutinBackend<T: SurfaceTypeTrait + ResizeableSurface>(Rc<RefCell<Takeable<ContextSurfacePair<T>>>>);
 
 /// Error that can happen while creating a glium display.
 #[derive(Debug)]
 pub enum DisplayCreationError {
     /// An error has happened while creating the backend.
-    GlutinCreationError(glutin::CreationError),
+    GlutinError(glutin::error::Error),
     /// The OpenGL implementation is too old.
     IncompatibleOpenGl(IncompatibleOpenGl),
 }
 
-impl std::fmt::Debug for Display {
+impl<T: SurfaceTypeTrait + ResizeableSurface> std::fmt::Debug for Display<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "[glium::backend::glutin::Display]")
     }
 }
 
-impl Display {
-    /// Create a new glium `Display` from the given context and window builders.
+impl<T: SurfaceTypeTrait + ResizeableSurface> Display<T> {
+    /// Create a new glium `Display` from the given context and surface.
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn new<T: ContextCurrentState, E>(
-        wb: winit::window::WindowBuilder,
-        cb: glutin::ContextBuilder<'_, T>,
-        events_loop: &winit::event_loop::EventLoopWindowTarget<E>,
+    pub fn new(
+        context: PossiblyCurrentContext,
+        surface: Surface<T>,
     ) -> Result<Self, DisplayCreationError> {
-        let gl_window = cb.build_windowed(wb, events_loop)?;
-        Self::from_gl_window(gl_window).map_err(From::from)
+        Self::from_context_surface(context, surface).map_err(From::from)
     }
 
-    /// Create a new glium `Display`.
+    /// Create a new glium `Display` from the given context and surface.
     ///
     /// Performs a compatibility check to make sure that all core elements of glium are supported
     /// by the implementation.
-    pub fn from_gl_window<T: ContextCurrentState>(
-        gl_window: glutin::WindowedContext<T>,
+    pub fn from_context_surface(
+        context: PossiblyCurrentContext,
+        surface: Surface<T>,
     ) -> Result<Self, IncompatibleOpenGl> {
-        Self::with_debug(gl_window, Default::default())
+        Self::with_debug(context, surface, Default::default())
     }
 
-    /// Create a new glium `Display`.
+    /// Create a new glium `Display` from the given context and surface.
     ///
     /// This function does the same as `build_glium`, except that the resulting context
     /// will assume that the current OpenGL context will never change.
-    pub unsafe fn unchecked<T: ContextCurrentState>(
-        gl_window: glutin::WindowedContext<T>,
+    pub unsafe fn unchecked(
+        context: PossiblyCurrentContext,
+        surface: Surface<T>,
     ) -> Result<Self, IncompatibleOpenGl> {
-        Self::unchecked_with_debug(gl_window, Default::default())
+        Self::unchecked_with_debug(context, surface, Default::default())
     }
 
     /// The same as the `new` constructor, but allows for specifying debug callback behaviour.
-    pub fn with_debug<T: ContextCurrentState>(
-        gl_window: glutin::WindowedContext<T>,
+    pub fn with_debug(
+        context: PossiblyCurrentContext,
+        surface: Surface<T>,
         debug: debug::DebugCallbackBehavior,
     ) -> Result<Self, IncompatibleOpenGl> {
-        Self::new_inner(gl_window, debug, true)
+        Self::new_inner(context, surface, debug, true)
     }
 
     /// The same as the `unchecked` constructor, but allows for specifying debug callback behaviour.
-    pub unsafe fn unchecked_with_debug<T: ContextCurrentState>(
-        gl_window: glutin::WindowedContext<T>,
+    pub unsafe fn unchecked_with_debug(
+        context: PossiblyCurrentContext,
+        surface: Surface<T>,
         debug: debug::DebugCallbackBehavior,
     ) -> Result<Self, IncompatibleOpenGl> {
-        Self::new_inner(gl_window, debug, false)
+        Self::new_inner(context, surface, debug, false)
     }
 
-    fn new_inner<T: ContextCurrentState>(
-        gl_window: glutin::WindowedContext<T>,
+    fn new_inner(
+        context: PossiblyCurrentContext,
+        surface: Surface<T>,
         debug: debug::DebugCallbackBehavior,
         checked: bool,
     ) -> Result<Self, IncompatibleOpenGl> {
-        let gl_window = unsafe { gl_window.treat_as_current() };
-        let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
+        let context_surface_pair = ContextSurfacePair::new(context, surface);
+        let gl_window = Rc::new(RefCell::new(Takeable::new(context_surface_pair)));
         let glutin_backend = GlutinBackend(gl_window.clone());
-        let framebuffer_dimensions = glutin_backend.get_framebuffer_dimensions();
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         Ok(Display {
-            gl_window,
+            gl_context: gl_window,
             context,
-            last_framebuffer_dimensions: Cell::new(framebuffer_dimensions),
+            last_framebuffer_dimensions: Cell::new((0,0)),
         })
-    }
-
-    /// Rebuilds the Display's `WindowedContext` with the given window and context builders.
-    ///
-    /// This method ensures that the new `WindowedContext`'s `Context` will share the display lists of the
-    /// original `WindowedContext`'s `Context`.
-    pub fn rebuild<T: ContextCurrentState>(
-        &self,
-        wb: winit::window::WindowBuilder,
-        cb: glutin::ContextBuilder<'_, T>,
-        events_loop: &winit::event_loop::EventLoop<()>,
-    ) -> Result<(), DisplayCreationError> {
-        // Share the display lists of the existing context.
-        let new_gl_window = {
-            let gl_window = self.gl_window.borrow();
-            let cb = cb.with_shared_lists(gl_window.context());
-            cb.build_windowed(wb, events_loop)?
-        };
-        let new_gl_window = unsafe { new_gl_window.treat_as_current() };
-
-        // Replace the stored WindowedContext with the new one.
-        {
-            let mut gl_window = self.gl_window.borrow_mut();
-            Takeable::insert(&mut gl_window, new_gl_window);
-        }
-
-        // Rebuild the Context.
-        let backend = GlutinBackend(self.gl_window.clone());
-        unsafe { self.context.rebuild(backend) }?;
-
-        Ok(())
     }
 
     /// Borrow the inner glutin WindowedContext.
     #[inline]
-    pub fn gl_window(&self) -> Ref<'_, impl Deref<Target = glutin::WindowedContext<Pc>>> {
-        self.gl_window.borrow()
+    pub fn context_surface_pair(&self) -> Ref<Takeable<ContextSurfacePair<T>>> {
+        self.gl_context.borrow()
     }
 
     /// Start drawing on the backbuffer.
@@ -177,22 +194,22 @@ impl Display {
     /// context will be resized accordingly before returning the `Frame`.
     #[inline]
     pub fn draw(&self) -> Frame {
-        let (w, h) = self.get_framebuffer_dimensions();
+        let dimensions = self.get_framebuffer_dimensions();
 
         // If the size of the framebuffer has changed, resize the context.
-        if self.last_framebuffer_dimensions.get() != (w, h) {
-            self.last_framebuffer_dimensions.set((w, h));
-            self.gl_window.borrow().resize((w, h).into());
+        if self.last_framebuffer_dimensions.get() != dimensions {
+            self.last_framebuffer_dimensions.set(dimensions);
+            self.context_surface_pair().resize(dimensions);
         }
 
-        Frame::new(self.context.clone(), (w, h))
+        Frame::new(self.context.clone(), dimensions)
     }
 }
 
 impl fmt::Display for DisplayCreationError {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            DisplayCreationError::GlutinCreationError(err) => write!(fmt, "{}", err),
+            DisplayCreationError::GlutinError(err) => write!(fmt, "{}", err),
             DisplayCreationError::IncompatibleOpenGl(err) => write!(fmt, "{}", err),
         }
     }
@@ -202,16 +219,16 @@ impl Error for DisplayCreationError {
     #[inline]
     fn source(&self) -> Option<&(dyn Error + 'static)> {
         match *self {
-            DisplayCreationError::GlutinCreationError(ref err) => Some(err),
+            DisplayCreationError::GlutinError(ref err) => Some(err),
             DisplayCreationError::IncompatibleOpenGl(ref err) => Some(err),
         }
     }
 }
 
-impl From<glutin::CreationError> for DisplayCreationError {
+impl From<glutin::error::Error> for DisplayCreationError {
     #[inline]
-    fn from(err: glutin::CreationError) -> DisplayCreationError {
-        DisplayCreationError::GlutinCreationError(err)
+    fn from(err: glutin::error::Error) -> DisplayCreationError {
+        DisplayCreationError::GlutinError(err)
     }
 }
 
@@ -222,7 +239,7 @@ impl From<IncompatibleOpenGl> for DisplayCreationError {
     }
 }
 
-impl Deref for Display {
+impl<T: SurfaceTypeTrait + ResizeableSurface> Deref for Display<T> {
     type Target = Context;
     #[inline]
     fn deref(&self) -> &Context {
@@ -230,54 +247,39 @@ impl Deref for Display {
     }
 }
 
-impl backend::Facade for Display {
+impl<T: SurfaceTypeTrait + ResizeableSurface> backend::Facade for Display<T> {
     #[inline]
     fn get_context(&self) -> &Rc<Context> {
         &self.context
     }
 }
 
-impl Deref for GlutinBackend {
-    type Target = Rc<RefCell<Takeable<glutin::WindowedContext<Pc>>>>;
+impl<T: SurfaceTypeTrait + ResizeableSurface> Deref for GlutinBackend<T> {
+    type Target = Rc<RefCell<Takeable<ContextSurfacePair<T>>>>;
     #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-unsafe impl Backend for GlutinBackend {
+unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T> {
     #[inline]
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         match self.borrow().swap_buffers() {
             Ok(()) => Ok(()),
-            Err(glutin::ContextError::IoError(e)) => {
-                panic!("I/O Error while swapping buffers: {:?}", e)
-            }
-            Err(glutin::ContextError::OsError(e)) => {
-                panic!("OS Error while swapping buffers: {:?}", e)
-            }
-            // As of writing the FunctionUnavailable error is only thrown if
-            // you are swapping buffers with damage rectangles specified.
-            // Currently we don't support this so we just panic as this
-            // case should be unreachable.
-            Err(glutin::ContextError::FunctionUnavailable) => {
-                panic!("function unavailable error while swapping buffers")
-            }
-            Err(glutin::ContextError::ContextLost) => Err(SwapBuffersError::ContextLost),
+            _ => Err(SwapBuffersError::ContextLost),
         }
     }
 
     #[inline]
     unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
-        self.borrow().get_proc_address(symbol) as *const _
+        let symbol = CString::new(symbol).unwrap();
+        self.borrow().display().get_proc_address(&symbol) as *const _
     }
 
     #[inline]
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
-        let gl_window_takeable = self.borrow();
-        let gl_window = gl_window_takeable.window();
-        let (width, height) = gl_window.inner_size().into();
-        (width, height)
+        self.0.borrow().get_framebuffer_dimensions()
     }
 
     #[inline]
@@ -287,9 +289,7 @@ unsafe impl Backend for GlutinBackend {
 
     #[inline]
     unsafe fn make_current(&self) {
-        let mut gl_window_takeable = self.borrow_mut();
-        let gl_window = Takeable::take(&mut gl_window_takeable);
-        let new_gl_window = gl_window.make_current().unwrap();
-        Takeable::insert(&mut gl_window_takeable, new_gl_window);
+        let pair = self.borrow();
+        pair.context.make_current(&pair.surface).unwrap();
     }
 }
