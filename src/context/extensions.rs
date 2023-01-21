@@ -56,6 +56,7 @@ extensions! {
     "GL_APPLE_vertex_array_object" => gl_apple_vertex_array_object,
     "GL_ARB_bindless_texture" => gl_arb_bindless_texture,
     "GL_ARB_buffer_storage" => gl_arb_buffer_storage,
+    "GL_ARB_clip_control" => gl_arb_clip_control,
     "GL_ARB_compute_shader" => gl_arb_compute_shader,
     "GL_ARB_copy_buffer" => gl_arb_copy_buffer,
     "GL_ARB_debug_output" => gl_arb_debug_output,
