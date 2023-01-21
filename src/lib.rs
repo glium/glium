@@ -1085,6 +1085,9 @@ pub enum DrawError {
     /// Restarting indices (multiple objects per draw call) is not supported by the backend.
     FixedIndexRestartingNotSupported,
 
+    /// Changing the clip volume definition (origin and depth mode) is not supported by the backend.
+    ClipControlNotSupported,
+
     /// Tried to enable a clip plane that does not exist.
     ClipPlaneIndexOutOfBounds,
 
@@ -1159,6 +1162,8 @@ impl fmt::Display for DrawError {
                 "One the blending parameters is not supported by the backend",
             FixedIndexRestartingNotSupported =>
                 "Restarting indices (multiple objects per draw call) is not supported by the backend",
+            ClipControlNotSupported =>
+                "Changing the clip volume definition (origin and depth mode) is not supported by the backend",
             ClipPlaneIndexOutOfBounds =>
                 "Tried to enable a clip plane that does not exist.",
             InsufficientImageUnits =>
