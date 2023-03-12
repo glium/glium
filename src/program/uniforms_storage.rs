@@ -374,6 +374,17 @@ impl UniformsStorage {
         }
     }
 
+    /// Clears all subroutine uniform values stored in this object.
+    /// This needs to be called when changing programs without `use_program`,
+    /// since all subroutine uniform state is lost when changing programs.
+    #[inline]
+    pub(crate) fn flush_subroutine_uniforms(&self) {
+        let mut subroutine_uniforms = self.subroutine_uniforms.borrow_mut();
+        if !subroutine_uniforms.is_empty() {
+            subroutine_uniforms.clear();
+        }
+    }
+
     /// Compares `indices` to the value stored in this object. If the values differ,
     /// updates the programs subroutine uniform bindings.
     pub fn set_subroutine_uniforms_for_stage(&self, ctxt: &mut CommandContext<'_>,

@@ -650,6 +650,7 @@ impl ProgramExt for RawProgram {
                     Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
                 }
                 ctxt.state.program = program_id;
+                self.uniform_values.flush_subroutine_uniforms();
             }
         }
     }
@@ -729,6 +730,7 @@ impl Drop for RawProgram {
                     if ctxt.state.program == Handle::Id(id) {
                         ctxt.gl.UseProgram(0);
                         ctxt.state.program = Handle::Id(0);
+                        self.uniform_values.flush_subroutine_uniforms();
                     }
 
                     ctxt.gl.DeleteProgram(id);
@@ -739,6 +741,7 @@ impl Drop for RawProgram {
                     if ctxt.state.program == Handle::Handle(id) {
                         ctxt.gl.UseProgramObjectARB(0 as gl::types::GLhandleARB);
                         ctxt.state.program = Handle::Handle(0 as gl::types::GLhandleARB);
+                        self.uniform_values.flush_subroutine_uniforms();
                     }
 
                     ctxt.gl.DeleteObjectARB(id);
