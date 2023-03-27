@@ -263,7 +263,7 @@ impl ApplicationContext for Application {
         frame
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent) {
+    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
         self.camera.process_input(&event);
     }
 

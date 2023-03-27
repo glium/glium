@@ -186,7 +186,7 @@ impl ApplicationContext for Application {
         frame
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent) {
+    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
         match event {
             winit::event::WindowEvent::KeyboardInput { input, .. } => match input.state {
                 winit::event::ElementState::Pressed => match input.virtual_keycode {

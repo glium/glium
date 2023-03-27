@@ -61,7 +61,7 @@ pub trait ApplicationContext {
     fn draw_frame(&self, frame: Frame) -> Frame { frame }
     fn new(display: &Display<WindowSurface>) -> Self;
     fn update(&mut self) { }
-    fn handle_window_event(&mut self, _event: &WindowEvent) { }
+    fn handle_window_event(&mut self, _event: &WindowEvent, _window: &winit::window::Window) { }
 }
 
 pub struct State<T> {
@@ -168,7 +168,7 @@ impl<T: ApplicationContext + 'static> State<T> {
                     },
                     ev => {
                         if let Some(state) = &mut state {
-                            state.context.handle_window_event(&ev);
+                            state.context.handle_window_event(&ev, &state.window);
                         }
                     },
                 },
