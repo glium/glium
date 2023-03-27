@@ -207,8 +207,6 @@ impl ApplicationContext for Application {
             _ => (),
         }
     }
-
-    fn update(&mut self) {}
 }
 
 fn main() {

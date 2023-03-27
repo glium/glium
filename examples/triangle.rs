@@ -86,7 +86,7 @@ impl ApplicationContext for Application {
     }
 
     fn draw_frame(&self, mut frame: Frame) -> Frame {
-        // building the uniforms
+        // For this example a simple identity matrix suffices
         let uniforms = uniform! {
             matrix: [
                 [1.0, 0.0, 0.0, 0.0],
@@ -96,7 +96,7 @@ impl ApplicationContext for Application {
             ]
         };
 
-        // drawing the frame
+        // Now we can draw the triangle
         frame.clear_color(0.0, 0.0, 0.0, 0.0);
         frame
             .draw(
@@ -109,9 +109,6 @@ impl ApplicationContext for Application {
             .unwrap();
         frame
     }
-
-    fn handle_window_event(&mut self, _event: &winit::event::WindowEvent) {}
-    fn update(&mut self) {}
 }
 
 fn main() {

@@ -58,10 +58,10 @@ pub fn load_wavefront(display: &Display<WindowSurface>, data: &[u8]) -> VertexBu
 }
 
 pub trait ApplicationContext {
-    fn draw_frame(&self, frame: Frame) -> Frame;
+    fn draw_frame(&self, frame: Frame) -> Frame { frame }
     fn new(display: &Display<WindowSurface>) -> Self;
-    fn update(&mut self);
-    fn handle_window_event(&mut self, event: &WindowEvent);
+    fn update(&mut self) { }
+    fn handle_window_event(&mut self, _event: &WindowEvent) { }
 }
 
 pub struct State<T> {
@@ -78,6 +78,7 @@ impl<T: ApplicationContext + 'static> State<T> {
         let config_template_builder = ConfigTemplateBuilder::new();
         let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
 
+        // First we create a window
         let (window, gl_config) = display_builder
             .build(event_loop, config_template_builder, |mut configs| {
                 // Just use the first configuration since we don't have any special preferences here
@@ -85,8 +86,11 @@ impl<T: ApplicationContext + 'static> State<T> {
             })
             .unwrap();
         let window = window.unwrap();
-        let raw_window_handle = window.raw_window_handle();
 
+        // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
+        // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
+        // If you depend on features available in modern OpenGL Versions you need to request a specific, modern, version. Otherwise things will very likely fail.
+        let raw_window_handle = window.raw_window_handle();
         let context_attributes = ContextAttributesBuilder::new().build(Some(raw_window_handle));
         let fallback_context_attributes = ContextAttributesBuilder::new()
             .with_context_api(ContextApi::Gles(None))
@@ -100,17 +104,16 @@ impl<T: ApplicationContext + 'static> State<T> {
             })
         });
 
+        // Now we can create our surface, use it to make our context current and finally create our display
         let (width, height): (u32, u32) = window.inner_size().into();
         let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
             raw_window_handle,
             NonZeroU32::new(width).unwrap(),
             NonZeroU32::new(height).unwrap(),
         );
-
         let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
         let current_context = not_current_gl_context.unwrap().make_current(&surface).unwrap();
         let display = glium::Display::from_context_surface(current_context, surface).unwrap();
-
 
         Self::from_display_window(display, window)
     }
@@ -135,9 +138,10 @@ impl<T: ApplicationContext + 'static> State<T> {
         let event_loop = EventLoopBuilder::new().build();
         let mut state: Option<State<T>> = None;
 
-        // the main loop
         event_loop.run(move |event, window_target, control_flow| {
             match event {
+                // The Resumed/Suspended events are mostly for Android compatiblity since the context can get lost there at any point.
+                // For convenience's sake the Resumed event is also delivered on other platforms on program startup.
                 winit::event::Event::Resumed => {
                     state = Some(State::new(window_target));
                 },
@@ -148,6 +152,8 @@ impl<T: ApplicationContext + 'static> State<T> {
                         state.draw();
                     }
                 }
+                // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.
+                // For applications that only change due to user input you could remove this handler.
                 winit::event::Event::RedrawEventsCleared => {
                     if let Some(state) = &state {
                         state.window.request_redraw();

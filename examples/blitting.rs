@@ -53,10 +53,6 @@ impl ApplicationContext for Application {
         self.dest_texture.as_surface().fill(&frame, glium::uniforms::MagnifySamplerFilter::Linear);
         frame
     }
-
-    fn handle_window_event(&mut self, _event: &winit::event::WindowEvent) { }
-
-    fn update(&mut self) { }
 }
 
 fn main() {

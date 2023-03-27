@@ -142,8 +142,6 @@ impl ApplicationContext for Application {
         frame
     }
 
-    fn handle_window_event(&mut self, _event: &winit::event::WindowEvent) {}
-
     fn update(&mut self) {
         self.i = (self.i + 1) % 120;
     }

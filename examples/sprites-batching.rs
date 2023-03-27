@@ -239,8 +239,6 @@ impl ApplicationContext for Application {
         frame
     }
 
-    fn handle_window_event(&mut self, _event: &winit::event::WindowEvent) {}
-
     fn update(&mut self) {
         // moving the sprites in a random direction
         // in a game, you would typically write the exact positions and texture IDs of your sprites

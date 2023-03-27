@@ -175,9 +175,6 @@ impl ApplicationContext for Application {
             .unwrap();
         frame
     }
-
-    fn handle_window_event(&mut self, _event: &winit::event::WindowEvent) {}
-    fn update(&mut self) {}
 }
 
 fn main() {
