@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use std::num::NonZeroU32;
-use glium::{self, Display, Frame};
+use glium::{self, Display};
 use glium::vertex::VertexBufferAny;
 use winit::event::WindowEvent;
 use winit::event_loop::{EventLoopBuilder, EventLoopWindowTarget};
@@ -58,7 +58,7 @@ pub fn load_wavefront(display: &Display<WindowSurface>, data: &[u8]) -> VertexBu
 }
 
 pub trait ApplicationContext {
-    fn draw_frame(&self, frame: Frame) -> Frame { frame }
+    fn draw_frame(&mut self, _display: &Display<WindowSurface>) { }
     fn new(display: &Display<WindowSurface>) -> Self;
     fn update(&mut self) { }
     fn handle_window_event(&mut self, _event: &WindowEvent, _window: &winit::window::Window) { }
@@ -118,10 +118,6 @@ impl<T: ApplicationContext + 'static> State<T> {
         Self::from_display_window(display, window)
     }
 
-    pub fn draw(&self) {
-        self.context.draw_frame(self.display.draw()).finish().unwrap();
-    }
-
     pub fn from_display_window(
         display: glium::Display<WindowSurface>,
         window: winit::window::Window,
@@ -149,7 +145,7 @@ impl<T: ApplicationContext + 'static> State<T> {
                 winit::event::Event::RedrawRequested(_) => {
                     if let Some(state) = &mut state {
                         state.context.update();
-                        state.draw();
+                        state.context.draw_frame(&state.display);
                     }
                 }
                 // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.

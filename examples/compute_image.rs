@@ -14,9 +14,8 @@ extern crate glium;
 
 use std::time::Instant;
 
-#[allow(unused_imports)]
 use glium::{
-    program::ComputeShader, texture::UnsignedTexture2d, uniform, Display, Frame, Surface, Texture2d,
+    program::ComputeShader, texture::UnsignedTexture2d, uniform, Display, Surface, Texture2d,
 };
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
@@ -155,7 +154,8 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn draw_frame(&self, frame: Frame) -> Frame {
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
+        let frame = display.draw();
         let image_unit = self
             .fract_texture
             .image_unit(glium::uniforms::ImageUnitFormat::RGBA8UI)
@@ -215,7 +215,7 @@ impl ApplicationContext for Application {
             .as_surface()
             .fill(&frame, glium::uniforms::MagnifySamplerFilter::Nearest);
 
-        frame
+        frame.finish().unwrap();
     }
 }
 

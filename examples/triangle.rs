@@ -3,7 +3,7 @@ extern crate glium;
 mod support;
 
 use glium::index::PrimitiveType;
-use glium::{Display, Frame, Surface};
+use glium::{Display, Surface};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
 
@@ -85,7 +85,8 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn draw_frame(&self, mut frame: Frame) -> Frame {
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
+        let mut frame = display.draw();
         // For this example a simple identity matrix suffices
         let uniforms = uniform! {
             matrix: [
@@ -107,7 +108,7 @@ impl ApplicationContext for Application {
                 &Default::default(),
             )
             .unwrap();
-        frame
+        frame.finish().unwrap();
     }
 }
 

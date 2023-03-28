@@ -2,7 +2,7 @@
 extern crate glium;
 
 use glium::index::PrimitiveType;
-use glium::{Display, Frame, Surface};
+use glium::{Display, Surface};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
 
@@ -220,7 +220,8 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn draw_frame(&self, mut frame: Frame) -> Frame {
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
+        let mut frame = display.draw();
         // we must only draw the number of sprites that we have written in the vertex buffer
         // if you only want to draw 20 sprites for example, you should pass `0 .. 20 * 6` instead
         let ib_slice = self.index_buffer.slice(0..SPRITES_COUNT * 6).unwrap();
@@ -236,7 +237,7 @@ impl ApplicationContext for Application {
                 &Default::default(),
             )
             .unwrap();
-        frame
+        frame.finish().unwrap();
     }
 
     fn update(&mut self) {

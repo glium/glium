@@ -132,7 +132,8 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn draw_frame(&self, mut frame: Frame) -> Frame {
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
+        let mut frame = display.draw();
         // building the uniforms
         let uniforms = uniform! {
             persp_matrix: self.camera.get_perspective(),
@@ -159,7 +160,7 @@ impl ApplicationContext for Application {
                 &params,
             )
             .unwrap();
-        frame
+        frame.finish().unwrap();
     }
 
     fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {

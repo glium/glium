@@ -3,7 +3,7 @@ extern crate glium;
 
 use glium::index::PrimitiveType;
 use glium::program::ShaderStage;
-use glium::{Display, Frame, Surface};
+use glium::{Display, Surface};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
 
@@ -108,7 +108,8 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn draw_frame(&self, mut frame: Frame) -> Frame {
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
+        let mut frame = display.draw();
         let subroutine = if self.i < 40 {
             "ColorYellow"
         } else if self.i < 80 {
@@ -139,7 +140,7 @@ impl ApplicationContext for Application {
                 &Default::default(),
             )
             .unwrap();
-        frame
+        frame.finish().unwrap();
     }
 
     fn update(&mut self) {

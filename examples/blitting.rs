@@ -3,7 +3,7 @@ extern crate glium;
 
 use std::io::Cursor;
 #[allow(unused_imports)]
-use glium::{Surface, Frame, Display};
+use glium::{Surface, Display};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
 
@@ -36,7 +36,8 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn draw_frame(&self, frame: Frame) -> Frame {
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
+        let frame = display.draw();
         if rand::random::<f64>() <= 0.016666 {
             let (left, bottom, dimensions): (f32, f32, f32) = rand::random();
             let dest_rect = glium::BlitTarget {
@@ -51,7 +52,7 @@ impl ApplicationContext for Application {
         }
 
         self.dest_texture.as_surface().fill(&frame, glium::uniforms::MagnifySamplerFilter::Linear);
-        frame
+        frame.finish().unwrap();
     }
 }
 
