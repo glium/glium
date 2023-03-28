@@ -23,6 +23,8 @@ struct Application {
 }
 
 impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium subroutines example";
+
     fn new(display: &Display<WindowSurface>) -> Self {
         // building the vertex buffer, which contains all the vertices that we will draw
         let vertex_buffer = {

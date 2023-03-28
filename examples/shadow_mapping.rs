@@ -123,6 +123,8 @@ struct Application {
 }
 
 impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium shadow_mapping example";
+
     fn new(display: &Display<WindowSurface>) -> Self {
         let shadow_map_size = 1024;
 
@@ -339,7 +341,7 @@ impl ApplicationContext for Application {
 
         // Render the scene from the camera's point of view
         // ===============================================================================
-        let (width, height) = display.context_surface_pair().get_framebuffer_dimensions();
+        let (width, height) = display.get_framebuffer_dimensions();
         let screen_ratio = (width / height) as f32;
         let perspective_matrix: cgmath::Matrix4<f32> = cgmath::perspective(cgmath::Deg(45.0), screen_ratio, 0.0001, 100.0);
         let camera_x = 3.0 * self.camera_t.cos();

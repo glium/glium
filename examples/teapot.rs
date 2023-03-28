@@ -15,6 +15,8 @@ struct Application {
 }
 
 impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium teapot example";
+
     fn new(display: &Display<WindowSurface>) -> Self {
         let vertex_buffer = support::load_wavefront(&display, include_bytes!("support/teapot.obj"));
         let program = program!(display,

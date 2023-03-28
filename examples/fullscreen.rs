@@ -44,6 +44,8 @@ impl Application {
 }
 
 impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium fullscreen example";
+
     fn new(display: &Display<WindowSurface>) -> Self {
         // building a texture with "OpenGL" drawn on it
         let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),

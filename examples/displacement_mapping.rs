@@ -24,6 +24,8 @@ struct Application {
 }
 
 impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium displacement_mapping example";
+
     fn new(display: &Display<WindowSurface>) -> Self {
         let image = image::load(
             Cursor::new(&include_bytes!("../tests/fixture/opengl.png")[..]),

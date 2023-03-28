@@ -62,6 +62,7 @@ pub trait ApplicationContext {
     fn new(display: &Display<WindowSurface>) -> Self;
     fn update(&mut self) { }
     fn handle_window_event(&mut self, _event: &WindowEvent, _window: &winit::window::Window) { }
+    const WINDOW_TITLE:&'static str;
 }
 
 pub struct State<T> {
@@ -74,7 +75,7 @@ impl<T: ApplicationContext + 'static> State<T> {
     pub fn new<W>(
         event_loop: &EventLoopWindowTarget<W>
     ) -> Self {
-        let window_builder = WindowBuilder::new();
+        let window_builder = WindowBuilder::new().with_title(T::WINDOW_TITLE);
         let config_template_builder = ConfigTemplateBuilder::new();
         let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
 

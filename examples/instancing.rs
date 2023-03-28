@@ -23,6 +23,8 @@ struct Application {
 }
 
 impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium instancing example";
+
     fn new(display: &Display<WindowSurface>) -> Self {
         // building the vertex and index buffers
         let vertex_buffer = support::load_wavefront(display, include_bytes!("support/teapot.obj"));
