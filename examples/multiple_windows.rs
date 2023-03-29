@@ -1,69 +1,103 @@
-use glium::glutin::{window::WindowBuilder, ContextBuilder};
-use glium::winit::event_loop::{EventLoop, ControlFlow};
-use glium::glutin::event::{Event, WindowEvent, ElementState, MouseButton};
-use glium::{Display, Surface};
+#[macro_use]
+extern crate glium;
 
 use std::collections::HashMap;
 
-// This example shows how to dynamically open new windows.
+use glium::{Surface, Display};
+use glutin::surface::WindowSurface;
+use support::{ApplicationContext, State};
+use winit::{window::WindowId, event_loop::EventLoopBuilder};
 
-fn main() {
-    let event_loop = EventLoop::new();
+mod support;
 
-    let wb = WindowBuilder::new()
-        .with_title("Test main");
-
-    let cb = ContextBuilder::new();
-
-    let display = Display::new(wb, cb, &event_loop).unwrap();
-
-    let mut counter = 0;
-    let mut extra_windows = HashMap::new();
-
-    event_loop.run(move |ev, event_loop, cf| {
-        match ev {
-            Event::WindowEvent { event: WindowEvent::CloseRequested, window_id } => {
-                if window_id == display.gl_window().window().id() {
-                    // Close the application when main window is closed
-                    *cf = ControlFlow::Exit;
-                } else {
-                    // For other windows we only close the specified window
-                    extra_windows.remove(&window_id);
-                }
-            }
-            // Clicking on the main window spawns new windows
-            Event::WindowEvent { event: WindowEvent::MouseInput {
-                state: ElementState::Released,
-                button: MouseButton::Left,
-                ..
-            }, window_id } if window_id == display.gl_window().window().id() => {
-                counter += 1;
-
-                let wb = WindowBuilder::new()
-                    .with_title(&format!("Test {}", counter));
-
-                let cb = ContextBuilder::new();
-
-                let extra_display = Display::new(wb, cb, &event_loop).unwrap();
-
-                let id = extra_display.gl_window().window().id();
-                extra_windows.insert(id, extra_display);
-            }
-            Event::RedrawRequested(id) => {
-                if id == display.gl_window().window().id() {
-                    let mut target = display.draw();
-                    // We draw the main window in red
-                    target.clear_color(1.0, 0.0, 0.0, 1.0);
-                    target.finish().unwrap();
-                } else if let Some(extra_display) = extra_windows.get(&id) {
-                    let mut target = extra_display.draw();
-                    // The other windows are drawn in blue
-                    target.clear_color(0.0, 0.0, 1.0, 1.0);
-                    target.finish().unwrap();
-                }
-            },
-            _ => (),
-        }
-    });
+struct Application {
+    id: i32,
 }
 
+// This example shows how to dynamically open new windows.
+impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Main Window";
+
+    fn new(_display: &Display<WindowSurface>) -> Self {
+        Self { id: 1 }
+    }
+
+    /// Here we just fill the window with a solid color based on the id so that we can easily
+    /// distinguish them.
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
+        let mut frame = display.draw();
+        let r = if self.id & 1 == 0 { 0.0 } else { 1.0 };
+        let g = if self.id & 2 == 0 { 0.0 } else { 1.0 };
+        let b = if self.id & 4 == 0 { 0.0 } else { 1.0 };
+        frame.clear_color(r, g, b, 1.0);
+        frame.finish().unwrap()
+    }
+}
+
+fn main() {
+    let event_loop = EventLoopBuilder::new().build();
+    // To simplify things we use a single type for both the main and sub windows,
+    // since we can easily distinguish them by their id.
+    let mut windows: HashMap<WindowId, State<Application>> = HashMap::new();
+
+    event_loop.run(move |event, window_target, control_flow| {
+        match event {
+            // The Resumed/Suspended events are mostly for Android compatiblity since the context can get lost there at any point.
+            // For convenience's sake the Resumed event is also delivered on other platforms on program startup.
+            winit::event::Event::Resumed => {
+                // On startup we create the main window and insert it into the HashMap just like subsequent sub windows.
+                let window:State<Application> = State::new(window_target);
+                windows.insert(window.window.id(), window);
+            },
+            winit::event::Event::Suspended => {
+                windows.clear();
+            },
+            winit::event::Event::RedrawRequested(window_id) => {
+                // Notice the minor difference since we have to find the correct state for the window in our HashMap
+                if let Some(state) = windows.get_mut(&window_id) {
+                    state.context.update();
+                    state.context.draw_frame(&state.display);
+                }
+            }
+            winit::event::Event::WindowEvent { event, window_id, .. } => {
+                if let Some(state) = windows.get_mut(&window_id) {
+                    match event {
+                        winit::event::WindowEvent::MouseInput {
+                            state: winit::event::ElementState::Released,
+                            button: winit::event::MouseButton::Left,
+                            ..
+                        } => {
+                            // This is the main part, where we actually create the new window, enumerate it and
+                            // insert it into our HashMap
+                            if state.context.id == 1 {
+                                let mut window:State<Application> = State::new(window_target);
+                                window.context.id = windows.len() as i32 + 1;
+                                let title = format!("Window #{}", window.context.id);
+                                window.window.set_title(&title);
+                                windows.insert(window.window.id(), window);
+                            } else {
+                                windows.remove(&window_id);
+                            }
+                        },
+                        winit::event::WindowEvent::CloseRequested => {
+                            if state.context.id == 1 {
+                                control_flow.set_exit();
+                            } else {
+                                windows.remove(&window_id);
+                            }
+                        },
+                        // These two aren't necessary for this particular example, but forgetting especially the Resized
+                        // event could lead to stretched images being rendered if you decide to render something more interesting based on this example.
+                        winit::event::WindowEvent::Resized(new_size) => {
+                            state.display.context_surface_pair().resize(new_size.into());
+                        },
+                        ev => {
+                            state.context.handle_window_event(&ev, &state.window);
+                        },
+                    }
+                }
+            }
+            _ => (),
+        };
+    });
+}
