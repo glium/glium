@@ -2,7 +2,6 @@
 extern crate glium;
 
 use std::io::Cursor;
-#[allow(unused_imports)]
 use glium::{Surface, Display};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};

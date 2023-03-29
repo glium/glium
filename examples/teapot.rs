@@ -1,8 +1,7 @@
 #[macro_use]
 extern crate glium;
 
-#[allow(unused_imports)]
-use glium::{Display, Frame, Surface};
+use glium::{Display, Surface};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
 

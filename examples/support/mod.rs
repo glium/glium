@@ -73,9 +73,10 @@ pub struct State<T> {
 
 impl<T: ApplicationContext + 'static> State<T> {
     pub fn new<W>(
-        event_loop: &EventLoopWindowTarget<W>
+        event_loop: &EventLoopWindowTarget<W>,
+        visible: bool,
     ) -> Self {
-        let window_builder = WindowBuilder::new().with_title(T::WINDOW_TITLE);
+        let window_builder = WindowBuilder::new().with_title(T::WINDOW_TITLE).with_visible(visible);
         let config_template_builder = ConfigTemplateBuilder::new();
         let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
 
@@ -105,13 +106,14 @@ impl<T: ApplicationContext + 'static> State<T> {
             })
         });
 
-        // Now we can create our surface, use it to make our context current and finally create our display
-        let (width, height): (u32, u32) = window.inner_size().into();
+        // Determine our framebuffer size based on the window size, or default to 800x600 if it's invisible
+        let (width, height): (u32, u32) = if visible { window.inner_size().into() } else { (800, 600) };
         let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
             raw_window_handle,
             NonZeroU32::new(width).unwrap(),
             NonZeroU32::new(height).unwrap(),
         );
+        // Now we can create our surface, use it to make our context current and finally create our display
         let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
         let current_context = not_current_gl_context.unwrap().make_current(&surface).unwrap();
         let display = glium::Display::from_context_surface(current_context, surface).unwrap();
@@ -140,7 +142,7 @@ impl<T: ApplicationContext + 'static> State<T> {
                 // The Resumed/Suspended events are mostly for Android compatiblity since the context can get lost there at any point.
                 // For convenience's sake the Resumed event is also delivered on other platforms on program startup.
                 winit::event::Event::Resumed => {
-                    state = Some(State::new(window_target));
+                    state = Some(State::new(window_target, true));
                 },
                 winit::event::Event::Suspended => state = None,
                 winit::event::Event::RedrawRequested(_) => {
@@ -172,5 +174,12 @@ impl<T: ApplicationContext + 'static> State<T> {
                 _ => (),
             };
         });
+    }
+
+    pub fn run_once(visible: bool) {
+        let event_loop = EventLoopBuilder::new().build();
+        let mut state:State<T> = State::new(&event_loop, visible);
+        state.context.update();
+        state.context.draw_frame(&state.display);
     }
 }

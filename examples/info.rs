@@ -9,6 +9,8 @@ mod support;
 
 struct Application { }
 impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium info example";
+
     fn new(display: &Display<WindowSurface>) -> Self {
         // Now we can query the display for various information
         let version = *display.get_opengl_version();
@@ -49,11 +51,11 @@ impl ApplicationContext for Application {
 
         println!("{} context renderer: {}", api, display.get_opengl_renderer_string());
         println!("{} context vendor: {}", api, display.get_opengl_vendor_string());
-        // Since we don't want to draw anything we can exit
-        std::process::exit(0);
+
+        Self { }
     }
 }
 
 fn main() {
-    State::<Application>::run_loop();
+    State::<Application>::run_once(false);
 }
