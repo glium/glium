@@ -5,23 +5,65 @@ Test supports module.
 
 #![allow(dead_code)]
 
-use glium::{self, glutin};
+use glium::{self, Display};
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
+
+use std::num::NonZeroU32;
+use winit::event_loop::{EventLoopBuilder};
+use winit::window::WindowBuilder;
+use glutin::config::ConfigTemplateBuilder;
+use glutin::context::{ContextAttributesBuilder};
+use glutin::display::GetGlDisplay;
+use glutin::prelude::*;
+use glutin::surface::{SurfaceAttributesBuilder, WindowSurface};
+use glutin_winit::DisplayBuilder;
+use raw_window_handle::HasRawWindowHandle;
 
 use std::env;
 
 /// Builds a display for tests.
 #[cfg(not(feature = "test_headless"))]
-pub fn build_display() -> glium::Display {
+pub fn build_display() -> Display<WindowSurface> {
     let version = parse_version();
-    let event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new().with_visible(false);
-    let cb = glutin::ContextBuilder::new()
-        .with_gl_debug_flag(true)
-        .with_gl(version);
-    glium::Display::new(wb, cb, &event_loop).unwrap()
+    let event_loop = EventLoopBuilder::new().build();
+    let window_builder = WindowBuilder::new().with_visible(false);
+    let config_template_builder = ConfigTemplateBuilder::new();
+    let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+
+    // First we create a window
+    let (window, gl_config) = display_builder
+        .build(&event_loop, config_template_builder, |mut configs| {
+            // Just use the first configuration since we don't have any special preferences here
+            configs.next().unwrap()
+        })
+        .unwrap();
+    let window = window.unwrap();
+
+    // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
+    // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
+    // If you depend on features available in modern OpenGL Versions you need to request a specific, modern, version. Otherwise things will very likely fail.
+    let raw_window_handle = window.raw_window_handle();
+    let context_attributes = ContextAttributesBuilder::new()
+        .with_context_api(version)
+        .build(Some(raw_window_handle));
+
+    let not_current_gl_context = Some(unsafe {
+        gl_config.display().create_context(&gl_config, &context_attributes).unwrap()
+    });
+
+    let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
+        raw_window_handle,
+        NonZeroU32::new(800).unwrap(),
+        NonZeroU32::new(600).unwrap(),
+    );
+    // Now we can create our surface, use it to make our context current and finally create our display
+    let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
+    let current_context = not_current_gl_context.unwrap().make_current(&surface).unwrap();
+    glium::Display::from_context_surface(current_context, surface).unwrap()
 }
+
+
 
 /// Builds a headless display for tests.
 #[cfg(feature = "test_headless")]
@@ -39,7 +81,9 @@ pub fn build_display() -> glium::HeadlessRenderer {
 ///
 /// In real applications this is used for things such as switching to fullscreen. Some things are
 /// invalidated during a rebuild, and this has to be handled by glium.
-pub fn rebuild_display(display: &glium::Display) {
+pub fn rebuild_display(_display: &glium::Display<WindowSurface>) {
+    todo!();
+    /*
     let version = parse_version();
     let event_loop = winit::event_loop::EventLoop::new();
     let wb = winit::window::WindowBuilder::new().with_visible(false);
@@ -47,9 +91,10 @@ pub fn rebuild_display(display: &glium::Display) {
         .with_gl_debug_flag(true)
         .with_gl(version);
     display.rebuild(wb, cb, &event_loop).unwrap();
+     */
 }
 
-fn parse_version() -> glutin::GlRequest {
+fn parse_version() -> glutin::context::ContextApi {
     match env::var("GLIUM_GL_VERSION") {
         Ok(version) => {
             // expects "OpenGL 3.3" for example
@@ -63,19 +108,17 @@ fn parse_version() -> glutin::GlRequest {
             let major = iter.next().unwrap().parse().unwrap();
             let minor = iter.next().unwrap().parse().unwrap();
 
-            let ty = if ty == "OpenGL" {
-                glutin::Api::OpenGl
+            if ty == "OpenGL" {
+                glutin::context::ContextApi::OpenGl(Some(glutin::context::Version::new(major, minor)))
             } else if ty == "OpenGL ES" {
-                glutin::Api::OpenGlEs
+                glutin::context::ContextApi::Gles(Some(glutin::context::Version::new(major, minor)))
             } else if ty == "WebGL" {
-                glutin::Api::WebGl
+                glutin::context::ContextApi::Gles(Some(glutin::context::Version::new(major, minor)))
             } else {
                 panic!();
-            };
-
-            glutin::GlRequest::Specific(ty, (major, minor))
+            }
         },
-        Err(_) => glutin::GlRequest::Latest,
+        Err(_) => glutin::context::ContextApi::OpenGl(None),
     }
 }
 

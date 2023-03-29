@@ -8,7 +8,7 @@ use glium::index::PrimitiveType;
 
 mod support;
 
-fn build_program(display: &glium::Display) -> glium::Program {
+fn build_program<T: glutin::surface::SurfaceTypeTrait + glutin::surface::ResizeableSurface + 'static>(display: &glium::Display<T>) -> glium::Program {
     program!(display,
         110 => {
             vertex: "
