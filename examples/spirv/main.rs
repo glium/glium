@@ -4,17 +4,54 @@
 #[macro_use]
 extern crate glium;
 
-#[allow(unused_imports)]
-use glium::{glutin, Surface};
+use std::num::NonZeroU32;
 use glium::index::PrimitiveType;
-use glium::program::{ProgramCreationInput, SpirvProgram, SpirvEntryPoint};
+use glium::program::{SpirvEntryPoint, ProgramCreationInput, SpirvProgram};
+use glium::{Surface};
+use glutin::context::Version;
+use glutin::prelude::*;
+use glutin::display::GetGlDisplay;
+use glutin::surface::WindowSurface;
+use raw_window_handle::HasRawWindowHandle;
 
 fn main() {
-    // building the display, ie. the main object
-    let event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new().with_visible(true);
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    // We start by creating the main EventLoop
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let window_builder = winit::window::WindowBuilder::new().with_title("Glium tutorial #1");
+    let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
+    let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
+
+    // Now we need to create a window
+    let (window, gl_config) = display_builder
+        .build(&event_loop, config_template_builder, |mut configs| {
+            // Just use the first configuration since we don't have any special preferences
+            configs.next().unwrap()
+        })
+        .unwrap();
+    let window = window.unwrap();
+
+    // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
+    let raw_window_handle = window.raw_window_handle();
+    // We need a 4.6 context for SPIR-V support
+    let context_attributes = glutin::context::ContextAttributesBuilder::new()
+        .with_context_api(glutin::context::ContextApi::OpenGl(Some(Version::new(4, 6))))
+        .build(Some(raw_window_handle));
+
+    let not_current_gl_context = Some(unsafe {
+        gl_config.display().create_context(&gl_config, &context_attributes).expect("failed to create context")
+    });
+
+    // Determine our framebuffer size based on the window size
+    let (width, height): (u32, u32) = window.inner_size().into();
+    let attrs = glutin::surface::SurfaceAttributesBuilder::<WindowSurface>::new().build(
+        raw_window_handle,
+        NonZeroU32::new(width).unwrap(),
+        NonZeroU32::new(height).unwrap(),
+    );
+    // Now we can create our surface, use it to make our context current and finally create our display
+    let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
+    let current_context = not_current_gl_context.unwrap().make_current(&surface).unwrap();
+    let display = glium::Display::from_context_surface(current_context, surface).unwrap();
 
     // building the vertex buffer with no vertices
     // https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers/
