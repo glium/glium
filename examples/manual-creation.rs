@@ -17,66 +17,112 @@ There are three concepts in play:
 
 */
 
-use takeable_option::Takeable;
+use glium::{self};
+use winit::event_loop::EventLoopBuilder;
+use winit::window::WindowBuilder;
 use glium::Surface;
-use glium::glutin::{self, PossiblyCurrent};
+use glutin::surface::WindowSurface;
+use glutin::config::ConfigTemplateBuilder;
+use glutin::context::{ContextApi, ContextAttributesBuilder};
+use glutin::display::GetGlDisplay;
+use glutin::prelude::*;
+use glutin::surface::SurfaceAttributesBuilder;
+use glutin_winit::DisplayBuilder;
+use raw_window_handle::HasRawWindowHandle;
 
+use takeable_option::Takeable;
+use std::ffi::CString;
 use std::rc::Rc;
 use std::cell::RefCell;
+use std::num::NonZeroU32;
 use std::os::raw::c_void;
 
 fn main() {
-    // building the glutin window
-    // note that it's just `build` and not `build_glium`
-    let event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let gl_window = cb.build_windowed(wb, &event_loop).unwrap();
-    let gl_window = unsafe {
-        gl_window.treat_as_current()
-    };
-    let gl_window = Rc::new(RefCell::new(Takeable::new(gl_window)));
+    let event_loop = EventLoopBuilder::new().build();
+    let window_builder = WindowBuilder::new();
+    let config_template_builder = ConfigTemplateBuilder::new();
+    let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+
+    // First we create a window
+    let (window, gl_config) = display_builder
+        .build(&event_loop, config_template_builder, |mut configs| {
+            // Just use the first configuration since we don't have any special preferences here
+            configs.next().unwrap()
+        })
+        .unwrap();
+    let window = window.unwrap();
+
+    // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
+    // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
+    // If you depend on features available in modern OpenGL Versions you need to request a specific, modern, version. Otherwise things will very likely fail.
+    let raw_window_handle = window.raw_window_handle();
+    let context_attributes = ContextAttributesBuilder::new().build(Some(raw_window_handle));
+    let fallback_context_attributes = ContextAttributesBuilder::new()
+        .with_context_api(ContextApi::Gles(None))
+        .build(Some(raw_window_handle));
+
+
+    let not_current_gl_context = Some(unsafe {
+        gl_config.display().create_context(&gl_config, &context_attributes).unwrap_or_else(|_| {
+            gl_config.display()
+                .create_context(&gl_config, &fallback_context_attributes)
+                .expect("failed to create context")
+        })
+    });
+
+    // Determine our framebuffer size based on the window size, or default to 800x600 if it's invisible
+    let (width, height): (u32, u32) = window.inner_size().into();
+    let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
+        raw_window_handle,
+        NonZeroU32::new(width).unwrap(),
+        NonZeroU32::new(height).unwrap(),
+    );
+    // Now we can create our surface, use it to make our context current and finally create our display
+
+    let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
+    let context = not_current_gl_context.unwrap().make_current(&surface).unwrap();
+    let gl_window = Rc::new(RefCell::new(Takeable::new((context, surface))));
 
     // in order to create our context, we will need to provide an object which implements
     // the `Backend` trait
     struct Backend {
-        gl_window: Rc<RefCell<Takeable<glutin::WindowedContext<PossiblyCurrent>>>>,
+        gl_window: Rc<RefCell<Takeable<(glutin::context::PossiblyCurrentContext, glutin::surface::Surface<WindowSurface>)>>>,
     }
 
     unsafe impl glium::backend::Backend for Backend {
         fn swap_buffers(&self) -> Result<(), glium::SwapBuffersError> {
-            match self.gl_window.borrow().swap_buffers() {
+            let gl_window = self.gl_window.borrow();
+            match gl_window.1.swap_buffers(&gl_window.0) {
                 Ok(()) => Ok(()),
-                Err(glutin::ContextError::FunctionUnavailable) => panic!(),
-                Err(glutin::ContextError::IoError(_)) => panic!(),
-                Err(glutin::ContextError::OsError(_)) => panic!(),
-                Err(glutin::ContextError::ContextLost) => Err(glium::SwapBuffersError::ContextLost),
+                Err(glutin::error::Error {..}) => Err(glium::SwapBuffersError::ContextLost),
             }
         }
 
         // this function is called only after the OpenGL context has been made current
         unsafe fn get_proc_address(&self, symbol: &str) -> *const c_void {
-            self.gl_window.borrow().get_proc_address(symbol) as *const _
+            let symbol = CString::new(symbol).unwrap();
+            self.gl_window.borrow().0.display().get_proc_address(&symbol) as *const _
         }
 
         // this function is used to adjust the viewport when the user wants to draw or blit on
         // the whole window
         fn get_framebuffer_dimensions(&self) -> (u32, u32) {
             // we default to a dummy value is the window no longer exists
-            self.gl_window.borrow().window().inner_size().into() // conversion into u32 performs rounding
+            let window = &self.gl_window.borrow().1;
+            (window.width().unwrap(), window.height().unwrap())
         }
 
         fn is_current(&self) -> bool {
             // if you are using a library that doesn't provide an equivalent to `is_current`, you
             // can just put `unimplemented!` and pass `false` when you create
             // the `Context` (see below)
-            self.gl_window.borrow().is_current()
+            self.gl_window.borrow().0.is_current()
         }
 
         unsafe fn make_current(&self) {
             let mut gl_window_takeable = self.gl_window.borrow_mut();
             let gl_window = Takeable::take(&mut gl_window_takeable);
-            let gl_window = gl_window.make_current().unwrap();
+            gl_window.0.make_current(&gl_window.1).unwrap();
             Takeable::insert(&mut gl_window_takeable, gl_window);
         }
     }
@@ -104,8 +150,8 @@ fn main() {
     // the window is still available
     event_loop.run(|event, _, control_flow| {
         *control_flow = match event {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => winit::event_loop::ControlFlow::Exit,
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                winit::event::WindowEvent::CloseRequested => winit::event_loop::ControlFlow::Exit,
                 _ => winit::event_loop::ControlFlow::Poll,
             },
             _ => winit::event_loop::ControlFlow::Poll,
