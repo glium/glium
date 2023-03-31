@@ -1,70 +1,65 @@
 #[macro_use]
 extern crate glium;
+mod support;
+
+use glium::{Display, Surface};
+use glutin::surface::WindowSurface;
+use support::{ApplicationContext, State};
+
+struct Application {
+    pub positions: glium::VertexBuffer<teapot::Vertex>,
+    pub normals: glium::VertexBuffer<teapot::Normal>,
+    pub indices: glium::IndexBuffer<u16>,
+    pub program: glium::Program,
+}
 
 #[path = "../book/tuto-07-teapot.rs"]
 mod teapot;
 
-fn main() {
-    #[allow(unused_imports)]
-    use glium::{glutin, Surface};
+impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium tutorial #7";
 
-    let event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    fn new(display: &Display<WindowSurface>) -> Self {
+        let positions = glium::VertexBuffer::new(display, &teapot::VERTICES).unwrap();
+        let normals = glium::VertexBuffer::new(display, &teapot::NORMALS).unwrap();
+        let indices = glium::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList,
+                                            &teapot::INDICES).unwrap();
 
-    let positions = glium::VertexBuffer::new(&display, &teapot::VERTICES).unwrap();
-    let normals = glium::VertexBuffer::new(&display, &teapot::NORMALS).unwrap();
-    let indices = glium::IndexBuffer::new(&display, glium::index::PrimitiveType::TrianglesList,
-                                          &teapot::INDICES).unwrap();
+        let vertex_shader_src = r#"
+            #version 140
 
-    let vertex_shader_src = r#"
-        #version 140
+            in vec3 position;
+            in vec3 normal;
 
-        in vec3 position;
-        in vec3 normal;
+            uniform mat4 matrix;
 
-        uniform mat4 matrix;
+            void main() {
+                gl_Position = matrix * vec4(position, 1.0);
+            }
+        "#;
 
-        void main() {
-            gl_Position = matrix * vec4(position, 1.0);
+        let fragment_shader_src = r#"
+            #version 140
+
+            out vec4 color;
+
+            void main() {
+                color = vec4(1.0, 0.0, 0.0, 1.0);
+            }
+        "#;
+
+        let program = glium::Program::from_source(display, vertex_shader_src, fragment_shader_src,
+                                                None).unwrap();
+
+        Self {
+            positions,
+            normals,
+            indices,
+            program,
         }
-    "#;
+    }
 
-    let fragment_shader_src = r#"
-        #version 140
-
-        out vec4 color;
-
-        void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    "#;
-
-    let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src,
-                                              None).unwrap();
-
-    event_loop.run(move |event, _, control_flow| {
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-        *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
-
-        match event {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = winit::event_loop::ControlFlow::Exit;
-                    return;
-                },
-                _ => return,
-            },
-            glutin::event::Event::NewEvents(cause) => match cause {
-                glutin::event::StartCause::ResumeTimeReached { .. } => (),
-                glutin::event::StartCause::Init => (),
-                _ => return,
-            },
-            _ => return,
-        }
-
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
         let mut target = display.draw();
         target.clear_color(0.0, 0.0, 1.0, 1.0);
 
@@ -75,8 +70,12 @@ fn main() {
             [0.0, 0.0, 0.0, 1.0f32]
         ];
 
-        target.draw((&positions, &normals), &indices, &program, &uniform! { matrix: matrix },
+        target.draw((&self.positions, &self.normals), &self.indices, &self.program, &uniform! { matrix: matrix },
                     &Default::default()).unwrap();
         target.finish().unwrap();
-    });
+    }
+}
+
+fn main() {
+    State::<Application>::run_loop();
 }

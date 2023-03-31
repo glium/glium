@@ -1,22 +1,15 @@
 #![allow(dead_code)]
 use std::num::NonZeroU32;
 use glium::{self, Display};
-use glium::vertex::VertexBufferAny;
-use winit::event::WindowEvent;
-use winit::event_loop::{EventLoopBuilder, EventLoopWindowTarget};
-use winit::window::WindowBuilder;
-use glutin::config::ConfigTemplateBuilder;
-use glutin::context::{ContextApi, ContextAttributesBuilder};
-use glutin::display::GetGlDisplay;
 use glutin::prelude::*;
-use glutin::surface::{SurfaceAttributesBuilder, WindowSurface};
-use glutin_winit::DisplayBuilder;
+use glutin::display::GetGlDisplay;
+use glutin::surface::WindowSurface;
 use raw_window_handle::HasRawWindowHandle;
 
 pub mod camera;
 
 /// Returns a vertex buffer that should be rendered as `TrianglesList`.
-pub fn load_wavefront(display: &Display<WindowSurface>, data: &[u8]) -> VertexBufferAny {
+pub fn load_wavefront(display: &Display<WindowSurface>, data: &[u8]) -> glium::vertex::VertexBufferAny {
     #[derive(Copy, Clone)]
     struct Vertex {
         position: [f32; 3],
@@ -57,11 +50,45 @@ pub fn load_wavefront(display: &Display<WindowSurface>, data: &[u8]) -> VertexBu
     glium::vertex::VertexBuffer::new(display, &vertex_data).unwrap().into()
 }
 
+pub fn view_matrix(position: &[f32; 3], direction: &[f32; 3], up: &[f32; 3]) -> [[f32; 4]; 4] {
+    let f = {
+        let f = direction;
+        let len = f[0] * f[0] + f[1] * f[1] + f[2] * f[2];
+        let len = len.sqrt();
+        [f[0] / len, f[1] / len, f[2] / len]
+    };
+
+    let s = [up[1] * f[2] - up[2] * f[1],
+             up[2] * f[0] - up[0] * f[2],
+             up[0] * f[1] - up[1] * f[0]];
+
+    let s_norm = {
+        let len = s[0] * s[0] + s[1] * s[1] + s[2] * s[2];
+        let len = len.sqrt();
+        [s[0] / len, s[1] / len, s[2] / len]
+    };
+
+    let u = [f[1] * s_norm[2] - f[2] * s_norm[1],
+             f[2] * s_norm[0] - f[0] * s_norm[2],
+             f[0] * s_norm[1] - f[1] * s_norm[0]];
+
+    let p = [-position[0] * s_norm[0] - position[1] * s_norm[1] - position[2] * s_norm[2],
+             -position[0] * u[0] - position[1] * u[1] - position[2] * u[2],
+             -position[0] * f[0] - position[1] * f[1] - position[2] * f[2]];
+
+    [
+        [s_norm[0], u[0], f[0], 0.0],
+        [s_norm[1], u[1], f[1], 0.0],
+        [s_norm[2], u[2], f[2], 0.0],
+        [p[0], p[1], p[2], 1.0],
+    ]
+}
+
 pub trait ApplicationContext {
     fn draw_frame(&mut self, _display: &Display<WindowSurface>) { }
     fn new(display: &Display<WindowSurface>) -> Self;
     fn update(&mut self) { }
-    fn handle_window_event(&mut self, _event: &WindowEvent, _window: &winit::window::Window) { }
+    fn handle_window_event(&mut self, _event: &winit::event::WindowEvent, _window: &winit::window::Window) { }
     const WINDOW_TITLE:&'static str;
 }
 
@@ -73,12 +100,12 @@ pub struct State<T> {
 
 impl<T: ApplicationContext + 'static> State<T> {
     pub fn new<W>(
-        event_loop: &EventLoopWindowTarget<W>,
+        event_loop: &winit::event_loop::EventLoopWindowTarget<W>,
         visible: bool,
     ) -> Self {
-        let window_builder = WindowBuilder::new().with_title(T::WINDOW_TITLE).with_visible(visible);
-        let config_template_builder = ConfigTemplateBuilder::new();
-        let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+        let window_builder = winit::window::WindowBuilder::new().with_title(T::WINDOW_TITLE).with_visible(visible);
+        let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
+        let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
 
         // First we create a window
         let (window, gl_config) = display_builder
@@ -93,9 +120,9 @@ impl<T: ApplicationContext + 'static> State<T> {
         // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
         // If you depend on features available in modern OpenGL Versions you need to request a specific, modern, version. Otherwise things will very likely fail.
         let raw_window_handle = window.raw_window_handle();
-        let context_attributes = ContextAttributesBuilder::new().build(Some(raw_window_handle));
-        let fallback_context_attributes = ContextAttributesBuilder::new()
-            .with_context_api(ContextApi::Gles(None))
+        let context_attributes = glutin::context::ContextAttributesBuilder::new().build(Some(raw_window_handle));
+        let fallback_context_attributes = glutin::context::ContextAttributesBuilder::new()
+            .with_context_api(glutin::context::ContextApi::Gles(None))
             .build(Some(raw_window_handle));
 
         let not_current_gl_context = Some(unsafe {
@@ -108,7 +135,7 @@ impl<T: ApplicationContext + 'static> State<T> {
 
         // Determine our framebuffer size based on the window size, or default to 800x600 if it's invisible
         let (width, height): (u32, u32) = if visible { window.inner_size().into() } else { (800, 600) };
-        let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
+        let attrs = glutin::surface::SurfaceAttributesBuilder::<WindowSurface>::new().build(
             raw_window_handle,
             NonZeroU32::new(width).unwrap(),
             NonZeroU32::new(height).unwrap(),
@@ -133,8 +160,9 @@ impl<T: ApplicationContext + 'static> State<T> {
         }
     }
 
+    /// Start the event_loop and keep rendering frames until the program is closed
     pub fn run_loop() {
-        let event_loop = EventLoopBuilder::new().build();
+        let event_loop = winit::event_loop::EventLoopBuilder::new().build();
         let mut state: Option<State<T>> = None;
 
         event_loop.run(move |event, window_target, control_flow| {
@@ -176,8 +204,9 @@ impl<T: ApplicationContext + 'static> State<T> {
         });
     }
 
+    /// Create a context and draw a single frame
     pub fn run_once(visible: bool) {
-        let event_loop = EventLoopBuilder::new().build();
+        let event_loop = winit::event_loop::EventLoopBuilder::new().build();
         let mut state:State<T> = State::new(&event_loop, visible);
         state.context.update();
         state.context.draw_frame(&state.display);
