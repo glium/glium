@@ -1,11 +1,12 @@
 #[macro_use]
 extern crate glium;
+mod support;
 
 use std::thread;
-
-#[allow(unused_imports)]
-use glium::{glutin, Surface};
 use glium::index::PrimitiveType;
+use glium::{Display, Surface};
+use glutin::surface::WindowSurface;
+use support::{ApplicationContext, State};
 
 mod screenshot {
     use glium::Surface;
@@ -110,6 +111,10 @@ mod screenshot {
             self.frame += 1;
         }
 
+        pub fn frame(&self) -> u64 {
+            self.frame
+        }
+
         pub fn pickup_screenshots(&mut self) -> ScreenshotIterator<'_> {
             ScreenshotIterator(self)
         }
@@ -121,175 +126,122 @@ mod screenshot {
     }
 }
 
-fn main() {
-    // building the display, ie. the main object
-    let event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new().with_title("Press S to take screenshot");
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+#[derive(Copy, Clone)]
+struct Vertex {
+    position: [f32; 2],
+    color: [f32; 3],
+}
+implement_vertex!(Vertex, position, color);
 
-    // building the vertex buffer, which contains all the vertices that we will draw
-    let vertex_buffer = {
-        #[derive(Copy, Clone)]
-        struct Vertex {
-            position: [f32; 2],
-            color: [f32; 3],
-        }
+struct Application {
+    pub vertex_buffer: glium::VertexBuffer<Vertex>,
+    pub index_buffer: glium::IndexBuffer<u16>,
+    pub program: glium::Program,
+    pub screenshot_taker: screenshot::AsyncScreenshotTaker,
+    pub take_screenshot: bool,
+}
 
-        implement_vertex!(Vertex, position, color);
+impl ApplicationContext for Application {
+    const WINDOW_TITLE:&'static str = "Glium screenshot-asynchronous example";
 
-        glium::VertexBuffer::new(&display,
-                                 &[Vertex {
-                                       position: [-0.5, -0.5],
-                                       color: [0.0, 1.0, 0.0],
-                                   },
-                                   Vertex {
-                                       position: [0.0, 0.5],
-                                       color: [0.0, 0.0, 1.0],
-                                   },
-                                   Vertex {
-                                       position: [0.5, -0.5],
-                                       color: [1.0, 0.0, 0.0],
-                                   }])
-            .unwrap()
-    };
+    fn new(display: &Display<WindowSurface>) -> Self {
+        Self {
+            // building the vertex buffer
+            vertex_buffer: glium::VertexBuffer::new(
+                display,
+                &[
+                    Vertex {
+                        position: [-0.5, -0.5],
+                        color: [0.0, 1.0, 0.0],
+                    },
+                    Vertex {
+                        position: [0.0, 0.5],
+                        color: [0.0, 0.0, 1.0],
+                    },
+                    Vertex {
+                        position: [0.5, -0.5],
+                        color: [1.0, 0.0, 0.0],
+                    },
+                ],
+            )
+            .unwrap(),
 
-    // building the index buffer
-    let index_buffer =
-        glium::IndexBuffer::new(&display, PrimitiveType::TrianglesList, &[0u16, 1, 2]).unwrap();
+            // building the index buffer
+            index_buffer:
+                glium::IndexBuffer::new(display, PrimitiveType::TrianglesList, &[0u16, 1, 2]).unwrap(),
 
-    // compiling shaders and linking them together
-    let program = program!(&display,
-        140 => {
-            vertex: "
-                #version 140
+            // compiling shaders and linking them together
+            program: program!(display,
+                100 => {
+                    vertex: "
+                        #version 100
 
-                uniform mat4 matrix;
+                        uniform lowp mat4 matrix;
 
-                in vec2 position;
-                in vec3 color;
+                        attribute lowp vec2 position;
+                        attribute lowp vec3 color;
 
-                out vec3 vColor;
+                        varying lowp vec3 vColor;
 
-                void main() {
-                    gl_Position = vec4(position, 0.0, 1.0) * matrix;
-                    vColor = color;
-                }
-            ",
-
-            fragment: "
-                #version 140
-                in vec3 vColor;
-                out vec4 f_color;
-
-                void main() {
-                    f_color = vec4(vColor, 1.0);
-                }
-            "
-        },
-
-        110 => {
-            vertex: "
-                #version 110
-
-                uniform mat4 matrix;
-
-                attribute vec2 position;
-                attribute vec3 color;
-
-                varying vec3 vColor;
-
-                void main() {
-                    gl_Position = vec4(position, 0.0, 1.0) * matrix;
-                    vColor = color;
-                }
-            ",
-
-            fragment: "
-                #version 110
-                varying vec3 vColor;
-
-                void main() {
-                    gl_FragColor = vec4(vColor, 1.0);
-                }
-            ",
-        },
-    )
-        .unwrap();
-
-    // drawing once
-
-    // building the uniforms
-    let uniforms = uniform! {
-        matrix: [
-            [1.0, 0.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [0.0, 0.0, 0.0, 1.0f32]
-        ]
-    };
-
-    // The parameter sets the amount of frames between requesting the image
-    // transfer and picking it up. If the value is too small, the main thread
-    // will block waiting for the image to finish transferring. Tune it based on
-    // your requirements.
-    let mut screenshot_taker = screenshot::AsyncScreenshotTaker::new(5);
-
-    event_loop.run(move |event, _, control_flow| {
-
-        // React to events
-        use glium::glutin::event::{Event, WindowEvent, ElementState, VirtualKeyCode};
-
-        let mut take_screenshot = false;
-
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-        *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
-
-        match event {
-            Event::WindowEvent { event, .. } => match event {
-                WindowEvent::CloseRequested => {
-                    *control_flow = winit::event_loop::ControlFlow::Exit;
-                    return;
-                },
-                WindowEvent::KeyboardInput { input, .. } => {
-                    if let ElementState::Pressed = input.state {
-                        if let Some(VirtualKeyCode::S) = input.virtual_keycode {
-                            take_screenshot = true;
+                        void main() {
+                            gl_Position = vec4(position, 0.0, 1.0) * matrix;
+                            vColor = color;
                         }
-                    }
+                    ",
+
+                    fragment: "
+                        #version 100
+                        varying lowp vec3 vColor;
+
+                        void main() {
+                            gl_FragColor = vec4(vColor, 1.0);
+                        }
+                    ",
                 },
-                _ => return,
-            },
-            Event::NewEvents(cause) => match cause {
-                glutin::event::StartCause::ResumeTimeReached { .. } => (),
-                glutin::event::StartCause::Init => (),
-                _ => return,
-            },
-            _ => return,
+            )
+            .unwrap(),
+            screenshot_taker: screenshot::AsyncScreenshotTaker::new(5),
+            take_screenshot: false,
         }
+    }
 
+    fn draw_frame(&mut self, display: &Display<WindowSurface>) {
         // Tell Screenshot Taker to count next frame
-        screenshot_taker.next_frame();
+        self.screenshot_taker.next_frame();
 
-        // drawing a frame
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 0.0, 0.0);
-        target.draw(&vertex_buffer,
-                  &index_buffer,
-                  &program,
-                  &uniforms,
-                  &Default::default())
+        let mut frame = display.draw();
+        // For this example a simple identity matrix suffices
+        let uniforms = uniform! {
+            matrix: [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0f32]
+            ]
+        };
+
+        // Now we can draw the triangle
+        frame.clear_color(0.0, 0.0, 0.0, 0.0);
+        frame
+            .draw(
+                &self.vertex_buffer,
+                &self.index_buffer,
+                &self.program,
+                &uniforms,
+                &Default::default(),
+            )
             .unwrap();
-        target.finish().unwrap();
+        frame.finish().unwrap();
 
-        if take_screenshot {
+        if self.take_screenshot {
             // Take screenshot and queue it's delivery
-            screenshot_taker.take_screenshot(&display);
+            self.screenshot_taker.take_screenshot(display);
+            self.take_screenshot = false;
         }
 
+        let frame = self.screenshot_taker.frame();
         // Pick up screenshots that are ready this frame
-        for image_data in screenshot_taker.pickup_screenshots() {
+        for image_data in self.screenshot_taker.pickup_screenshots() {
             // Process and write the image in separate thread to not block the rendering thread.
             thread::spawn(move || {
                 // Convert (u8, u8, u8, u8) given by glium's PixelBuffer to flat u8 required by
@@ -312,8 +264,22 @@ fn main() {
 
                 // Save the screenshot to file
                 let image = image::DynamicImage::ImageRgba8(image_buffer).flipv();
-                image.save("glium-example-screenshot.png").unwrap();
+                image.save(format!("glium-example-screenshot-{frame}.png")).unwrap();
             });
         }
-    });
+    }
+
+    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
+        if let winit::event::WindowEvent::KeyboardInput { input, ..} = event {
+            if let winit::event::ElementState::Pressed = input.state {
+                if let Some(winit::event::VirtualKeyCode::S) = input.virtual_keycode {
+                    self.take_screenshot = true;
+                }
+            }
+        }
+    }
+}
+
+fn main() {
+    State::<Application>::run_loop();
 }
