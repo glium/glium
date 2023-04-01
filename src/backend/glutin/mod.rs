@@ -60,8 +60,11 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> ContextSurfacePair<T> {
 
     #[inline]
     /// Resize the associated surface
-    pub fn resize(&self, new_size: (u32, u32)) {
-        self.surface.resize(&self.context, NonZeroU32::new(new_size.0).unwrap(), NonZeroU32::new(new_size.1).unwrap());
+    pub fn resize(&self, new_size:(u32, u32)) {
+        // Make sure that no dimension is zero, which happens when minimizing on Windows for example.
+        let width = NonZeroU32::new(new_size.0).unwrap_or(NonZeroU32::new(1).unwrap());
+        let height = NonZeroU32::new(new_size.1).unwrap_or(NonZeroU32::new(1).unwrap());
+        self.surface.resize(&self.context, width, height);
     }
 }
 
