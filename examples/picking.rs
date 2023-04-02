@@ -167,12 +167,22 @@ fn main() {
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 0.0, 0.0), 1.0);
 
+        let mut target_dimensions = target.get_dimensions();
+        // We need to ensure that our framebuffer is at least 1x1. Otherwise, we would get an error.
+        // This could happen when minimizing or resizing the window on Windows, for example.
+        if target_dimensions.0 == 0 {
+            target_dimensions.0 = 1;
+        }
+        if target_dimensions.1 == 0 {
+            target_dimensions.1 = 1;
+        }
+
         //update picking texture
         if picking_attachments.is_none() || (
             picking_attachments.as_ref().unwrap().0.get_width(),
             picking_attachments.as_ref().unwrap().0.get_height().unwrap()
-        ) != target.get_dimensions() {
-            let (width, height) = target.get_dimensions();
+        ) != target_dimensions {
+            let (width, height) = target_dimensions;
             picking_attachments = Some((
                 glium::texture::UnsignedTexture2d::empty_with_format(
                     &display,

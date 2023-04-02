@@ -157,7 +157,15 @@ mod fxaa {
     pub fn draw<T, F, R>(system: &FxaaSystem, target: &mut T, enabled: bool, mut draw: F)
                          -> R where T: Surface, F: FnMut(&mut SimpleFrameBuffer<'_>) -> R
     {
-        let target_dimensions = target.get_dimensions();
+        let mut target_dimensions = target.get_dimensions();
+        // We need to ensure that our framebuffer is at least 1x1. Otherwise, we would get an error.
+        // This could happen when minimizing or resizing the window on Windows, for example.
+        if target_dimensions.0 == 0 {
+            target_dimensions.0 = 1;
+        }
+        if target_dimensions.1 == 0 {
+            target_dimensions.1 = 1;
+        }
 
         let mut target_color = system.target_color.borrow_mut();
         let mut target_depth = system.target_depth.borrow_mut();
