@@ -27,8 +27,8 @@ exclude = ["doc"]
 edition = "2021"
 
 [features]
-default = ["glutin_backend"]
-glutin_backend = ["glutin", "winit", "glutin-winit", "raw-window-handle"]
+default = ["glutin_backend", "glutin/default"]
+glutin_backend = ["glutin"]
 unstable = [] # used for benchmarks
 test_headless = []  # used for testing headless display
 vk_interop = [] # used for texture import from Vulkan
@@ -37,21 +37,7 @@ vk_interop = [] # used for texture import from Vulkan
 version = "0.30.4"
 features = []
 optional = true
-
-[dependencies.glutin-winit]
-version = "0.3"
-features = []
-optional = true
-
-[dependencies.raw-window-handle]
-version = "0.5"
-features = []
-optional = true
-
-[dependencies.winit]
-version = "0.28"
-features = []
-optional = true
+default-features = false
 
 [dependencies]
 memoffset = "0.8"
@@ -72,3 +58,6 @@ image = "0.24"
 obj = { version = "0.10", features = ["genmesh"] }
 rand = "0.8"
 libc = "0.2.62"
+winit = "0.28"
+raw-window-handle = "0.5"
+glutin-winit = "0.3"
