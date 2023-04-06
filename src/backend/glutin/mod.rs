@@ -24,7 +24,7 @@ use crate::glutin::prelude::*;
 use crate::glutin::context::PossiblyCurrentContext;
 use crate::glutin::display::GetGlDisplay;
 use crate::glutin::surface::{SurfaceTypeTrait, ResizeableSurface};
-use std::cell::{Cell, Ref, RefCell};
+use std::cell::RefCell;
 use std::error::Error;
 use std::ffi::CString;
 use std::fmt;
@@ -83,13 +83,10 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> Deref for ContextSurfacePair<T> {
 /// These are stored alongside a glium-specific context.
 #[derive(Clone)]
 pub struct Display<T: SurfaceTypeTrait + ResizeableSurface + 'static> {
-    // contains everything related to the current context and its state
+    // contains everything related to the current glium context and its state
     context: Rc<context::Context>,
-    // The glutin Window alongside its associated GL Context.
+    // The glutin Surface alongside its associated glutin Context.
     gl_context: Rc<RefCell<Takeable<ContextSurfacePair<T>>>>,
-    // Used to check whether the framebuffer dimensions have changed between frames. If they have,
-    // the glutin context must be resized accordingly.
-    last_framebuffer_dimensions: Cell<(u32, u32)>,
 }
 
 /// An implementation of the `Backend` trait for glutin.
@@ -176,14 +173,13 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> Display<T> {
         Ok(Display {
             gl_context: gl_window,
             context,
-            last_framebuffer_dimensions: Cell::new((0,0)),
         })
     }
 
-    /// Borrow the inner glutin WindowedContext.
+    /// Resize the underlying surface.
     #[inline]
-    pub fn context_surface_pair(&self) -> Ref<Takeable<ContextSurfacePair<T>>> {
-        self.gl_context.borrow()
+    pub fn resize(&self, new_size:(u32, u32)) {
+        self.gl_context.borrow().resize(new_size)
     }
 
     /// Start drawing on the backbuffer.
@@ -192,19 +188,9 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> Display<T> {
     /// destroyed, the buffers are swapped.
     ///
     /// Note that destroying a `Frame` is immediate, even if vsync is enabled.
-    ///
-    /// If the framebuffer dimensions have changed since the last call to `draw`, the inner glutin
-    /// context will be resized accordingly before returning the `Frame`.
     #[inline]
     pub fn draw(&self) -> Frame {
         let dimensions = self.get_framebuffer_dimensions();
-
-        // If the size of the framebuffer has changed, resize the context.
-        if self.last_framebuffer_dimensions.get() != dimensions {
-            self.last_framebuffer_dimensions.set(dimensions);
-            self.context_surface_pair().resize(dimensions);
-        }
-
         Frame::new(self.context.clone(), dimensions)
     }
 }
@@ -283,6 +269,11 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
     #[inline]
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         self.0.borrow().get_framebuffer_dimensions()
+    }
+
+    #[inline]
+    fn resize(&self, new_size:(u32, u32)) {
+        self.borrow().resize(new_size)
     }
 
     #[inline]

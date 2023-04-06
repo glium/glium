@@ -6,7 +6,7 @@ use crate::context;
 use crate::backend::{self, Backend};
 use std::ffi::CString;
 use std::rc::Rc;
-use std::cell::{Ref, RefCell, Cell};
+use std::cell::{RefCell, Cell};
 use std::ops::Deref;
 use std::os::raw::c_void;
 use super::ContextSurfacePair;
@@ -56,6 +56,9 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         (800, 600)      // FIXME: these are random
     }
+
+    #[inline]
+    fn resize(&self, new_size:(u32, u32)) {}
 
     #[inline]
     fn is_current(&self) -> bool {
@@ -133,11 +136,6 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> Headless<T> {
         let context = unsafe { context::Context::new(glutin_backend, checked, debug) }?;
         let framebuffer_dimensions = Cell::new((800, 600));
         Ok(Headless { context, context_surface_pair: glutin_context, framebuffer_dimensions })
-    }
-
-    /// Borrow the inner glutin context
-    pub fn context_surface_pair(&self) -> Ref<'_, impl Deref<Target = ContextSurfacePair<T>>> {
-        self.context_surface_pair.borrow()
     }
 
     /// Start drawing on the backbuffer.

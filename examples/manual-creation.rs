@@ -112,6 +112,13 @@ fn main() {
             (window.width().unwrap(), window.height().unwrap())
         }
 
+        fn resize(&self, new_size:(u32, u32)) {
+            let pair = &self.gl_window.borrow();
+            let context = &pair.0;
+            let window = &pair.1;
+            window.resize(context, NonZeroU32::new(new_size.0).unwrap(), NonZeroU32::new(new_size.1).unwrap());
+        }
+
         fn is_current(&self) -> bool {
             // if you are using a library that doesn't provide an equivalent to `is_current`, you
             // can just put `unimplemented!` and pass `false` when you create

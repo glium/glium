@@ -89,7 +89,7 @@ fn main() {
                         // These two aren't necessary for this particular example, but forgetting especially the Resized
                         // event could lead to stretched images being rendered if you decide to render something more interesting based on this example.
                         winit::event::WindowEvent::Resized(new_size) => {
-                            state.display.context_surface_pair().resize(new_size.into());
+                            state.display.resize(new_size.into());
                         },
                         ev => {
                             state.context.handle_window_event(&ev, &state.window);

@@ -187,12 +187,22 @@ impl<T: ApplicationContext + 'static> State<T> {
                     }
                 }
                 winit::event::Event::WindowEvent { event, .. } => match event {
-                    winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
                     winit::event::WindowEvent::Resized(new_size) => {
                         if let Some(state) = &state {
-                            state.display.context_surface_pair().resize(new_size.into());
+                            state.display.resize(new_size.into());
                         }
                     },
+                    // Exit the event loop when requested (by closing the window for example) or when
+                    // pressing the Esc key.
+                    winit::event::WindowEvent::CloseRequested
+                    | winit::event::WindowEvent::KeyboardInput { input: winit::event::KeyboardInput {
+                        state: winit::event::ElementState::Pressed,
+                        virtual_keycode: Some(winit::event::VirtualKeyCode::Escape),
+                        ..
+                    }, ..} => {
+                        control_flow.set_exit()
+                    },
+                    // Every other event
                     ev => {
                         if let Some(state) = &mut state {
                             state.context.handle_window_event(&ev, &state.window);
