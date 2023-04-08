@@ -399,6 +399,12 @@ pub struct DrawParameters<'a> {
     /// If enabled, shifts the depth value of towards of away from the camera. This is useful for
     /// drawing decals and wireframes, for example.
     pub polygon_offset: PolygonOffset,
+
+    /// Clip control origin. The default value is `LowerLeft`.
+    pub clip_control_origin: ClipControlOrigin,
+
+    /// Clip control depth mode. The default value is `NegativeOneToOne`.
+    pub clip_control_depth: ClipControlDepth,
 }
 
 /// Condition whether to render or not.
@@ -466,6 +472,26 @@ impl Default for PolygonOffset {
     }
 }
 
+/// Specifies the clip control origin.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ClipControlOrigin {
+    /// The clip space origin is at the lower-left corner of the viewport. This is the default state.
+    LowerLeft,
+
+    /// The clip space origin is at the upper-left corner of the viewport. This will vertically invert the geometry inside the viewport.
+    UpperLeft,
+}
+
+/// Specifies the clip control depth mode.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ClipControlDepth {
+    /// The near and far clipping planes correspond to Z coordinates of -1 and +1. This is the default state.
+    NegativeOneToOne,
+
+    /// The near and far clipping planes correspond to Z coordinates of 0 and +1. This may improve numerical precision of depth mapping.
+    ZeroToOne,
+}
+
 impl<'a> Default for DrawParameters<'a> {
     fn default() -> DrawParameters<'a> {
         DrawParameters {
@@ -494,6 +520,8 @@ impl<'a> Default for DrawParameters<'a> {
             primitive_bounding_box: (-1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0, -1.0 .. 1.0),
             primitive_restart_index: false,
             polygon_offset: Default::default(),
+            clip_control_origin: ClipControlOrigin::LowerLeft,
+            clip_control_depth: ClipControlDepth::NegativeOneToOne,
         }
     }
 }
@@ -542,6 +570,8 @@ pub fn sync(ctxt: &mut context::CommandContext<'_>, draw_parameters: &DrawParame
     sync_primitive_bounding_box(ctxt, &draw_parameters.primitive_bounding_box);
     sync_primitive_restart_index(ctxt, draw_parameters.primitive_restart_index)?;
     sync_polygon_offset(ctxt, draw_parameters.polygon_offset);
+    sync_clip_control(ctxt, draw_parameters.clip_control_origin,
+                      draw_parameters.clip_control_depth)?;
 
     Ok(())
 }
@@ -1025,3 +1055,29 @@ fn sync_polygon_offset(ctxt: &mut context::CommandContext<'_>, offset: PolygonOf
     }
 }
 
+fn sync_clip_control(ctxt: &mut context::CommandContext<'_>,
+                     origin: ClipControlOrigin,
+                     depth: ClipControlDepth)
+                     -> Result<(), DrawError> {
+    let origin = match origin {
+        ClipControlOrigin::LowerLeft => gl::LOWER_LEFT,
+        ClipControlOrigin::UpperLeft => gl::UPPER_LEFT,
+    };
+    let depth = match depth {
+        ClipControlDepth::NegativeOneToOne => gl::NEGATIVE_ONE_TO_ONE,
+        ClipControlDepth::ZeroToOne => gl::ZERO_TO_ONE,
+    };
+
+    if ctxt.state.clip_control == (origin, depth) {
+        return Ok(());
+    }
+
+    if ctxt.version >= &Version(Api::Gl, 4, 5) || ctxt.extensions.gl_arb_clip_control {
+        unsafe { ctxt.gl.ClipControl(origin, depth); }
+        ctxt.state.clip_control = (origin, depth);
+    } else {
+        return Err(DrawError::ClipControlNotSupported);
+    }
+
+    Ok(())
+}

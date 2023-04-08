@@ -229,6 +229,9 @@ pub struct GlState {
     /// The latest value passed to `glProvokingVertex`.
     pub provoking_vertex: gl::types::GLenum,
 
+    /// The latest value passed to `glClipControl`.
+    pub clip_control: (gl::types::GLenum, gl::types::GLenum),
+
     /// The latest value passed to `glPixelStore` with `GL_UNPACK_ALIGNMENT`.
     pub pixel_store_unpack_alignment: gl::types::GLint,
 
@@ -464,6 +467,7 @@ impl Default for GlState {
             transform_feedback_paused: false,
             primitive_bounding_box: (-1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0),
             polygon_offset: (0.0, 0.0),
+            clip_control: (gl::LOWER_LEFT, gl::NEGATIVE_ONE_TO_ONE),
 
             next_draw_call_id: 1,
             latest_memory_barrier_vertex_attrib_array: 1,

@@ -331,6 +331,9 @@ impl<'a> FramebufferAttachments<'a> {
         }
 
         let dimensions = if let Some(dimensions) = dimensions {
+            if dimensions.0 * dimensions.1 == 0 {
+                return Err(ValidationError::EmptyFramebufferUnsupportedDimensions);
+            }
             dimensions
         } else {
             // TODO: handle this
@@ -517,6 +520,9 @@ impl<'a> FramebufferAttachments<'a> {
         }
 
         let dimensions = if let Some(dimensions) = dimensions {
+            if dimensions.0 * dimensions.1 == 0 {
+                return Err(ValidationError::EmptyFramebufferUnsupportedDimensions);
+            }
             dimensions
         } else {
             // TODO: handle this

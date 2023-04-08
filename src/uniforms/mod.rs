@@ -3,10 +3,7 @@ A uniform is a global variable in your program. In order to draw something, you 
 give `glium` the values of all your uniforms. Objects that implement the `Uniform` trait are
 here to do that.
 
-There are two primary ways to do this. The first one is to create your own structure and put
-the `#[uniforms]` attribute on it. See the `glium_macros` crate for more infos.
-
-The second way is to use the `uniform!` macro provided by glium:
+The currently preferred way to do this is to use the `uniform!` macro provided by glium:
 
 ```no_run
 # use glium::uniform;
@@ -20,7 +17,7 @@ let uniforms = uniform! {
 # }
 ```
 
-In both situations, each field must implement the `UniformValue` trait.
+Each field must implement the `UniformValue` trait for this to work.
 
 ## Samplers
 
@@ -128,7 +125,9 @@ let program = glium::Program::from_source(&display,
 pub use self::buffer::UniformBuffer;
 pub use self::sampler::{SamplerWrapFunction, MagnifySamplerFilter, MinifySamplerFilter, DepthTextureComparison};
 pub use self::sampler::{Sampler, SamplerBehavior};
-pub use self::uniforms::{EmptyUniforms, UniformsStorage, DynamicUniforms};
+pub use self::uniforms::{EmptyUniforms, UniformsStorage};
+pub use self::image_unit::{ImageUnitAccess, ImageUnitFormat, ImageUnitError};
+pub use self::image_unit::{ImageUnit, ImageUnitBehavior};
 pub use self::value::{UniformValue, UniformType};
 
 use std::error::Error;
@@ -141,6 +140,7 @@ use crate::program::BlockLayout;
 
 mod bind;
 mod buffer;
+mod image_unit;
 mod sampler;
 mod uniforms;
 mod value;

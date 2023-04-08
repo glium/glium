@@ -100,8 +100,9 @@ fn main() {
             vec3 diffuse_color = texture(diffuse_tex, v_tex_coords).rgb;
             vec3 ambient_color = diffuse_color * 0.1;
 
+            vec3 v_normal_unit = normalize(v_normal);
             vec3 normal_map = texture(normal_tex, v_tex_coords).rgb;
-            mat3 tbn = cotangent_frame(v_normal, v_position, v_tex_coords);
+            mat3 tbn = cotangent_frame(v_normal_unit, -v_position, v_tex_coords);
             vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
 
             float diffuse = max(dot(real_normal, normalize(u_light)), 0.0);
@@ -117,6 +118,7 @@ fn main() {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src,
                                               None).unwrap();
 
+    let start = std::time::Instant::now();
     event_loop.run(move |event, _, control_flow| {
         let next_frame_time = std::time::Instant::now() +
             std::time::Duration::from_nanos(16_666_667);
@@ -141,10 +143,13 @@ fn main() {
         let mut target = display.draw();
         target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 
+        let t = (std::time::Instant::now() - start).as_secs_f32() * 2.0;
+        let ang = t.sin();
+        let (c, s) = (ang.cos(), ang.sin());
         let model = [
-            [1.0, 0.0, 0.0, 0.0],
+            [  c, 0.0,   s, 0.0],
             [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
+            [ -s, 0.0,   c, 0.0],
             [0.0, 0.0, 0.0, 1.0f32]
         ];
 

@@ -1,8 +1,17 @@
 # Changelog
 
+## Version 0.32.1 (2022-07-31)
+
+- Bugfix release to not panic when given multiple vertex attributes with unspecified location numbers.
+
+## Version 0.32.0 (2022-07-30)
+
+- Updated glutin to version 0.29.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0290-2022-07-30).
+- Support for location binding for Vertex attributes.
+
 ## Version 0.31 (2021-12-11)
 
-- Updated glutin to version 0.31.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0280-2021-12-02).
+- Updated glutin to version 0.28.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0280-2021-12-02).
 - Use mdbook for the book.
 
 ## Version 0.30.2 (2021-09-06)
@@ -18,7 +27,7 @@
 
 ## Version 0.30.0 (2021-06-23)
 
-- Updated glutin to version 0.30.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0270-2021-06-01).
+- Updated glutin to version 0.27.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0270-2021-06-01).
 - Replaced unmaintained `rental` with `ouroboros`.
 - Allow instancing on GLES3 or later.
 - Support for importing and using Vulkan semaphores.

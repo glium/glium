@@ -428,7 +428,7 @@ impl RawProgram {
         }
 
         for elem in buf.elements.iter() {
-            if format.iter().find(|e| e.1 == elem.offset && e.2 == elem.ty)
+            if format.iter().find(|e| e.1 == elem.offset && e.3 == elem.ty)
                             .is_none()
             {
                 return false;
@@ -572,6 +572,8 @@ impl RawProgram {
             fence.insert(&mut ctxt);
         }
 
+        ctxt.state.next_draw_call_id += 1;
+
         Ok(())
     }
 
@@ -615,6 +617,8 @@ impl RawProgram {
             fence.insert(&mut ctxt);
         }
 
+        ctxt.state.next_draw_call_id += 1;
+
         Ok(())
     }
 }
@@ -646,6 +650,7 @@ impl ProgramExt for RawProgram {
                     Handle::Handle(id) => ctxt.gl.UseProgramObjectARB(id),
                 }
                 ctxt.state.program = program_id;
+                self.uniform_values.flush_subroutine_uniforms();
             }
         }
     }
@@ -725,6 +730,7 @@ impl Drop for RawProgram {
                     if ctxt.state.program == Handle::Id(id) {
                         ctxt.gl.UseProgram(0);
                         ctxt.state.program = Handle::Id(0);
+                        self.uniform_values.flush_subroutine_uniforms();
                     }
 
                     ctxt.gl.DeleteProgram(id);
@@ -735,6 +741,7 @@ impl Drop for RawProgram {
                     if ctxt.state.program == Handle::Handle(id) {
                         ctxt.gl.UseProgramObjectARB(0 as gl::types::GLhandleARB);
                         ctxt.state.program = Handle::Handle(0 as gl::types::GLhandleARB);
+                        self.uniform_values.flush_subroutine_uniforms();
                     }
 
                     ctxt.gl.DeleteObjectARB(id);

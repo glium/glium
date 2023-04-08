@@ -322,7 +322,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             use crate::image_format::{{CompressedSrgbFormat, SrgbFormat, UncompressedUintFormat}};
 
             use crate::backend::Facade;
-            use crate::uniforms::{{UniformValue, AsUniformValue, Sampler}};
+            use crate::uniforms::{{UniformValue, AsUniformValue, Sampler, ImageUnit, ImageUnitError, ImageUnitFormat}};
             use crate::framebuffer;
 
             use crate::Rect;
@@ -411,7 +411,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 }}
             ", name)).unwrap();
 
-    // `UniformValue` trait impl
+    // `UniformValue` trait impl for samplers
     {
         match ty {
             TextureType::Regular | TextureType::Compressed |
@@ -462,6 +462,29 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
             },
             _ => ()
         }
+    }
+
+    // Generate implementations of image_unit
+    if (ty == TextureType::Regular || ty == TextureType::Integral || ty == TextureType::Unsigned) &&
+        (dimensions != TextureDimensions::Texture2dMultisample && dimensions != TextureDimensions::Texture2dMultisampleArray ){
+        let image_variant = name.replace("Texture", "Image").replace("Cubemap", "ImageCube");
+        writeln!(dest, "
+                    impl<'a> AsUniformValue for ImageUnit<'a, {myname}> {{
+                        #[inline]
+                        fn as_uniform_value(&self) -> UniformValue  {{
+                            UniformValue::{valname}(self.0, Some(self.1))
+                        }}
+                    }}
+
+                    impl {myname} {{
+                        /// Builds an image unit marker object that allows you to indicate how the
+                        /// texture should be bound to an image unit.
+                        #[inline]
+                        pub fn image_unit(&self, format: ImageUnitFormat) -> Result<ImageUnit<{myname}>, ImageUnitError> {{
+                             ImageUnit::new(self, format)
+                        }}
+                    }}
+                ", myname = name, valname = image_variant).unwrap();
     }
 
     // `ToXXXAttachment` trait impl
@@ -844,7 +867,20 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 ///
                 #[inline]
                 pub fn as_surface<'a>(&'a self) -> framebuffer::SimpleFrameBuffer<'a> {{
+                    self.sync_shader_writes_for_surface();
                     framebuffer::SimpleFrameBuffer::new(self.0.get_context(), self).unwrap()
+                }}
+
+                /// Call this function if you write to this texture in a shader with Image Store
+                /// operations, and you want to use the texture as a Surface or Framebuffer Object.
+                ///
+                /// This function issues a memory barrier if the texture has been written to in a
+                /// shader via Image Store operations.
+                #[inline]
+                pub fn sync_shader_writes_for_surface(&self) {{
+                    use crate::ContextExt;
+                    let mut ctxt = self.0.get_context().make_current();
+                    self.0.prepare_for_access(&mut ctxt, crate::TextureAccess::Framebuffer);
                 }}
             ")).unwrap();
     }
@@ -863,7 +899,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     // writing the `read` functions
     // TODO: implement for other types too
     if dimensions == TextureDimensions::Texture2d &&
-       (ty == TextureType::Regular || ty == TextureType::Srgb || is_compressed)
+       (ty == TextureType::Regular || ty == TextureType::Srgb || ty == TextureType::Unsigned || is_compressed)
     {
         (write!(dest, r#"
                 /// Reads the content of the texture to RAM. This method may only read `U8U8U8U8`

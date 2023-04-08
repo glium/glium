@@ -3,7 +3,7 @@
 [![Build Status](https://github.com/glium/glium/actions/workflows/ci.yml/badge.svg)](https://github.com/glium/glium/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/tomaka/glium/badge.svg?branch=master&service=github)](https://coveralls.io/github/tomaka/glium?branch=master)
 
-[![crates.io page](https://meritbadge.herokuapp.com/glium)](https://crates.io/crates/glium)
+[![crates.io page](https://img.shields.io/crates/v/glium.svg)](https://crates.io/crates/glium)
 
 ## Note to current and future Glium users:
 
@@ -34,7 +34,7 @@ Its objectives:
 
 If you have some knowledge of OpenGL, the documentation and the examples should get you easily started.
 
-## [Link to a work-in-progress tutorial](https://github.com/glium/glium/tree/master/book)
+## [Link to a work-in-progress tutorial](https://glium.github.io/glium/book/)
 
 ## Why should I use Glium instead of raw OpenGL calls?
 
@@ -138,5 +138,5 @@ Limitations:
    internal compiler errors, one-hour compile time, etc. happen more often than in smaller
    libraries.
 
- - Rust plugins are not stable, so you will have to use macros such as
-   `implement_vertex!(MyStruct)` instead of `#[derive(GliumVertex)]`.
+ - Macros are yet work-in-progress; see
+  [`glium-derive`](https://github.com/glium/glium_derive) for details.

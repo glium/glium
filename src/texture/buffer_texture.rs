@@ -550,6 +550,11 @@ impl<'a> TextureExt for BufferTextureRef<'a> {
         unsafe { ctxt.gl.BindTexture(gl::TEXTURE_BUFFER, self.texture); }
         gl::TEXTURE_BUFFER
     }
+
+    fn prepare_for_access(&self, _: &mut CommandContext<'_>, access_type: crate::TextureAccess) {
+        // TODO: Right now this type of texture cannot be used in an image unit
+    }
+
 }
 
 ///

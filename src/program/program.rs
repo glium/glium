@@ -82,7 +82,7 @@ impl Program {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
 
-                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 2, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
@@ -103,7 +103,7 @@ impl Program {
             },
 
             ProgramCreationInput::Binary { data, outputs_srgb, uses_point_size } => {
-                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 2, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
@@ -147,7 +147,7 @@ impl Program {
                     return Err(ProgramCreationError::TransformFeedbackNotSupported);
                 }
 
-                if uses_point_size && !(facade.get_context().get_version() >= &Version(Api::Gl, 3, 0)) {
+                if uses_point_size && (facade.get_context().get_version().0 == Api::Gl) && !(facade.get_context().get_version() >= &Version(Api::Gl, 2, 0)) {
                     return Err(ProgramCreationError::PointSizeNotSupported);
                 }
 
@@ -434,10 +434,12 @@ impl GlObject for Program {
 impl ProgramExt for Program {
     fn use_program(&self, ctxt: &mut CommandContext<'_>) {
         // compatibility was checked at program creation
-        if self.uses_point_size && !ctxt.state.enabled_program_point_size {
-            unsafe { ctxt.gl.Enable(gl::PROGRAM_POINT_SIZE); }
-        } else if !self.uses_point_size && ctxt.state.enabled_program_point_size {
-            unsafe { ctxt.gl.Disable(gl::PROGRAM_POINT_SIZE); }
+        if ctxt.version.0 == Api::Gl {
+            if self.uses_point_size && !ctxt.state.enabled_program_point_size {
+                unsafe { ctxt.gl.Enable(gl::PROGRAM_POINT_SIZE); }
+            } else if !self.uses_point_size && ctxt.state.enabled_program_point_size {
+                unsafe { ctxt.gl.Disable(gl::PROGRAM_POINT_SIZE); }
+            }
         }
 
         if (ctxt.version >= &Version(Api::Gl, 3, 0) || ctxt.extensions.gl_arb_framebuffer_srgb ||
