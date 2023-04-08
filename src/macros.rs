@@ -72,6 +72,40 @@ macro_rules! uniform {
     };
 }
 
+/// Returns a Dynamic Uniforms Container to which values can be added later.
+///
+/// ## Example
+///
+/// ```rust
+/// # use glium::uniform;
+/// # fn main(){
+///     let uniforms = dynamic_uniform!{
+///         color: [1.0, 1.0, 0.0, 1.0],
+///         some_value: 12i32,
+///     };
+///
+///     uniforms.add("another_value", 1.5f32);
+/// # }
+/// ```
+///
+///
+#[macro_export]
+macro_rules! dynamic_uniform{
+    () => {
+        $crate::uniforms::DynamicUniforms::new()
+    };
+
+    ($($field:ident: $value:expr), *,) => {
+        {
+            let mut tmp = $crate::uniforms::DynamicUniforms::new();
+            $(
+                tmp.add(stringify!($field), $value);
+            )*
+            tmp
+        }
+    };
+}
+
 /// Implements the `glium::vertex::Vertex` trait for the given type.
 ///
 /// The parameters must be the name of the struct and the names of its fields.

@@ -172,6 +172,130 @@ fn uniform_wrong_type() {
     display.assert_no_error(None);
 }
 
+#[test]
+fn uniforms_dynamic_single_value() {
+    let display = support::build_display();
+    let (vb, ib) = support::build_rectangle_vb_ib(&display);
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 110
+
+            attribute vec2 position;
+
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 110
+
+            uniform vec4 color;
+
+            void main() {
+                gl_FragColor = color;
+            }
+        ",
+        None).unwrap();
+
+    let mut uniforms = glium::uniforms::DynamicUniforms::new();
+    uniforms.add("color", &[1.0, 0.0, 0.0, 0.5f32]);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(data[0][0], (255, 0, 0, 128));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn uniforms_dynamic_multiple_values() {
+    let display = support::build_display();
+    let (vb, ib) = support::build_rectangle_vb_ib(&display);
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 110
+
+            attribute vec2 position;
+
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 110
+
+            uniform vec4 color1;
+            uniform vec4 color2;
+
+            void main() {
+                gl_FragColor = color1 + color2;
+            }
+        ",
+        None).unwrap();
+
+    let mut uniforms = glium::uniforms::DynamicUniforms::new();
+    uniforms.add("color1", &[0.7, 0.0, 0.0, 0.5f32]);
+    uniforms.add("color2", &[0.3, 0.0, 0.0, 0.5f32]);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(data[0][0], (255, 0, 0, 255));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 255));
+
+    display.assert_no_error(None);
+}
+
+#[test]
+fn uniforms_dynamic_ignore_inactive_uniforms() {
+    let display = support::build_display();
+    let (vb, ib) = support::build_rectangle_vb_ib(&display);
+
+    let program = glium::Program::from_source(&display,
+        "
+            #version 110
+
+            attribute vec2 position;
+
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        ",
+        "
+            #version 110
+
+            uniform vec4 color;
+
+            void main() {
+                gl_FragColor = color;
+            }
+        ",
+        None).unwrap();
+
+    let mut uniforms = glium::uniforms::DynamicUniforms::new();
+    uniforms.add("color", &[1.0, 0.0, 0.0, 0.5f32]);
+    uniforms.add("color2", &0.8f32);
+    uniforms.add("color3", &[0.1, 1.2f32]);
+
+    let texture = support::build_renderable_texture(&display);
+    texture.as_surface().clear_color(0.0, 0.0, 0.0, 0.0);
+    texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
+
+    let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
+    assert_eq!(data[0][0], (255, 0, 0, 128));
+    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+
+    display.assert_no_error(None);
+}
+
 macro_rules! uniform_test(
     ($name:ident, $glsl_ty:expr, $value:expr) => (
         #[test]
