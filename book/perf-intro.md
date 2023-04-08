@@ -1,4 +1,4 @@
-# Performances
+# Performance
 
 Here is the estimated cost of various operations:
 
