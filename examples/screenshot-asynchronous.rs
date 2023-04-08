@@ -142,7 +142,7 @@ struct Application {
 }
 
 impl ApplicationContext for Application {
-    const WINDOW_TITLE:&'static str = "Glium screenshot-asynchronous example";
+    const WINDOW_TITLE:&'static str = "Glium screenshot-asynchronous example - press S to take a screenshot";
 
     fn new(display: &Display<WindowSurface>) -> Self {
         Self {

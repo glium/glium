@@ -17,7 +17,7 @@ use raw_window_handle::HasRawWindowHandle;
 fn main() {
     // We start by creating the main EventLoop
     let event_loop = winit::event_loop::EventLoopBuilder::new().build();
-    let window_builder = winit::window::WindowBuilder::new().with_title("Glium tutorial #1");
+    let window_builder = winit::window::WindowBuilder::new().with_title("Glium SPIR-V example");
     let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
     let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
 

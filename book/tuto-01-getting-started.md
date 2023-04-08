@@ -7,84 +7,137 @@ cargo new --bin my_project
 cd my_project
 ```
 
-The directory you have just created should contain a `Cargo.toml` file which contains our project's metadata, plus a `src/main.rs` file which contains the Rust source code. If you have `src/lib.rs` file instead, that means that you forgot the `--bin` flag ; just rename the file.
+The directory you have just created should contain a `Cargo.toml` file which contains our project's metadata, plus a `src/main.rs` file which contains the Rust source code. If you have `src/lib.rs` file instead, that means that you forgot the `--bin` flag ; just rename `lib.rs` to `main.rs` then.
 
-In order to use the glium library, we need to add them as dependencies in our `Cargo.toml` file:
+In order to use glium, we need to add a couple of dependencies to our `Cargo.toml` file:
 
 ```toml
 [dependencies]
-glium = "*"
+winit = "0.28"
+raw-window-handle = "0.5"
+glutin = "0.30"
+glutin-winit = "0.3"
+glium = "0.33"
 ```
 
-Before we can use them, we also need to import this library in our `src/main.rs` file, like this:
+I'll explain what these libraries do as we use them to build your program. Your `src/main.rs` file should now look something like this:
 
 ```rust
-#[macro_use]
-extern crate glium;
-
 fn main() {
+    println!("Hello, world!");
 }
 ```
 
-It is now time to start filling the `main` function!
+It is now time to start filling in the `main` function!
 
 # Creating a window
 
-The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the **glutin** library shines.
+The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious.
 
-Initializing an OpenGL window with glutin can be done using the following steps:
-
-1. Creating an `EventLoop` for handling window and device events.
-2. Specify Window parameters using `glium::glutin::WindowBuilder::new()`. These
-   are window-specific attributes that have nothing to do with OpenGL.
-3. Specify Context parameters using `glium::glutin::ContextBuilder::new()`.
-   Here we specify OpenGL-specific attributes like multisampling or vsync.
-4. Create the OpenGL window (in glium, this is the `Display`):
-   `glium::Display::new(window, context, &event_loop).unwrap()`.
-   This builds a Display using the given window and context attributes, and
-   registers the window with the given event_loop.
+We start off by using **winit** to open a window.
 
 ```rust
-fn main() {
-    use glium::glutin;
+use winit::event_loop::EventLoopBuilder;
+use winit::window::WindowBuilder;
 
-    let mut event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+fn main() {
+    let event_loop = EventLoopBuilder::new().build();
+    let window_builder = WindowBuilder::new();
+
+    let window = window_builder.build(&event_loop).unwrap();
 }
 ```
 
-But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `CloseRequested` event has been received. We do so by calling `event_loop.run`:
+If you try to run this example with `cargo run` you'll encounter  a problem: as soon as the window has been created, our main function exits and the window is closed. To prevent this, we need to loop until we receive a `CloseRequested` event. We do this by calling `event_loop.run`:
 
 ```rust
 event_loop.run(move |ev, _, control_flow| {
-    let next_frame_time = std::time::Instant::now() +
-        std::time::Duration::from_nanos(16_666_667);
-    *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
     match ev {
-        glutin::event::Event::WindowEvent { event, .. } => match event {
-            glutin::event::WindowEvent::CloseRequested => {
-                *control_flow = winit::event_loop::ControlFlow::Exit;
-                return;
+        winit::event::Event::WindowEvent { event, .. } => match event {
+            winit::event::WindowEvent::CloseRequested => {
+                *control_flow =  winit::event_loop::ControlFlow::Exit;
             },
-            _ => return,
+            _ => (),
         },
         _ => (),
     }
 });
 ```
 
-You can now execute `cargo run`. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.
+If you run the program now you should see an nice little window. The content of the window, however, is not not very appealing. Depending on your system, it can appear black, show a random image, or just some snow. We are expected to draw on the window, so the system doesn't bother initializing its color to a specific value.
 
-### Clearing the color
+Since we want to draw using OpenGL we'll leave it like this for now.
 
-The content of the window, however, is not not very appealing. Depending on your system, it can appear black, show a random image, or just some snow. We are expected to draw on the window, so the system doesn't bother initializing its color to a specific value.
+# Making it OpenGL capable
 
-Glium and the OpenGL API work similarly to drawing software like Windows' Paint or The GIMP. We start with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to drawing software, you don't want your users to see the intermediate steps. Only the final result should be shown.
+To make use of OpenGL we first need a context, in these examples we'll be using **glutin** for that, we also need the **glutin-winit** and **raw-window-handle** crates to connect the context to our **winit** window.
 
-To handle this, OpenGL uses what is called *double buffering*. Instead of drawing directly to the window, we are drawing to an image stored in memory. Once we have finished drawing, this image is copied to the window.
-This is represented in glium by the `Frame` object. When you want to start drawing something on your window, you must first call `display.draw()` in order to produce a `Frame`:
+First we import 2 new types above our main function:
+
+```rust
+use glutin_winit::DisplayBuilder;
+use glutin::config::ConfigTemplateBuilder;
+```
+
+Now we can change the way we open our window to make it capable of supporting an OpenGL context. To accomplish that replace the `let window = ...` line with the following:
+
+```rust
+let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+let config_template_builder = ConfigTemplateBuilder::new();
+let (window, gl_config) = display_builder
+    .build(&event_loop, config_template_builder, |mut configs| {
+        // Just use the first configuration since we don't have any special preferences right now
+        configs.next().unwrap()
+    })
+    .unwrap();
+let window = window.unwrap();
+```
+
+This might seem complicated but it allows for great flexibility in how the window is created which is necessary to support mobile platforms. If you run the program now you won't see a difference, but the window can now support an OpenGL context.
+
+# Creating an OpenGL context
+
+First off we need to use some more libraries, to do that add the following above the main function:
+
+```rust
+use glutin::prelude::*;
+use glutin::display::GetGlDisplay;
+use raw_window_handle::HasRawWindowHandle;
+use std::num::NonZeroU32;
+```
+
+To create a glium context we need a glutin `Surface`, to do that add the following after the `let window = ...` statement:
+
+```rust
+let (width, height): (u32, u32) = window.inner_size().into();
+let attrs = glutin::surface::SurfaceAttributesBuilder::<glutin::surface::WindowSurface>::new().build(
+    window.raw_window_handle(),
+    NonZeroU32::new(width).unwrap(),
+    NonZeroU32::new(height).unwrap(),
+);
+let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
+```
+
+Here we first get the size of our window and the create a `Surface` with those dimensions.
+
+After that we can finally create a glutin context and glium `Display` by adding the following:
+
+```rust
+let context_attributes = glutin::context::ContextAttributesBuilder::new().build(Some(window.raw_window_handle()));
+let current_context = Some(unsafe {
+    gl_config.display().create_context(&gl_config, &context_attributes).expect("failed to create context")
+}).unwrap().make_current(&surface).unwrap();
+let display = glium::Display::from_context_surface(current_context, surface).unwrap();
+```
+
+Now we are ready to use glium.
+
+# Drawing on the window
+
+Glium and the OpenGL API work similarly to drawing software like Microsoft Paint or GIMP. We begin with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to drawing software, you don't want your users to see the intermediate steps. Only the final result should be shown.
+
+To accomplish this, OpenGL uses what is called *double buffering*. Instead of drawing directly to the window, we are drawing to an image stored in memory. Once we are finished drawing, this image is copied into the window.
+This is represented in glium by the `Frame` object. When you want to start drawing something on a window, you must first call `display.draw()` to produce a new `Frame`:
 
 ```rust
 let mut target = display.draw();
@@ -112,36 +165,58 @@ target.finish().unwrap();
 
 This call to `finish()` means that we have finished drawing. It destroys the `Frame` object and copies our background image to the window. Our window is now filled with blue.
 
-Here is our full `main` function after this step:
+Here is our full program:
 
 ```rust
-extern crate glium;
+use winit::event_loop::EventLoopBuilder;
+use winit::window::WindowBuilder;
+use glutin_winit::DisplayBuilder;
+use glutin::config::ConfigTemplateBuilder;
+use glutin::prelude::*;
+use glutin::display::GetGlDisplay;
+use raw_window_handle::HasRawWindowHandle;
+use std::num::NonZeroU32;
+use glium::Surface;
 
 fn main() {
-    use glium::{glutin, Surface};
+    let event_loop = EventLoopBuilder::new().build();
 
-    let event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    let window_builder = WindowBuilder::new();
+    let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+    let config_template_builder = ConfigTemplateBuilder::new();
+    let (window, gl_config) = display_builder
+        .build(&event_loop, config_template_builder, |mut configs| {
+            // Just use the first configuration since we don't have any special preferences right now
+            configs.next().unwrap()
+        })
+        .unwrap();
+    let window = window.unwrap();
+
+    let (width, height): (u32, u32) = window.inner_size().into();
+    let attrs = glutin::surface::SurfaceAttributesBuilder::<glutin::surface::WindowSurface>::new().build(
+        window.raw_window_handle(),
+        NonZeroU32::new(width).unwrap(),
+        NonZeroU32::new(height).unwrap(),
+    );
+    let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
+
+    let context_attributes = glutin::context::ContextAttributesBuilder::new().build(Some(window.raw_window_handle()));
+    let current_context = Some(unsafe {
+        gl_config.display().create_context(&gl_config, &context_attributes).expect("failed to create context")
+    }).unwrap().make_current(&surface).unwrap();
+    let display = glium::Display::from_context_surface(current_context, surface).unwrap();
+
+    let mut target = display.draw();
+    target.clear_color(0.0, 0.0, 1.0, 1.0);
+    target.finish().unwrap();
 
     event_loop.run(move |ev, _, control_flow| {
-
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.finish().unwrap();
-
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-
-        *control_flow = winit::event_loop::ControlFlow::WaitUntil(next_frame_time);
         match ev {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = winit::event_loop::ControlFlow::Exit;
-                    return;
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                winit::event::WindowEvent::CloseRequested => {
+                    *control_flow =  winit::event_loop::ControlFlow::Exit;
                 },
-                _ => return,
+                _ => (),
             },
             _ => (),
         }

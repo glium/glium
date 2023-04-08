@@ -1,6 +1,6 @@
 # Drawing a triangle
 
-With some exceptions (like the clearing operation that was used above), OpenGL doesn't provide any function to easily draw shapes. There is no `draw_rectangle`, `draw_cube` or `draw_text` function for example. Instead everything is handled the same way: through the graphics pipeline. It doesn't matter whether you draw a simple triangle or a 3D model with thousands of polygons and advanced shadowing techniques, everything uses the same mechanics.
+With some exceptions (like the clearing operation that was used before), OpenGL doesn't provide any function to easily draw shapes. There is no `draw_rectangle`, `draw_cube` or `draw_text` function for example. Instead everything is handled the same way: through the graphics pipeline. It doesn't matter whether you draw a simple triangle or a 3D model with thousands of polygons and advanced shadowing techniques, everything uses the same mechanics.
 
 This is the point where the learning curve becomes very steep, as you need to learn how the graphics pipeline works even if you just want to draw a single triangle. However once you have passed that step, it will become easier to understand the rest.
 
@@ -24,8 +24,13 @@ Each triangle is made of three vertices, which means that a shape is just a coll
 struct Vertex {
     position: [f32; 2],
 }
-
 implement_vertex!(Vertex, position);
+```
+
+To make the implement_vertex! macro available you need to add the following lines above the main function:
+```rust
+#[macro_use]
+extern crate glium;
 ```
 
 Our struct contains a `position` field which we will use to store the position of each vertex on the window. Being a true vectorial renderer, OpenGL doesn't use coordinates in pixels. Instead it considers that the window has a width and a height of 2 units, and that the origin is at the center of the window.
@@ -59,13 +64,13 @@ let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList
 
 ## Program
 
-When OpenGL was first created in the 1990s, drawing an object simply consisted in sending a shape alongside with various parameters like the color, lighting direction, fog distance, etc. But these parameters quickly became too limiting for game creators, and when OpenGL 2 was released a more flexible system was added with what are called *shaders*. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.
+When OpenGL was first created in the 1990s, drawing an object simply consisted of sending a shape alongside various parameters like the color, lighting direction, fog distance, etc. But these parameters quickly became too limiting, and when OpenGL 2 was released, a more flexible system was added with what so called *shaders*. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.
 
 In order to draw a triangle, you will need some basic understanding about how the drawing process (also called the *pipeline*) works.
 
 ![The graphics pipeline](resources/tuto-02-pipeline.svg)
 
-The list of coordinates at the left of the schema represents the vertices of the shape that we have created earlier. When we will ask the GPU to draw this shape, it will first execute what is called a *vertex shader*, once for each vertex (that means three times here). A vertex shader is a small program whose purpose is to tell the GPU what the screen coordinates of each vertex is. Then the GPU builds our triangle and determines which pixels of the screen are inside of it. It will then execute a *fragment shader* once for each of these pixels. A fragment shader is a small program whose purpose is to tell the GPU what the color of each pixel needs to be.
+The list of coordinates at the left of the schema represents the vertices of the shape that we have created earlier. When we ask the GPU to draw this shape, it will first execute what is called a *vertex shader*, once for each vertex (that means three times here). A vertex shader is a small program whose purpose is to tell the GPU what the screen coordinates of each vertex is. Then the GPU builds our triangle and determines which pixels of the screen are inside of it. It will then execute a *fragment shader* once for each of these pixels. A fragment shader is a small program whose purpose is to tell the GPU what the color of each pixel needs to be.
 
 The tricky part is that *we* need to write the vertex and fragment shaders. To do so, we have to write it using a programming language named *GLSL*, which is very similar to the C programming language. Teaching you GLSL would be a bit too complicated for now, so I will just give you the source codes. Here is the source code that we will use for the vertex shader:
 
@@ -101,7 +106,7 @@ let fragment_shader_src = r#"
 "#;
 ```
 
-This source code is very similar to our vertex shader above. This time the `main` function is executed once per pixel and has to return the color of this pixel, which we do with the `color = vec4(1.0, 0.0, 0.0, 1.0);` line. Just like with `clear_color` earlier, we need to pass the red, green, blue and alpha components of the pixel. Here we are returning an opaque red color. It is possible to return different values depending on the pixel, but this will be covered in the next tutorials.
+This source code is very similar to our vertex shader above. This time the `main` function is executed once per pixel and has to set the color of this pixel, which we do with the `color = vec4(1.0, 0.0, 0.0, 1.0);` line. Just like with `clear_color` earlier, we need to pass the red, green, blue and alpha components of the pixel. Here we are returning an opaque red color. It is possible to return different values depending on the pixel, but this will be covered later.
 
 Now that we have written our shaders' source codes, let's send them to the glium library:
 
@@ -111,7 +116,7 @@ let program = glium::Program::from_source(&display, vertex_shader_src, fragment_
 
 ## Drawing
 
-Now that we have prepared our shape and program, we can finally draw this triangle!
+Now that we have prepared our shape and program, we can finally draw a triangle!
 
 Remember the `target` object? We will need to use it to start a draw operation.
 
@@ -122,7 +127,7 @@ target.clear_color(0.0, 0.0, 1.0, 1.0);
 target.finish().unwrap();
 ```
 
-Starting a draw operation needs several things: a source of vertices (here we use our `vertex_buffer`), a source of indices (we use our `indices` variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing an `EmptyUniforms` marker and by building the default draw parameters.
+Starting a draw operation needs several things: a source of vertices (here we use our `vertex_buffer`), a source of indices (we use our `indices` variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing an `EmptyUniforms` marker and by using the default draw parameters.
 
 ```rust
 target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
