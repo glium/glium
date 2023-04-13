@@ -29,7 +29,7 @@ Consequently you have three matrices:
  - The *perspective* matrix, built with the field of view and aspect ratio of the screen.
 
 The first two matrices are sometimes combined into one *modelview* matrix before being
-uploaded to your shaders. But for the sake of simplicity, we are going to use two matrices.
+uploaded to your shaders. But for the sake of simplicity, we are keeping them separate.
 
 ## The view matrix
 
@@ -112,7 +112,7 @@ target.draw((&positions, &normals), &indices, &program,
 ```
 
 We are using fixed coordinates for the example. A first person camera is not that easy to create
-and requires a lot of code that would be out of scope.
+and requires a lot of code that would be out of scope for this tutorial.
 
 And here is the result:
 

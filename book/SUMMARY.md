@@ -4,7 +4,6 @@
 
 - [Opening a window](tuto-01-getting-started.md)
 - [Drawing a triangle](tuto-02-triangle.md)
-- [Event loop]()
 - [Uniforms](tuto-03-animated-triangle.md)
 - [Matrices](tuto-04-matrices.md)
 - [Adding colors](tuto-05-colors.md)

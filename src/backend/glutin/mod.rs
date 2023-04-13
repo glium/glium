@@ -289,8 +289,8 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
 #[cfg(feature = "simple_winit_window")]
 /// Create a new winit Window and create a glium Display for it.
 ///
-/// This function is meant as an easy way to get started, if you require more
-/// flexibility you need to initialize the window and context yourself.
+/// This function is meant as an easy way to get started> If you require more
+/// flexibility, you need to initialize the window and context yourself.
 /// Have a look at the source of this function as an example on how to do that.
 pub fn simple_winit_window(event_loop: &winit::event_loop::EventLoop<()>, window_title: &str) -> (winit::window::Window, Display<glutin::surface::WindowSurface>) {
     use glutin::prelude::*;
@@ -304,7 +304,7 @@ pub fn simple_winit_window(event_loop: &winit::event_loop::EventLoop<()>, window
     let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
     let (window, gl_config) = display_builder
         .build(&event_loop, config_template_builder, |mut configs| {
-            // Just use the first configuration since we don't have any special preferences right now
+            // Just use the first configuration since we don't have any special preferences here
             configs.next().unwrap()
         })
         .unwrap();

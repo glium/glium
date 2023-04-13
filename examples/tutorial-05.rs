@@ -13,9 +13,9 @@ fn main() {
     }
     implement_vertex!(Vertex, position, color);
     let shape = vec![
-        Vertex { position: [-0.5, -0.5], color: [1.0, 0.1, 0.2] },
-        Vertex { position: [ 0.0,  0.5], color: [0.2, 0.8, 0.1] },
-        Vertex { position: [ 0.5, -0.25], color: [0.3, 0.0, 1.0] }
+        Vertex { position: [-0.5, -0.5], color: [1.0, 0.0, 0.0] },
+        Vertex { position: [ 0.0,  0.5], color: [0.0, 1.0, 0.0] },
+        Vertex { position: [ 0.5, -0.25], color: [0.0, 0.0, 1.0] }
     ];
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
     let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();

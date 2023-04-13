@@ -1,6 +1,6 @@
 # Backface culling
 
-Before going further, there's one last thing to know about 3D rendering.
+Before going further, there's one more thing to know about 3D rendering.
 
 After your vertex shader outputs the vertex coordinates on the screen,
 each triangle can be in two possible situations:
