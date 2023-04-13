@@ -9,7 +9,7 @@ All the geometrical operations that we need can be done with some maths:
  - Rotating our triangle is done with `new_position = vec2(pos.x * cos(angle) - pos.y * sin(angle), pos.x * sin(angle) + pos.y * cos(angle));`
  - Skewing our triangle is done with `position.x += position.y * factor;`
 
-But what if we want to do a rotation, then a translation, then a rescale? Or a skew and a rotation? Even though it's possible to do this with maths, things become very complex to handle.
+But what if we want to do a rotation, then a translation, then a rescale? Or a skew and a rotation? Even though it is possible to accomplish like this, things become quite complicated very quickly.
 
 Instead, programmers use **matrices**. A matrix is a two-dimensional table of numbers which *can represent a geometrical transformation*. In computer graphics, we use 4x4 matrices.
 
@@ -39,7 +39,7 @@ let uniforms = uniform! {
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],
         [0.0, 0.0, 1.0, 0.0],
-        [ t , 0.0, 0.0, 1.0f32],
+        [ x , 0.0, 0.0, 1.0f32],
     ]
 };
 
@@ -49,7 +49,7 @@ target.draw(&vertex_buffer, &indices, &program, &uniforms,
 
 Note that in OpenGL, and therefore glium, the matrices are column-major.  If we were to write the above matrix in standard mathematical notation, which is row-major, it would look like this:
 ```
-1.0   0.0   0.0    t
+1.0   0.0   0.0    x
 0.0   1.0   0.0   0.0
 0.0   0.0   1.0   0.0
 0.0   0.0   0.0   1.0

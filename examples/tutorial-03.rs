@@ -24,11 +24,11 @@ fn main() {
         #version 140
 
         in vec2 position;
-        uniform float t;
+        uniform float x_off;
 
         void main() {
             vec2 pos = position;
-            pos.x += t;
+            pos.x += x_off;
             gl_Position = vec4(pos, 0.0, 1.0);
         }
     "#;
@@ -58,22 +58,23 @@ fn main() {
                 },
                 _ => (),
             },
-            // We now need to render everyting in response to a RedrawRequested event due to the animation
-            winit::event::Event::RedrawRequested(_) => {
-                // first we update `t`
-                t += 0.02;
-
-                let mut target = display.draw();
-                target.clear_color(0.0, 0.0, 1.0, 1.0);
-                let uniforms = uniform! { t: t.sin() * 0.5 };
-                target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                            &Default::default()).unwrap();
-                target.finish().unwrap();
-            },
             // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.
             // For applications that only change due to user input you could remove this handler.
             winit::event::Event::RedrawEventsCleared => {
                 window.request_redraw();
+            },
+            // We now need to render everyting in response to a RedrawRequested event due to the animation
+            winit::event::Event::RedrawRequested(_) => {
+                // first we update `t`
+                t += 0.02;
+                let x_off = t.sin() * 0.5;
+
+                let mut target = display.draw();
+                target.clear_color(0.0, 0.0, 1.0, 1.0);
+                let uniforms = uniform! { x_off: x_off };
+                target.draw(&vertex_buffer, &indices, &program, &uniforms,
+                            &Default::default()).unwrap();
+                target.finish().unwrap();
             },
             _ => (),
         }
