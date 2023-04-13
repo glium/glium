@@ -27,7 +27,7 @@ exclude = ["doc"]
 edition = "2021"
 
 [features]
-default = ["glutin_backend", "glutin/default", "simple_winit_window"]
+default = ["glutin_backend", "simple_winit_window", "glutin/default", "winit/default", "glutin-winit/default"]
 glutin_backend = ["glutin"]
 unstable = [] # used for benchmarks
 test_headless = []  # used for testing headless display
