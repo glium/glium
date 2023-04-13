@@ -23,7 +23,6 @@ use raw_window_handle::HasRawWindowHandle;
 use std::env;
 
 /// Builds a display for tests.
-#[cfg(not(feature = "test_headless"))]
 pub fn build_display() -> Display<WindowSurface> {
     let version = parse_version();
     let event_loop = EventLoopBuilder::new().build();
@@ -63,19 +62,6 @@ pub fn build_display() -> Display<WindowSurface> {
     glium::Display::from_context_surface(current_context, surface).unwrap()
 }
 
-
-
-/// Builds a headless display for tests.
-#[cfg(feature = "test_headless")]
-pub fn build_display() -> glium::HeadlessRenderer {
-    let version = parse_version();
-    let hrb = glutin::HeadlessRendererBuilder::new(1024, 768)
-        .with_gl_debug_flag(true)
-        .with_gl(version)
-        .build()
-        .unwrap();
-    glium::HeadlessRenderer::new(hrb).unwrap()
-}
 
 /// Rebuilds an existing display.
 ///

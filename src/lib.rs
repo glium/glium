@@ -185,8 +185,7 @@ pub use memoffset::offset_of as __glium_offset_of;
 /// your program.
 #[cfg(feature = "glutin")]
 pub use crate::backend::glutin::Display;
-#[cfg(feature = "glutin")]
-pub use crate::backend::glutin::headless::Headless as HeadlessRenderer;
+
 use crate::uniforms::MagnifySamplerFilter;
 
 /// Trait for objects that describe the capabilities of an OpenGL backend.

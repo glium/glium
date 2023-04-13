@@ -1,5 +1,3 @@
-#![cfg(not(feature = "test_headless"))]
-
 #[macro_use]
 extern crate glium;
 

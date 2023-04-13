@@ -30,7 +30,6 @@ edition = "2021"
 default = ["glutin_backend", "simple_winit_window", "glutin/default", "winit/default", "glutin-winit/default"]
 glutin_backend = ["glutin"]
 unstable = [] # used for benchmarks
-test_headless = []  # used for testing headless display
 vk_interop = [] # used for texture import from Vulkan
 simple_winit_window = ["glutin", "glutin-winit", "winit", "raw-window-handle"] # used in the tutorial
 
@@ -80,3 +79,6 @@ libc = "0.2.62"
 winit = "0.28"
 raw-window-handle = "0.5"
 glutin-winit = "0.3"
+
+[package.metadata.docs.rs]
+all-features = true

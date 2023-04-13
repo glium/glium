@@ -12,8 +12,6 @@ pub use glutin;
 use glutin::surface::Surface;
 use takeable_option::Takeable;
 
-pub mod headless;
-
 use crate::SwapBuffersError;
 use crate::backend;
 use crate::backend::Backend;
