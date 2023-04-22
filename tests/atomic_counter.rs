@@ -26,7 +26,7 @@ fn basic() {
 
             out vec4 f_color;
 
-            layout(binding = 1) uniform atomic_uint counter;
+            uniform atomic_uint counter;
 
             void main() {
                 f_color = vec4(0.0, 0.0, 0.0, 1.0);

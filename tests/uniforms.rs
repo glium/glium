@@ -5,6 +5,12 @@ use glium::Surface;
 
 mod support;
 
+const RED_HALF_ALPHA: (u8, u8, u8, u8) = if cfg!(windows) {
+    (255, 0, 0, 127)
+} else {
+    (255, 0, 0, 128)
+};
+
 #[derive(Copy, Clone)]
 struct Vertex {
     position: [f32; 2],
@@ -45,8 +51,8 @@ fn uniforms_storage_single_value() {
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
-    assert_eq!(data[0][0], (255, 0, 0, 128));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+    assert_eq!(data[0][0], RED_HALF_ALPHA);
+    assert_eq!(data.last().unwrap().last().unwrap(), &RED_HALF_ALPHA);
 
     display.assert_no_error(None);
 }
@@ -127,8 +133,8 @@ fn uniforms_storage_ignore_inactive_uniforms() {
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
-    assert_eq!(data[0][0], (255, 0, 0, 128));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+    assert_eq!(data[0][0], RED_HALF_ALPHA);
+    assert_eq!(data.last().unwrap().last().unwrap(), &RED_HALF_ALPHA);
 
     display.assert_no_error(None);
 }
