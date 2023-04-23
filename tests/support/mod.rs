@@ -8,19 +8,89 @@ Test supports module.
 use glium::{self, glutin};
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
+use glutin::{event::Event, event_loop::{EventLoop, EventLoopBuilder, EventLoopProxy}, NotCurrent, WindowedContext};
 
 use std::env;
+use std::thread;
+use std::sync::{mpsc::Receiver, Once, RwLock};
 
 /// Builds a display for tests.
 #[cfg(not(feature = "test_headless"))]
 pub fn build_display() -> glium::Display {
-    let version = parse_version();
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new().with_visible(false);
-    let cb = glutin::ContextBuilder::new()
-        .with_gl_debug_flag(true)
-        .with_gl(version);
-    glium::Display::new(wb, cb, &event_loop).unwrap()
+    // TODO: assess sync usage and prove this approach is safe
+
+    static mut EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
+    static mut CONTEXT_RECEIVER: RwLock<Option<Receiver<WindowedContext<NotCurrent>>>> = RwLock::new(None);
+    static mut INIT_EVENT_LOOP: Once = Once::new();
+    static mut SEND_PROXY: Once = Once::new();
+
+    unsafe {
+        INIT_EVENT_LOOP.call_once(|| {
+
+            // this channel is used one time to get the event loop proxy
+            let (ots, otr) = std::sync::mpsc::sync_channel(0);
+            // this channel transfers windowed contexts to create displays
+            let (sender, receiver) = std::sync::mpsc::channel();
+
+            // create event loop in a separate thread so we can process events
+            let builder = thread::Builder::new().name("event_loop".into());
+            builder.spawn(|| {
+                let event_loop = if cfg!(windows) {
+                    use glutin::platform::windows::EventLoopBuilderExtWindows;
+
+                    EventLoopBuilder::new().with_any_thread(true).build()
+                } else {
+                    EventLoop::new()
+                };
+
+                let proxy = event_loop.create_proxy();
+
+                event_loop.run(move |event, event_loop, _| {
+                    match event {
+                        Event::UserEvent(_) => {
+                            let version = parse_version();
+                            let wb = glutin::window::WindowBuilder::new().with_visible(false);
+                            let cb = glutin::ContextBuilder::new()
+                                .with_gl_debug_flag(true)
+                                .with_gl(version);
+                            sender.send(cb.build_windowed(wb, event_loop).unwrap()).unwrap();
+                        }
+                        _ => {
+                            // cloning the proxy here for convenience
+                            // TODO: move the proxy instead of cloning, if possible
+                            SEND_PROXY.call_once(|| {
+                                ots.send(proxy.clone()).unwrap();
+                            });
+                        }
+                    }
+                });
+            }).unwrap();
+
+            let event_loop_proxy = otr.recv().unwrap();
+
+            let mut guard = EVENT_LOOP_PROXY.write().unwrap();
+
+            *guard = Some(event_loop_proxy);
+
+            let mut guard = CONTEXT_RECEIVER.write().unwrap();
+
+            *guard = Some(receiver);
+        });
+    }
+
+    // tell event loop to create a windowed context
+    let guard = unsafe {
+        EVENT_LOOP_PROXY.read().unwrap()
+    };
+    guard.as_ref().unwrap().send_event(()).unwrap();
+
+    // receive context and create display
+    let guard = unsafe {
+        CONTEXT_RECEIVER.read().unwrap()
+    };
+    let windowed_context = guard.as_ref().unwrap().recv().unwrap();
+
+    glium::Display::from_gl_window(windowed_context).unwrap()
 }
 
 /// Builds a headless display for tests.
@@ -40,13 +110,13 @@ pub fn build_display() -> glium::HeadlessRenderer {
 /// In real applications this is used for things such as switching to fullscreen. Some things are
 /// invalidated during a rebuild, and this has to be handled by glium.
 pub fn rebuild_display(display: &glium::Display) {
-    let version = parse_version();
+    /*let version = parse_version();
     let event_loop = glutin::event_loop::EventLoop::new();
     let wb = glutin::window::WindowBuilder::new().with_visible(false);
     let cb = glutin::ContextBuilder::new()
         .with_gl_debug_flag(true)
         .with_gl(version);
-    display.rebuild(wb, cb, &event_loop).unwrap();
+    display.rebuild(wb, cb, get_cached_event_loop().as_ref().unwrap()).unwrap();*/
 }
 
 fn parse_version() -> glutin::GlRequest {
