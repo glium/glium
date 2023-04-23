@@ -239,10 +239,12 @@ impl<T> VertexBuffer<T> where T: Copy {
     ///
     /// let bindings = Cow::Owned(vec![(
     ///         Cow::Borrowed("position"), 0,
+    /// #       0,
     ///         glium::vertex::AttributeType::F32F32,
     ///         false,
     ///     ), (
     ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(),
+    /// #       0,
     ///         glium::vertex::AttributeType::F32,
     ///         false,
     ///     ),

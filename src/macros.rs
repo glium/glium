@@ -77,14 +77,15 @@ macro_rules! uniform {
 /// ## Example
 ///
 /// ```rust
+/// # #[macro_use] extern crate glium;
 /// # use glium::uniform;
 /// # fn main(){
-///     let uniforms = dynamic_uniform!{
-///         color: [1.0, 1.0, 0.0, 1.0],
-///         some_value: 12i32,
+///     let mut uniforms = dynamic_uniform!{
+///         color: &[1.0, 1.0, 0.0, 1.0],
+///         some_value: &12i32,
 ///     };
 ///
-///     uniforms.add("another_value", 1.5f32);
+///     uniforms.add("another_value", &1.5f32);
 /// # }
 /// ```
 ///
@@ -141,6 +142,11 @@ macro_rules! dynamic_uniform{
 /// ```
 /// # use glium::implement_vertex;
 /// # fn main() {
+/// # #[derive(Copy, Clone)]
+/// # struct Vertex {
+/// #     position: [f32; 3],
+/// #     tex_coords: [f32; 2],
+/// # }
 /// implement_vertex!(Vertex, position normalize(false), tex_coords normalize(false));
 /// # }
 /// ```
@@ -150,6 +156,11 @@ macro_rules! dynamic_uniform{
 /// ```
 /// # use glium::implement_vertex;
 /// # fn main() {
+/// # #[derive(Copy, Clone)]
+/// # struct Vertex {
+/// #     position: [f32; 3],
+/// #     tex_coords: [f32; 2],
+/// # }
 /// implement_vertex!(Vertex, position location(0), tex_coords location(1));
 /// # }
 /// ```
