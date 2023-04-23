@@ -113,7 +113,7 @@ And instead we are going to do a small change in our vertex shader:
 
 ```rust
 let vertex_shader_src = r#"
-    #version 140
+    ##version 140
 
     in vec2 position;
 
