@@ -17,7 +17,7 @@ Let's get back to our moving triangle. We are going to change the vertex shader 
 
 ```rust
 let vertex_shader_src = r#"
-    #version 140
+    ##version 140
 
     in vec2 position;
 
