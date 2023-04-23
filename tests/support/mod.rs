@@ -39,6 +39,7 @@ pub fn build_display() -> glium::Display {
             let builder = thread::Builder::new().name("event_loop".into());
             builder.spawn(|| {
                 let event_loop = if cfg!(windows) {
+                    #[cfg(windows)]
                     use glutin::platform::windows::EventLoopBuilderExtWindows;
 
                     EventLoopBuilder::new().with_any_thread(true).build()
