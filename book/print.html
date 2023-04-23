@@ -273,7 +273,7 @@ let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList
 # #![allow(unused_variables)]
 #fn main() {
 let vertex_shader_src = r#&quot;
-    #version 140
+    ##version 140
 
     in vec2 position;
 
@@ -290,7 +290,7 @@ let vertex_shader_src = r#&quot;
 # #![allow(unused_variables)]
 #fn main() {
 let fragment_shader_src = r#&quot;
-    #version 140
+    ##version 140
 
     out vec4 color;
 
@@ -440,7 +440,7 @@ event_loop.run(move |event, _, control_flow| {
 # #![allow(unused_variables)]
 #fn main() {
 let vertex_shader_src = r#&quot;
-    #version 140
+    ##version 140
 
     in vec2 position;
 
@@ -476,7 +476,7 @@ target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { t: t
 # #![allow(unused_variables)]
 #fn main() {
 let vertex_shader_src = r#&quot;
-    #version 140
+    ##version 140
 
     in vec2 position;
 
