@@ -8,7 +8,9 @@ Test supports module.
 use glium::{self, glutin};
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
-use glutin::{event::Event, event_loop::{EventLoop, EventLoopBuilder, EventLoopProxy}, NotCurrent, WindowedContext};
+use glutin::event::Event;
+use glutin::event_loop::{EventLoop, EventLoopBuilder, EventLoopProxy};
+use glutin::{NotCurrent, WindowedContext};
 
 use std::env;
 use std::thread;
@@ -20,7 +22,8 @@ pub fn build_display() -> glium::Display {
     // TODO: assess sync usage and prove this approach is safe
 
     static mut EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
-    static mut CONTEXT_RECEIVER: RwLock<Option<Receiver<WindowedContext<NotCurrent>>>> = RwLock::new(None);
+    static mut CONTEXT_RECEIVER: RwLock<Option<Receiver<WindowedContext<NotCurrent>>>> =
+        RwLock::new(None);
     static mut INIT_EVENT_LOOP: Once = Once::new();
     static mut SEND_PROXY: Once = Once::new();
 
@@ -109,7 +112,7 @@ pub fn build_display() -> glium::HeadlessRenderer {
 ///
 /// In real applications this is used for things such as switching to fullscreen. Some things are
 /// invalidated during a rebuild, and this has to be handled by glium.
-pub fn rebuild_display(display: &glium::Display) {
+pub fn rebuild_display(_display: &glium::Display) {
     /*let version = parse_version();
     let event_loop = glutin::event_loop::EventLoop::new();
     let wb = glutin::window::WindowBuilder::new().with_visible(false);
