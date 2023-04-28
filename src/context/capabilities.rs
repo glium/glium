@@ -444,13 +444,6 @@ pub unsafe fn get_capabilities(gl: &gl::Gl, version: &Version, extensions: &Exte
         max_viewport_dims: {
             let mut val: [gl::types::GLint; 2] = [ 0, 0 ];
             gl.GetIntegerv(gl::MAX_VIEWPORT_DIMS, val.as_mut_ptr());
-
-            cfg_if::cfg_if! {
-                // vitaGL returns only one dimension, but the allowed viewport is actually square
-                if #[cfg(target_os = "vita")] {
-                    val[1] = val[0];
-                }
-            }
             (val[0], val[1])
         },
 
