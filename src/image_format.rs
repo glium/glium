@@ -1418,17 +1418,17 @@ impl TextureFormat {
     /// Returns a list of all the possible values of this enumeration.
     #[inline]
     pub fn get_formats_list() -> Vec<TextureFormat> {
-        // TODO: this function looks ugly
-        UncompressedFloatFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        UncompressedIntFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        UncompressedUintFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        SrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        CompressedFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        CompressedSrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        DepthFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        StencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).chain(
-        DepthStencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format())))))))))
-        .collect()
+        // Chaining so many iterators can blow up the stack on some platforms
+        let mut result: Vec<_> = UncompressedFloatFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect();
+        result.append(&mut UncompressedIntFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.append(&mut UncompressedUintFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.append(&mut SrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.append(&mut CompressedFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.append(&mut CompressedSrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.append(&mut DepthFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.append(&mut StencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.append(&mut DepthStencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result
     }
 
     /// Returns true if this format is supported by the backend for textures.

@@ -277,11 +277,17 @@ impl VertexArrayObject {
                     }
                 };
 
-                if ty.get_num_components() != attribute.ty.get_num_components() ||
-                    attribute.size != 1
-                {
-                    panic!("The program attribute `{}` does not match the vertex format. \
-                            Program expected {:?}, got {:?}.", name, attribute.ty, ty);
+                cfg_if::cfg_if! {
+                    // Unfortunately internal API used by GLES implementation on Vita
+                    // assumes all attributes as float4, so we should skip this check for it.
+                    if #[cfg(not(target_os = "vita"))] {
+                        if ty.get_num_components() != attribute.ty.get_num_components() ||
+                            attribute.size != 1
+                        {
+                            panic!("The program attribute `{}` does not match the vertex format. \
+                                    Program expected {:?}, got {:?}.", name, attribute.ty, ty);
+                        }
+                    }
                 }
             }
         }
