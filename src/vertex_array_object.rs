@@ -277,6 +277,9 @@ impl VertexArrayObject {
                     }
                 };
 
+                // Unfortunately internal API used by GLES implementation on Vita
+                // assumes all attributes as float4, so we should skip this check for it.
+                #[cfg(not(target_os = "vita"))]
                 if ty.get_num_components() != attribute.ty.get_num_components() ||
                     attribute.size != 1
                 {
