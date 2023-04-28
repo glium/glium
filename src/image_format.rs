@@ -1420,14 +1420,14 @@ impl TextureFormat {
     pub fn get_formats_list() -> Vec<TextureFormat> {
         // Chaining so many iterators can blow up the stack on some platforms
         let mut result: Vec<_> = UncompressedFloatFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect();
-        result.append(&mut UncompressedIntFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
-        result.append(&mut UncompressedUintFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
-        result.append(&mut SrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
-        result.append(&mut CompressedFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
-        result.append(&mut CompressedSrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
-        result.append(&mut DepthFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
-        result.append(&mut StencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
-        result.append(&mut DepthStencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()).collect());
+        result.extend(UncompressedIntFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
+        result.extend(UncompressedUintFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
+        result.extend(SrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
+        result.extend(CompressedFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
+        result.extend(CompressedSrgbFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
+        result.extend(DepthFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
+        result.extend(StencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
+        result.extend(DepthStencilFormat::get_formats_list().into_iter().map(|f| f.to_texture_format()));
         result
     }
 
