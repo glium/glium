@@ -152,7 +152,7 @@ pub enum VerticesSource<'a> {
     ///
     /// The third parameter tells whether or not this buffer is "per instance" (true) or
     /// "per vertex" (false).
-    VertexBuffer(BufferAnySlice<'a>, &'a VertexFormat, bool),
+    VertexBuffer(BufferAnySlice<'a>, VertexFormat, bool),
 
     /// A marker indicating a "phantom list of attributes".
     Marker {
@@ -191,7 +191,7 @@ impl<'a> From<EmptyInstanceAttributes> for VerticesSource<'a> {
 }
 
 /// Marker that instructs glium that the buffer is to be used per instance.
-pub struct PerInstance<'a>(BufferAnySlice<'a>, &'a VertexFormat);
+pub struct PerInstance<'a>(BufferAnySlice<'a>, VertexFormat);
 
 impl<'a> From<PerInstance<'a>> for VerticesSource<'a> {
     #[inline]
@@ -302,8 +302,14 @@ pub trait Vertex: Copy + Sized {
 
 /// Trait for types that can be used as vertex attributes.
 pub unsafe trait Attribute: Sized {
+    /// The type of data.
+    const TYPE: AttributeType;
+
+    #[inline]
     /// Get the type of data.
-    fn get_type() -> AttributeType;
+    fn get_type() -> AttributeType {
+        Self::TYPE
+    }
 
     /// Returns true if the backend supports this type of attribute.
     #[inline]

@@ -1,4 +1,4 @@
-use std::borrow::Borrow;
+use std::borrow::{Borrow};
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::mem;
@@ -22,7 +22,7 @@ use crate::version::Version;
 pub struct VertexAttributesSystem {
     // we maintain a list of VAOs for each vertexbuffer-indexbuffer-program association
     // the key is a (buffers-list-with-offset, program) ; the buffers list must be sorted
-    vaos: RefCell<HashMap<(Vec<(gl::types::GLuint, usize)>, Handle), VertexArrayObject>>,
+    vaos: RefCell<HashMap<(SmallVec<[(gl::types::GLuint, usize); 3]>, Handle), VertexArrayObject>>,
 }
 
 /// Object allowing one to bind vertex attributes to the current context.
@@ -116,7 +116,7 @@ impl VertexAttributesSystem {
 
     /// Purges VAOs that match a certain condition.
     fn purge_if<F>(ctxt: &mut CommandContext<'_>, mut condition: F)
-                   where F: FnMut(&(Vec<(gl::types::GLuint, usize)>, Handle)) -> bool
+                   where F: FnMut(&(SmallVec<[(gl::types::GLuint, usize); 3]>, Handle)) -> bool
     {
         let mut vaos = ctxt.vertex_array_objects.vaos.borrow_mut();
 
@@ -142,15 +142,17 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
     /// - `first`: Offset of the first element of the buffer in number of elements.
     /// - `divisor`: If `Some`, use this value for `glVertexAttribDivisor` (instancing-related).
     #[inline]
-    pub fn add(mut self, buffer: &BufferAnySlice<'_>, bindings: &VertexFormat, divisor: Option<u32>)
+    pub fn add(mut self, buffer: &BufferAnySlice<'_>, bindings: VertexFormat, divisor: Option<u32>)
                -> Binder<'a, 'b, 'c>
     {
         let offset = buffer.get_offset_bytes();
 
         buffer.prepare_for_vertex_attrib_array(self.context);
 
-        let (buffer, format, stride) = (buffer.get_id(), bindings.clone(),
+        let (buffer, format, stride) = (buffer.get_id(), bindings,
                                         buffer.get_elements_size());
+
+
 
         self.vertex_buffers.push((buffer, format, offset, stride, divisor));
         self
@@ -185,7 +187,7 @@ impl<'a, 'b, 'c> Binder<'a, 'b, 'c> {
                 }
             }
 
-            let mut buffers_list: Vec<_> = self.vertex_buffers.iter()
+            let mut buffers_list: SmallVec<[_; 3]> = self.vertex_buffers.iter()
                                                               .map(|&(v, _, o, s, _)| (v, o))
                                                               .collect();
             buffers_list.push((self.element_array_buffer.map(|b| b.get_id()).unwrap_or(0), 0));

@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 use std::mem;
 
-use crate::vertex::Attribute;
 use crate::version::Api;
 use crate::version::Version;
+use crate::vertex::Attribute;
 use crate::CapabilitiesSource;
 
 #[cfg(feature = "cgmath")]
@@ -410,1691 +410,1029 @@ impl AttributeType {
 /// third element is the type and the fourth element indicates whether
 /// or not the element should use fixed-point normalization when
 /// binding in a VAO.
-pub type VertexFormat = Cow<'static, [(Cow<'static, str>, usize, i32, AttributeType, bool)]>;
+pub type VertexFormat = &'static [(Cow<'static, str>, usize, i32, AttributeType, bool)];
 
 unsafe impl Attribute for i8 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8
-    }
+    const TYPE: AttributeType = AttributeType::I8;
 }
 
 unsafe impl Attribute for (i8, i8) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8;
 }
 
 unsafe impl Attribute for [i8; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8;
 }
 
 unsafe impl Attribute for (i8, i8, i8) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8;
 }
 
 unsafe impl Attribute for [i8; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8;
 }
 
 unsafe impl Attribute for (i8, i8, i8, i8) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8I8;
 }
 
 unsafe impl Attribute for [i8; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8I8;
 }
 
 unsafe impl Attribute for u8 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8
-    }
+    const TYPE: AttributeType = AttributeType::U8;
 }
 
 unsafe impl Attribute for (u8, u8) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8;
 }
 
 unsafe impl Attribute for [u8; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8;
 }
 
 unsafe impl Attribute for (u8, u8, u8) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8;
 }
 
 unsafe impl Attribute for [u8; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8;
 }
 
 unsafe impl Attribute for (u8, u8, u8, u8) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8U8;
 }
 
 unsafe impl Attribute for [u8; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8U8;
 }
 
 unsafe impl Attribute for i16 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16
-    }
+    const TYPE: AttributeType = AttributeType::I16;
 }
 
 unsafe impl Attribute for (i16, i16) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16;
 }
 
 unsafe impl Attribute for [i16; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16;
 }
 
 unsafe impl Attribute for (i16, i16, i16) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16;
 }
 
 unsafe impl Attribute for [i16; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16;
 }
 
 unsafe impl Attribute for (i16, i16, i16, i16) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16I16;
 }
 
 unsafe impl Attribute for [i16; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16I16;
 }
 
 unsafe impl Attribute for u16 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16
-    }
+    const TYPE: AttributeType = AttributeType::U16;
 }
 
 unsafe impl Attribute for (u16, u16) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16;
 }
 
 unsafe impl Attribute for [u16; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16;
 }
 
 unsafe impl Attribute for (u16, u16, u16) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16;
 }
 
 unsafe impl Attribute for [u16; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16;
 }
 
 unsafe impl Attribute for (u16, u16, u16, u16) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16U16;
 }
 
 unsafe impl Attribute for [u16; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16U16;
 }
 
 unsafe impl Attribute for i32 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32
-    }
+    const TYPE: AttributeType = AttributeType::I32;
 }
 
 unsafe impl Attribute for (i32, i32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32;
 }
 
 unsafe impl Attribute for [i32; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32;
 }
 
 unsafe impl Attribute for (i32, i32, i32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32;
 }
 
 unsafe impl Attribute for [i32; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32;
 }
 
 unsafe impl Attribute for (i32, i32, i32, i32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32I32;
 }
 
 unsafe impl Attribute for [i32; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32I32;
 }
 
 unsafe impl Attribute for u32 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32
-    }
+    const TYPE: AttributeType = AttributeType::U32;
 }
 
 unsafe impl Attribute for (u32, u32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32;
 }
 
 unsafe impl Attribute for [u32; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32;
 }
 
 unsafe impl Attribute for (u32, u32, u32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32;
 }
 
 unsafe impl Attribute for [u32; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32;
 }
 
 unsafe impl Attribute for (u32, u32, u32, u32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32U32;
 }
 
 unsafe impl Attribute for [u32; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32U32;
 }
 
 unsafe impl Attribute for i64 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64
-    }
+    const TYPE: AttributeType = AttributeType::I64;
 }
 
 unsafe impl Attribute for (i64, i64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64;
 }
 
 unsafe impl Attribute for [i64; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64;
 }
 
 unsafe impl Attribute for (i64, i64, i64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64;
 }
 
 unsafe impl Attribute for [i64; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64;
 }
 
 unsafe impl Attribute for (i64, i64, i64, i64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64I64;
 }
 
 unsafe impl Attribute for [i64; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64I64;
 }
 
 unsafe impl Attribute for u64 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64
-    }
+    const TYPE: AttributeType = AttributeType::U64;
 }
 
 unsafe impl Attribute for (u64, u64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64;
 }
 
 unsafe impl Attribute for [u64; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64;
 }
 
 unsafe impl Attribute for (u64, u64, u64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64;
 }
 
 unsafe impl Attribute for [u64; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64;
 }
 
 unsafe impl Attribute for (u64, u64, u64, u64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64U64;
 }
 
 unsafe impl Attribute for [u64; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64U64;
 }
 
 unsafe impl Attribute for f32 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32
-    }
+    const TYPE: AttributeType = AttributeType::F32;
 }
 
 unsafe impl Attribute for (f32, f32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32;
 }
 
 unsafe impl Attribute for [f32; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32;
 }
 
 unsafe impl Attribute for (f32, f32, f32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32;
 }
 
 unsafe impl Attribute for [f32; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32;
 }
 
 unsafe impl Attribute for (f32, f32, f32, f32) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32F32;
 }
 
 unsafe impl Attribute for [f32; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32F32;
 }
 
 unsafe impl Attribute for [[f32; 2]; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x2x2
-    }
+    const TYPE: AttributeType = AttributeType::F32x2x2;
 }
 
 unsafe impl Attribute for [[f32; 3]; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x3x3
-    }
+    const TYPE: AttributeType = AttributeType::F32x3x3;
 }
 
 unsafe impl Attribute for [[f32; 4]; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x4x4
-    }
+    const TYPE: AttributeType = AttributeType::F32x4x4;
 }
 
 unsafe impl Attribute for f64 {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64
-    }
+    const TYPE: AttributeType = AttributeType::F64;
 }
 
 unsafe impl Attribute for (f64, f64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64;
 }
 
 unsafe impl Attribute for [f64; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64;
 }
 
 unsafe impl Attribute for (f64, f64, f64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64;
 }
 
 unsafe impl Attribute for [f64; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64;
 }
 
 unsafe impl Attribute for (f64, f64, f64, f64) {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64F64;
 }
 
 unsafe impl Attribute for [f64; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64F64;
 }
 
 unsafe impl Attribute for [[f64; 2]; 2] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x2x2
-    }
+    const TYPE: AttributeType = AttributeType::F64x2x2;
 }
 
 unsafe impl Attribute for [[f64; 3]; 3] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x3x3
-    }
+    const TYPE: AttributeType = AttributeType::F64x3x3;
 }
 
 unsafe impl Attribute for [[f64; 4]; 4] {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x4x4
-    }
+    const TYPE: AttributeType = AttributeType::F64x4x4;
 }
-
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8I8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8U8;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16I16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16U16;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32I32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32U32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64I64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64U64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32F32;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Matrix2<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x2x2
-    }
+    const TYPE: AttributeType = AttributeType::F32x2x2;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Matrix3<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x3x3
-    }
+    const TYPE: AttributeType = AttributeType::F32x3x3;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Matrix4<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x4x4
-    }
+    const TYPE: AttributeType = AttributeType::F32x4x4;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point2<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Point3<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector2<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector3<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Vector4<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64F64;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Matrix2<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x2x2
-    }
+    const TYPE: AttributeType = AttributeType::F64x2x2;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Matrix3<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x3x3
-    }
+    const TYPE: AttributeType = AttributeType::F64x3x3;
 }
 
 #[cfg(feature="cgmath")]
 unsafe impl Attribute for cgmath::Matrix4<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x4x4
-    }
+    const TYPE: AttributeType = AttributeType::F64x4x4;
 }
-
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8
-    }
+    const TYPE: AttributeType = AttributeType::I8;
 }
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8I8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8
-    }
+    const TYPE: AttributeType = AttributeType::I8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I8I8I8I8
-    }
+    const TYPE: AttributeType = AttributeType::I8I8I8I8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8
-    }
+    const TYPE: AttributeType = AttributeType::U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8
-    }
+    const TYPE: AttributeType = AttributeType::U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u8> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U8U8U8U8
-    }
+    const TYPE: AttributeType = AttributeType::U8U8U8U8;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16
-    }
+    const TYPE: AttributeType = AttributeType::I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16
-    }
+    const TYPE: AttributeType = AttributeType::I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I16I16I16I16
-    }
+    const TYPE: AttributeType = AttributeType::I16I16I16I16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16
-    }
+    const TYPE: AttributeType = AttributeType::U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16
-    }
+    const TYPE: AttributeType = AttributeType::U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u16> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U16U16U16U16
-    }
+    const TYPE: AttributeType = AttributeType::U16U16U16U16;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32
-    }
+    const TYPE: AttributeType = AttributeType::I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32
-    }
+    const TYPE: AttributeType = AttributeType::I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I32I32I32I32
-    }
+    const TYPE: AttributeType = AttributeType::I32I32I32I32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32
-    }
+    const TYPE: AttributeType = AttributeType::U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32
-    }
+    const TYPE: AttributeType = AttributeType::U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U32U32U32U32
-    }
+    const TYPE: AttributeType = AttributeType::U32U32U32U32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64
-    }
+    const TYPE: AttributeType = AttributeType::I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64
-    }
+    const TYPE: AttributeType = AttributeType::I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<i64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::I64I64I64I64
-    }
+    const TYPE: AttributeType = AttributeType::I64I64I64I64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64
-    }
+    const TYPE: AttributeType = AttributeType::U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64
-    }
+    const TYPE: AttributeType = AttributeType::U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<u64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::U64U64U64U64
-    }
+    const TYPE: AttributeType = AttributeType::U64U64U64U64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32
-    }
+    const TYPE: AttributeType = AttributeType::F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32
-    }
+    const TYPE: AttributeType = AttributeType::F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32F32F32F32
-    }
+    const TYPE: AttributeType = AttributeType::F32F32F32F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat1<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32
-    }
+    const TYPE: AttributeType = AttributeType::F32;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat2<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x2x2
-    }
+    const TYPE: AttributeType = AttributeType::F32x2x2;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat3<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x3x3
-    }
+    const TYPE: AttributeType = AttributeType::F32x3x3;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat4<f32> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F32x4x4
-    }
+    const TYPE: AttributeType = AttributeType::F32x4x4;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt1<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64
-    }
+    const TYPE: AttributeType = AttributeType::F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt2<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt3<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Pnt4<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec1<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64
-    }
+    const TYPE: AttributeType = AttributeType::F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec2<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec3<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Vec4<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64F64F64F64
-    }
+    const TYPE: AttributeType = AttributeType::F64F64F64F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat1<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64
-    }
+    const TYPE: AttributeType = AttributeType::F64;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat2<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x2x2
-    }
+    const TYPE: AttributeType = AttributeType::F64x2x2;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat3<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x3x3
-    }
+    const TYPE: AttributeType = AttributeType::F64x3x3;
 }
 
 #[cfg(feature="nalgebra")]
 unsafe impl Attribute for nalgebra::Mat4<f64> {
-    #[inline]
-    fn get_type() -> AttributeType {
-        AttributeType::F64x4x4
-    }
+    const TYPE: AttributeType = AttributeType::F64x4x4;
 }
 
 
