@@ -156,104 +156,106 @@ macro_rules! dynamic_uniform{
 #[macro_export]
 macro_rules! implement_vertex {
     ($struct_name:ident, $($field_name:ident),+) => (
+        impl $struct_name {
+            const BINDINGS: $crate::vertex::VertexFormat = &[
+                $(
+                    (
+                        std::borrow::Cow::Borrowed(stringify!($field_name)),
+                        $crate::__glium_offset_of!($struct_name, $field_name),
+                        -1,
+                        {
+                            const fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
+                                -> $crate::vertex::AttributeType
+                            {
+                                <T as $crate::vertex::Attribute>::TYPE
+                            }
+                            let field_option = match None::<&$struct_name> {
+                                Some(v) => Some(&v.$field_name),
+                                None => None
+                            };
+                            attr_type_of_val(field_option)
+                        },
+                        false
+                    )
+                ),+
+            ];
+        }
+
         impl $crate::vertex::Vertex for $struct_name {
             #[inline]
             fn build_bindings() -> $crate::vertex::VertexFormat {
-                use std::borrow::Cow;
-
-                // TODO: use a &'static [] if possible
-
-                Cow::Owned(vec![
-                    $(
-                        (
-                            Cow::Borrowed(stringify!($field_name)),
-                            $crate::__glium_offset_of!($struct_name, $field_name),
-                            -1,
-                            {
-                                // Obtain the type of the $field_name field of $struct_name and
-                                // call get_type on it.
-                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
-                                    -> $crate::vertex::AttributeType
-                                {
-                                    <T as $crate::vertex::Attribute>::get_type()
-                                }
-                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
-                                attr_type_of_val(field_option)
-                            },
-                            false
-                        )
-                    ),+
-                ])
+                Self::BINDINGS
             }
         }
     );
 
     ($struct_name:ident, $($field_name:ident normalize($should_normalize:expr)),+) => {
+        impl $struct_name {
+            const BINDINGS: $crate::vertex::VertexFormat = &[
+                $(
+                    (
+                        std::borrow::Cow::Borrowed(stringify!($field_name)),
+                        $crate::__glium_offset_of!($struct_name, $field_name),
+                        -1,
+                        {
+                            const fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
+                                -> $crate::vertex::AttributeType
+                            {
+                                <T as $crate::vertex::Attribute>::TYPE
+                            }
+                            let field_option = match None::<&$struct_name> {
+                                Some(v) => Some(&v.$field_name),
+                                None => None
+                            };
+                            attr_type_of_val(field_option)
+                        },
+                        {
+                            $should_normalize
+                        }
+                    )
+                ),+
+            ];
+        }
         impl $crate::vertex::Vertex for $struct_name {
             #[inline]
             fn build_bindings() -> $crate::vertex::VertexFormat {
-                use std::borrow::Cow;
-
-                // TODO: use a &'static [] if possible
-
-                Cow::Owned(vec![
-                    $(
-                        (
-                            Cow::Borrowed(stringify!($field_name)),
-                            $crate::__glium_offset_of!($struct_name, $field_name),
-                            -1,
-                            {
-                                // Obtain the type of the $field_name field of $struct_name and
-                                // call get_type on it.
-                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
-                                    -> $crate::vertex::AttributeType
-                                {
-                                    <T as $crate::vertex::Attribute>::get_type()
-                                }
-                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
-                                attr_type_of_val(field_option)
-                            },
-                            {
-                                $should_normalize
-                            }
-                        )
-                    ),+
-                ])
+                Self::BINDINGS
             }
         }
     };
 
     ($struct_name:ident, $($field_name:ident location($location:expr)),+) => {
+        impl $struct_name {
+            const BINDINGS: $crate::vertex::VertexFormat = &[
+                $(
+                    (
+                        std::borrow::Cow::Borrowed(stringify!($field_name)),
+                        $crate::__glium_offset_of!($struct_name, $field_name),
+                        {
+                            $location
+                        },
+                        {
+                            const fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
+                                -> $crate::vertex::AttributeType
+                            {
+                                <T as $crate::vertex::Attribute>::TYPE
+                            }
+                            let field_option = match None::<&$struct_name> {
+                                Some(v) => Some(&v.$field_name),
+                                None => None
+                            };
+                            attr_type_of_val(field_option)
+                        },
+                        false
+                    )
+                ),+
+            ];
+        }
+
         impl $crate::vertex::Vertex for $struct_name {
             #[inline]
             fn build_bindings() -> $crate::vertex::VertexFormat {
-                use std::borrow::Cow;
-
-                // TODO: use a &'static [] if possible
-
-                Cow::Owned(vec![
-                    $(
-                        (
-                            Cow::Borrowed(stringify!($field_name)),
-                            $crate::__glium_offset_of!($struct_name, $field_name),
-                            {
-                                $location
-                            },
-                            {
-                                // Obtain the type of the $field_name field of $struct_name and
-                                // call get_type on it.
-                                fn attr_type_of_val<T: $crate::vertex::Attribute>(_: Option<&T>)
-                                    -> $crate::vertex::AttributeType
-                                {
-                                    <T as $crate::vertex::Attribute>::get_type()
-                                }
-                                let field_option = None::<&$struct_name>.map(|v| &v.$field_name);
-                                attr_type_of_val(field_option)
-                            },
-                            false
-                        )
-                    ),+
-                ])
+                Self::BINDINGS
             }
         }
     };
