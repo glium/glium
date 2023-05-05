@@ -137,6 +137,7 @@ use std::fmt;
 use std::hash::BuildHasherDefault;
 use std::collections::HashMap;
 
+use buffer::FenceInserters;
 use fnv::FnvHasher;
 
 use crate::context::Context;
@@ -425,7 +426,7 @@ trait UniformsExt {
     /// Binds the uniforms to a given program.
     ///
     /// Will replace texture and buffer bind points.
-    fn bind_uniforms<'a, P>(&'a self, _: &mut CommandContext<'_>, _: &P, _: &mut Vec<buffer::Inserter<'a>>)
+    fn bind_uniforms<'a, P>(&'a self, _: &mut CommandContext<'_>, _: &P, _: &mut FenceInserters<'a>)
                             -> Result<(), DrawError> where P: ProgramExt;
 }
 

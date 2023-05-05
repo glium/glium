@@ -3,7 +3,7 @@
 Handles binding uniforms to the OpenGL state machine.
 
 */
-use crate::gl;
+use crate::{gl, buffer::FenceInserters};
 
 use std::collections::HashMap;
 use std::hash::BuildHasherDefault;
@@ -36,7 +36,7 @@ use crate::version::Api;
 
 impl<U> UniformsExt for U where U: Uniforms {
     fn bind_uniforms<'a, P>(&'a self, mut ctxt: &mut CommandContext<'_>, program: &P,
-                            fences: &mut Vec<Inserter<'a>>)
+                            fences: &mut FenceInserters<'a>)
                             -> Result<(), DrawError>
                             where P: ProgramExt
     {

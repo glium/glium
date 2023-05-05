@@ -4,7 +4,7 @@ This module handles the fences of a buffer.
 
 */
 use smallvec::SmallVec;
-use std::cell::RefCell;
+use std::cell::{RefCell, RefMut};
 use std::ops::Range;
 
 use crate::context::CommandContext;
@@ -127,5 +127,45 @@ impl<'a> Inserter<'a> {
         }
 
         *existing_fences = new_fences;
+    }
+}
+
+/// An encapsulated storage of fence inserters
+/// Allows reusing a single Vec for fences without allocating new Vec's on every draw/compute call.
+pub struct FenceInserters<'a>(RefMut<'a, Vec<Option<Inserter<'a>>>>);
+
+impl<'a> FenceInserters<'a> {
+    /// The constructor takes a reference to a RefCell with a 'static lifetime inside.
+    /// This is because we want to keep a cached Vec of fences per Context.
+    /// 
+    /// Inside this constructor, the reference is downcast to a local lifetime,
+    /// and after usage the Vec is cleared, and can be reused in the next draw/compute call.
+    pub fn new(mut vec: RefMut<Vec<Option<Inserter<'static>>>>) -> Self {
+        vec.clear();
+
+        // Downcast lifetime from 'static to 'a.
+        let vec = unsafe {
+            std::mem::transmute::<RefMut<'_, Vec<Option<Inserter<'static>>>>, RefMut<'_, Vec<Option<Inserter<'a>>>>>(vec)
+        };
+        Self(vec)
+    }
+
+    /// Add a new fence
+    pub fn push(&mut self, value: Inserter<'a>) {
+        self.0.push(Some(value));
+    }
+
+    /// Fullfil all fences
+    pub fn fulfill(&mut self, ctxt: &mut CommandContext) {
+        for fence in self.0.iter_mut() {
+            if let Some(fence) = std::mem::take(fence) {
+                fence.insert(ctxt)
+            }
+        }
+
+        // The underlying Vec will be returned to a cache to be reused in next draw/compute calls,
+        // so we must clear it. Clear will not shrink the underlying memory of a vec,
+        // reducing memory allocations.
+        self.0.clear();
     }
 }
