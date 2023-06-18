@@ -229,67 +229,6 @@ impl<T> VertexBuffer<T> where T: Vertex {
 }
 
 impl<T> VertexBuffer<T> where T: Copy {
-    /// Builds a new vertex buffer from an indeterminate data type and bindings.
-    ///
-    /// # Example
-    ///
-    /// ```no_run
-    /// # fn example(display: glium::Display) {
-    /// use std::borrow::Cow;
-    ///
-    /// let bindings = Cow::Owned(vec![(
-    ///         Cow::Borrowed("position"), 0,
-    ///         glium::vertex::AttributeType::F32F32,
-    ///         false,
-    ///     ), (
-    ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(),
-    ///         glium::vertex::AttributeType::F32,
-    ///         false,
-    ///     ),
-    /// ]);
-    ///
-    /// let data = vec![
-    ///     1.0, -0.3, 409.0,
-    ///     -0.4, 2.8, 715.0f32
-    /// ];
-    ///
-    /// let vertex_buffer = unsafe {
-    ///     glium::VertexBuffer::new_raw(&display, &data, bindings, 3 * ::std::mem::size_of::<f32>())
-    /// };
-    /// # }
-    /// ```
-    ///
-    #[inline]
-    pub unsafe fn new_raw<F: ?Sized>(facade: &F, data: &[T],
-                             bindings: VertexFormat, elements_size: usize)
-                             -> Result<VertexBuffer<T>, CreationError>
-                             where F: Facade
-    {
-        // FIXME: check that the format is supported
-
-        Ok(VertexBuffer {
-            buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Default)?,
-            bindings,
-        })
-    }
-
-    /// Dynamic version of `new_raw`.
-    #[inline]
-    pub unsafe fn new_raw_dynamic<F: ?Sized>(facade: &F, data: &[T],
-                                     bindings: VertexFormat, elements_size: usize)
-                                     -> Result<VertexBuffer<T>, CreationError>
-                                     where F: Facade
-    {
-        // FIXME: check that the format is supported
-
-        Ok(VertexBuffer {
-            buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
-                                         BufferMode::Dynamic)?,
-            bindings,
-        })
-    }
-
     /// Accesses a slice of the buffer.
     ///
     /// Returns `None` if the slice is out of range.
@@ -445,6 +384,67 @@ pub struct VertexBufferAny {
 }
 
 impl VertexBufferAny {
+    /// Builds a new vertex buffer from an indeterminate data type and bindings.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # fn example(display: glium::Display) {
+    /// use std::borrow::Cow;
+    ///
+    /// let bindings = Cow::Owned(vec![(
+    ///         Cow::Borrowed("position"), 0,
+    ///         glium::vertex::AttributeType::F32F32,
+    ///         false,
+    ///     ), (
+    ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(),
+    ///         glium::vertex::AttributeType::F32,
+    ///         false,
+    ///     ),
+    /// ]);
+    ///
+    /// let data = vec![
+    ///     1.0, -0.3, 409.0,
+    ///     -0.4, 2.8, 715.0f32
+    /// ];
+    ///
+    /// let vertex_buffer = unsafe {
+    ///     glium::VertexBufferAny::new_raw(&display, &data, bindings, 3 * ::std::mem::size_of::<f32>())
+    /// };
+    /// # }
+    /// ```
+    ///
+    #[inline]
+    pub unsafe fn new_raw<F: ?Sized, T: Copy>(facade: &F, data: &[T],
+                             bindings: VertexFormat, elements_size: usize)
+                             -> Result<VertexBufferAny, CreationError>
+                             where F: Facade
+    {
+        // FIXME: check that the format is supported
+
+        Ok(VertexBufferAny {
+            buffer: BufferAny::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Default, elements_size)?,
+            bindings,
+        })
+    }
+
+    /// Dynamic version of `new_raw`.
+    #[inline]
+    pub unsafe fn new_raw_dynamic<F: ?Sized, T: Copy>(facade: &F, data: &[T],
+                                     bindings: VertexFormat, elements_size: usize)
+                                     -> Result<VertexBufferAny, CreationError>
+                                     where F: Facade
+    {
+        // FIXME: check that the format is supported
+
+        Ok(VertexBufferAny {
+            buffer: BufferAny::new(facade, data, BufferType::ArrayBuffer,
+                                         BufferMode::Dynamic, elements_size)?,
+            bindings,
+        })
+    }
+
     /// Returns the number of bytes between two consecutive elements in the buffer.
     #[inline]
     pub fn get_elements_size(&self) -> usize {
