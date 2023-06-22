@@ -99,7 +99,7 @@ pub struct Context {
     resident_image_handles: RefCell<Vec<(gl::types::GLuint64, gl::types::GLenum)>>,
 
     /// A cached Vec used for fences. Used to reduce memory allocations.
-    fences_cache: RefCell<Vec<Option<Inserter<'static>>>>,
+    fences_cache: RefCell<Vec<Inserter<'static>>>,
 }
 
 impl Context {
