@@ -20,6 +20,8 @@ use crate::vertex_array_object::VertexAttributesSystem;
 
 use crate::version::Api;
 
+use super::BufferData;
+
 /// Error that can happen when reading from a buffer.
 #[derive(Debug, Copy, Clone)]
 pub enum ReadError {
@@ -100,13 +102,16 @@ pub struct Alloc {
 impl Alloc {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the
     /// size of the data.
-    pub fn new<D: ?Sized, F: ?Sized>(facade: &F, data: &D, ty: BufferType, mode: BufferMode)
+    pub fn new<D: ?Sized, F: ?Sized>(facade: &F, data: BufferData<&D>, ty: BufferType, mode: BufferMode)
                              -> Result<Alloc, BufferCreationError>
                              where D: Content, F: Facade
     {
         let mut ctxt = facade.get_context().make_current();
 
-        let size = mem::size_of_val(data);
+        let (data, size) = match data {
+            BufferData::DeterminateSize { data } => (data, mem::size_of_val(data)),
+            BufferData::IndeterminateSize { data, size } => (data, size),
+        };
 
         let (id, immutable, created_with_buffer_storage, persistent_mapping) = unsafe {
             create_buffer(&mut ctxt, size, Some(data), ty, mode)

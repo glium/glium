@@ -1,4 +1,4 @@
-use crate::buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType};
+use crate::buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferData};
 use crate::buffer::{BufferMode, BufferCreationError};
 use crate::gl;
 use crate::GlObject;
@@ -117,6 +117,7 @@ impl<T> IndexBuffer<T> where T: Index {
             return Err(CreationError::IndexTypeNotSupported);
         }
 
+        let data = BufferData::DeterminateSize { data };
         Ok(IndexBuffer {
             buffer: Buffer::new(facade, data, BufferType::ElementArrayBuffer, mode)?,
             primitives: prim,

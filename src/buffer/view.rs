@@ -31,6 +31,8 @@ use crate::buffer::alloc::ReadError;
 use crate::buffer::alloc::CopyError;
 use crate::field::Field;
 
+use super::BufferData;
+
 /// Represents a view of a buffer.
 pub struct Buffer<T: ?Sized> where T: Content {
     // TODO: this `Option` is here because we have a destructor and need to be able to move out
@@ -52,7 +54,7 @@ impl<T: ?Sized> GlObject for Buffer<T> where T: Content {
 impl<T: ?Sized> Buffer<T> where T: Content {
     /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
     /// of the data.
-    pub fn new<F: ?Sized>(facade: &F, data: &T, ty: BufferType, mode: BufferMode)
+    pub fn new<F: ?Sized>(facade: &F, data: BufferData<&T>, ty: BufferType, mode: BufferMode)
                   -> Result<Buffer<T>, BufferCreationError>
                   where F: Facade
     {

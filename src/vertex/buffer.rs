@@ -3,7 +3,7 @@ use std::fmt;
 use std::ops::{Deref, DerefMut};
 use crate::utils::range::RangeArgument;
 
-use crate::buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content};
+use crate::buffer::{Buffer, BufferSlice, BufferMutSlice, BufferAny, BufferType, BufferMode, BufferCreationError, Content, BufferData};
 use crate::vertex::{Vertex, VerticesSource, PerInstance};
 use crate::vertex::format::VertexFormat;
 
@@ -169,6 +169,7 @@ impl<T> VertexBuffer<T> where T: Vertex {
             return Err(CreationError::FormatNotSupported);
         }
 
+        let data = BufferData::DeterminateSize { data };
         let buffer = Buffer::new(facade, data, BufferType::ArrayBuffer, mode)?;
         Ok(buffer.into())
     }
@@ -266,6 +267,7 @@ impl<T> VertexBuffer<T> where T: Copy {
                              where F: Facade
     {
         // FIXME: check that the format is supported
+        let data = BufferData::IndeterminateSize { data, size: elements_size };
 
         Ok(VertexBuffer {
             buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,
@@ -282,6 +284,7 @@ impl<T> VertexBuffer<T> where T: Copy {
                                      where F: Facade
     {
         // FIXME: check that the format is supported
+        let data = BufferData::IndeterminateSize { data, size: elements_size };
 
         Ok(VertexBuffer {
             buffer: Buffer::new(facade, data, BufferType::ArrayBuffer,

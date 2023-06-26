@@ -70,7 +70,7 @@ use crate::GlObject;
 use crate::TextureExt;
 
 use crate::BufferExt;
-use crate::buffer::BufferMode;
+use crate::buffer::{BufferMode, BufferData};
 use crate::buffer::BufferType;
 use crate::buffer::Buffer;
 use crate::buffer::BufferCreationError;
@@ -225,6 +225,7 @@ impl<T> BufferTexture<T> where [T]: BufferContent, T: TextureBufferContent + Cop
                    -> Result<BufferTexture<T>, CreationError>
                    where F: Facade
     {
+        let data = BufferData::DeterminateSize { data };
         let buffer = Buffer::new(facade, data, BufferType::TextureBuffer, mode)?;
         BufferTexture::from_buffer(facade, buffer, ty).map_err(|(e, _)| e.into())
     }

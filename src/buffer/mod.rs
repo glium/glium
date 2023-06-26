@@ -283,6 +283,20 @@ impl Default for BufferMode {
     }
 }
 
+/// Data for a buffer allocation.
+#[allow(missing_docs)]
+pub enum BufferData<T> {
+    /// Data where size of buffer is determined by the size of the enclosed data.
+    DeterminateSize {
+        data: T,
+    },
+    /// Data where size of buffer should not be determined by the size of the enclosed data.
+    IndeterminateSize {
+        data: T,
+        size: usize,
+    }
+}
+
 /// Type of a buffer.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[allow(missing_docs)]

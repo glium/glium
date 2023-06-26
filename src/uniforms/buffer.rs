@@ -1,4 +1,4 @@
-use crate::buffer::{Content, Buffer, BufferAny, BufferType, BufferMode, BufferCreationError};
+use crate::buffer::{Content, Buffer, BufferAny, BufferType, BufferMode, BufferCreationError, BufferData};
 use crate::buffer::{BufferSlice, BufferMutSlice};
 use crate::uniforms::{AsUniformValue, UniformBlock, UniformValue, LayoutMismatchError};
 use crate::program;
@@ -82,7 +82,8 @@ impl<T> UniformBuffer<T> where T: Copy {
                    -> Result<UniformBuffer<T>, BufferCreationError>
                    where F: Facade
     {
-        let buffer = Buffer::new(facade, &data, BufferType::UniformBuffer, mode)?;
+        let data = BufferData::DeterminateSize { data: &data };
+        let buffer = Buffer::new(facade, data, BufferType::UniformBuffer, mode)?;
 
         Ok(UniformBuffer {
             buffer,
