@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate glium;
 
-use glium::Surface;
+use glium::{Surface, buffer::BufferData};
 
 mod support;
 
@@ -41,7 +41,8 @@ fn basic() {
         Err(_) => return
     };
 
-    let buffer = match glium::buffer::Buffer::new(&display, &10u32, glium::buffer::BufferType::AtomicCounterBuffer,
+    let data = BufferData::DeterminateSize { data: &10u32 };
+    let buffer = match glium::buffer::Buffer::new(&display, data, glium::buffer::BufferType::AtomicCounterBuffer,
                                                   glium::buffer::BufferMode::Default) {
         Err(_) => return,
         Ok(b) => b

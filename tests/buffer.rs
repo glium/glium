@@ -4,7 +4,7 @@ extern crate glium;
 mod support;
 
 use glium::Surface;
-use glium::buffer::BufferMode;
+use glium::buffer::{BufferMode, BufferData};
 use std::mem;
 
 #[test]
@@ -597,7 +597,8 @@ fn invalidate_range() {
 fn immutable_mapping_forget_then_remap() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+    let data = BufferData::DeterminateSize { data: [1, 2, 3].as_slice() };
+    let mut buf = glium::buffer::BufferView::new(&display, data,
                                                  glium::buffer::BufferType::ArrayBuffer,
                                                  BufferMode::Immutable)
                                                  .unwrap();
@@ -619,7 +620,8 @@ fn immutable_mapping_forget_then_remap() {
 fn immutable_mapping_forget_then_read() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+    let data = BufferData::DeterminateSize { data: [1, 2, 3].as_slice() };
+    let mut buf = glium::buffer::BufferView::new(&display, data,
                                                  glium::buffer::BufferType::ArrayBuffer,
                                                  BufferMode::Immutable)
                                                  .unwrap();
@@ -646,7 +648,8 @@ fn immutable_mapping_forget_then_read() {
 fn immutable_mapping_forget_then_invalidate() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+    let data = BufferData::DeterminateSize { data: [1, 2, 3].as_slice() };
+    let mut buf = glium::buffer::BufferView::new(&display, data,
                                                  glium::buffer::BufferType::ArrayBuffer,
                                                  BufferMode::Immutable)
                                                  .unwrap();
@@ -761,7 +764,8 @@ fn immutable_mapping_forget_then_draw() {
 fn persistent_mapping_forget_then_remap() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+    let data = BufferData::DeterminateSize { data: [1, 2, 3].as_slice() };
+    let mut buf = glium::buffer::BufferView::new(&display, data,
                                                  glium::buffer::BufferType::ArrayBuffer,
                                                  BufferMode::Persistent)
                                                  .unwrap();
@@ -783,7 +787,8 @@ fn persistent_mapping_forget_then_remap() {
 fn persistent_mapping_forget_then_read() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+    let data = BufferData::DeterminateSize { data: [1, 2, 3].as_slice() };
+    let mut buf = glium::buffer::BufferView::new(&display, data,
                                                  glium::buffer::BufferType::ArrayBuffer,
                                                  BufferMode::Persistent)
                                                  .unwrap();
@@ -810,7 +815,8 @@ fn persistent_mapping_forget_then_read() {
 fn persistent_mapping_forget_then_invalidate() {
     let display = support::build_display();
 
-    let mut buf = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+    let data = BufferData::DeterminateSize { data: [1, 2, 3].as_slice() };
+    let mut buf = glium::buffer::BufferView::new(&display, data,
                                                  glium::buffer::BufferType::ArrayBuffer,
                                                  BufferMode::Persistent)
                                                  .unwrap();
@@ -925,12 +931,14 @@ fn dynamic_mapping_forget_then_draw() {
 fn copy_to() {
     let display = support::build_display();
 
-    let buf1 = glium::buffer::BufferView::new(&display, &[1, 2, 3],
+    let data1 = BufferData::DeterminateSize { data: [1, 2, 3].as_slice() };
+    let buf1 = glium::buffer::BufferView::new(&display, data1,
                                               glium::buffer::BufferType::ArrayBuffer,
                                               BufferMode::Persistent);
     let buf1 = if let Ok(buf) = buf1 { buf } else { return };
 
-    let buf2 = glium::buffer::BufferView::new(&display, &[0, 0, 0],
+    let data2 = BufferData::DeterminateSize { data: [0, 0, 0].as_slice() };
+    let buf2 = glium::buffer::BufferView::new(&display, data2,
                                               glium::buffer::BufferType::ArrayBuffer,
                                               BufferMode::Persistent);
     let buf2 = if let Ok(buf) = buf2 { buf } else { return };
@@ -953,12 +961,14 @@ fn copy_to() {
 fn copy_to_slice() {
     let display = support::build_display();
 
-    let buf1 = glium::buffer::BufferView::<[u8]>::new(&display, &[1, 2],
+    let data1 = BufferData::DeterminateSize { data: [1, 2].as_slice() };
+    let buf1 = glium::buffer::BufferView::<[u8]>::new(&display, data1,
                                                       glium::buffer::BufferType::ArrayBuffer,
                                                       BufferMode::Persistent);
     let buf1 = if let Ok(buf) = buf1 { buf } else { return };
 
-    let buf2 = glium::buffer::BufferView::<[u8]>::new(&display, &[0, 0, 0],
+    let data2 = BufferData::DeterminateSize { data: [0, 0, 0].as_slice() };
+    let buf2 = glium::buffer::BufferView::<[u8]>::new(&display, data2,
                                                       glium::buffer::BufferType::ArrayBuffer,
                                                       BufferMode::Persistent);
     let buf2 = if let Ok(buf) = buf2 { buf } else { return };
