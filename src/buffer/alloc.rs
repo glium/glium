@@ -1133,10 +1133,6 @@ unsafe fn create_buffer<D: ?Sized>(mut ctxt: &mut CommandContext<'_>, size: usiz
         return Err(BufferCreationError::BufferTypeNotSupported);
     }
 
-    if let Some(data) = data {
-        assert!(mem::size_of_val(data) == size);
-    }
-
     // creating the id of the buffer
     let id = {
         let mut id: gl::types::GLuint = 0;
