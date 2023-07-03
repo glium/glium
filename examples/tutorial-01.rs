@@ -4,7 +4,9 @@ fn main() {
     // We start by creating the EventLoop, this can only be done once per process.
     // This also needs to happen on the main thread to make the program portable.
     let event_loop = winit::event_loop::EventLoopBuilder::new().build();
-    let (_window, display) = glium::backend::glutin::simple_winit_window(&event_loop, "Glium tutorial #1");
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+        .with_title("Glium tutorial #1")
+        .build(&event_loop);
 
     // Start rendering by creating a new frame
     let mut frame = display.draw();

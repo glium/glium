@@ -4,7 +4,9 @@ use glium::Surface;
 
 fn main() {
     let event_loop = winit::event_loop::EventLoopBuilder::new().build();
-    let (window, display) = glium::backend::glutin::simple_winit_window(&event_loop, "Glium tutorial #6");
+    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+        .with_title("Glium tutorial #6")
+        .build(&event_loop);
 
     let image = image::load(std::io::Cursor::new(&include_bytes!("../tests/fixture/opengl.png")),
                             image::ImageFormat::Png).unwrap().to_rgba8();

@@ -30,17 +30,18 @@ It is now time to start work on the main function!
 
 The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes complex and tedious.
 
-Initializing a simple OpenGL window with the default winit/glutin backend can be done using the following 2 steps:
+Initializing a simple OpenGL window with the default winit/glutin backend can be done via the following 3 steps:
 
 1. Creating an `EventLoop` for handling window and device events.
-2. Call `glium::backend::glutin::simple_winit_window` with a reference to the event_loop and a title for the window.
+2. Making a new `SimpleWindowBuilder` and setting the desired parameters.
+3. Calling the `build` method of hte `SimpleWindowBuilder` with a reference to the event_loop to get the `Window` and `Display`.
 
 This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.
 
 ```rust
 fn main() {
     let event_loop = winit::event_loop::EventLoopBuilder::new().build();
-    let (_window, display) = glium::backend::glutin::simple_winit_window(&event_loop, "Glium tutorial #1");
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 }
 ```
 
@@ -102,7 +103,7 @@ use glium::Surface;
 
 fn main() {
     let event_loop = winit::event_loop::EventLoopBuilder::new().build();
-    let (_window, display) = glium::backend::glutin::simple_winit_window(&event_loop, "Glium tutorial #1");
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 
     let mut frame = display.draw();
     frame.clear_color(0.0, 0.0, 1.0, 1.0);

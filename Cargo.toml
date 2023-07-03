@@ -27,11 +27,11 @@ exclude = ["doc"]
 edition = "2021"
 
 [features]
-default = ["glutin_backend", "simple_winit_window", "glutin/default", "winit/default", "glutin-winit/default"]
+default = ["glutin_backend", "simple_window_builder", "glutin/default", "winit/default", "glutin-winit/default"]
 glutin_backend = ["glutin"]
 unstable = [] # used for benchmarks
 vk_interop = [] # used for texture import from Vulkan
-simple_winit_window = ["glutin", "glutin-winit", "winit", "raw-window-handle"] # used in the tutorial
+simple_window_builder = ["glutin", "glutin-winit", "winit", "raw-window-handle"] # used in the tutorial
 
 [dependencies.glutin]
 version = "0.30.4"

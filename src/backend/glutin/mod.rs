@@ -286,45 +286,71 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
     }
 }
 
-#[cfg(feature = "simple_winit_window")]
-/// Create a new winit Window and glium Display for it.
-///
-/// This function is meant as an easy way to get started. If you require more
-/// flexibility, you need to initialize the window and context yourself.
-/// Have a look at the source of this function as an example on how to do that.
-pub fn simple_winit_window(event_loop: &winit::event_loop::EventLoop<()>, window_title: &str) -> (winit::window::Window, Display<glutin::surface::WindowSurface>) {
-    use glutin::prelude::*;
-    use raw_window_handle::HasRawWindowHandle;
+#[cfg(feature = "simple_window_builder")]
+/// Builder to simplify glium/glutin context creation.
+pub struct SimpleWindowBuilder {
+    title: String,
+    inner_size: (u32, u32)
+}
 
-    // First we start by opening a new Window
-    let window_builder = winit::window::WindowBuilder::new()
-        .with_inner_size(winit::dpi::PhysicalSize::new(800, 480))
-        .with_title(window_title);
-    let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
-    let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
-    let (window, gl_config) = display_builder
-        .build(&event_loop, config_template_builder, |mut configs| {
-            // Just use the first configuration since we don't have any special preferences here
-            configs.next().unwrap()
-        })
-        .unwrap();
-    let window = window.unwrap();
+#[cfg(feature = "simple_window_builder")]
+impl SimpleWindowBuilder {
+    /// Initializes a new builder with default values.
+    pub fn new() -> Self {
+        Self {
+            title: "Simple Glium Window".to_string(),
+            inner_size: (800, 480)
+        }
+    }
 
-    // Now we get the window size to use as the initial size of the Surface
-    let (width, height): (u32, u32) = window.inner_size().into();
-    let attrs = glutin::surface::SurfaceAttributesBuilder::<glutin::surface::WindowSurface>::new().build(
-        window.raw_window_handle(),
-        NonZeroU32::new(width).unwrap(),
-        NonZeroU32::new(height).unwrap(),
-    );
+    /// Requests the window to be of a certain size.
+    /// If this is not set, the builder defaults to 800x480.
+    pub fn with_inner_size(mut self, width: u32, height: u32) -> Self {
+        self.inner_size = (width, height);
+        self
+    }
 
-    // Finally we can create a Surface, use it to make a PossiblyCurrentContext and create the glium Display
-    let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
-    let context_attributes = glutin::context::ContextAttributesBuilder::new().build(Some(window.raw_window_handle()));
-    let current_context = Some(unsafe {
-        gl_config.display().create_context(&gl_config, &context_attributes).expect("failed to create context")
-    }).unwrap().make_current(&surface).unwrap();
-    let display = Display::from_context_surface(current_context, surface).unwrap();
+    /// Set the initial title for the window.
+    pub fn with_title(mut self, title: &str) -> Self {
+        self.title = title.to_string();
+        self
+    }
 
-    (window, display)
+    /// Create a new Window and Display with the specified parameters.
+    pub fn build(self, event_loop: &winit::event_loop::EventLoop<()>) -> (winit::window::Window, Display<glutin::surface::WindowSurface>) {
+        use glutin::prelude::*;
+        use raw_window_handle::HasRawWindowHandle;
+
+        // First we start by opening a new Window
+        let window_builder = winit::window::WindowBuilder::new()
+            .with_inner_size(winit::dpi::PhysicalSize::new(self.inner_size.0, self.inner_size.1))
+            .with_title(self.title);
+        let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
+        let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
+        let (window, gl_config) = display_builder
+            .build(&event_loop, config_template_builder, |mut configs| {
+                // Just use the first configuration since we don't have any special preferences here
+                configs.next().unwrap()
+            })
+            .unwrap();
+        let window = window.unwrap();
+
+        // Now we get the window size to use as the initial size of the Surface
+        let (width, height): (u32, u32) = window.inner_size().into();
+        let attrs = glutin::surface::SurfaceAttributesBuilder::<glutin::surface::WindowSurface>::new().build(
+            window.raw_window_handle(),
+            NonZeroU32::new(width).unwrap(),
+            NonZeroU32::new(height).unwrap(),
+        );
+
+        // Finally we can create a Surface, use it to make a PossiblyCurrentContext and create the glium Display
+        let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
+        let context_attributes = glutin::context::ContextAttributesBuilder::new().build(Some(window.raw_window_handle()));
+        let current_context = Some(unsafe {
+            gl_config.display().create_context(&gl_config, &context_attributes).expect("failed to create context")
+        }).unwrap().make_current(&surface).unwrap();
+        let display = Display::from_context_surface(current_context, surface).unwrap();
+
+        (window, display)
+    }
 }
