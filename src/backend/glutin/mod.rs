@@ -32,8 +32,8 @@ use std::os::raw::c_void;
 use std::rc::Rc;
 use crate::{Frame, IncompatibleOpenGl};
 
-/// Wraps glutin context with a the Surface
-/// This allows us swap the buffers, and determine framebuffer size within glium
+/// Wraps a glutin context together with the corresponding Surface.
+/// This is necessary so that we can swap buffers and determine the framebuffer size within glium.
 pub struct ContextSurfacePair<T: SurfaceTypeTrait + ResizeableSurface> {
     context: PossiblyCurrentContext,
     surface: glutin::surface::Surface<T>,
@@ -287,9 +287,9 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
 }
 
 #[cfg(feature = "simple_winit_window")]
-/// Create a new winit Window and create a glium Display for it.
+/// Create a new winit Window and glium Display for it.
 ///
-/// This function is meant as an easy way to get started> If you require more
+/// This function is meant as an easy way to get started. If you require more
 /// flexibility, you need to initialize the window and context yourself.
 /// Have a look at the source of this function as an example on how to do that.
 pub fn simple_winit_window(event_loop: &winit::event_loop::EventLoop<()>, window_title: &str) -> (winit::window::Window, Display<glutin::surface::WindowSurface>) {

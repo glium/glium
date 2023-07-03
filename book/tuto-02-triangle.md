@@ -27,7 +27,7 @@ struct Vertex {
 implement_vertex!(Vertex, position);
 ```
 
-To make the implement_vertex! macro available you need to add the following lines above the main function:
+To make the `implement_vertex!` macro available you need to add the following lines above the main function:
 ```rust
 #[macro_use]
 extern crate glium;

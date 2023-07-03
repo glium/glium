@@ -44,7 +44,7 @@ fn main() {
 }
 ```
 
-If you try to run this example with `cargo run` you'll encounter  a problem: as soon as the window has been created, our main function exits and the window is closed. To prevent this, we need to wait until we receive a `CloseRequested` event. We do this by calling `event_loop.run`:
+If you try to run this example with `cargo run` you'll encounter a problem: as soon as the window has been created, our main function exits and the window is closed. To prevent this, we need to wait until we receive a `CloseRequested` event. We do this by calling `event_loop.run`:
 
 ```rust
 event_loop.run(move |ev, _, control_flow| {
