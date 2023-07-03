@@ -289,8 +289,7 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
 #[cfg(feature = "simple_window_builder")]
 /// Builder to simplify glium/glutin context creation.
 pub struct SimpleWindowBuilder {
-    title: String,
-    inner_size: (u32, u32)
+    builder: winit::window::WindowBuilder
 }
 
 #[cfg(feature = "simple_window_builder")]
@@ -298,21 +297,28 @@ impl SimpleWindowBuilder {
     /// Initializes a new builder with default values.
     pub fn new() -> Self {
         Self {
-            title: "Simple Glium Window".to_string(),
-            inner_size: (800, 480)
+            builder: winit::window::WindowBuilder::new()
+                .with_title("Simple Glium Window")
+                .with_inner_size(winit::dpi::PhysicalSize::new(800, 480))
         }
     }
 
     /// Requests the window to be of a certain size.
     /// If this is not set, the builder defaults to 800x480.
     pub fn with_inner_size(mut self, width: u32, height: u32) -> Self {
-        self.inner_size = (width, height);
+        self.builder = self.builder.with_inner_size(winit::dpi::PhysicalSize::new(width, height));
         self
     }
 
     /// Set the initial title for the window.
     pub fn with_title(mut self, title: &str) -> Self {
-        self.title = title.to_string();
+        self.builder = self.builder.with_title(title);
+        self
+    }
+
+    /// Replace the used WindowBuilder, do this before you set other parameters or you'll overwrite the parameters.
+    pub fn window_builder(mut self, window_builder: winit::window::WindowBuilder) -> Self {
+        self.builder = window_builder;
         self
     }
 
@@ -322,10 +328,7 @@ impl SimpleWindowBuilder {
         use raw_window_handle::HasRawWindowHandle;
 
         // First we start by opening a new Window
-        let window_builder = winit::window::WindowBuilder::new()
-            .with_inner_size(winit::dpi::PhysicalSize::new(self.inner_size.0, self.inner_size.1))
-            .with_title(self.title);
-        let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
+        let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(self.builder));
         let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
         let (window, gl_config) = display_builder
             .build(&event_loop, config_template_builder, |mut configs| {
