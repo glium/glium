@@ -8,23 +8,17 @@ Glium provides a [**Display**](`Display`) which extends the [**glutin::WindowedC
 
 # Initialization
 
-The initialisation of a glium display occurs in several steps.
+The initialisation of a simple glium display occurs in two steps.
 
 ```no_run
 extern crate glium;
+extern crate winit;
 
 fn main() {
-    // 1. The **winit::EventsLoop** for handling events.
-    let mut events_loop = glium::glutin::event_loop::EventLoop::new();
-    // 2. Parameters for building the Window.
-    let wb = glium::glutin::window::WindowBuilder::new()
-        .with_inner_size(glium::glutin::dpi::LogicalSize::new(1024.0, 768.0))
-        .with_title("Hello world");
-    // 3. Parameters for building the OpenGL context.
-    let cb = glium::glutin::ContextBuilder::new();
-    // 4. Build the Display with the given window and OpenGL context parameters and register the
-    //    window with the events_loop.
-    let display = glium::Display::new(wb, cb, &events_loop).unwrap();
+    // 1. The **winit::EventLoop** for handling events.
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    // 2. Create a glutin context and glium Display
+    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 }
 ```
 
@@ -39,7 +33,7 @@ domains such as events handling.
 
 # Overview
 
-OpenGL is similar to a drawing software: you draw something, then draw over it, then over it
+OpenGL is similar to drawing software: you draw something, then draw over it, then over it
 again, etc. until you are satisfied of the result.
 
 Once you have a `display`, you can call `let mut frame = display.draw();` to start drawing. This
@@ -185,8 +179,7 @@ pub use memoffset::offset_of as __glium_offset_of;
 /// your program.
 #[cfg(feature = "glutin")]
 pub use crate::backend::glutin::Display;
-#[cfg(feature = "glutin")]
-pub use crate::backend::glutin::headless::Headless as HeadlessRenderer;
+
 use crate::uniforms::MagnifySamplerFilter;
 
 /// Trait for objects that describe the capabilities of an OpenGL backend.

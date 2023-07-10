@@ -36,25 +36,13 @@ for example) without having to care about the order in which you draw them.
 
 ## The code
 
-We need to change three things:
+We need to change two things:
 
- - At initialization, we need to ask glutin to create a depth buffer that will contain
-   the depth value of each pixel.
  - Before each frame, we have to reset the content of the depth buffer to `1.0` (which is
    the maximal value). This is similar to when we reset the color to blue.
  - We have to pass additional parameters when drawing to ask the GPU to do this depth test.
 
-The first step consists in changing the context building code:
-
-```rust
-let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
-```
-
-We ask for the system to allocate a 24 bits depth buffer. 24 bits is a very common value that
-is used very frequently. Depth testing is a critical feature of any rendering system, so depth
-buffers should be supported everywhere.
-
-For the second step, we need to change this line:
+For the first step, we need to change this line:
 
 ```rust
 target.clear_color(0.0, 0.0, 1.0, 1.0);
@@ -70,7 +58,7 @@ This asks the backend to fill the depth buffer with the value of `1.0`. Note tha
 *logical* value, and only the range from `0.0` to `1.0` is valid. The actual content of the buffer
 is the maximal representable number. For a 24 bits depth buffer, this is `16777215`.
 
-The third step consists in passing an additional parameter when drawing. The depth test and depth
+The final step consists of passing an additional parameter when drawing. The depth test and depth
 buffer handling is done directly by the hardware and not by our shader. Therefore we need to
 tell the backend what it should do amongst a list of possible operations.
 
@@ -88,8 +76,8 @@ target.draw((&positions, &normals), &indices, &program,
             &uniform! { matrix: matrix, u_light: light }, &params).unwrap();
 ```
 
-The `test` parameter indicates that pixels should be only be kept if their depth value is inferior
-to the existing depth value in the depth buffer. The `write` parameter indicates that the depth
+The `test` parameter indicates that pixels should be only be kept if their depth value is less
+than the existing depth value in the depth buffer. The `write` parameter indicates that the depth
 value of the pixels that pass the test should be written to the depth buffer. If we don't set
 `write` to true, the content of the depth buffer will always stay at `1.0`.
 
@@ -101,7 +89,7 @@ And here is the result:
 
 ![Result](resources/tuto-09-result.png)
 
-If you use an OpenGL debugger, you can see the content of the depth buffer where values are
+If you use an OpenGL debugger like RenderDoc, you can see the content of the depth buffer where values are
 represented as shades of gray. Here is our depth buffer after drawing the teapot:
 
 ![Depth buffer](resources/tuto-09-depth.png)

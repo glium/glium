@@ -1,90 +1,74 @@
 # Creating a project
 
-To start this tutorial, we will create a new project from scratch. Even though it's highly recommended to be familiar with Rust and Cargo before starting, some little reminders are always good. Let's start by running:
+To start this tutorial, we will create a new project from scratch. Even though it is highly recommended to be familiar with Rust and Cargo before starting, some little reminders are always good. Let's start by running:
 
 ```sh
 cargo new --bin my_project
 cd my_project
 ```
 
-The directory you have just created should contain a `Cargo.toml` file which contains our project's metadata, plus a `src/main.rs` file which contains the Rust source code. If you have `src/lib.rs` file instead, that means that you forgot the `--bin` flag ; just rename the file.
+The directory you have just created should contain a `Cargo.toml` file which contains our project's metadata, plus a `src/main.rs` file which contains the Rust source code. If you have `src/lib.rs` file instead, that means that you forgot the `--bin` flag ; just rename `lib.rs` to `main.rs` then.
 
-In order to use the glium library, we need to add them as dependencies in our `Cargo.toml` file:
+In order to use glium, you need to add it as a dependency to your `Cargo.toml` file.
 
 ```toml
 [dependencies]
-glium = "*"
+glium = "0.33"
 ```
 
-Before we can use them, we also need to import this library in our `src/main.rs` file, like this:
+By default glium pulls in everything necessary to get you started. You should now have a `src/main.rs` file that looks similar to this:
 
 ```rust
-#[macro_use]
-extern crate glium;
-
 fn main() {
+    println!("Hello, World!");
 }
 ```
 
-It is now time to start filling the `main` function!
+It is now time to start work on the main function!
 
 # Creating a window
 
-The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the **glutin** library shines.
+The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes complex and tedious.
 
-Initializing an OpenGL window with glutin can be done using the following steps:
+Initializing a simple OpenGL window with the default winit/glutin backend can be done via the following 3 steps:
 
 1. Creating an `EventLoop` for handling window and device events.
-2. Specify Window parameters using `glium::glutin::WindowBuilder::new()`. These
-   are window-specific attributes that have nothing to do with OpenGL.
-3. Specify Context parameters using `glium::glutin::ContextBuilder::new()`.
-   Here we specify OpenGL-specific attributes like multisampling or vsync.
-4. Create the OpenGL window (in glium, this is the `Display`):
-   `glium::Display::new(window, context, &event_loop).unwrap()`.
-   This builds a Display using the given window and context attributes, and
-   registers the window with the given event_loop.
+2. Making a new `SimpleWindowBuilder` and setting the desired parameters.
+3. Calling the `build` method of hte `SimpleWindowBuilder` with a reference to the event_loop to get the `Window` and `Display`.
+
+This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.
 
 ```rust
 fn main() {
-    use glium::glutin;
-
-    let mut event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 }
 ```
 
-But there is a problem: as soon as the window has been created, our main function exits and `display`'s destructor closes the window. To prevent this, we need to loop forever until we detect that a `CloseRequested` event has been received. We do so by calling `event_loop.run`:
+If you try to run this example with `cargo run` you'll encounter a problem: as soon as the window has been created, our main function exits and the window is closed. To prevent this, we need to wait until we receive a `CloseRequested` event. We do this by calling `event_loop.run`:
 
 ```rust
 event_loop.run(move |ev, _, control_flow| {
-    let next_frame_time = std::time::Instant::now() +
-        std::time::Duration::from_nanos(16_666_667);
-    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
     match ev {
-        glutin::event::Event::WindowEvent { event, .. } => match event {
-            glutin::event::WindowEvent::CloseRequested => {
-                *control_flow = glutin::event_loop::ControlFlow::Exit;
-                return;
+        winit::event::Event::WindowEvent { event, .. } => match event {
+            winit::event::WindowEvent::CloseRequested => {
+                *control_flow =  winit::event_loop::ControlFlow::Exit;
             },
-            _ => return,
+            _ => (),
         },
         _ => (),
     }
 });
 ```
 
-You can now execute `cargo run`. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.
+If you run the program now you should see an nice little window. The contents of the window, however, are not not very appealing. Depending on your system, it can appear black, show a random image, or just noise. We are expected to draw on the window, so the system doesn't initialize its color to a specific value.
 
-### Clearing the color
+# Drawing on the window
 
-The content of the window, however, is not not very appealing. Depending on your system, it can appear black, show a random image, or just some snow. We are expected to draw on the window, so the system doesn't bother initializing its color to a specific value.
+Glium and the OpenGL API work similarly to drawing software like Paint or GIMP. We begin with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to these programs, you don't want your users to see the intermediate steps. Only the final result should be displayed.
 
-Glium and the OpenGL API work similarly to drawing software like Windows' Paint or The GIMP. We start with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to drawing software, you don't want your users to see the intermediate steps. Only the final result should be shown.
-
-To handle this, OpenGL uses what is called *double buffering*. Instead of drawing directly to the window, we are drawing to an image stored in memory. Once we have finished drawing, this image is copied to the window.
-This is represented in glium by the `Frame` object. When you want to start drawing something on your window, you must first call `display.draw()` in order to produce a `Frame`:
+To accomplish this, OpenGL uses what is called *double buffering*. Instead of drawing directly on the window, we are drawing to an image stored in memory. Once we are finished drawing, this image is copied into the window.
+This is represented in glium by the `Frame` object. When you want to start drawing something on a window, you must first call `display.draw()` to produce a new `Frame`:
 
 ```rust
 let mut target = display.draw();
@@ -104,7 +88,7 @@ use glium::Surface;
 
 The four values that we pass to `clear_color` represent the four components of our color: red, green, blue and alpha. Only values between `0.0` and `1.0` are valid. Here we are drawing an opaque blue color.
 
-Like I explained above, the user doesn't immediately see the blue color on the screen. At this point if we were in a real application, we would most likely draw our characters, their weapons, the ground, the sky, etc. But in this tutorial we will just stop here:
+As explained above, the user doesn't immediately see the blue color on the screen. At this point if we were in a game, we would most likely draw our characters, their weapons, the ground, the sky, etc. But in this tutorial we will just stop here:
 
 ```rust
 target.finish().unwrap();
@@ -112,39 +96,27 @@ target.finish().unwrap();
 
 This call to `finish()` means that we have finished drawing. It destroys the `Frame` object and copies our background image to the window. Our window is now filled with blue.
 
-Here is our full `main` function after this step:
+Here is our full program:
 
 ```rust
-extern crate glium;
+use glium::Surface;
 
 fn main() {
-    use glium::{glutin, Surface};
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    let mut frame = display.draw();
+    frame.clear_color(0.0, 0.0, 1.0, 1.0);
+    frame.finish().unwrap();
 
-    event_loop.run(move |ev, _, control_flow| {
-
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.finish().unwrap();
-
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
-        match ev {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = glutin::event_loop::ControlFlow::Exit;
-                    return;
-                },
-                _ => return,
+    event_loop.run(move |event, _, control_flow| {
+        match event {
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
+                _ => (),
             },
             _ => (),
-        }
+        };
     });
 }
 ```

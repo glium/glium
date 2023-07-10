@@ -296,6 +296,13 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
                    name: &str)
                    -> Result<(), DrawError> where P: ProgramExt
 {
+    // The spec only states that a negative location is an error.
+    // This fact is abused by some implementations (e.g. vitaGL)
+    // which actually use negative values for uniform locations.
+    #[cfg(target_os = "vita")]
+    assert!(location != -1);
+
+    #[cfg(not(target_os = "vita"))]
     assert!(location >= 0);
 
     match *value {

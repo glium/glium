@@ -45,6 +45,9 @@ pub unsafe trait Backend {
     /// Returns the dimensions of the window, or screen, etc.
     fn get_framebuffer_dimensions(&self) -> (u32, u32);
 
+    /// Resizes the underlying surface, should be called when the window's size has changed for example.
+    fn resize(&self, new_size:(u32, u32));
+
     /// Returns true if the OpenGL context is the current one in the thread.
     fn is_current(&self) -> bool;
 
@@ -63,6 +66,10 @@ unsafe impl<T> Backend for Rc<T> where T: Backend {
 
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         self.deref().get_framebuffer_dimensions()
+    }
+
+    fn resize(&self, new_size:(u32, u32)) {
+        self.deref().resize(new_size);
     }
 
     fn is_current(&self) -> bool {

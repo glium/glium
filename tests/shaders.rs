@@ -695,6 +695,7 @@ fn unsized_array() {
         "
             #version 430
 
+            layout(std140)
             struct Foo {
                 ivec3 a[3];
                 int b;
@@ -791,6 +792,7 @@ fn array_layout_offsets() {
         "
             #version 330
 
+            layout(std140)
             struct Foo {
                 vec2 pos;
                 vec2 dir;

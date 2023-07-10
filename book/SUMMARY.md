@@ -21,5 +21,5 @@
 - [Shadow mapping]()
 - [Antialiasing]()
 - [Drawing lots of objects with instancing]()
-- [Performances](perf-intro.md)
+- [Performance](perf-intro.md)
 - [Synchronization](perf-sync.md)

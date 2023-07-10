@@ -148,23 +148,23 @@ impl CameraState {
         }
     }
 
-    pub fn process_input(&mut self, event: &glutin::event::WindowEvent<'_>) {
+    pub fn process_input(&mut self, event: &winit::event::WindowEvent<'_>) {
         let input = match *event {
-            glutin::event::WindowEvent::KeyboardInput { input, .. } => input,
+            winit::event::WindowEvent::KeyboardInput { input, .. } => input,
             _ => return,
         };
-        let pressed = input.state == glutin::event::ElementState::Pressed;
+        let pressed = input.state == winit::event::ElementState::Pressed;
         let key = match input.virtual_keycode {
             Some(key) => key,
             None => return,
         };
         match key {
-            glutin::event::VirtualKeyCode::Up => self.moving_up = pressed,
-            glutin::event::VirtualKeyCode::Down => self.moving_down = pressed,
-            glutin::event::VirtualKeyCode::A => self.moving_left = pressed,
-            glutin::event::VirtualKeyCode::D => self.moving_right = pressed,
-            glutin::event::VirtualKeyCode::W => self.moving_forward = pressed,
-            glutin::event::VirtualKeyCode::S => self.moving_backward = pressed,
+            winit::event::VirtualKeyCode::Up => self.moving_up = pressed,
+            winit::event::VirtualKeyCode::Down => self.moving_down = pressed,
+            winit::event::VirtualKeyCode::A => self.moving_left = pressed,
+            winit::event::VirtualKeyCode::D => self.moving_right = pressed,
+            winit::event::VirtualKeyCode::W => self.moving_forward = pressed,
+            winit::event::VirtualKeyCode::S => self.moving_backward = pressed,
             _ => (),
         };
     }

@@ -1,5 +1,3 @@
-#![cfg(not(feature = "test_headless"))]
-
 #[macro_use]
 extern crate glium;
 
@@ -196,7 +194,7 @@ fn subroutine_bindings_explicit_location() {
 
 // Start of more complex tests with multiple uniforms and such.
 
-fn build_program_complex(display: &glium::Display) -> glium::Program {
+fn build_program_complex<T: glutin::surface::SurfaceTypeTrait + glutin::surface::ResizeableSurface + 'static>(display: &glium::Display<T>) -> glium::Program {
     let program = program!(display,
         150 => {
             vertex: "

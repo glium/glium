@@ -1,18 +1,14 @@
 #[macro_use]
 extern crate glium;
-
-use std::io::Cursor;
+use glium::Surface;
 
 fn main() {
-    #[allow(unused_imports)]
-    use glium::{glutin, Surface};
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+        .with_title("Glium tutorial #6")
+        .build(&event_loop);
 
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
-
-    let image = image::load(Cursor::new(&include_bytes!("../tests/fixture/opengl.png")),
+    let image = image::load(std::io::Cursor::new(&include_bytes!("../tests/fixture/opengl.png")),
                             image::ImageFormat::Png).unwrap().to_rgba8();
     let image_dimensions = image.dimensions();
     let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
@@ -23,16 +19,19 @@ fn main() {
         position: [f32; 2],
         tex_coords: [f32; 2],
     }
-
     implement_vertex!(Vertex, position, tex_coords);
+    // We've changed our shape to a rectangle so the image isn't distorted.
+    let shape = vec![
+        Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
+        Vertex { position: [ 0.5, -0.5], tex_coords: [1.0, 0.0] },
+        Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
 
-    let vertex1 = Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] };
-    let vertex2 = Vertex { position: [ 0.0,  0.5], tex_coords: [0.0, 1.0] };
-    let vertex3 = Vertex { position: [ 0.5, -0.25], tex_coords: [1.0, 0.0] };
-    let shape = vec![vertex1, vertex2, vertex3];
-
-    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
+        Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
+        Vertex { position: [-0.5,  0.5], tex_coords: [0.0, 1.0] },
+        Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
+    ];
     let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
+    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
 
     let vertex_shader_src = r#"
         #version 140
@@ -48,7 +47,6 @@ fn main() {
             gl_Position = matrix * vec4(position, 0.0, 1.0);
         }
     "#;
-
     let fragment_shader_src = r#"
         #version 140
 
@@ -61,53 +59,52 @@ fn main() {
             color = texture(tex, v_tex_coords);
         }
     "#;
-
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None).unwrap();
 
-    let mut t = -0.5;
-    event_loop.run(move |event, _, control_flow| {
+    let mut t:f32 = 0.0;
 
-        match event {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = glutin::event_loop::ControlFlow::Exit;
-                    return;
+    event_loop.run(move |ev, _, control_flow| {
+        match ev {
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                winit::event::WindowEvent::CloseRequested => {
+                    *control_flow =  winit::event_loop::ControlFlow::Exit;
                 },
-                _ => return,
+                // Because glium doesn't know about windows we need to resize the display
+                // when the window's size has changed.
+                winit::event::WindowEvent::Resized(window_size) => {
+                    display.resize(window_size.into());
+                },
+                _ => (),
             },
-            glutin::event::Event::NewEvents(cause) => match cause {
-                glutin::event::StartCause::ResumeTimeReached { .. } => (),
-                glutin::event::StartCause::Init => (),
-                _ => return,
+            // We now need to render everyting in response to a RedrawRequested event due to the animation
+            winit::event::Event::RedrawRequested(_) => {
+                // we update `t`
+                t += 0.02;
+                let x = t.sin() * 0.5;
+
+                let mut target = display.draw();
+                target.clear_color(0.0, 0.0, 1.0, 1.0);
+
+                let uniforms = uniform! {
+                    matrix: [
+                        [1.0, 0.0, 0.0, 0.0],
+                        [0.0, 1.0, 0.0, 0.0],
+                        [0.0, 0.0, 1.0, 0.0],
+                        [ x , 0.0, 0.0, 1.0f32],
+                    ],
+                    tex: &texture,
+                };
+
+                target.draw(&vertex_buffer, &indices, &program, &uniforms,
+                            &Default::default()).unwrap();
+                target.finish().unwrap();
             },
-            _ => return,
+            // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.
+            // For applications that only change due to user input you could remove this handler.
+            winit::event::Event::RedrawEventsCleared => {
+                window.request_redraw();
+            },
+            _ => (),
         }
-
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
-
-        // we update `t`
-        t += 0.0002;
-        if t > 0.5 {
-            t = -0.5;
-        }
-
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-
-        let uniforms = uniform! {
-            matrix: [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-                [ t , 0.0, 0.0, 1.0f32],
-            ],
-            tex: &texture,
-        };
-
-        target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                    &Default::default()).unwrap();
-        target.finish().unwrap();
     });
 }

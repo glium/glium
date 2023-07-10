@@ -70,7 +70,9 @@ fn transform_feedback() {
             .. Default::default()
         };
 
-        display.draw().draw(&vb, &ib, &program, &uniform!{}, &params).unwrap();
+        let mut frame = display.draw();
+        frame.draw(&vb, &ib, &program, &uniform!{}, &params).unwrap();
+        frame.finish().unwrap();
     }
 
     let result = match out_buffer.read() {

@@ -1,35 +1,29 @@
+use glium::Surface;
+
 fn main() {
-    #[allow(unused_imports)]
-    use glium::{glutin, Surface};
+    // We start by creating the EventLoop, this can only be done once per process.
+    // This also needs to happen on the main thread to make the program portable.
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
+        .with_title("Glium tutorial #1")
+        .build(&event_loop);
 
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    // Start rendering by creating a new frame
+    let mut frame = display.draw();
+    // Which we fill with an opaque blue color
+    frame.clear_color(0.0, 0.0, 1.0, 1.0);
+    // By finishing the frame swap buffers and thereby make it visible on the window
+    frame.finish().unwrap();
 
+    // Now we wait until the program is closed
     event_loop.run(move |event, _, control_flow| {
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
-
         match event {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = glutin::event_loop::ControlFlow::Exit;
-                    return;
-                },
-                _ => return,
+            winit::event::Event::WindowEvent { event, .. } => match event {
+                // This event is sent by the OS when you close the Window, or request the program to quit via the taskbar.
+                winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
+                _ => (),
             },
-            glutin::event::Event::NewEvents(cause) => match cause {
-                glutin::event::StartCause::ResumeTimeReached { .. } => (),
-                glutin::event::StartCause::Init => (),
-                _ => return,
-            },
-            _ => return,
-        }
-
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.finish().unwrap();
+            _ => (),
+        };
     });
 }

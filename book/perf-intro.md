@@ -1,9 +1,9 @@
-# Performances
+# Performance
 
 Here is the estimated cost of various operations:
 
  - **Creating a `Program`**: very high, as the driver has to compile the source code of the program.
-   Do this only at initialization.
+   Do this only during initialization.
 
  - **Creating an empty buffer**: medium for vertex and index buffers, low for other buffers.
 
@@ -44,7 +44,7 @@ Here is the estimated cost of various operations:
 
 ## Avoiding state changes
 
-Doing multiple draw calls in a row with the same parameters (same vertices source, same program,
+Doing multiple draw calls in a row with the same parameters (same vertex source, same program,
 same draw parameters, same uniforms) is faster than switching parameters.
 
 More precisely:
@@ -62,4 +62,4 @@ More precisely:
  - Changing the render target between two draw calls: high.
 
 Therefore if you have a lot of things to draw, you should group objects by program, draw parameters,
-and source of vertices.
+and vertex source.
