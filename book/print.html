@@ -63,7 +63,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html"><strong>20.</strong> Performance</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -90,72 +90,56 @@
 <p>Hello and welcome to the glium tutorials! This series of tutorials will teach you how to work with OpenGL thanks to the glium library. Glium's API uses the exact same concepts as OpenGL and has been designed to remove the burden of using raw OpenGL function calls, which are often non-portable, tedious and error-prone. Even if for some reason you don't plan on using the glium library in the future, these tutorials can still be useful as they will teach you how OpenGL and graphics programming in general work.</p>
 <p>If at any moment you encounter an error, please open an issue. Everything related to the window, fullscreen mode, or events is handled by <a href="https://github.com/rust-windowing/glutin/issues">glutin</a>, while everything related to rendering is handled by <a href="https://github.com/glium/glium/issues">glium</a>.</p>
 <a class="header" href="print.html#creating-a-project" id="creating-a-project"><h1>Creating a project</h1></a>
-<p>To start this tutorial, we will create a new project from scratch. Even though it's highly recommended to be familiar with Rust and Cargo before starting, some little reminders are always good. Let's start by running:</p>
+<p>To start this tutorial, we will create a new project from scratch. Even though it is highly recommended to be familiar with Rust and Cargo before starting, some little reminders are always good. Let's start by running:</p>
 <pre><code class="language-sh">cargo new --bin my_project
 cd my_project
 </code></pre>
-<p>The directory you have just created should contain a <code>Cargo.toml</code> file which contains our project's metadata, plus a <code>src/main.rs</code> file which contains the Rust source code. If you have <code>src/lib.rs</code> file instead, that means that you forgot the <code>--bin</code> flag ; just rename the file.</p>
-<p>In order to use the glium library, we need to add them as dependencies in our <code>Cargo.toml</code> file:</p>
+<p>The directory you have just created should contain a <code>Cargo.toml</code> file which contains our project's metadata, plus a <code>src/main.rs</code> file which contains the Rust source code. If you have <code>src/lib.rs</code> file instead, that means that you forgot the <code>--bin</code> flag ; just rename <code>lib.rs</code> to <code>main.rs</code> then.</p>
+<p>In order to use glium, you need to add it as a dependency to your <code>Cargo.toml</code> file.</p>
 <pre><code class="language-toml">[dependencies]
-glium = &quot;*&quot;
+glium = &quot;0.33&quot;
 </code></pre>
-<p>Before we can use them, we also need to import this library in our <code>src/main.rs</code> file, like this:</p>
-<pre><pre class="playpen"><code class="language-rust">#[macro_use]
-extern crate glium;
-
-fn main() {
+<p>By default glium pulls in everything necessary to get you started. You should now have a <code>src/main.rs</code> file that looks similar to this:</p>
+<pre><pre class="playpen"><code class="language-rust">fn main() {
+    println!(&quot;Hello, World!&quot;);
 }
 </code></pre></pre>
-<p>It is now time to start filling the <code>main</code> function!</p>
+<p>It is now time to start work on the main function!</p>
 <a class="header" href="print.html#creating-a-window" id="creating-a-window"><h1>Creating a window</h1></a>
-<p>The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes weird and tedious. Fortunately, this is where the <strong>glutin</strong> library shines.</p>
-<p>Initializing an OpenGL window with glutin can be done using the following steps:</p>
+<p>The first step when creating a graphical application is to create a window. If you have ever worked with OpenGL before, you know how hard it is to do this correctly. Both window creation and context creation are platform-specific, and they are sometimes complex and tedious.</p>
+<p>Initializing a simple OpenGL window with the default winit/glutin backend can be done via the following 3 steps:</p>
 <ol>
 <li>Creating an <code>EventLoop</code> for handling window and device events.</li>
-<li>Specify Window parameters using <code>glium::glutin::WindowBuilder::new()</code>. These
-are window-specific attributes that have nothing to do with OpenGL.</li>
-<li>Specify Context parameters using <code>glium::glutin::ContextBuilder::new()</code>.
-Here we specify OpenGL-specific attributes like multisampling or vsync.</li>
-<li>Create the OpenGL window (in glium, this is the <code>Display</code>):
-<code>glium::Display::new(window, context, &amp;event_loop).unwrap()</code>.
-This builds a Display using the given window and context attributes, and
-registers the window with the given event_loop.</li>
+<li>Making a new <code>SimpleWindowBuilder</code> and setting the desired parameters.</li>
+<li>Calling the <code>build</code> method of hte <code>SimpleWindowBuilder</code> with a reference to the event_loop to get the <code>Window</code> and <code>Display</code>.</li>
 </ol>
+<p>This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
-    use glium::glutin;
-
-    let mut event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &amp;event_loop).unwrap();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 }
 </code></pre></pre>
-<p>But there is a problem: as soon as the window has been created, our main function exits and <code>display</code>'s destructor closes the window. To prevent this, we need to loop forever until we detect that a <code>CloseRequested</code> event has been received. We do so by calling <code>event_loop.run</code>:</p>
+<p>If you try to run this example with <code>cargo run</code> you'll encounter a problem: as soon as the window has been created, our main function exits and the window is closed. To prevent this, we need to wait until we receive a <code>CloseRequested</code> event. We do this by calling <code>event_loop.run</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 event_loop.run(move |ev, _, control_flow| {
-    let next_frame_time = std::time::Instant::now() +
-        std::time::Duration::from_nanos(16_666_667);
-    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
     match ev {
-        glutin::event::Event::WindowEvent { event, .. } =&gt; match event {
-            glutin::event::WindowEvent::CloseRequested =&gt; {
-                *control_flow = glutin::event_loop::ControlFlow::Exit;
-                return;
+        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            winit::event::WindowEvent::CloseRequested =&gt; {
+                *control_flow =  winit::event_loop::ControlFlow::Exit;
             },
-            _ =&gt; return,
+            _ =&gt; (),
         },
         _ =&gt; (),
     }
 });
 #}</code></pre></pre>
-<p>You can now execute <code>cargo run</code>. After a few minutes during which Cargo downloads and compiles glium and its dependencies, you should see a nice little window.</p>
-<a class="header" href="print.html#clearing-the-color" id="clearing-the-color"><h3>Clearing the color</h3></a>
-<p>The content of the window, however, is not not very appealing. Depending on your system, it can appear black, show a random image, or just some snow. We are expected to draw on the window, so the system doesn't bother initializing its color to a specific value.</p>
-<p>Glium and the OpenGL API work similarly to drawing software like Windows' Paint or The GIMP. We start with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to drawing software, you don't want your users to see the intermediate steps. Only the final result should be shown.</p>
-<p>To handle this, OpenGL uses what is called <em>double buffering</em>. Instead of drawing directly to the window, we are drawing to an image stored in memory. Once we have finished drawing, this image is copied to the window.
-This is represented in glium by the <code>Frame</code> object. When you want to start drawing something on your window, you must first call <code>display.draw()</code> in order to produce a <code>Frame</code>:</p>
+<p>If you run the program now you should see an nice little window. The contents of the window, however, are not not very appealing. Depending on your system, it can appear black, show a random image, or just noise. We are expected to draw on the window, so the system doesn't initialize its color to a specific value.</p>
+<a class="header" href="print.html#drawing-on-the-window" id="drawing-on-the-window"><h1>Drawing on the window</h1></a>
+<p>Glium and the OpenGL API work similarly to drawing software like Paint or GIMP. We begin with an empty image, then draw an object on it, then another object, then another object, etc. until we are satisfied with the result. But contrary to these programs, you don't want your users to see the intermediate steps. Only the final result should be displayed.</p>
+<p>To accomplish this, OpenGL uses what is called <em>double buffering</em>. Instead of drawing directly on the window, we are drawing to an image stored in memory. Once we are finished drawing, this image is copied into the window.
+This is represented in glium by the <code>Frame</code> object. When you want to start drawing something on a window, you must first call <code>display.draw()</code> to produce a new <code>Frame</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -174,49 +158,37 @@ target.clear_color(0.0, 0.0, 1.0, 1.0);
 use glium::Surface;
 #}</code></pre></pre>
 <p>The four values that we pass to <code>clear_color</code> represent the four components of our color: red, green, blue and alpha. Only values between <code>0.0</code> and <code>1.0</code> are valid. Here we are drawing an opaque blue color.</p>
-<p>Like I explained above, the user doesn't immediately see the blue color on the screen. At this point if we were in a real application, we would most likely draw our characters, their weapons, the ground, the sky, etc. But in this tutorial we will just stop here:</p>
+<p>As explained above, the user doesn't immediately see the blue color on the screen. At this point if we were in a game, we would most likely draw our characters, their weapons, the ground, the sky, etc. But in this tutorial we will just stop here:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 target.finish().unwrap();
 #}</code></pre></pre>
 <p>This call to <code>finish()</code> means that we have finished drawing. It destroys the <code>Frame</code> object and copies our background image to the window. Our window is now filled with blue.</p>
-<p>Here is our full <code>main</code> function after this step:</p>
-<pre><pre class="playpen"><code class="language-rust">extern crate glium;
+<p>Here is our full program:</p>
+<pre><pre class="playpen"><code class="language-rust">use glium::Surface;
 
 fn main() {
-    use glium::{glutin, Surface};
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &amp;event_loop).unwrap();
+    let mut frame = display.draw();
+    frame.clear_color(0.0, 0.0, 1.0, 1.0);
+    frame.finish().unwrap();
 
-    event_loop.run(move |ev, _, control_flow| {
-
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target.finish().unwrap();
-
-        let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
-        match ev {
-            glutin::event::Event::WindowEvent { event, .. } =&gt; match event {
-                glutin::event::WindowEvent::CloseRequested =&gt; {
-                    *control_flow = glutin::event_loop::ControlFlow::Exit;
-                    return;
-                },
-                _ =&gt; return,
+    event_loop.run(move |event, _, control_flow| {
+        match event {
+            winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+                winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+                _ =&gt; (),
             },
             _ =&gt; (),
-        }
+        };
     });
 }
 </code></pre></pre>
 <a class="header" href="print.html#drawing-a-triangle" id="drawing-a-triangle"><h1>Drawing a triangle</h1></a>
-<p>With some exceptions (like the clearing operation that was used above), OpenGL doesn't provide any function to easily draw shapes. There is no <code>draw_rectangle</code>, <code>draw_cube</code> or <code>draw_text</code> function for example. Instead everything is handled the same way: through the graphics pipeline. It doesn't matter whether you draw a simple triangle or a 3D model with thousands of polygons and advanced shadowing techniques, everything uses the same mechanics.</p>
+<p>With some exceptions (like the clear operation that was used before), OpenGL doesn't provide any function to directly draw shapes. There is no <code>draw_rectangle</code>, <code>draw_cube</code> or <code>draw_text</code> function for example. Instead everything is handled the same way: through the graphics pipeline. It doesn't matter whether you draw a simple triangle or a 3D model with thousands of polygons and advanced lighting techniques, everything uses the same mechanics.</p>
 <p>This is the point where the learning curve becomes very steep, as you need to learn how the graphics pipeline works even if you just want to draw a single triangle. However once you have passed that step, it will become easier to understand the rest.</p>
 <p>Before we can draw a triangle, we need to prepare two things during the initialization:</p>
 <ul>
@@ -235,12 +207,18 @@ fn main() {
 struct Vertex {
     position: [f32; 2],
 }
-
 implement_vertex!(Vertex, position);
 #}</code></pre></pre>
-<p>Our struct contains a <code>position</code> field which we will use to store the position of each vertex on the window. Being a true vectorial renderer, OpenGL doesn't use coordinates in pixels. Instead it considers that the window has a width and a height of 2 units, and that the origin is at the center of the window.</p>
+<p>To make the <code>implement_vertex!</code> macro available you need to add the following lines above the main function:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[macro_use]
+extern crate glium;
+#}</code></pre></pre>
+<p>Our struct contains a <code>position</code> field which we will use to store the position of each vertex on the window. Being vector-based, OpenGL doesn't use coordinates in pixels. Instead it considers that the window has a width and a height of 2 units, and that the origin is at the center of the window.</p>
 <p><img src="resources/tuto-02-window-coords.svg" alt="The windows coordinates system" /></p>
-<p>When we give positions to OpenGL, we need to use this coordinate system. Let's pick a shape for our triangle, for example this one:</p>
+<p>When we give a position to OpenGL, we need to use this coordinate system. Let's pick a shape for our triangle, for example this one:</p>
 <p><img src="resources/tuto-02-triangle-coords.svg" alt="Finding the coordinates of our triangle" /></p>
 <p>Which translates into this code:</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -251,23 +229,24 @@ let vertex2 = Vertex { position: [ 0.0,  0.5] };
 let vertex3 = Vertex { position: [ 0.5, -0.25] };
 let shape = vec![vertex1, vertex2, vertex3];
 #}</code></pre></pre>
-<p>We now have our shape! There is a last step which consists in uploading this shape to the memory of our video card in what is called a <em>vertex buffer</em>, for faster access. Even though that is not strictly necessary, it is very easy to do so and it will make our draw operation considerably faster.</p>
+<p>We now have our shape! There is one last step which consists of uploading this shape to the memory of our GPU in what is called a <em>vertex buffer</em>, for faster access. Even though that is not strictly necessary, it is very easy to do so and it will make our drawing operation considerably faster.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
 #}</code></pre></pre>
-<p>More complex shapes consist of hundred or thousands of vertices. We not only need to have a list of vertices, but also a way to tell OpenGL how to link these vertices together to obtain triangles. Since we only have one triangle, this isn't really relevant for us, so we just create a dummy marker that we will pass to glium later on.</p>
+<p>More complex shapes consist of hundreds or thousands of vertices. We not only need to have a list of vertices, but also a way to tell OpenGL how to link these vertices together to obtain triangles. Since we only have one triangle, this isn't really a problem for us, so we just create a dummy marker that we will pass to glium later on.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
 #}</code></pre></pre>
+<p>This tells OpenGL that we don't use indices and instead want to draw a certain number of separate triangles.</p>
 <a class="header" href="print.html#program" id="program"><h2>Program</h2></a>
-<p>When OpenGL was first created in the 1990s, drawing an object simply consisted in sending a shape alongside with various parameters like the color, lighting direction, fog distance, etc. But these parameters quickly became too limiting for game creators, and when OpenGL 2 was released a more flexible system was added with what are called <em>shaders</em>. When OpenGL 3 was released a few years later, all these parameters were removed and totally replaced by shaders.</p>
+<p>When OpenGL was first created in the 1990s, drawing an object simply consisted of sending a shape alongside various parameters like the color, lighting direction, fog distance, etc. But these parameters quickly became too limiting, and when OpenGL 2 was released, a more flexible system was added with what so called <em>shaders</em>. When OpenGL 3 was released a few years later, all of these parameters were removed and completely replaced by shaders.</p>
 <p>In order to draw a triangle, you will need some basic understanding about how the drawing process (also called the <em>pipeline</em>) works.</p>
 <p><img src="resources/tuto-02-pipeline.svg" alt="The graphics pipeline" /></p>
-<p>The list of coordinates at the left of the schema represents the vertices of the shape that we have created earlier. When we will ask the GPU to draw this shape, it will first execute what is called a <em>vertex shader</em>, once for each vertex (that means three times here). A vertex shader is a small program whose purpose is to tell the GPU what the screen coordinates of each vertex is. Then the GPU builds our triangle and determines which pixels of the screen are inside of it. It will then execute a <em>fragment shader</em> once for each of these pixels. A fragment shader is a small program whose purpose is to tell the GPU what the color of each pixel needs to be.</p>
+<p>The list of coordinates at the left of the schema represents the vertices of the shape that we have created earlier. When we ask the GPU to draw this shape, it will first execute what is called a <em>vertex shader</em>, once for each vertex (this means three times in this case). A vertex shader is a small program whose purpose is to tell the GPU what the screen coordinates of each vertex are going to be. Then the GPU builds our triangle and determines which pixels of the screen are inside of it. It will then execute a <em>fragment shader</em> once for each of these pixels. A fragment shader is a small program whose purpose is to tell the GPU what color each pixel should be.</p>
 <p>The tricky part is that <em>we</em> need to write the vertex and fragment shaders. To do so, we have to write it using a programming language named <em>GLSL</em>, which is very similar to the C programming language. Teaching you GLSL would be a bit too complicated for now, so I will just give you the source codes. Here is the source code that we will use for the vertex shader:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -282,9 +261,9 @@ let vertex_shader_src = r#&quot;
     }
 &quot;#;
 #}</code></pre></pre>
-<p>First of all, the <code>#version 140</code> line is here to tell OpenGL what version of GLSL this source code corresponds to. Some hardware doesn't support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.</p>
-<p>When we defined the <code>Vertex</code> struct in our shape, we created a field named <code>position</code> which contains the position of our vertex. But contrary to what I let you think, this struct doesn't contain the actual position of the vertex but only an attribute whose value is passed to the vertex shader. OpenGL doesn't care about the name of the attribute, all it does is passing its value to the vertex shader. The <code>in vec2 position;</code> line of our shader is here to declare that we are expected to be passed an attribute named <code>position</code> whose type is <code>vec2</code> (which corresponds to <code>[f32; 2]</code> in Rust).</p>
-<p>The <code>main</code> function of our shader is called once per vertex, which means three times for our triangle. The first time, the value of <code>position</code> will be <code>[-0.5, -0.5]</code>, the second time it will be <code>[0, 0.5]</code>, and the third time <code>[0.5, -0.25]</code>. It is in this function that we actually tell OpenGL what the position of our vertex is, thanks to the <code>gl_Position = vec4(position, 0.0, 1.0);</code> line. We need to do a small conversion because OpenGL doesn't expect two-dimensional coordinates, but <em>four</em>-dimensional coordinates (the reason for this will be covered in a later tutorial).</p>
+<p>First of all, the <code>#version 140</code> line is here to tell OpenGL what version of GLSL this shader is written in. Some hardware doesn't support the latest versions of GLSL, so we are trying to stick to earlier versions if possible.</p>
+<p>When we defined the <code>Vertex</code> struct in our shape, we created a field named <code>position</code> which contains the position of our vertex. But contrary to what I let you think, this struct doesn't contain the actual position of the vertex but only an attribute whose value is passed along to the vertex shader. OpenGL doesn't care about the name of the attribute, all it does is give the value to the vertex shader. The <code>in vec2 position;</code> line of our shader is here to declare that we are expected to be given an attribute named <code>position</code> of type <code>vec2</code> (which corresponds to <code>[f32; 2]</code> in Rust).</p>
+<p>The <code>main</code> function of our shader is called once per vertex, which means three times for our triangle. The first time, the value of <code>position</code> will be <code>[-0.5, -0.5]</code>, the second time it will be <code>[0.0, 0.5]</code>, and the third time <code>[0.5, -0.25]</code>. It is in this function that we actually tell OpenGL what the position of our vertex is, thanks to the <code>gl_Position = vec4(position, 0.0, 1.0);</code> line. We need to do a small conversion because OpenGL doesn't expect two-dimensional coordinates, but <em>four</em>-dimensional coordinates (the reason for this will be covered in a later tutorial).</p>
 <p>The second shader is called the fragment shader (sometimes also named <em>pixel shader</em>).</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -299,15 +278,15 @@ let fragment_shader_src = r#&quot;
     }
 &quot;#;
 #}</code></pre></pre>
-<p>This source code is very similar to our vertex shader above. This time the <code>main</code> function is executed once per pixel and has to return the color of this pixel, which we do with the <code>color = vec4(1.0, 0.0, 0.0, 1.0);</code> line. Just like with <code>clear_color</code> earlier, we need to pass the red, green, blue and alpha components of the pixel. Here we are returning an opaque red color. It is possible to return different values depending on the pixel, but this will be covered in the next tutorials.</p>
-<p>Now that we have written our shaders' source codes, let's send them to the glium library:</p>
+<p>This source code is very similar to our vertex shader above. This time the <code>main</code> function is executed once per pixel and has to set the color of this pixel, which we do with the <code>color = vec4(1.0, 0.0, 0.0, 1.0);</code> line. Just as with <code>clear_color</code> earlier, we need to pass along the red, green, blue and alpha components of the pixel. Here we are specifying an opaque red color. It is possible to set different values per-pixel, but this will be covered later.</p>
+<p>Now that we have written our shaders' source codes, let's send them to glium:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
 let program = glium::Program::from_source(&amp;display, vertex_shader_src, fragment_shader_src, None).unwrap();
 #}</code></pre></pre>
 <a class="header" href="print.html#drawing" id="drawing"><h2>Drawing</h2></a>
-<p>Now that we have prepared our shape and program, we can finally draw this triangle!</p>
+<p>Now that we have prepared our shape and program, we can finally draw a triangle!</p>
 <p>Remember the <code>target</code> object? We will need to use it to start a draw operation.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
@@ -317,7 +296,7 @@ target.clear_color(0.0, 0.0, 1.0, 1.0);
 // draw the triangle here
 target.finish().unwrap();
 #}</code></pre></pre>
-<p>Starting a draw operation needs several things: a source of vertices (here we use our <code>vertex_buffer</code>), a source of indices (we use our <code>indices</code> variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing an <code>EmptyUniforms</code> marker and by building the default draw parameters.</p>
+<p>Starting a draw operation needs several things: a source of vertices (here we use our <code>vertex_buffer</code>), a source of indices (we use our <code>indices</code> variable), a program, the program's uniforms, and some draw parameters. We will explain what uniforms and draw parameters are in the next tutorials, but for the moment we will just ignore them by passing an <code>EmptyUniforms</code> marker and by using the default draw parameters.</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -326,116 +305,159 @@ target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms
 #}</code></pre></pre>
 <p>The &quot;draw command&quot; designation could make you think that drawing is a heavy operation that takes a lot of time. In reality drawing a triangle takes less than a few microseconds, and if everything goes well you should see a nice little triangle:</p>
 <p><img src="resources/tuto-02-triangle.png" alt="Our final result" /></p>
-<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-02.rs">You can find the entire source code here</a>.</strong></p>
+<p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-02.rs">You can find the entire source code for this example here</a>.</strong></p>
 <a class="header" href="print.html#animating-our-triangle" id="animating-our-triangle"><h1>Animating our triangle</h1></a>
-<p>Now that we have a triangle, we are going to try animating it. Remember that OpenGL is like a drawing software. If we want to make a change on the screen, we have to draw over the existing content to replace what is already there. Fortunately we already have a <code>loop</code> that continuously draws on the window, so our changes will almost instantly be reflected on the window.</p>
+<p>Now that we have a triangle, we are going to animate it. Remember that OpenGL is like a drawing software. If we want to make a change on the screen, we have to draw over the existing content to replace what is already there.</p>
+<p>So far we have only ever rendered a single frame and then waited for the program to exit. For an animation to show we need to change the way we draw our triangle. Instead of drawing a frame and then waiting in our event_loop for the window to close, we first draw our triangle when requested by the operating system:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+event_loop.run(move |event, _, control_flow| {
+    match event {
+        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            _ =&gt; (),
+        },
+        winit::event::Event::RedrawRequested(_) =&gt; {
+            // Move the draw code here!
+        },
+        _ =&gt; (),
+    };
+});
+#}</code></pre></pre>
+<p>What exactly triggers this event is platform specific, but in order to draw our triangle over and over again we can request a redraw ourselves once we've finished rendering, to do that we'll respond to yet another event:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+event_loop.run(move |event, _, control_flow| {
+    match event {
+        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            _ =&gt; (),
+        },
+        winit::event::Event::RedrawEventsCleared =&gt; {
+            window.request_redraw();
+        },
+        winit::event::Event::RedrawRequested(_) =&gt; {
+            // Move the draw code here!
+        },
+        _ =&gt; (),
+    };
+});
+#}</code></pre></pre>
+<p>There are other ways to render a scene but this is the preferred way for glutin/winit making it a good default choice.</p>
+<p>While we are working on our event_loop there is one more event that we should handle, and that is a resize. Since glium only really has an OpenGL context we need to tell glium when the size of the underlying window has changed, otherwise you might see a streched image or borders. This is quite easy to accomplish:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+let mut t: f32 = 0.0;
+event_loop.run(move |event, _, control_flow| {
+    match event {
+        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::Resized(window_size) =&gt; {
+                display.resize(window_size.into());
+            },
+            _ =&gt; (),
+        },
+        winit::event::Event::RedrawEventsCleared =&gt; {
+            window.request_redraw();
+        },
+        winit::event::Event::RedrawRequested(_) =&gt; {
+            // Move the draw code here!
+        },
+        _ =&gt; (),
+    };
+});
+#}</code></pre></pre>
+<p>Now we can start animating our triangle!</p>
 <a class="header" href="print.html#the-naive-approach" id="the-naive-approach"><h1>The naive approach</h1></a>
 <p>Our first approach will be to create a variable named <code>t</code> which represents the step in the animation. We update the value of <code>t</code> at each loop, and add it to the coordinates of our triangle at each frame:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-let mut t: f32 = -0.5;
+let mut t: f32 = 0.0;
 event_loop.run(move |event, _, control_flow| {
-
     match event {
-        glutin::event::Event::WindowEvent { event, .. } =&gt; match event {
-            glutin::event::WindowEvent::CloseRequested =&gt; {
-                *control_flow = glutin::event_loop::ControlFlow::Exit;
-                return;
+        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::Resized(window_size) =&gt; {
+                display.resize(window_size.into());
             },
-            _ =&gt; return,
+            _ =&gt; (),
         },
-        glutin::event::Event::NewEvents(cause) =&gt; match cause {
-            glutin::event::StartCause::ResumeTimeReached { .. } =&gt; (),
-            glutin::event::StartCause::Init =&gt; (),
-            _ =&gt; return,
+        winit::event::Event::RedrawEventsCleared =&gt; {
+            window.request_redraw();
         },
-        _ =&gt; return,
-    }
+        winit::event::Event::RedrawRequested(_) =&gt; {
+            // We update `t`
+            t += 0.02;
+            // We use the sine of t as an offset, this way we get a nice smooth animation
+            let x_off = t.sin() * 0.5;
 
-    let next_frame_time = std::time::Instant::now() +
-            std::time::Duration::from_nanos(16_666_667);
-    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+            let shape = vec![
+                Vertex { position: [-0.5 + x_off, -0.5] },
+                Vertex { position: [ 0.0 + x_off,  0.5] },
+                Vertex { position: [ 0.5 + x_off, -0.25] }
+            ];
+            let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
 
-    // we update `t`
-    t += 0.0002;
-    if t &gt; 0.5 {
-        t = -0.5;
-    }
-    
-    let vertex1 = Vertex { position: [-0.5 + t, -0.5] };
-    let vertex2 = Vertex { position: [ 0.0 + t,  0.5] };
-    let vertex3 = Vertex { position: [ 0.5 + t, -0.25] };
-    let shape = vec![vertex1, vertex2, vertex3];
-
-    let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
-
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 1.0, 1.0);
-    target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
-            &amp;Default::default()).unwrap();
-    target.finish().unwrap();
+            let mut target = display.draw();
+            target.clear_color(0.0, 0.0, 1.0, 1.0);
+            target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
+                    &amp;Default::default()).unwrap();
+            target.finish().unwrap();
+        },
+        _ =&gt; (),
+    };
 });
 #}</code></pre></pre>
-<p>If you run this code, you should see your triangle going from the left to the right of the screen, then jumping back to the left!</p>
+<p>If you run this code, you should see your triangle going from the left to the right and back again smoothly!</p>
 <p>This method is approximately what game programmers were doing in the 1990s. This works perfectly fine when you have small shapes (like a single triangle), but it is highly inefficient when you manipulate models with thousands of polygons. There are two reasons for this:</p>
 <ul>
 <li>
 <p>The CPU would spend a lot of time calculating the coordinates every time you draw (with one operation for each vertex for each model, at the end you reach hundreds of thousands of operations).</p>
 </li>
 <li>
-<p>It takes some time to upload our shape from the RAM to the video memory. This time is totally wasted as the GPU has to wait until the transfer is finished to start its work.</p>
+<p>It takes some time to upload our shape from RAM to video memory. This time is wasted as the GPU has to wait until the transfer is finished before it can start drawing.</p>
 </li>
 </ul>
 <a class="header" href="print.html#uniforms" id="uniforms"><h1>Uniforms</h1></a>
 <p>Do you remember vertex shaders? Our vertex shader takes as input the attributes of each vertex, and outputs its position on the window. Instead of doing the addition in our program and upload the result, we are going to ask the GPU to do this operation.</p>
-<p>Let's reset our program to what it was at the end of the first tutorial, but keep <code>t</code>:</p>
+<p>Let's remove the two <code>let</code>'s that redefine our shape and vertex_buffer from our draw handler:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-let vertex1 = Vertex { position: [-0.5, -0.5] };
-let vertex2 = Vertex { position: [ 0.0,  0.5] };
-let vertex3 = Vertex { position: [ 0.5, -0.25] };
-let shape = vec![vertex1, vertex2, vertex3];
-
-let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
-let mut t: f32 = -0.5;
+let mut t: f32 = 0.0;
 event_loop.run(move |event, _, control_flow| {
-
     match event {
-        glutin::event::Event::WindowEvent { event, .. } =&gt; match event {
-            glutin::event::WindowEvent::CloseRequested =&gt; {
-                *control_flow = glutin::event_loop::ControlFlow::Exit;
-                return;
+        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::Resized(window_size) =&gt; {
+                display.resize(window_size.into());
             },
-            _ =&gt; return,
+            _ =&gt; (),
         },
-        glutin::event::Event::NewEvents(cause) =&gt; match cause {
-            glutin::event::StartCause::ResumeTimeReached { .. } =&gt; (),
-            glutin::event::StartCause::Init =&gt; (),
-            _ =&gt; return,
+        winit::event::Event::RedrawEventsCleared =&gt; {
+            window.request_redraw();
         },
-        _ =&gt; return,
-    }
+        winit::event::Event::RedrawRequested(_) =&gt; {
+            // We update `t`
+            t += 0.02;
+            // We use the sine of t as an offset, this way we get a nice smooth animation
+            let x = t.sin() * 0.5;
 
-    let next_frame_time = std::time::Instant::now() +
-        std::time::Duration::from_nanos(16_666_667);
-    *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
-
-    // we update `t`
-    t += 0.0002;
-    if t &gt; 0.5 {
-        t = -0.5;
-    }
-
-    let mut target = display.draw();
-    target.clear_color(0.0, 0.0, 1.0, 1.0);
-    target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
-            &amp;Default::default()).unwrap();
-    target.finish().unwrap();
+            let mut target = display.draw();
+            target.clear_color(0.0, 0.0, 1.0, 1.0);
+            target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
+                    &amp;Default::default()).unwrap();
+            target.finish().unwrap();
+        },
+        _ =&gt; (),
+    };
 });
 #}</code></pre></pre>
-<p>And instead we are going to do a small change in our vertex shader:</p>
+<p>And now we are going to change our vertex shader a little bit:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -444,11 +466,11 @@ let vertex_shader_src = r#&quot;
 
     in vec2 position;
 
-    uniform float t;
+    uniform float x;
 
     void main() {
         vec2 pos = position;
-        pos.x += t;
+        pos.x += x;
         gl_Position = vec4(pos, 0.0, 1.0);
     }
 &quot;#;
@@ -457,10 +479,10 @@ let vertex_shader_src = r#&quot;
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { t: t },
+target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { x: x },
             &amp;Default::default()).unwrap();
 #}</code></pre></pre>
-<p>Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of <code>t</code> (a single float) instead of the whole shape.</p>
+<p>Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of <code>x_off</code> (a single float) instead of the whole shape.</p>
 <a class="header" href="print.html#matrices" id="matrices"><h1>Matrices</h1></a>
 <p>We are moving our triangle from the left to the right of the screen with a simple addition. But what about other transformations like rotations, skews or rescalings?</p>
 <p>All the geometrical operations that we need can be done with some maths:</p>
@@ -469,7 +491,7 @@ target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { t: t
 <li>Rotating our triangle is done with <code>new_position = vec2(pos.x * cos(angle) - pos.y * sin(angle), pos.x * sin(angle) + pos.y * cos(angle));</code></li>
 <li>Skewing our triangle is done with <code>position.x += position.y * factor;</code></li>
 </ul>
-<p>But what if we want to do a rotation, then a translation, then a rescale? Or a skew and a rotation? Even though it's possible to do this with maths, things become very complex to handle.</p>
+<p>But what if we want to do a rotation, then a translation, then a rescale? Or a skew and a rotation? Even though it is possible to accomplish like this, things become quite complicated very quickly.</p>
 <p>Instead, programmers use <strong>matrices</strong>. A matrix is a two-dimensional table of numbers which <em>can represent a geometrical transformation</em>. In computer graphics, we use 4x4 matrices.</p>
 <p>Let's get back to our moving triangle. We are going to change the vertex shader to use a matrix. Instead of adding the value of <code>t</code> to the coordinates, we are going to apply the matrix to them by multiplying it. This applies the transformation described by our matrix to the vertex's coordinates.</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -497,7 +519,7 @@ let uniforms = uniform! {
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],
         [0.0, 0.0, 1.0, 0.0],
-        [ t , 0.0, 0.0, 1.0f32],
+        [ x , 0.0, 0.0, 1.0f32],
     ]
 };
 
@@ -505,7 +527,7 @@ target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniforms,
             &amp;Default::default()).unwrap();
 #}</code></pre></pre>
 <p>Note that in OpenGL, and therefore glium, the matrices are column-major.  If we were to write the above matrix in standard mathematical notation, which is row-major, it would look like this:</p>
-<pre><code>1.0   0.0   0.0    t
+<pre><code>1.0   0.0   0.0    x
 0.0   1.0   0.0   0.0
 0.0   0.0   1.0   0.0
 0.0   0.0   0.0   1.0
@@ -526,55 +548,65 @@ let uniforms = uniform! {
 <p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-04.rs">You can find the entire source code here</a>.</strong></p>
 <a class="header" href="print.html#attributes" id="attributes"><h1>Attributes</h1></a>
 <p>In our programming pipeline, the color of each pixel inside the triangle corresponds to the output of our fragment shader. Since our fragment shader returns <code>(1.0, 0.0, 0.0, 1.0)</code>, each pixel is an opaque red (the four values correspond to: red, green, blue, alpha/opacity).</p>
-<p>In order to output the correct color, we need to have some information about the pixel we are trying to draw. Fortunately, it is possible to pass information between the vertex and the fragment shader.</p>
-<p>To do so, we simply add an <code>out</code> variable in the vertex shader...</p>
+<p>In this example we'll be adding another attribute allowing us to specify a color for each corner of the triangle. To accomplish this we'll first have to extend our <code>Vertex</code> struct and shape as follows:</p>
+<pre><pre class="playpen"><code class="language-rust">
+# #![allow(unused_variables)]
+#fn main() {
+#[derive(Copy, Clone)]
+struct Vertex {
+    position: [f32; 2],
+    color: [f32; 3],
+}
+implement_vertex!(Vertex, position, color);
+
+let shape = vec![
+    Vertex { position: [-0.5, -0.5], color: [1.0, 0.0, 0.0] },
+    Vertex { position: [ 0.0,  0.5], color: [0.0, 1.0, 0.0] },
+    Vertex { position: [ 0.5, -0.25], color: [0.0, 0.0, 1.0] }
+];
+#}</code></pre></pre>
+<p>Here we've added a color attribute of type <code>[f32; 3]</code> which corresponds to a <code>vec3</code> in GLSL, storing the red, green and blue components. In our shape we've specified a solid red, green and blue for each corner. Now we need to update the shaders so that they make us of this new attribute, first the vertex shader:</p>
 <pre><code class="language-glsl">#version 140
 
 in vec2 position;
-out vec2 my_attr;      // our new attribute
+in vec3 color;      // our new attribute
+out vec3 vertex_color;
 
 uniform mat4 matrix;
 
 void main() {
-    my_attr = position;     // we need to set the value of each `out` variable.
+    vertex_color = color; // we need to set the value of each `out` variable.
     gl_Position = matrix * vec4(position, 0.0, 1.0);
 }
 </code></pre>
-<p>...and an <code>in</code> variable with the same name and type in the fragment shader.</p>
+<p>The <code>in vec3 color;</code> line should look familiar to you, what is new however is the following line: <code>out vec3 vertex_color;</code>.
+This line defines a variable that is going to be passed along to the fragment shader, let's update our fragment shader to make use of it and then explore what's going on:</p>
 <pre><code class="language-glsl">#version 140
 
-in vec2 my_attr;
+in vec3 vertex_color;
 out vec4 color;
 
 void main() {
-    color = vec4(my_attr, 0.0, 1.0);   // we build a vec4 from a vec2 and two floats
+    color = vec4(vertex_color, 1.0);   // We need an alpha value as well
 }
 </code></pre>
-<p>Let's see what happens. Our vertex shader is invoked three times, once per vertex. Each vertex returns a different value for <code>my_attr</code>. OpenGL then determines which pixels are inside the triangle during the rasterization phase, and calls the fragment shader once for each of these pixels. The value of <code>my_attr</code> that is passed for each pixel is <strong>the interpolation of this value depending on the position of the pixel</strong>.</p>
-<p>For example, pixels that are right next to a vertex will get a value of <code>my_attr</code> that is equal or very near the value of <code>my_attr</code> that the vertex shader returned for this vertex. The pixel that is on the middle of the edge between two vertices will get the average of the two values of <code>my_attr</code> returned by the vertex shader for these two vertices. Pixels that are the middle of the triangle will get the average of the values of the three vertices.</p>
-<p><em>Note: this is because variables have by default the <code>smooth</code> attribute, which is what you want most of the time. It is also possible to specify the <code>flat</code> attribute.</em></p>
-<p>In the example above, the value of <code>my_attr</code> returned by the vertex shader corresponds to the position of the vertex. Therefore the value of <code>my_attr</code> that the fragment shader will get corresponds to the position of the pixel being processed. For the demonstration, we turn this position into the red and green components of our color.</p>
-<p>And the result should look like this:</p>
+<p>Let's see what happens. Our vertex shader is invoked three times, once per vertex. Each vertex returns a different value for <code>vertex_color</code>. OpenGL then determines which pixels are inside the triangle during the rasterization phase, and calls the fragment shader once for each of these pixels. The value of <code>vertex_color</code> that is passed for each pixel is <strong>the interpolation of this value depending on the position of the pixel</strong>.</p>
+<p>For example, pixels that are right next to a vertex will get a value of <code>vertex_color</code> that is equal or very near the value of <code>vertex_color</code> that the vertex shader returned for this vertex. The pixel that is on the middle of the edge between two vertices will get the average of the two values of <code>vertex_color</code> returned by the vertex shader for these two vertices. Pixels that are the middle of the triangle will get the average of the values of all three vertices.</p>
+<p><em>Note: this is because variables by default have the <code>smooth</code> attribute, which is what you want most of the time. It is also possible to specify the <code>flat</code> attribute.</em></p>
+<p>The result should look like this:</p>
 <p><img src="resources/tuto-05-linear.png" alt="The result" /></p>
 <p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-05.rs">You can find the entire source code here</a>.</strong></p>
 <a class="header" href="print.html#uploading-a-texture" id="uploading-a-texture"><h1>Uploading a texture</h1></a>
-<p>A texture is an image or a collection of images loaded in the video memory.</p>
+<p>A texture is an image or a collection of images loaded into video memory.</p>
 <p>In order to load a texture, we must first decode the image format that stores our image (for example, PNG). To do so, we are going to use the <code>image</code> library. Let's add it to the Cargo.toml file:</p>
 <pre><code class="language-toml">[dependencies]
-image = &quot;*&quot;
+image = &quot;0.24&quot;
 </code></pre>
-<p>And to the crate root:</p>
+<p>In order to load the image, we just need to call <code>image::load</code>:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-extern crate image;
-#}</code></pre></pre>
-<p>In order to load the image, we just need to use <code>image::load</code>:</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-use std::io::Cursor;
-let image = image::load(Cursor::new(&amp;include_bytes!(&quot;/path/to/image.png&quot;)),
+let image = image::load(std::io::Cursor::new(&amp;include_bytes!(&quot;/path/to/image.png&quot;)),
                         image::ImageFormat::Png).unwrap().to_rgba8();
 let image_dimensions = image.dimensions();
 let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_raw(), image_dimensions);
@@ -586,8 +618,8 @@ let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_r
 let texture = glium::texture::SrgbTexture2d::new(&amp;display, image).unwrap();
 #}</code></pre></pre>
 <a class="header" href="print.html#using-the-texture" id="using-the-texture"><h1>Using the texture</h1></a>
-<p>There is no automatic way to display a texture over a shape with OpenGL. Just like any other rendering techniques, it must be done manually. This means that we must manually load color values from our texture and return them with our fragment shader.</p>
-<p>To do so, we first have to modify a bit our shape in order to indicate to which location of the texture each vertex is attached to:</p>
+<p>There is no automatic way to display a texture over a shape with OpenGL. Just like any other rendering techniques, it must be done manually. This means that we must manually load color values from our texture and set them within our fragment shader.</p>
+<p>To do so, we first have to modify our struct and shape in order to indicate to which location of the texture each vertex is attached to, we'll also be changing it to a square shape so that the image isn't distorted:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -599,13 +631,18 @@ struct Vertex {
 
 implement_vertex!(Vertex, position, tex_coords);        // don't forget to add `tex_coords` here
 
-let vertex1 = Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] };
-let vertex2 = Vertex { position: [ 0.0,  0.5], tex_coords: [0.0, 1.0] };
-let vertex3 = Vertex { position: [ 0.5, -0.25], tex_coords: [1.0, 0.0] };
-let shape = vec![vertex1, vertex2, vertex3];
+let shape = vec![
+    Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
+    Vertex { position: [ 0.5, -0.5], tex_coords: [1.0, 0.0] },
+    Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
+
+    Vertex { position: [ 0.5,  0.5], tex_coords: [1.0, 1.0] },
+    Vertex { position: [-0.5,  0.5], tex_coords: [0.0, 1.0] },
+    Vertex { position: [-0.5, -0.5], tex_coords: [0.0, 0.0] },
+];
 #}</code></pre></pre>
 <p>Texture coordinates range from <code>0.0</code> to <code>1.0</code>. The coordinates <code>(0.0, 0.0)</code> correspond to the bottom-left hand corner of the texture, and <code>(1.0, 1.0)</code> to the top-right hand corner.</p>
-<p>This new <code>tex_coords</code> attribute will be passed to the vertex shader, just like <code>position</code>. We don't have anything to do with it, and we are just going to pass it through to the fragment shader:</p>
+<p>This new <code>tex_coords</code> attribute will be passed to the vertex shader, just like <code>position</code>. We don't need to do anything to it, and we are just going to pass it through to the fragment shader:</p>
 <pre><code class="language-glsl">#version 140
 
 in vec2 position;
@@ -619,8 +656,8 @@ void main() {
     gl_Position = matrix * vec4(position, 0.0, 1.0);
 }
 </code></pre>
-<p>Similarly to the <code>my_attr</code> variable, the value of <code>v_tex_coords</code> will be interpolated so that each pixel gets a value that corresponds to its position. This value corresponds here to the coordinates in the texture that this pixel is attached to.</p>
-<p>All that's left to do in our fragment shader is to get the value of the color at these coordinates in the texture with the <code>texture()</code> function that is provided by OpenGL.</p>
+<p>Similarly to the <code>vertex_color</code> variable, the value of <code>v_tex_coords</code> will be interpolated so that each pixel gets a value that corresponds to its position. This value corresponds here to the coordinates in the texture that this pixel is attached to.</p>
+<p>All that's left to do in our fragment shader is to get the value of the color at these coordinates in the texture with the <code>texture()</code> function that is available in GLSL.</p>
 <pre><code class="language-glsl">#version 140
 
 in vec2 v_tex_coords;
@@ -633,7 +670,7 @@ void main() {
 }
 </code></pre>
 <p>As you can see, a texture is a <code>uniform</code> of type <code>sampler2D</code>. There are many types of textures and texture uniforms, and <code>sampler2D</code> corresponds to a simple two-dimensional texture.</p>
-<p>Since the texture is a uniform, we have to pass a reference to it when drawing in the Rust code:</p>
+<p>Since the texture is a uniform, we have to pass a reference to it in our Rust code that does the drawing:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -894,24 +931,13 @@ updated. If this is not the case, the pixel is discarded.</p>
 smallest will remain. This also means that you can draw multiple objects (multiple teapots
 for example) without having to care about the order in which you draw them.</p>
 <a class="header" href="print.html#the-code" id="the-code"><h2>The code</h2></a>
-<p>We need to change three things:</p>
+<p>We need to change two things:</p>
 <ul>
-<li>At initialization, we need to ask glutin to create a depth buffer that will contain
-the depth value of each pixel.</li>
 <li>Before each frame, we have to reset the content of the depth buffer to <code>1.0</code> (which is
 the maximal value). This is similar to when we reset the color to blue.</li>
 <li>We have to pass additional parameters when drawing to ask the GPU to do this depth test.</li>
 </ul>
-<p>The first step consists in changing the context building code:</p>
-<pre><pre class="playpen"><code class="language-rust">
-# #![allow(unused_variables)]
-#fn main() {
-let cb = glutin::ContextBuilder::new().with_depth_buffer(24);
-#}</code></pre></pre>
-<p>We ask for the system to allocate a 24 bits depth buffer. 24 bits is a very common value that
-is used very frequently. Depth testing is a critical feature of any rendering system, so depth
-buffers should be supported everywhere.</p>
-<p>For the second step, we need to change this line:</p>
+<p>For the first step, we need to change this line:</p>
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
@@ -926,7 +952,7 @@ target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
 <p>This asks the backend to fill the depth buffer with the value of <code>1.0</code>. Note that this is a
 <em>logical</em> value, and only the range from <code>0.0</code> to <code>1.0</code> is valid. The actual content of the buffer
 is the maximal representable number. For a 24 bits depth buffer, this is <code>16777215</code>.</p>
-<p>The third step consists in passing an additional parameter when drawing. The depth test and depth
+<p>The final step consists of passing an additional parameter when drawing. The depth test and depth
 buffer handling is done directly by the hardware and not by our shader. Therefore we need to
 tell the backend what it should do amongst a list of possible operations.</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -944,8 +970,8 @@ let params = glium::DrawParameters {
 target.draw((&amp;positions, &amp;normals), &amp;indices, &amp;program,
             &amp;uniform! { matrix: matrix, u_light: light }, &amp;params).unwrap();
 #}</code></pre></pre>
-<p>The <code>test</code> parameter indicates that pixels should be only be kept if their depth value is inferior
-to the existing depth value in the depth buffer. The <code>write</code> parameter indicates that the depth
+<p>The <code>test</code> parameter indicates that pixels should be only be kept if their depth value is less
+than the existing depth value in the depth buffer. The <code>write</code> parameter indicates that the depth
 value of the pixels that pass the test should be written to the depth buffer. If we don't set
 <code>write</code> to true, the content of the depth buffer will always stay at <code>1.0</code>.</p>
 <p>The <code>Depth</code> structure has two other members which we are not going to cover here. Similarly the
@@ -953,7 +979,7 @@ value of the pixels that pass the test should be written to the depth buffer. If
 process. This structure will be used a lot in the future.</p>
 <p>And here is the result:</p>
 <p><img src="resources/tuto-09-result.png" alt="Result" /></p>
-<p>If you use an OpenGL debugger, you can see the content of the depth buffer where values are
+<p>If you use an OpenGL debugger like RenderDoc, you can see the content of the depth buffer where values are
 represented as shades of gray. Here is our depth buffer after drawing the teapot:</p>
 <p><img src="resources/tuto-09-depth.png" alt="Depth buffer" /></p>
 <p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-09.rs">You can find the entire source code here</a>.</strong></p>
@@ -1085,7 +1111,7 @@ longer stretched.</p>
 much better.</p>
 <p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-10.rs">You can find the entire source code here</a>.</strong></p>
 <a class="header" href="print.html#backface-culling" id="backface-culling"><h1>Backface culling</h1></a>
-<p>Before going further, there's one last thing to know about 3D rendering.</p>
+<p>Before going further, there's one more thing to know about 3D rendering.</p>
 <p>After your vertex shader outputs the vertex coordinates on the screen,
 each triangle can be in two possible situations:</p>
 <ul>
@@ -1171,7 +1197,7 @@ with the perspective matrix.</p>
 <li>The <em>perspective</em> matrix, built with the field of view and aspect ratio of the screen.</li>
 </ul>
 <p>The first two matrices are sometimes combined into one <em>modelview</em> matrix before being
-uploaded to your shaders. But for the sake of simplicity, we are going to use two matrices.</p>
+uploaded to your shaders. But for the sake of simplicity, we are keeping them separate.</p>
 <a class="header" href="print.html#the-view-matrix" id="the-view-matrix"><h2>The view matrix</h2></a>
 <p>Just like the perspective matrix, here is the view matrix:</p>
 <pre><pre class="playpen"><code class="language-rust">
@@ -1248,7 +1274,7 @@ target.draw((&amp;positions, &amp;normals), &amp;indices, &amp;program,
             &amp;params).unwrap();
 #}</code></pre></pre>
 <p>We are using fixed coordinates for the example. A first person camera is not that easy to create
-and requires a lot of code that would be out of scope.</p>
+and requires a lot of code that would be out of scope for this tutorial.</p>
 <p>And here is the result:</p>
 <p><img src="resources/tuto-12-result.png" alt="Result" /></p>
 <p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-12.rs">You can find the entire source code here</a>.</strong></p>
@@ -1256,7 +1282,7 @@ and requires a lot of code that would be out of scope.</p>
 <p>Our current lighting model is a bit primitive.
 We are going to modify it to use what is called <em>Blinn-Phong shading</em>.</p>
 <p>This model is still very often used in commercial games, and has only recently been
-superseded by physical-based rendering.</p>
+superseded by physically-based rendering.</p>
 <a class="header" href="print.html#specular-reflection" id="specular-reflection"><h2>Specular reflection</h2></a>
 <p>So what exactly is wrong with our current lighting?</p>
 <p>When light hits an object, the light rays are split in two:</p>
@@ -1481,12 +1507,12 @@ vec3 real_normal = normalize(tbn * -(normal_map * 2.0 - 1.0));
 <p><img src="resources/tuto-14-step3.png" alt="Final result" /></p>
 <p>This is much more convincing!</p>
 <p><strong><a href="https://github.com/glium/glium/blob/master/examples/tutorial-14.rs">You can find the entire source code here</a>.</strong></p>
-<a class="header" href="print.html#performances" id="performances"><h1>Performances</h1></a>
+<a class="header" href="print.html#performance" id="performance"><h1>Performance</h1></a>
 <p>Here is the estimated cost of various operations:</p>
 <ul>
 <li>
 <p><strong>Creating a <code>Program</code></strong>: very high, as the driver has to compile the source code of the program.
-Do this only at initialization.</p>
+Do this only during initialization.</p>
 </li>
 <li>
 <p><strong>Creating an empty buffer</strong>: medium for vertex and index buffers, low for other buffers.</p>
@@ -1535,7 +1561,7 @@ until the screen refreshes.</p>
 </li>
 </ul>
 <a class="header" href="print.html#avoiding-state-changes" id="avoiding-state-changes"><h2>Avoiding state changes</h2></a>
-<p>Doing multiple draw calls in a row with the same parameters (same vertices source, same program,
+<p>Doing multiple draw calls in a row with the same parameters (same vertex source, same program,
 same draw parameters, same uniforms) is faster than switching parameters.</p>
 <p>More precisely:</p>
 <ul>
@@ -1559,40 +1585,40 @@ same draw parameters, same uniforms) is faster than switching parameters.</p>
 </li>
 </ul>
 <p>Therefore if you have a lot of things to draw, you should group objects by program, draw parameters,
-and source of vertices.</p>
+and vertex source.</p>
 <a class="header" href="print.html#synchronization" id="synchronization"><h1>Synchronization</h1></a>
 <p>Almost all OpenGL implementations today are hardware-accelerated. This means that when you execute
 OpenGL commands, it is in fact your video card that does the hard work instead of your CPU.</p>
-<p>In order to improve performances, calling an OpenGL function does not wait for the the operation
+<p>In order to improve performances, calling an OpenGL function does not wait for the operation
 to be over. Instead it just sends a command and returns immediately. In a good application, the
 CPU adds commands to a queue while the GPU reads them and processes them in parallel.</p>
 <p><em>Note: If the GPU processes commands faster than the CPU sends them, we say that the application
 is CPU-bound. In the other case, the application is GPU-bound. AAA video games are almost always
 GPU-bound.</em></p>
 <p>But there's a problem: in some situations there is no other choice but to wait for the commands to
-have finished being executed. For example if you read the content of a texture which you have just
-drawn to, there is technically no other choice but to wait for the rendering to be finished before
+finish. For example, if you read the contents of a texture which you have just
+drawn to, there is technically no other choice but to wait for the rendering to finish before
 reading. This is called a <strong>synchronization</strong>, because the CPU and the GPU must synchronize instead
 of executing things in parallel.</p>
-<p>It is your job, as an OpenGL programmer, to avoid at all costs operations that cause a
+<p>It is your job, as an OpenGL programmer, to avoid all the costly operations that cause a
 synchronization.</p>
 <a class="header" href="print.html#reading-from-a-texture-or-from-the-framebuffer" id="reading-from-a-texture-or-from-the-framebuffer"><h2>Reading from a texture or from the framebuffer</h2></a>
 <p>In order to read a texture or the framebuffer without causing a synchronization, we have to use
 a <strong>pixel buffer</strong>. Instead of directly reading the texture, we ask the GPU to copy its content
-to a buffer, and we read the buffer later or at the next frame.</p>
+to a buffer, and we then read that buffer later on.</p>
 <p>Just like any other operation, copying from the texture to the pixel buffer is a regular command
-that the GPU will execute. If we wait enough time, the buffer will no longer be in use and we can
-read it without waiting.</p>
+that the GPU will execute. If we wait long enough, the buffer will no longer be in use and we can
+read from it without waiting.</p>
 <a class="header" href="print.html#about-write-only-operations" id="about-write-only-operations"><h2>About write-only operations</h2></a>
 <p>One common operation that is often done in graphics programming is streaming data to the
 GPU. In other words, you send data to a buffer or a texture just before using it. This is done
 for example when rendering particles (which move a lot) or when decoding a video.</p>
-<p>Since creating a buffer or a texture can be expensive, it is preferred to use always the same
+<p>Since creating a buffer or a texture can be expensive, it is preferred to always use the same
 buffer or texture and write data to it.</p>
 <p>There are two possibilities here:</p>
 <ul>
 <li>You rewrite the content of the entire buffer or texture.</li>
-<li>You write only some parts of the buffer or texture.</li>
+<li>You write only in some parts of the buffer or texture.</li>
 </ul>
 <p>These two situations are very different. If you rewrite the entire buffer or texture, then the
 OpenGL implementation is usually smart enough to actually allocate a new buffer or texture and put

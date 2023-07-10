@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <title>Performances - Glium Tutorials</title>
+        <title>Performance - Glium Tutorials</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -63,7 +63,7 @@
         </script>
 
         <div id="sidebar" class="sidebar">
-            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html" class="active"><strong>20.</strong> Performances</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
+            <ul class="chapter"><li class="affix"><a href="README.html">Intro</a></li><li><a href="tuto-01-getting-started.html"><strong>1.</strong> Opening a window</a></li><li><a href="tuto-02-triangle.html"><strong>2.</strong> Drawing a triangle</a></li><li><a href="tuto-03-animated-triangle.html"><strong>3.</strong> Uniforms</a></li><li><a href="tuto-04-matrices.html"><strong>4.</strong> Matrices</a></li><li><a href="tuto-05-colors.html"><strong>5.</strong> Adding colors</a></li><li><a href="tuto-06-texture.html"><strong>6.</strong> Adding a texture</a></li><li><a href="tuto-07-shape.html"><strong>7.</strong> A more complex shape</a></li><li><a href="tuto-08-gouraud.html"><strong>8.</strong> Gouraud shading</a></li><li><a href="tuto-09-depth.html"><strong>9.</strong> Depth testing</a></li><li><a href="tuto-10-perspective.html"><strong>10.</strong> Adjusting the perspective</a></li><li><a href="tuto-11-backface-culling.html"><strong>11.</strong> Backface culling</a></li><li><a href="tuto-12-camera.html"><strong>12.</strong> The camera and summary of the vertex processing stages</a></li><li><a href="tuto-13-phong.html"><strong>13.</strong> Blinn-phong shading</a></li><li><a href="tuto-14-wall.html"><strong>14.</strong> Normal mapping</a></li><li><strong>15.</strong> Parallax mapping</li><li><strong>16.</strong> Deferred shading</li><li><strong>17.</strong> Shadow mapping</li><li><strong>18.</strong> Antialiasing</li><li><strong>19.</strong> Drawing lots of objects with instancing</li><li><a href="perf-intro.html" class="active"><strong>20.</strong> Performance</a></li><li><a href="perf-sync.html"><strong>21.</strong> Synchronization</a></li></ul>
         </div>
 
         <div id="page-wrapper" class="page-wrapper">
@@ -86,12 +86,12 @@
                 </div>
 
                 <div id="content" class="content">
-                    <a class="header" href="perf-intro.html#performances" id="performances"><h1>Performances</h1></a>
+                    <a class="header" href="perf-intro.html#performance" id="performance"><h1>Performance</h1></a>
 <p>Here is the estimated cost of various operations:</p>
 <ul>
 <li>
 <p><strong>Creating a <code>Program</code></strong>: very high, as the driver has to compile the source code of the program.
-Do this only at initialization.</p>
+Do this only during initialization.</p>
 </li>
 <li>
 <p><strong>Creating an empty buffer</strong>: medium for vertex and index buffers, low for other buffers.</p>
@@ -140,7 +140,7 @@ until the screen refreshes.</p>
 </li>
 </ul>
 <a class="header" href="perf-intro.html#avoiding-state-changes" id="avoiding-state-changes"><h2>Avoiding state changes</h2></a>
-<p>Doing multiple draw calls in a row with the same parameters (same vertices source, same program,
+<p>Doing multiple draw calls in a row with the same parameters (same vertex source, same program,
 same draw parameters, same uniforms) is faster than switching parameters.</p>
 <p>More precisely:</p>
 <ul>
@@ -164,7 +164,7 @@ same draw parameters, same uniforms) is faster than switching parameters.</p>
 </li>
 </ul>
 <p>Therefore if you have a lot of things to draw, you should group objects by program, draw parameters,
-and source of vertices.</p>
+and vertex source.</p>
 
                 </div>
 
