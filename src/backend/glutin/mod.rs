@@ -316,13 +316,20 @@ impl SimpleWindowBuilder {
         self
     }
 
-    /// Replace the used WindowBuilder, do this before you set other parameters or you'll overwrite the parameters.
-    pub fn window_builder(mut self, window_builder: winit::window::WindowBuilder) -> Self {
+    /// Replace the used [`WindowBuilder`](winit::window::WindowBuilder),
+    /// do this before you set other parameters or you'll overwrite the parameters.
+    pub fn set_window_builder(mut self, window_builder: winit::window::WindowBuilder) -> Self {
         self.builder = window_builder;
         self
     }
 
-    /// Create a new Window and Display with the specified parameters.
+    /// Returns the inner [`WindowBuilder`](winit::window::WindowBuilder).
+    pub fn into_window_builder(self) -> winit::window::WindowBuilder {
+        self.builder
+    }
+
+    /// Create a new [`Window`](winit::window::Window) and [`Display`]
+    /// with the specified parameters.
     pub fn build(self, event_loop: &winit::event_loop::EventLoop<()>) -> (winit::window::Window, Display<glutin::surface::WindowSurface>) {
         use glutin::prelude::*;
         use raw_window_handle::HasRawWindowHandle;
