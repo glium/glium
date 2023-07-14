@@ -229,6 +229,7 @@ pub fn get_format(ctxt: &mut CommandContext<'_>, texture: &TextureAny)
         Ok(match (red_sz, red_ty, green_sz, green_ty, blue_sz, blue_ty,
                alpha_sz, alpha_ty, depth_sz, depth_ty)
         {
+            (_, gl::NONE, _, _, _, _, _, _, _, gl::NONE) => return Err(GetFormatError::NotSupported),
             (_, gl::NONE, _, _, _, _, _, _, sz1, ty1) => InternalFormat::OneComponent {
                 ty1: InternalFormatType::from_glenum(ty1),
                 bits1: sz1 as usize,
