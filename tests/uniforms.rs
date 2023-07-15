@@ -212,8 +212,8 @@ fn uniforms_dynamic_single_value() {
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
-    assert_eq!(data[0][0], (255, 0, 0, 128));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+    assert_eq!(data[0][0], RED_HALF_ALPHA);
+    assert_eq!(data.last().unwrap().last().unwrap(), &RED_HALF_ALPHA);
 
     display.assert_no_error(None);
 }
@@ -296,8 +296,8 @@ fn uniforms_dynamic_ignore_inactive_uniforms() {
     texture.as_surface().draw(&vb, &ib, &program, &uniforms, &Default::default()).unwrap();
 
     let data: Vec<Vec<(u8, u8, u8, u8)>> = texture.read();
-    assert_eq!(data[0][0], (255, 0, 0, 128));
-    assert_eq!(data.last().unwrap().last().unwrap(), &(255, 0, 0, 128));
+    assert_eq!(data[0][0], RED_HALF_ALPHA);
+    assert_eq!(data.last().unwrap().last().unwrap(), &RED_HALF_ALPHA);
 
     display.assert_no_error(None);
 }
