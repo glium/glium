@@ -20,12 +20,22 @@ use glutin::surface::{SurfaceAttributesBuilder, WindowSurface};
 use glutin_winit::DisplayBuilder;
 use raw_window_handle::HasRawWindowHandle;
 
+// There is a Wayland version of this extension trait but the X11 version also works on Wayland
+#[cfg(unix)]
+use winit::platform::x11::EventLoopBuilderExtX11;
+#[cfg(windows)]
+use winit::platform::windows::EventLoopBuilderExtWindows;
+
 use std::env;
 
 /// Builds a display for tests.
 pub fn build_display() -> Display<WindowSurface> {
     let version = parse_version();
-    let event_loop = EventLoopBuilder::new().build();
+    let event_loop = if cfg!(unix) || cfg!(windows) {
+        EventLoopBuilder::new().with_any_thread(true).build()
+    } else {
+        EventLoopBuilder::new().build()
+    };
     let window_builder = WindowBuilder::new().with_visible(false);
     let config_template_builder = ConfigTemplateBuilder::new();
     let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
