@@ -10,9 +10,10 @@ use glium::backend::Facade;
 use glium::index::PrimitiveType;
 
 use std::num::NonZeroU32;
-use winit::event_loop::{EventLoopBuilder};
-use winit::window::WindowBuilder;
-use glutin::config::ConfigTemplateBuilder;
+use winit::event::Event;
+use winit::event_loop::{EventLoopBuilder, EventLoopProxy};
+use winit::window::{Window, WindowBuilder};
+use glutin::config::{Config, ConfigTemplateBuilder};
 use glutin::context::{ContextAttributesBuilder};
 use glutin::display::GetGlDisplay;
 use glutin::prelude::*;
@@ -27,49 +28,138 @@ use winit::platform::x11::EventLoopBuilderExtX11;
 use winit::platform::windows::EventLoopBuilderExtWindows;
 
 use std::env;
+use std::thread;
+use std::sync::{mpsc::Receiver, Mutex, Once, RwLock};
 
 /// Builds a display for tests.
-pub fn build_display() -> Display<WindowSurface> {
-    let version = parse_version();
-    let event_loop = if cfg!(unix) || cfg!(windows) {
-        EventLoopBuilder::new().with_any_thread(true).build()
-    } else {
-        EventLoopBuilder::new().build()
-    };
-    let window_builder = WindowBuilder::new().with_visible(false);
-    let config_template_builder = ConfigTemplateBuilder::new();
-    let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+pub fn build_display() -> WindowedDisplay {
 
-    // First we create a window
-    let (window, gl_config) = display_builder
-        .build(&event_loop, config_template_builder, |mut configs| {
-            // Just use the first configuration since we don't have any special preferences here
-            configs.next().unwrap()
-        })
-        .unwrap();
-    let window = window.unwrap();
+    // Thread communication
+    static mut EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
+    static mut WINDOW_RECEIVER: Mutex<Option<Receiver<(Window, Config)>>> = Mutex::new(None);
+    // Initialization
+    static mut INIT_EVENT_LOOP: Once = Once::new();
+    static mut SEND_PROXY: Once = Once::new();
+
+    // SAFETY
+    // This is the first code to run when any test thread calls build_display.
+    // It spawns the event loop in a new thread and sets up the communication channels
+    //   so that the static mut variables are only ever read after initialization.
+    unsafe {
+        INIT_EVENT_LOOP.call_once(|| {
+
+            // One-time-use channel to get the event loop proxy
+            let (ots, otr) = std::sync::mpsc::sync_channel(0);
+            // Transfers window and config for creating display
+            let (sender, receiver) = std::sync::mpsc::channel();
+
+            let builder = thread::Builder::new().name("event_loop".into());
+            builder.spawn(|| {
+
+                let event_loop = if cfg!(unix) || cfg!(windows) {
+                    EventLoopBuilder::new().with_any_thread(true).build()
+                } else {
+                    EventLoopBuilder::new().build()
+                };
+                let proxy = event_loop.create_proxy();
+
+                event_loop.run(move |event, event_loop, _| {
+                    match event {
+                        Event::UserEvent(_) => {
+                            let window_builder = WindowBuilder::new().with_visible(false);
+
+                            let config_template_builder = ConfigTemplateBuilder::new();
+                            let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+                            let (window, gl_config) = display_builder
+                                .build(&event_loop, config_template_builder, |mut configs| {
+                                    // Just use the first configuration since we don't have any special preferences here
+                                    configs.next().unwrap()
+                                })
+                                .unwrap();
+
+                            sender.send((window.unwrap(), gl_config)).unwrap();
+                        }
+                        _ => {
+                            // Send event loop proxy ASAP
+                            SEND_PROXY.call_once(|| {
+                                ots.send(proxy.clone()).unwrap();
+                            });
+                        }
+                    }
+                });
+            }).unwrap();
+
+            // `recv` will block until any non-user event is sent
+            let event_loop_proxy = otr.recv().unwrap();
+
+            // Write to the static mut variables while still in `call_once`'s closure
+            *EVENT_LOOP_PROXY.write().unwrap() = Some(event_loop_proxy);
+
+            *WINDOW_RECEIVER.lock().unwrap() = Some(receiver);
+        });
+    }
+
+    // Tell event loop to create a window and config for creating a display
+    let guard = unsafe {
+        EVENT_LOOP_PROXY.read().unwrap()
+    };
+    guard.as_ref().unwrap().send_event(()).unwrap();
+
+    // Receive said window and config one thread at a time
+    let (window, gl_config) = {
+        let guard = unsafe {
+            WINDOW_RECEIVER.lock().unwrap()
+        };
+        guard.as_ref().unwrap().recv().unwrap()
+    };
 
     // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
     // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
     // If you depend on features available in modern OpenGL Versions you need to request a specific, modern, version. Otherwise things will very likely fail.
+    let version = parse_version();
     let raw_window_handle = window.raw_window_handle();
     let context_attributes = ContextAttributesBuilder::new()
         .with_context_api(version)
         .build(Some(raw_window_handle));
 
-    let not_current_gl_context = Some(unsafe {
+    let not_current_gl_context = unsafe {
         gl_config.display().create_context(&gl_config, &context_attributes).unwrap()
-    });
+    };
 
     let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
         raw_window_handle,
         NonZeroU32::new(800).unwrap(),
         NonZeroU32::new(600).unwrap(),
     );
+
     // Now we can create our surface, use it to make our context current and finally create our display
     let surface = unsafe { gl_config.display().create_window_surface(&gl_config, &attrs).unwrap() };
-    let current_context = not_current_gl_context.unwrap().make_current(&surface).unwrap();
-    glium::Display::from_context_surface(current_context, surface).unwrap()
+    let current_context = not_current_gl_context.make_current(&surface).unwrap();
+
+    let display = Display::from_context_surface(current_context, surface).unwrap();
+
+    WindowedDisplay { window, display }
+}
+
+// Keep the Window alive via ownership until the test completes
+pub struct WindowedDisplay {
+    window: Window,
+    display: Display<WindowSurface>,
+}
+
+// `Deref` abuse but private and localised to the tests
+impl std::ops::Deref for WindowedDisplay {
+    type Target = Display<WindowSurface>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.display
+    }
+}
+
+impl Facade for WindowedDisplay {
+    fn get_context(&self) -> &std::rc::Rc<glium::backend::Context> {
+        self.display.get_context()
+    }
 }
 
 
