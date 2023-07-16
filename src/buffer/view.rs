@@ -1065,6 +1065,24 @@ pub struct BufferAny {
 }
 
 impl BufferAny {
+    /// Builds a new buffer containing the given data. The size of the buffer is equal to the size
+    /// of the data.
+    pub fn new<F: ?Sized, T: Content + ?Sized>(facade: &F, data: &T, ty: BufferType, mode: BufferMode, elements_size: usize)
+                  -> Result<BufferAny, BufferCreationError>
+                  where F: Facade
+    {
+        Alloc::new(facade, data, ty, mode)
+            .map(|buffer| {
+                let size = buffer.get_size();
+                BufferAny {
+                    alloc: buffer,
+                    size,
+                    elements_size,
+                    fence: Fences::new(),
+                }
+            })
+    }
+    
     /// Builds a slice-any containing the whole subbuffer.
     #[inline]
     pub fn as_slice_any(&self) -> BufferAnySlice<'_> {
