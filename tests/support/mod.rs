@@ -31,73 +31,96 @@ use std::env;
 use std::thread;
 use std::sync::{mpsc::Receiver, Mutex, Once, RwLock};
 
+// The code below down to `build_display` is a workaround due to a lack of a test initialization hook
+// This sort of design is recommended against for applications
+
+// Thread communication
+static mut EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
+static mut WINDOW_RECEIVER: Mutex<Option<Receiver<(Window, Config)>>> = Mutex::new(None);
+// Initialization
+static mut INIT_EVENT_LOOP: Once = Once::new();
+static mut SEND_PROXY: Once = Once::new();
+
+unsafe fn initialize_event_loop() {
+
+    INIT_EVENT_LOOP.call_once(|| {
+
+        // One-time-use channel to get the event loop proxy
+        let (ots, otr) = std::sync::mpsc::sync_channel(0);
+        // Transfers window and config for creating display
+        let (sender, receiver) = std::sync::mpsc::channel();
+
+        let builder = thread::Builder::new().name("event_loop".into());
+        builder.spawn(|| {
+            // Will fail compilation if platform extension trait is not imported
+            let event_loop = EventLoopBuilder::new().with_any_thread(true).build();
+            let proxy = event_loop.create_proxy();
+
+            event_loop.run(move |event, event_loop, _| {
+                match event {
+                    Event::UserEvent(_) => {
+                        let window_builder = WindowBuilder::new().with_visible(false);
+
+                        let config_template_builder = ConfigTemplateBuilder::new();
+                        let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+                        let (window, gl_config) = display_builder
+                            .build(&event_loop, config_template_builder, |mut configs| {
+                                // Just use the first configuration since we don't have any special preferences here
+                                configs.next().unwrap()
+                            })
+                            .unwrap();
+
+                        sender.send((window.unwrap(), gl_config)).unwrap();
+                    }
+                    _ => {
+                        // Send event loop proxy ASAP
+                        SEND_PROXY.call_once(|| {
+                            ots.send(proxy.clone()).unwrap();
+                        });
+                    }
+                }
+            });
+        }).unwrap();
+
+        // `recv` will block until any non-user event is sent
+        let event_loop_proxy = otr.recv().unwrap();
+
+        // Write to the static mut variables while still in `call_once`'s closure
+        *EVENT_LOOP_PROXY.write().unwrap() = Some(event_loop_proxy);
+
+        *WINDOW_RECEIVER.lock().unwrap() = Some(receiver);
+    });
+}
+
+// Keep the Window alive via ownership until the test completes
+pub struct WindowedDisplay {
+    window: Window,
+    display: Display<WindowSurface>,
+}
+
+// `Deref` abuse but localised to the tests
+impl std::ops::Deref for WindowedDisplay {
+    type Target = Display<WindowSurface>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.display
+    }
+}
+
+impl Facade for WindowedDisplay {
+    fn get_context(&self) -> &std::rc::Rc<glium::backend::Context> {
+        self.display.get_context()
+    }
+}
+
 /// Builds a display for tests.
 pub fn build_display() -> WindowedDisplay {
 
-    // Thread communication
-    static mut EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
-    static mut WINDOW_RECEIVER: Mutex<Option<Receiver<(Window, Config)>>> = Mutex::new(None);
-    // Initialization
-    static mut INIT_EVENT_LOOP: Once = Once::new();
-    static mut SEND_PROXY: Once = Once::new();
-
     // SAFETY
-    // This is the first code to run when any test thread calls build_display.
-    // It spawns the event loop in a new thread and sets up the communication channels
-    //   so that the static mut variables are only ever read after initialization.
-    unsafe {
-        INIT_EVENT_LOOP.call_once(|| {
-
-            // One-time-use channel to get the event loop proxy
-            let (ots, otr) = std::sync::mpsc::sync_channel(0);
-            // Transfers window and config for creating display
-            let (sender, receiver) = std::sync::mpsc::channel();
-
-            let builder = thread::Builder::new().name("event_loop".into());
-            builder.spawn(|| {
-
-                let event_loop = if cfg!(unix) || cfg!(windows) {
-                    EventLoopBuilder::new().with_any_thread(true).build()
-                } else {
-                    EventLoopBuilder::new().build()
-                };
-                let proxy = event_loop.create_proxy();
-
-                event_loop.run(move |event, event_loop, _| {
-                    match event {
-                        Event::UserEvent(_) => {
-                            let window_builder = WindowBuilder::new().with_visible(false);
-
-                            let config_template_builder = ConfigTemplateBuilder::new();
-                            let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
-                            let (window, gl_config) = display_builder
-                                .build(&event_loop, config_template_builder, |mut configs| {
-                                    // Just use the first configuration since we don't have any special preferences here
-                                    configs.next().unwrap()
-                                })
-                                .unwrap();
-
-                            sender.send((window.unwrap(), gl_config)).unwrap();
-                        }
-                        _ => {
-                            // Send event loop proxy ASAP
-                            SEND_PROXY.call_once(|| {
-                                ots.send(proxy.clone()).unwrap();
-                            });
-                        }
-                    }
-                });
-            }).unwrap();
-
-            // `recv` will block until any non-user event is sent
-            let event_loop_proxy = otr.recv().unwrap();
-
-            // Write to the static mut variables while still in `call_once`'s closure
-            *EVENT_LOOP_PROXY.write().unwrap() = Some(event_loop_proxy);
-
-            *WINDOW_RECEIVER.lock().unwrap() = Some(receiver);
-        });
-    }
+    // This is the first function to run when any test thread calls build_display.
+    // `Once` spawns a new thread to create the event loop and sets up the communication channels.
+    // The static mut variables are only ever read after initialization with synchronization.
+    unsafe { initialize_event_loop(); }
 
     // Tell event loop to create a window and config for creating a display
     let guard = unsafe {
@@ -139,27 +162,6 @@ pub fn build_display() -> WindowedDisplay {
     let display = Display::from_context_surface(current_context, surface).unwrap();
 
     WindowedDisplay { window, display }
-}
-
-// Keep the Window alive via ownership until the test completes
-pub struct WindowedDisplay {
-    window: Window,
-    display: Display<WindowSurface>,
-}
-
-// `Deref` abuse but private and localised to the tests
-impl std::ops::Deref for WindowedDisplay {
-    type Target = Display<WindowSurface>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.display
-    }
-}
-
-impl Facade for WindowedDisplay {
-    fn get_context(&self) -> &std::rc::Rc<glium::backend::Context> {
-        self.display.get_context()
-    }
 }
 
 
