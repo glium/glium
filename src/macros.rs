@@ -140,6 +140,11 @@ macro_rules! dynamic_uniform{
 ///
 /// You can specify a normalize option for attributes.
 /// ```
+/// # #[derive(Clone, Copy)]
+/// # struct Vertex {
+/// #     position: [f32; 2],
+/// #     tex_coords: [f32; 2],
+/// # }
 /// # use glium::implement_vertex;
 /// # fn main() {
 /// implement_vertex!(Vertex, position normalize(false), tex_coords normalize(false));
@@ -149,6 +154,11 @@ macro_rules! dynamic_uniform{
 ///
 /// You can specify a location option for attributes.
 /// ```
+/// # #[derive(Clone, Copy)]
+/// # struct Vertex {
+/// #     position: [f32; 2],
+/// #     tex_coords: [f32; 2],
+/// # }
 /// # use glium::implement_vertex;
 /// # fn main() {
 /// implement_vertex!(Vertex, position location(0), tex_coords location(1));
