@@ -7,7 +7,8 @@ The currently preferred way to do this is to use the `uniform!` macro provided b
 
 ```no_run
 # use glium::uniform;
-# fn example(display: glium::Display) {
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
 # let tex: f32 = 0.0;
 # let matrix: f32 = 0.0;
 let uniforms = uniform! {
@@ -25,7 +26,9 @@ In order to customize the way a texture is being sampled, you must use a `Sample
 
 ```no_run
 # use glium::uniform;
-# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>, texture: glium::texture::Texture2d)
+#     where T: SurfaceTypeTrait + ResizeableSurface {
 let uniforms = uniform! {
     texture: glium::uniforms::Sampler::new(&texture)
                         .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
@@ -41,7 +44,9 @@ can link the buffer to the name of the block, just like any other uniform.
 
 ```no_run
 # use glium::uniform;
-# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>, texture: glium::texture::Texture2d)
+#     where T: SurfaceTypeTrait + ResizeableSurface {
 let program = glium::Program::from_source(&display,
     "
         #version 110
@@ -83,7 +88,9 @@ A subroutine uniform is unique per shader stage, and not per program.
 
 ```no_run
 # use glium::uniform;
-# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>, texture: glium::texture::Texture2d)
+#     where T: SurfaceTypeTrait + ResizeableSurface {
 let program = glium::Program::from_source(&display,
     "
         #version 150

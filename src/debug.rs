@@ -101,7 +101,8 @@ pub enum MessageType {
 /// ## Example
 ///
 /// ```no_run
-/// # fn example(display: glium::Display) {
+/// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+/// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
 /// let before = glium::debug::TimestampQuery::new(&display);
 /// // do some stuff here
 /// let after = glium::debug::TimestampQuery::new(&display);

@@ -20,7 +20,8 @@
 //! `SamplesPassedQuery` allows you to know the number of samples that have been drawn.
 //!
 //! ```no_run
-//! # fn example(display: glium::Display) {
+//! # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+//! # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
 //! let query = glium::draw_parameters::SamplesPassedQuery::new(&display).unwrap();
 //! let params = glium::DrawParameters {
 //!     samples_passed_query: Some((&query).into()),

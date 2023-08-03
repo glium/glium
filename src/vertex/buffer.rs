@@ -117,8 +117,8 @@ impl<T> VertexBuffer<T> where T: Vertex {
     /// }
     ///
     /// implement_vertex!(Vertex, position, texcoords);
-    ///
-    /// # fn example(display: glium::Display) {
+    /// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+    /// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
     /// let vertex_buffer = glium::VertexBuffer::new(&display, &[
     ///     Vertex { position: [0.0,  0.0, 0.0], texcoords: [0.0, 1.0] },
     ///     Vertex { position: [5.0, -3.0, 2.0], texcoords: [1.0, 0.0] },
@@ -234,7 +234,8 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// # Example
     ///
     /// ```no_run
-    /// # fn example(display: glium::Display) {
+    /// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+    /// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
     /// use std::borrow::Cow;
     ///
     /// let bindings = Cow::Owned(vec![(

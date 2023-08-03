@@ -5,7 +5,10 @@ In order to draw on a texture, use a `SimpleFrameBuffer`. This framebuffer is co
 shaders that write to `gl_FragColor`.
 
 ```no_run
-# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
+# use glium::texture::Texture2d;
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>, texture: Texture2d)
+#     where T: SurfaceTypeTrait + ResizeableSurface {
 let framebuffer = glium::framebuffer::SimpleFrameBuffer::new(&display, &texture);
 // framebuffer.draw(...);    // draws over `texture`
 # }
@@ -16,7 +19,9 @@ a `MultiOutputFrameBuffer`.
 
 ```no_run
 # use glium::texture::Texture2d;
-# fn example(display: glium::Display, texture1: Texture2d, texture2: Texture2d) {
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>, texture1: Texture2d, texture2: Texture2d)
+#     where T: SurfaceTypeTrait + ResizeableSurface {
 let output = [ ("output1", &texture1), ("output2", &texture2) ];
 let framebuffer = glium::framebuffer::MultiOutputFrameBuffer::new(&display, output.iter().cloned());
 // framebuffer.draw(...);

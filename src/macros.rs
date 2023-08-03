@@ -527,7 +527,8 @@ macro_rules! implement_uniform_block {
 ///
 /// ```no_run
 /// use glium::program;
-/// # fn example(display: glium::Display) {
+/// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+/// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
 /// let program = program!(&display,
 ///     300 => {
 ///         vertex: r#"

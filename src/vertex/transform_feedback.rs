@@ -59,8 +59,10 @@ use crate::gl;
 /// ```no_run
 /// # use glium::{implement_vertex, uniform};
 /// # use glium::Surface;
-/// # fn example(display: glium::Display, program: glium::Program,
-/// #            vb: glium::vertex::VertexBufferAny, ib: glium::index::IndexBuffer<u16>) {
+/// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+/// # fn example<T>(display: glium::Display<T>, program: glium::Program,
+/// #            vb: glium::vertex::VertexBufferAny, ib: glium::index::IndexBuffer<u16>)
+/// #     where T: SurfaceTypeTrait + ResizeableSurface {
 /// #[derive(Copy, Clone, Debug, PartialEq)]
 /// struct Vertex {
 ///     output_val: (f32, f32),

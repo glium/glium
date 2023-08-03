@@ -17,7 +17,9 @@ Bindless textures are a very recent feature that is supported only by recent har
 drivers. `resident` will return an `Err` if this feature is not supported.
 
 ```no_run
-# fn example(display: glium::Display, texture: glium::texture::Texture2d) {
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>, texture: glium::texture::Texture2d)
+#     where T: SurfaceTypeTrait + ResizeableSurface {
 let texture = texture.resident().unwrap();
 # }
 ```
@@ -42,7 +44,9 @@ struct UniformBuffer<'a> {
 
 implement_uniform_block!(UniformBuffer<'a>, texture, some_value);
 
-# fn example(display: glium::Display, texture: glium::texture::bindless::ResidentTexture) {
+# use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+# fn example<T>(display: glium::Display<T>, texture: glium::texture::bindless::ResidentTexture)
+#     where T: SurfaceTypeTrait + ResizeableSurface {
 let uniform_buffer = glium::uniforms::UniformBuffer::new(&display, UniformBuffer {
     texture: glium::texture::TextureHandle::new(&texture, &Default::default()),
     some_value: 5.0,
