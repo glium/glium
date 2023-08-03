@@ -77,14 +77,15 @@ macro_rules! uniform {
 /// ## Example
 ///
 /// ```rust
+/// # #[macro_use] extern crate glium;
 /// # use glium::uniform;
 /// # fn main(){
-///     let uniforms = dynamic_uniform!{
-///         color: [1.0, 1.0, 0.0, 1.0],
-///         some_value: 12i32,
+///     let mut uniforms = dynamic_uniform!{
+///         color: &[1.0, 1.0, 0.0, 1.0],
+///         some_value: &12i32,
 ///     };
 ///
-///     uniforms.add("another_value", 1.5f32);
+///     uniforms.add("another_value", &1.5f32);
 /// # }
 /// ```
 ///
