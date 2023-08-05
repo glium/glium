@@ -25,8 +25,9 @@
 //! `implement_buffer_content!` macro on them. You must then use the `empty_unsized` constructor.
 //!
 //! ```no_run
-//! # #[macro_use] extern crate glium;
-//! # fn example(display: glium::Display) {
+//! # use glium::implement_buffer_content;
+//! # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+//! # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
 //! # use std::mem;
 //! # use glium::buffer::{BufferType, BufferMode};
 //! struct Data {

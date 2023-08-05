@@ -187,7 +187,8 @@ impl Program {
     /// # Example
     ///
     /// ```no_run
-    /// # fn example(display: glium::Display) {
+    /// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+    /// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
     /// # let vertex_source = ""; let fragment_source = ""; let geometry_source = "";
     /// let program = glium::Program::from_source(&display, vertex_source, fragment_source,
     ///     Some(geometry_source));

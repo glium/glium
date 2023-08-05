@@ -510,7 +510,8 @@ impl Context {
     /// ## Example
     ///
     /// ```no_run
-    /// # fn example(display: glium::Display) {
+    /// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+    /// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
     /// let pixels: Result<Vec<Vec<(u8, u8, u8, u8)>>, _> = display.read_front_buffer();
     /// # }
     /// ```

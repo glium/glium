@@ -77,14 +77,15 @@ macro_rules! uniform {
 /// ## Example
 ///
 /// ```rust
+/// # #[macro_use] extern crate glium;
 /// # use glium::uniform;
 /// # fn main(){
-///     let uniforms = dynamic_uniform!{
-///         color: [1.0, 1.0, 0.0, 1.0],
-///         some_value: 12i32,
+///     let mut uniforms = dynamic_uniform!{
+///         color: &[1.0, 1.0, 0.0, 1.0],
+///         some_value: &12i32,
 ///     };
 ///
-///     uniforms.add("another_value", 1.5f32);
+///     uniforms.add("another_value", &1.5f32);
 /// # }
 /// ```
 ///
@@ -139,6 +140,11 @@ macro_rules! dynamic_uniform{
 ///
 /// You can specify a normalize option for attributes.
 /// ```
+/// # #[derive(Clone, Copy)]
+/// # struct Vertex {
+/// #     position: [f32; 2],
+/// #     tex_coords: [f32; 2],
+/// # }
 /// # use glium::implement_vertex;
 /// # fn main() {
 /// implement_vertex!(Vertex, position normalize(false), tex_coords normalize(false));
@@ -148,6 +154,11 @@ macro_rules! dynamic_uniform{
 ///
 /// You can specify a location option for attributes.
 /// ```
+/// # #[derive(Clone, Copy)]
+/// # struct Vertex {
+/// #     position: [f32; 2],
+/// #     tex_coords: [f32; 2],
+/// # }
 /// # use glium::implement_vertex;
 /// # fn main() {
 /// implement_vertex!(Vertex, position location(0), tex_coords location(1));
@@ -516,7 +527,8 @@ macro_rules! implement_uniform_block {
 ///
 /// ```no_run
 /// use glium::program;
-/// # fn example(display: glium::Display) {
+/// # use glutin::surface::{ResizeableSurface, SurfaceTypeTrait};
+/// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
 /// let program = program!(&display,
 ///     300 => {
 ///         vertex: r#"
