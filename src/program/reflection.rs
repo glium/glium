@@ -1120,7 +1120,7 @@ fn glenum_to_transform_feedback_mode(value: gl::types::GLenum) -> TransformFeedb
 }
 
 /// Contains all subroutine data of a program.
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct SubroutineData {
     /// Number of subroutine uniform locations per shader stage.
     /// This is *not* equal to the number of subroutine uniforms per stage,
@@ -1215,20 +1215,21 @@ pub unsafe fn reflect_subroutine_data(ctxt: &mut CommandContext<'_>, program: Ha
                                       -> SubroutineData
 {
     if !program::is_subroutine_supported(ctxt) {
-        return SubroutineData {
-            location_counts: HashMap::with_hasher(Default::default()),
-            subroutine_uniforms: HashMap::with_hasher(Default::default()),
-        }
+        return Default::default();
     }
 
     let program = match program {
         // subroutines not supported.
-        Handle::Handle(_) => return SubroutineData {
-            location_counts: HashMap::with_hasher(Default::default()),
-            subroutine_uniforms: HashMap::with_hasher(Default::default()),
-        },
+        Handle::Handle(_) => return Default::default(),
         Handle::Id(id) => id
     };
+
+    // Compute shader programs are not handled: #1718
+    let mut shader_count = 0;
+    ctxt.gl.GetProgramiv(program, gl::ATTACHED_SHADERS, &mut shader_count);
+    if shader_count < 2 {
+        return Default::default();
+    }
 
     let shader_stages = get_shader_stages(has_geometry_shader,
                                           has_tessellation_control_shader,
