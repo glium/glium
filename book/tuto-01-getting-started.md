@@ -15,6 +15,11 @@ In order to use glium, you need to add it as a dependency to your `Cargo.toml` f
 [dependencies]
 glium = "0.33"
 ```
+If the above version is not on crates.io, you can add it as a git dependency like below.
+```toml
+[dependencies]
+glium = { git = "https://github.com/glium/glium" }
+```
 
 By default glium pulls in everything necessary to get you started. You should now have a `src/main.rs` file that looks similar to this:
 
@@ -34,7 +39,7 @@ Initializing a simple OpenGL window with the default winit/glutin backend can be
 
 1. Creating an `EventLoop` for handling window and device events.
 2. Making a new `SimpleWindowBuilder` and setting the desired parameters.
-3. Calling the `build` method of hte `SimpleWindowBuilder` with a reference to the event_loop to get the `Window` and `Display`.
+3. Calling the `build` method of the `SimpleWindowBuilder` with a reference to the event_loop to get the `Window` and `Display`.
 
 This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.
 
