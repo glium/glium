@@ -616,7 +616,7 @@ macro_rules! program {
             let __tessellation_evaluation_shader: Option<&str> = None;
             let __geometry_shader: Option<&str> = None;
             let __fragment_shader: &str = "";
-            let __outputs_srgb: bool = false;
+            let __outputs_srgb: bool = true;
             let __uses_point_size: bool = false;
 
             $(
