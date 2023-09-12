@@ -262,8 +262,8 @@ pub enum ProgramCreationInput<'a> {
         /// `None`, then you won't be able to use transform feedback.
         transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
 
-        /// Whether the fragment shader outputs colors in `sRGB` or `RGB`. This is false by default,
-        /// meaning that the program outputs `RGB`.
+        /// Whether the fragment shader outputs colors in `sRGB` or `RGB`. This is true by default,
+        /// meaning that the program is responsible for outputting correct `sRGB` values.
         ///
         /// If this is false, then `GL_FRAMEBUFFER_SRGB` will be enabled when this program is used
         /// (if it is supported).
@@ -333,7 +333,7 @@ impl<'a> SpirvProgram<'a> {
             tessellation_evaluation_shader: None,
             geometry_shader: None,
             transform_feedback_varyings: None,
-            outputs_srgb: false,
+            outputs_srgb: true,
             uses_point_size: false,
         }
     }
@@ -416,7 +416,7 @@ impl<'a> From<SourceCode<'a>> for ProgramCreationInput<'a> {
             geometry_shader,
             fragment_shader,
             transform_feedback_varyings: None,
-            outputs_srgb: false,
+            outputs_srgb: true,
             uses_point_size: false,
         }
     }
@@ -436,7 +436,7 @@ impl<'a> From<Binary> for ProgramCreationInput<'a> {
     fn from(binary: Binary) -> ProgramCreationInput<'a> {
         ProgramCreationInput::Binary {
             data: binary,
-            outputs_srgb: false,
+            outputs_srgb: true,
             uses_point_size: false,
         }
     }
