@@ -158,7 +158,7 @@ And now we are going to change our vertex shader a little bit:
 
 ```rust
 let vertex_shader_src = r#"
-    ##version 140
+    #version 140
 
     in vec2 position;
 
