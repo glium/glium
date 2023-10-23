@@ -58,7 +58,7 @@ optional = true
 default-features = false
 
 [dependencies]
-memoffset = "0.8"
+memoffset = "0.9.0"
 takeable-option = "0.5"
 backtrace = "0.3.2"
 lazy_static = "1.0"
