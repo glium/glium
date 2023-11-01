@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.33.0 (2022-11-1)
+
+- Add `read` methods for `Unsigned` textures
+- Add `gl::HALF_FLOAT` to `bind_attribute`
+- Lowered version check for `gl_PointSize` from 3.0 to 2.0
+- Added Dynamic Uniform based on `HashMap`.
+- Updated glutin to version 0.30.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0300).
+
 ## Version 0.32.1 (2022-07-31)
 
 - Bugfix release to not panic when given multiple vertex attributes with unspecified location numbers.
