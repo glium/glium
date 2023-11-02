@@ -3,7 +3,9 @@ extern crate glium;
 use glium::Surface;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new()
+        .build()
+        .expect("event loop building");
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
         .with_title("Glium tutorial #3")
         .build(&event_loop);
@@ -47,11 +49,24 @@ fn main() {
 
     let mut t: f32 = 0.0;
 
-    event_loop.run(move |ev, _, control_flow| {
+    event_loop.run(move |ev, window_target| {
         match ev {
             winit::event::Event::WindowEvent { event, .. } => match event {
                 winit::event::WindowEvent::CloseRequested => {
-                    *control_flow =  winit::event_loop::ControlFlow::Exit;
+                    window_target.exit();
+                },
+                // We now need to render everyting in response to a RedrawRequested event due to the animation
+                winit::event::WindowEvent::RedrawRequested => {
+                    // first we update `t`
+                    t += 0.02;
+                    let x_off = t.sin() * 0.5;
+
+                    let mut target = display.draw();
+                    target.clear_color(0.0, 0.0, 1.0, 1.0);
+                    let uniforms = uniform! { x_off: x_off };
+                    target.draw(&vertex_buffer, &indices, &program, &uniforms,
+                                &Default::default()).unwrap();
+                    target.finish().unwrap();
                 },
                 // Because glium doesn't know about windows we need to resize the display
                 // when the window's size has changed.
@@ -62,23 +77,11 @@ fn main() {
             },
             // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.
             // For applications that only change due to user input you could remove this handler.
-            winit::event::Event::RedrawEventsCleared => {
+            winit::event::Event::AboutToWait => {
                 window.request_redraw();
-            },
-            // We now need to render everyting in response to a RedrawRequested event due to the animation
-            winit::event::Event::RedrawRequested(_) => {
-                // first we update `t`
-                t += 0.02;
-                let x_off = t.sin() * 0.5;
-
-                let mut target = display.draw();
-                target.clear_color(0.0, 0.0, 1.0, 1.0);
-                let uniforms = uniform! { x_off: x_off };
-                target.draw(&vertex_buffer, &indices, &program, &uniforms,
-                            &Default::default()).unwrap();
-                target.finish().unwrap();
             },
             _ => (),
         }
-    });
+    })
+    .unwrap();
 }

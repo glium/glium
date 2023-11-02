@@ -190,14 +190,15 @@ impl ApplicationContext for Application {
     }
 
     fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
+        use winit::keyboard::{PhysicalKey, KeyCode};
         match event {
-            winit::event::WindowEvent::KeyboardInput { input, .. } => match input.state {
-                winit::event::ElementState::Pressed => match input.virtual_keycode {
-                    Some(winit::event::VirtualKeyCode::Up) => {
+            winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
+                winit::event::ElementState::Pressed => match event.physical_key {
+                    PhysicalKey::Code(KeyCode::ArrowUp) => {
                         self.tess_level += 1;
                         println!("New tessellation level: {}", self.tess_level);
                     }
-                    Some(winit::event::VirtualKeyCode::Down) => {
+                    PhysicalKey::Code(KeyCode::ArrowDown) => {
                         if self.tess_level >= 2 {
                             self.tess_level -= 1;
                             println!("New tessellation level: {}", self.tess_level);

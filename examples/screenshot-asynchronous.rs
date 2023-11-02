@@ -7,6 +7,7 @@ use glium::index::PrimitiveType;
 use glium::{Display, Surface};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
+use winit::keyboard::{PhysicalKey, KeyCode};
 
 mod screenshot {
     use glium::Surface;
@@ -270,9 +271,9 @@ impl ApplicationContext for Application {
     }
 
     fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
-        if let winit::event::WindowEvent::KeyboardInput { input, ..} = event {
-            if let winit::event::ElementState::Pressed = input.state {
-                if let Some(winit::event::VirtualKeyCode::S) = input.virtual_keycode {
+        if let winit::event::WindowEvent::KeyboardInput { event, ..} = event {
+            if let winit::event::ElementState::Pressed = event.state {
+                if let PhysicalKey::Code(KeyCode::KeyS) = event.physical_key {
                     self.take_screenshot = true;
                 }
             }

@@ -9,7 +9,9 @@ mod support;
 use support::view_matrix;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new()
+        .build()
+        .expect("event loop building");
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
         .with_title("Glium tutorial #13")
         .build(&event_loop);
@@ -68,11 +70,60 @@ fn main() {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src,
                                             None).unwrap();
 
-    event_loop.run(move |ev, _, control_flow| {
+    event_loop.run(move |ev, window_target| {
         match ev {
             winit::event::Event::WindowEvent { event, .. } => match event {
                 winit::event::WindowEvent::CloseRequested => {
-                    *control_flow =  winit::event_loop::ControlFlow::Exit;
+                    window_target.exit();
+                },
+                // We now need to render everyting in response to a RedrawRequested event due to the animation
+                winit::event::WindowEvent::RedrawRequested => {
+                    let mut target = display.draw();
+                    target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
+
+                    let model = [
+                        [0.01, 0.0, 0.0, 0.0],
+                        [0.0, 0.01, 0.0, 0.0],
+                        [0.0, 0.0, 0.01, 0.0],
+                        [0.0, 0.0, 2.0, 1.0f32]
+                    ];
+
+                    let view = view_matrix(&[2.0, 1.0, 1.0], &[-2.0, -1.0, 1.0], &[0.0, 1.0, 0.0]);
+
+                    let perspective = {
+                        let (width, height) = target.get_dimensions();
+                        let aspect_ratio = height as f32 / width as f32;
+
+                        let fov: f32 = 3.141592 / 3.0;
+                        let zfar = 1024.0;
+                        let znear = 0.1;
+
+                        let f = 1.0 / (fov / 2.0).tan();
+
+                        [
+                            [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
+                            [         0.0         ,     f ,              0.0              ,   0.0],
+                            [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
+                            [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
+                        ]
+                    };
+
+                    let light = [1.4, 0.4, -0.7f32];
+
+                    let params = glium::DrawParameters {
+                        depth: glium::Depth {
+                            test: glium::draw_parameters::DepthTest::IfLess,
+                            write: true,
+                            .. Default::default()
+                        },
+                        //backface_culling: glium::draw_parameters::BackfaceCullingMode::CullClockWise,
+                        .. Default::default()
+                    };
+
+                    target.draw((&positions, &normals), &indices, &program,
+                                &uniform! { model: model, view: view, perspective: perspective, u_light: light },
+                                &params).unwrap();
+                    target.finish().unwrap();
                 },
                 // Because glium doesn't know about windows we need to resize the display
                 // when the window's size has changed.
@@ -81,61 +132,13 @@ fn main() {
                 },
                 _ => (),
             },
-            // We now need to render everyting in response to a RedrawRequested event due to the animation
-            winit::event::Event::RedrawRequested(_) => {
-                let mut target = display.draw();
-                target.clear_color_and_depth((0.0, 0.0, 1.0, 1.0), 1.0);
-
-                let model = [
-                    [0.01, 0.0, 0.0, 0.0],
-                    [0.0, 0.01, 0.0, 0.0],
-                    [0.0, 0.0, 0.01, 0.0],
-                    [0.0, 0.0, 2.0, 1.0f32]
-                ];
-
-                let view = view_matrix(&[2.0, 1.0, 1.0], &[-2.0, -1.0, 1.0], &[0.0, 1.0, 0.0]);
-
-                let perspective = {
-                    let (width, height) = target.get_dimensions();
-                    let aspect_ratio = height as f32 / width as f32;
-
-                    let fov: f32 = 3.141592 / 3.0;
-                    let zfar = 1024.0;
-                    let znear = 0.1;
-
-                    let f = 1.0 / (fov / 2.0).tan();
-
-                    [
-                        [f *   aspect_ratio   ,    0.0,              0.0              ,   0.0],
-                        [         0.0         ,     f ,              0.0              ,   0.0],
-                        [         0.0         ,    0.0,  (zfar+znear)/(zfar-znear)    ,   1.0],
-                        [         0.0         ,    0.0, -(2.0*zfar*znear)/(zfar-znear),   0.0],
-                    ]
-                };
-
-                let light = [1.4, 0.4, -0.7f32];
-
-                let params = glium::DrawParameters {
-                    depth: glium::Depth {
-                        test: glium::draw_parameters::DepthTest::IfLess,
-                        write: true,
-                        .. Default::default()
-                    },
-                    //backface_culling: glium::draw_parameters::BackfaceCullingMode::CullClockWise,
-                    .. Default::default()
-                };
-
-                target.draw((&positions, &normals), &indices, &program,
-                            &uniform! { model: model, view: view, perspective: perspective, u_light: light },
-                            &params).unwrap();
-                target.finish().unwrap();
-            },
-            // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.
+            // By requesting a redraw in response to a AboutToWait event we get continuous rendering.
             // For applications that only change due to user input you could remove this handler.
-            winit::event::Event::RedrawEventsCleared => {
+            winit::event::Event::AboutToWait => {
                 window.request_redraw();
             },
             _ => (),
         }
-    });
+    })
+    .unwrap();
 }

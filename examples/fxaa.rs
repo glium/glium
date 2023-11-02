@@ -6,6 +6,7 @@ use std::{cell::RefCell};
 use glium::{Display, Surface, framebuffer::SimpleFrameBuffer};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
+use winit::keyboard::{PhysicalKey, KeyCode};
 
 mod support;
 
@@ -278,9 +279,9 @@ impl ApplicationContext for Application {
         self.camera.process_input(&event);
 
         match event {
-            winit::event::WindowEvent::KeyboardInput { input, .. } => match input.state {
-                winit::event::ElementState::Pressed => match input.virtual_keycode {
-                    Some(winit::event::VirtualKeyCode::Space) => {
+            winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
+                winit::event::ElementState::Pressed => match event.physical_key {
+                    PhysicalKey::Code(KeyCode::Space) => {
                         self.fxaa_enabled = !self.fxaa_enabled;
                         println!("FXAA is now {}", if self.fxaa_enabled { "enabled" } else { "disabled" });
                     },

@@ -35,12 +35,14 @@ impl ApplicationContext for Application {
 }
 
 fn main() {
-    let event_loop = EventLoopBuilder::new().build();
+    let event_loop = EventLoopBuilder::new()
+        .build()
+        .expect("event loop building");
     // To simplify things we use a single type for both the main and sub windows,
     // since we can easily distinguish them by their id.
     let mut windows: HashMap<WindowId, State<Application>> = HashMap::new();
 
-    event_loop.run(move |event, window_target, control_flow| {
+    event_loop.run(move |event, window_target| {
         match event {
             // The Resumed/Suspended events are mostly for Android compatiblity since the context can get lost there at any point.
             // For convenience's sake the Resumed event is also delivered on other platforms on program startup.
@@ -52,13 +54,6 @@ fn main() {
             winit::event::Event::Suspended => {
                 windows.clear();
             },
-            winit::event::Event::RedrawRequested(window_id) => {
-                // Notice the minor difference since we have to find the correct state for the window in our HashMap
-                if let Some(state) = windows.get_mut(&window_id) {
-                    state.context.update();
-                    state.context.draw_frame(&state.display);
-                }
-            }
             winit::event::Event::WindowEvent { event, window_id, .. } => {
                 if let Some(state) = windows.get_mut(&window_id) {
                     match event {
@@ -79,9 +74,13 @@ fn main() {
                                 windows.remove(&window_id);
                             }
                         },
+                        winit::event::WindowEvent::RedrawRequested => {
+                            state.context.update();
+                            state.context.draw_frame(&state.display);
+                        }
                         winit::event::WindowEvent::CloseRequested => {
                             if state.context.id == 1 {
-                                control_flow.set_exit();
+                                window_target.exit();
                             } else {
                                 windows.remove(&window_id);
                             }
@@ -99,5 +98,6 @@ fn main() {
             }
             _ => (),
         };
-    });
+    })
+    .unwrap();
 }

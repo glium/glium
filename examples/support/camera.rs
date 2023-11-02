@@ -148,23 +148,19 @@ impl CameraState {
         }
     }
 
-    pub fn process_input(&mut self, event: &winit::event::WindowEvent<'_>) {
-        let input = match *event {
-            winit::event::WindowEvent::KeyboardInput { input, .. } => input,
-            _ => return,
+    pub fn process_input(&mut self, event: &winit::event::WindowEvent) {
+        use winit::keyboard::{PhysicalKey, KeyCode};
+        let winit::event::WindowEvent::KeyboardInput { event, .. } = event else {
+            return
         };
-        let pressed = input.state == winit::event::ElementState::Pressed;
-        let key = match input.virtual_keycode {
-            Some(key) => key,
-            None => return,
-        };
-        match key {
-            winit::event::VirtualKeyCode::Up => self.moving_up = pressed,
-            winit::event::VirtualKeyCode::Down => self.moving_down = pressed,
-            winit::event::VirtualKeyCode::A => self.moving_left = pressed,
-            winit::event::VirtualKeyCode::D => self.moving_right = pressed,
-            winit::event::VirtualKeyCode::W => self.moving_forward = pressed,
-            winit::event::VirtualKeyCode::S => self.moving_backward = pressed,
+        let pressed = event.state == winit::event::ElementState::Pressed;
+        match &event.physical_key {
+            PhysicalKey::Code(KeyCode::ArrowUp) => self.moving_up = pressed,
+            PhysicalKey::Code(KeyCode::ArrowDown) => self.moving_down = pressed,
+            PhysicalKey::Code(KeyCode::KeyA) => self.moving_left = pressed,
+            PhysicalKey::Code(KeyCode::KeyD) => self.moving_right = pressed,
+            PhysicalKey::Code(KeyCode::KeyW) => self.moving_forward = pressed,
+            PhysicalKey::Code(KeyCode::KeyS) => self.moving_backward = pressed,
             _ => (),
         };
     }

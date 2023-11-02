@@ -5,7 +5,9 @@ use glium::Surface;
 fn main() {
     // We start by creating the EventLoop, this can only be done once per process.
     // This also needs to happen on the main thread to make the program portable.
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new()
+        .build()
+        .expect("event loop building");
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
         .with_title("Glium tutorial #2")
         .build(&event_loop);
@@ -51,15 +53,16 @@ fn main() {
         &Default::default()).unwrap();
     target.finish().unwrap();
 
-    event_loop.run(move |ev, _, control_flow| {
+    event_loop.run(move |ev, window_target| {
         match ev {
             winit::event::Event::WindowEvent { event, .. } => match event {
                 winit::event::WindowEvent::CloseRequested => {
-                    *control_flow =  winit::event_loop::ControlFlow::Exit;
+                    window_target.exit();
                 },
                 _ => (),
             },
             _ => (),
         }
-    });
+    })
+    .unwrap();
 }

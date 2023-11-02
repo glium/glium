@@ -105,14 +105,15 @@ unsafe fn initialize_event_loop() {
                 // safety: initialize before (exclusive) use in event loop
                 WINDOWS = Some(HashMap::new());
 
-                let event_loop = if cfg!(unix) || cfg!(windows) {
+                let event_loop_res = if cfg!(unix) || cfg!(windows) {
                     EventLoopBuilder::new().with_any_thread(true).build()
                 } else {
                     EventLoopBuilder::new().build()
                 };
+                let event_loop = event_loop_res.expect("event loop building");
                 let proxy = event_loop.create_proxy();
 
-                event_loop.run(move |event, event_loop, _| {
+                event_loop.run(move |event, window_target| {
                     match event {
                         Event::UserEvent(_) => {
                             let window_builder = WindowBuilder::new().with_visible(false);
@@ -121,7 +122,7 @@ unsafe fn initialize_event_loop() {
                             let display_builder =
                                 DisplayBuilder::new().with_window_builder(Some(window_builder));
                             let (window, gl_config) = display_builder
-                                .build(&event_loop, config_template_builder, |mut configs| {
+                                .build(&window_target, config_template_builder, |mut configs| {
                                     // Just use the first configuration since we don't have any special preferences here
                                     configs.next().unwrap()
                                 })
@@ -145,7 +146,8 @@ unsafe fn initialize_event_loop() {
                             });
                         }
                     }
-                });
+                })
+                .unwrap();
             })
             .unwrap();
 
