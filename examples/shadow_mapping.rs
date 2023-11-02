@@ -2,6 +2,7 @@
 extern crate glium;
 
 use cgmath::SquareMatrix;
+use winit::keyboard::{PhysicalKey, KeyCode};
 use std::time::Instant;
 use glium::{Surface, Display, VertexBuffer, IndexBuffer, Program, texture::DepthTexture2d};
 use glutin::surface::WindowSurface;
@@ -276,11 +277,11 @@ impl ApplicationContext for Application {
 
     fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
         match event {
-            winit::event::WindowEvent::KeyboardInput { input, .. } => if input.state == winit::event::ElementState::Pressed {
-                if let Some(key) = input.virtual_keycode {
-                    match key {
-                        winit::event::VirtualKeyCode::C => self.camera_rotating = !self.camera_rotating,
-                        winit::event::VirtualKeyCode::L => self.light_rotating = !self.light_rotating,
+            winit::event::WindowEvent::KeyboardInput { event, .. } => if event.state == winit::event::ElementState::Pressed {
+                if let PhysicalKey::Code(code) = event.physical_key {
+                    match code {
+                        KeyCode::KeyC => self.camera_rotating = !self.camera_rotating,
+                        KeyCode::KeyL => self.light_rotating = !self.light_rotating,
                         _ => {}
                     }
                 }

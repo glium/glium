@@ -8,7 +8,7 @@ use glium::index::PrimitiveType;
 use glium::{Display, Frame, Surface};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
-use winit::{event::VirtualKeyCode, window::Fullscreen};
+use winit::{window::Fullscreen, keyboard::{PhysicalKey, KeyCode}};
 
 mod support;
 
@@ -125,9 +125,9 @@ impl ApplicationContext for Application {
 
     fn handle_window_event(&mut self, event: &winit::event::WindowEvent, window: &winit::window::Window) {
         match event {
-            winit::event::WindowEvent::KeyboardInput { input, .. } => match input.state {
-                winit::event::ElementState::Pressed => match input.virtual_keycode {
-                    Some(VirtualKeyCode::Return) => {
+            winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
+                winit::event::ElementState::Pressed => match event.physical_key {
+                    PhysicalKey::Code(KeyCode::Enter) => {
                         self.toggle_fullscreen(window);
                     }
                     _ => (),

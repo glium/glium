@@ -162,10 +162,12 @@ impl<T: ApplicationContext + 'static> State<T> {
 
     /// Start the event_loop and keep rendering frames until the program is closed
     pub fn run_loop() {
-        let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+        let event_loop = winit::event_loop::EventLoopBuilder::new()
+            .build()
+            .expect("event loop building");
         let mut state: Option<State<T>> = None;
 
-        event_loop.run(move |event, window_target, control_flow| {
+        let result = event_loop.run(move |event, window_target| {
             match event {
                 // The Resumed/Suspended events are mostly for Android compatiblity since the context can get lost there at any point.
                 // For convenience's sake the Resumed event is also delivered on other platforms on program startup.
@@ -173,15 +175,9 @@ impl<T: ApplicationContext + 'static> State<T> {
                     state = Some(State::new(window_target, true));
                 },
                 winit::event::Event::Suspended => state = None,
-                winit::event::Event::RedrawRequested(_) => {
-                    if let Some(state) = &mut state {
-                        state.context.update();
-                        state.context.draw_frame(&state.display);
-                    }
-                }
-                // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.
+                // By requesting a redraw in response to a AboutToWait event we get continuous rendering.
                 // For applications that only change due to user input you could remove this handler.
-                winit::event::Event::RedrawEventsCleared => {
+                winit::event::Event::AboutToWait => {
                     if let Some(state) = &state {
                         state.window.request_redraw();
                     }
@@ -192,15 +188,21 @@ impl<T: ApplicationContext + 'static> State<T> {
                             state.display.resize(new_size.into());
                         }
                     },
+                    winit::event::WindowEvent::RedrawRequested => {
+                        if let Some(state) = &mut state {
+                            state.context.update();
+                            state.context.draw_frame(&state.display);
+                        }
+                    },
                     // Exit the event loop when requested (by closing the window for example) or when
                     // pressing the Esc key.
                     winit::event::WindowEvent::CloseRequested
-                    | winit::event::WindowEvent::KeyboardInput { input: winit::event::KeyboardInput {
+                    | winit::event::WindowEvent::KeyboardInput { event: winit::event::KeyEvent {
                         state: winit::event::ElementState::Pressed,
-                        virtual_keycode: Some(winit::event::VirtualKeyCode::Escape),
+                        logical_key: winit::keyboard::Key::Named(winit::keyboard::NamedKey::Escape),
                         ..
                     }, ..} => {
-                        control_flow.set_exit()
+                        window_target.exit()
                     },
                     // Every other event
                     ev => {
@@ -212,11 +214,14 @@ impl<T: ApplicationContext + 'static> State<T> {
                 _ => (),
             };
         });
+        result.unwrap();
     }
 
     /// Create a context and draw a single frame
     pub fn run_once(visible: bool) {
-        let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+        let event_loop = winit::event_loop::EventLoopBuilder::new()
+            .build()
+            .expect("event loop building");
         let mut state:State<T> = State::new(&event_loop, visible);
         state.context.update();
         state.context.draw_frame(&state.display);

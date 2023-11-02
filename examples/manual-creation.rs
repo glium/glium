@@ -38,7 +38,9 @@ use std::num::NonZeroU32;
 use std::os::raw::c_void;
 
 fn main() {
-    let event_loop = EventLoopBuilder::new().build();
+    let event_loop = EventLoopBuilder::new()
+        .build()
+        .expect("event loop building");
     let window_builder = WindowBuilder::new();
     let config_template_builder = ConfigTemplateBuilder::new();
     let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
@@ -155,13 +157,14 @@ fn main() {
     target.finish().unwrap();
 
     // the window is still available
-    event_loop.run(|event, _, control_flow| {
-        *control_flow = match event {
+    event_loop.run(|event, window_target| {
+        match event {
             winit::event::Event::WindowEvent { event, .. } => match event {
-                winit::event::WindowEvent::CloseRequested => winit::event_loop::ControlFlow::Exit,
-                _ => winit::event_loop::ControlFlow::Poll,
+                winit::event::WindowEvent::CloseRequested => window_target.exit(),
+                _ => (),
             },
-            _ => winit::event_loop::ControlFlow::Poll,
+            _ => (),
         }
-    });
+    })
+    .unwrap();
 }

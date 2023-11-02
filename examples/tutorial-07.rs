@@ -6,7 +6,9 @@ use glium::Surface;
 mod teapot;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new()
+        .build()
+        .expect("event loop building");
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
         .with_title("Glium tutorial #7")
         .build(&event_loop);
@@ -42,11 +44,27 @@ fn main() {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src,
                                             None).unwrap();
 
-    event_loop.run(move |ev, _, control_flow| {
+    event_loop.run(move |ev, window_target| {
         match ev {
             winit::event::Event::WindowEvent { event, .. } => match event {
                 winit::event::WindowEvent::CloseRequested => {
-                    *control_flow =  winit::event_loop::ControlFlow::Exit;
+                    window_target.exit();
+                },
+                // We now need to render everyting in response to a RedrawRequested event due to the animation
+                winit::event::WindowEvent::RedrawRequested => {
+                    let mut target = display.draw();
+                    target.clear_color(0.0, 0.0, 1.0, 1.0);
+
+                    let matrix = [
+                        [0.01, 0.0, 0.0, 0.0],
+                        [0.0, 0.01, 0.0, 0.0],
+                        [0.0, 0.0, 0.01, 0.0],
+                        [0.0, 0.0, 0.0, 1.0f32]
+                    ];
+
+                    target.draw((&positions, &normals), &indices, &program, &uniform! { matrix: matrix },
+                                &Default::default()).unwrap();
+                    target.finish().unwrap();
                 },
                 // Because glium doesn't know about windows we need to resize the display
                 // when the window's size has changed.
@@ -55,28 +73,13 @@ fn main() {
                 },
                 _ => (),
             },
-            // We now need to render everyting in response to a RedrawRequested event due to the animation
-            winit::event::Event::RedrawRequested(_) => {
-                let mut target = display.draw();
-                target.clear_color(0.0, 0.0, 1.0, 1.0);
-
-                let matrix = [
-                    [0.01, 0.0, 0.0, 0.0],
-                    [0.0, 0.01, 0.0, 0.0],
-                    [0.0, 0.0, 0.01, 0.0],
-                    [0.0, 0.0, 0.0, 1.0f32]
-                ];
-
-                target.draw((&positions, &normals), &indices, &program, &uniform! { matrix: matrix },
-                            &Default::default()).unwrap();
-                target.finish().unwrap();
-            },
-            // By requesting a redraw in response to a RedrawEventsCleared event we get continuous rendering.
+            // By requesting a redraw in response to a AboutToWait event we get continuous rendering.
             // For applications that only change due to user input you could remove this handler.
-            winit::event::Event::RedrawEventsCleared => {
+            winit::event::Event::AboutToWait => {
                 window.request_redraw();
             },
             _ => (),
         }
-    });
+    })
+    .unwrap();
 }
