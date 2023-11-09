@@ -16,7 +16,7 @@ struct Vertex {
 implement_vertex!(Vertex, position, tex_coords);
 
 struct Application {
-    pub opengl_texture: glium::texture::CompressedSrgbTexture2d,
+    pub opengl_texture: glium::texture::CompressedTexture2d,
     pub vertex_buffer: glium::VertexBuffer<Vertex>,
     pub program: glium::Program,
     pub camera: support::camera::CameraState,
@@ -35,7 +35,7 @@ impl ApplicationContext for Application {
         let image_dimensions = image.dimensions();
         let image =
             glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw(), image_dimensions);
-        let opengl_texture = glium::texture::CompressedSrgbTexture2d::new(display, image).unwrap();
+        let opengl_texture = glium::texture::CompressedTexture2d::new(display, image).unwrap();
 
         // building the vertex buffer, which contains all the vertices that we will draw
         let vertex_buffer = {
