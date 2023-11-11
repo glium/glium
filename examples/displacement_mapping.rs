@@ -43,28 +43,28 @@ impl ApplicationContext for Application {
                 display,
                 &[
                     Vertex {
-                        position: [-0.5, 0.5, 3.0],
+                        position: [-0.5, 0.5, 0.0],
+                        tex_coords: [0.0, 1.0],
+                    },
+                    Vertex {
+                        position: [0.5, 0.5, 0.0],
                         tex_coords: [1.0, 1.0],
                     },
                     Vertex {
-                        position: [0.5, 0.5, 3.0],
-                        tex_coords: [0.0, 1.0],
-                    },
-                    Vertex {
-                        position: [-0.5, -0.5, 3.0],
-                        tex_coords: [1.0, 0.0],
-                    },
-                    Vertex {
-                        position: [0.5, 0.5, 3.0],
-                        tex_coords: [0.0, 1.0],
-                    },
-                    Vertex {
-                        position: [0.5, -0.5, 3.0],
+                        position: [-0.5, -0.5, 0.0],
                         tex_coords: [0.0, 0.0],
                     },
                     Vertex {
-                        position: [-0.5, -0.5, 3.0],
+                        position: [0.5, 0.5, 0.0],
+                        tex_coords: [1.0, 1.0],
+                    },
+                    Vertex {
+                        position: [0.5, -0.5, 0.0],
                         tex_coords: [1.0, 0.0],
+                    },
+                    Vertex {
+                        position: [-0.5, -0.5, 0.0],
+                        tex_coords: [0.0, 0.0],
                     },
                 ],
             )
@@ -210,13 +210,13 @@ impl ApplicationContext for Application {
 
                     uniform sampler2D color_texture;
 
-                    const vec3 LIGHT = vec3(-0.2, 0.1, 0.8);
+                    const vec3 LIGHT = vec3(-0.2, 0.1, -0.8);
 
                     void main() {
                         float lum = max(dot(normalize(g_normal), normalize(LIGHT)), 0.0);
                         vec3 tex_color = texture(color_texture, g_tex_coords).rgb;
                         vec3 color = (0.6 + 0.4 * lum) * tex_color;
-                        o_color = vec4(1.0, 0.0, 0.0, 1.0);
+                        o_color = vec4(color, 1);
                     }
                 ",
             },
@@ -239,12 +239,7 @@ impl ApplicationContext for Application {
             inner_level: 64.0f32,
             outer_level: 64.0f32,
             projection_matrix: self.camera.get_perspective(),
-            view_matrix: [
-                [1.0, 0.0, 0.0, 0.0],
-                [0.0, 1.0, 0.0, 0.0],
-                [0.0, 0.0, 1.0, 0.0],
-                [0.0, 0.0, 0.0, 1.0f32]
-            ],
+            view_matrix: self.camera.get_view(),
             height_texture: &self.opengl_texture,
             elevation: 0.3f32,
             color_texture: &self.opengl_texture
