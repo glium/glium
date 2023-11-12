@@ -29,7 +29,7 @@ impl ApplicationContext for Application {
                             glium::texture::UncompressedFloatFormat::U8U8U8U8,
                             glium::texture::MipmapsOption::NoMipmap,
                             1024, 1024).unwrap();
-        dest_texture.as_surface().clear_color(0.0, 0.0, 0.0, 1.0);
+        dest_texture.as_surface().clear_color_srgb(0.0, 0.0, 0.0, 1.0);
 
         Self {
             opengl_texture,
