@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.33.0 (2022-11-1)
+## Version 0.33.0 (2023-11-1)
 
 - Add `read` methods for `Unsigned` textures
 - Add `gl::HALF_FLOAT` to `bind_attribute`
