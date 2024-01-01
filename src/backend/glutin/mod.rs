@@ -330,7 +330,7 @@ impl SimpleWindowBuilder {
 
     /// Create a new [`Window`](winit::window::Window) and [`Display`]
     /// with the specified parameters.
-    pub fn build(self, event_loop: &winit::event_loop::EventLoop<()>) -> (winit::window::Window, Display<glutin::surface::WindowSurface>) {
+    pub fn build<T>(self, event_loop: &winit::event_loop::EventLoop<T>) -> (winit::window::Window, Display<glutin::surface::WindowSurface>) {
         use glutin::prelude::*;
         use raw_window_handle::HasRawWindowHandle;
 
