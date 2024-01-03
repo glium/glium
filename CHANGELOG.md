@@ -1,6 +1,10 @@
 # Changelog
 
-## Version 0.33.0 (2023-11-1)
+## Version 0.34.0 (2024-01-03)
+
+- Updated glutin to version 0.31.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0310).
+
+## Version 0.33.0 (2023-11-01)
 
 - Add `read` methods for `Unsigned` textures
 - Add `gl::HALF_FLOAT` to `bind_attribute`
