@@ -5,14 +5,14 @@ Now that we have a triangle, we are going to animate it. Remember that OpenGL is
 So far we have only ever rendered a single frame and then waited for the program to exit. For an animation to show we need to change the way we draw our triangle. Instead of drawing a frame and then waiting in our event_loop for the window to close, we first draw our triangle when requested by the operating system:
 
 ```rust
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            winit::event::WindowEvent::RedrawRequested => {
+                // Move the draw code here!
+            },
             _ => (),
-        },
-        winit::event::Event::RedrawRequested(_) => {
-            // Move the draw code here!
         },
         _ => (),
     };
@@ -22,17 +22,17 @@ event_loop.run(move |event, _, control_flow| {
 What exactly triggers this event is platform specific, but in order to draw our triangle over and over again we can request a redraw ourselves once we've finished rendering, to do that we'll respond to yet another event:
 
 ```rust
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            winit::event::WindowEvent::RedrawRequested => {
+                // Move the draw code here!
+            },
             _ => (),
         },
-        winit::event::Event::RedrawEventsCleared => {
+        winit::event::Event::AboutToWait => {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) => {
-            // Move the draw code here!
         },
         _ => (),
     };
@@ -45,20 +45,20 @@ While we are working on our event_loop there is one more event that we should ha
 
 ```rust
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested => window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) => {
                 display.resize(window_size.into());
             },
+            winit::event::WindowEvent::RedrawRequested => {
+                // Move the draw code here!
+            },
             _ => (),
         },
-        winit::event::Event::RedrawEventsCleared => {
+        winit::event::Event::AboutToWait => {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) => {
-            // Move the draw code here!
         },
         _ => (),
     };
@@ -73,36 +73,36 @@ Our first approach will be to create a variable named `t` which represents the s
 
 ```rust
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested => window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) => {
                 display.resize(window_size.into());
             },
+            winit::event::WindowEvent::RedrawRequested => {
+                // We update `t`
+                t += 0.02;
+                // We use the sine of t as an offset, this way we get a nice smooth animation
+                let x_off = t.sin() * 0.5;
+
+                let shape = vec![
+                    Vertex { position: [-0.5 + x_off, -0.5] },
+                    Vertex { position: [ 0.0 + x_off,  0.5] },
+                    Vertex { position: [ 0.5 + x_off, -0.25] }
+                ];
+                let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
+
+                let mut target = display.draw();
+                target.clear_color(0.0, 0.0, 1.0, 1.0);
+                target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
+                        &Default::default()).unwrap();
+                target.finish().unwrap();
+            },
             _ => (),
         },
-        winit::event::Event::RedrawEventsCleared => {
+        winit::event::Event::AboutToWait => {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) => {
-            // We update `t`
-            t += 0.02;
-            // We use the sine of t as an offset, this way we get a nice smooth animation
-            let x_off = t.sin() * 0.5;
-
-            let shape = vec![
-                Vertex { position: [-0.5 + x_off, -0.5] },
-                Vertex { position: [ 0.0 + x_off,  0.5] },
-                Vertex { position: [ 0.5 + x_off, -0.25] }
-            ];
-            let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-
-            let mut target = display.draw();
-            target.clear_color(0.0, 0.0, 1.0, 1.0);
-            target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                    &Default::default()).unwrap();
-            target.finish().unwrap();
         },
         _ => (),
     };
@@ -125,29 +125,29 @@ Let's remove the two `let`'s that redefine our shape and vertex_buffer from our 
 
 ```rust
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested => window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) => {
                 display.resize(window_size.into());
             },
+	    winit::event::WindowEvent::RedrawRequested => {
+	        // We update `t`
+	        t += 0.02;
+                // We use the sine of t as an offset, this way we get a nice smooth animation
+	        let x_off = t.sin() * 0.5;
+
+	        let mut target = display.draw();
+	        target.clear_color(0.0, 0.0, 1.0, 1.0);
+	        target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
+			    &Default::default()).unwrap();
+	        target.finish().unwrap();
+	    },
             _ => (),
         },
-        winit::event::Event::RedrawEventsCleared => {
+        winit::event::Event::AboutToWait => {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) => {
-            // We update `t`
-            t += 0.02;
-            // We use the sine of t as an offset, this way we get a nice smooth animation
-            let x = t.sin() * 0.5;
-
-            let mut target = display.draw();
-            target.clear_color(0.0, 0.0, 1.0, 1.0);
-            target.draw(&vertex_buffer, &indices, &program, &glium::uniforms::EmptyUniforms,
-                    &Default::default()).unwrap();
-            target.finish().unwrap();
         },
         _ => (),
     };
@@ -175,7 +175,7 @@ let vertex_shader_src = r#"
 You may notice that this is exactly the operation that we've been doing above, except that this time it is done on the GPU side. We have added a variable `t` in our shader, which is declared as a **uniform**. A uniform is a global variable whose value is set when we draw by passing its value to the `draw` function. The easiest way to do so is to use the `uniform!` macro:
 
 ```rust
-target.draw(&vertex_buffer, &indices, &program, &uniform! { x: x },
+target.draw(&vertex_buffer, &indices, &program, &uniform! { x: x_off },
             &Default::default()).unwrap();
 ```
 
