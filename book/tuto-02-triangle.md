@@ -78,7 +78,7 @@ The tricky part is that *we* need to write the vertex and fragment shaders. To d
 
 ```rust
 let vertex_shader_src = r#"
-    ##version 140
+    #version 140
 
     in vec2 position;
 
@@ -98,7 +98,7 @@ The second shader is called the fragment shader (sometimes also named *pixel sha
 
 ```rust
 let fragment_shader_src = r#"
-    ##version 140
+    #version 140
 
     out vec4 color;
 

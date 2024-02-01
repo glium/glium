@@ -16,7 +16,7 @@ extern crate winit;
 
 fn main() {
     // 1. The **winit::EventLoop** for handling events.
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build().unwrap();
     // 2. Create a glutin context and glium Display
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 }

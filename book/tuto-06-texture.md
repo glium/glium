@@ -22,7 +22,7 @@ let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&image.into_raw()
 And in order to upload the image as a texture, it's as simple as:
 
 ```rust
-let texture = glium::texture::SrgbTexture2d::new(&display, image).unwrap();
+let texture = glium::texture::Texture2d::new(&display, image).unwrap();
 ```
 
 # Using the texture
@@ -97,7 +97,7 @@ let uniforms = uniform! {
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],
         [0.0, 0.0, 1.0, 0.0],
-        [ t , 0.0, 0.0, 1.0f32],
+        [ x , 0.0, 0.0, 1.0f32],
     ],
     tex: &texture,
 };

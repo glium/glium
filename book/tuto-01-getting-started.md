@@ -40,7 +40,7 @@ This will open a new window, register it with the given event_loop and create a 
 
 ```rust
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect("event loop building");
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 }
 ```
@@ -48,16 +48,14 @@ fn main() {
 If you try to run this example with `cargo run` you'll encounter a problem: as soon as the window has been created, our main function exits and the window is closed. To prevent this, we need to wait until we receive a `CloseRequested` event. We do this by calling `event_loop.run`:
 
 ```rust
-event_loop.run(move |ev, _, control_flow| {
-    match ev {
+let _ = event_loop.run(move |event, window_target| {
+    match event {
         winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => {
-                *control_flow =  winit::event_loop::ControlFlow::Exit;
-            },
-            _ => (),
+	    winit::event::WindowEvent::CloseRequested => window_target.exit(),
+	    _ => (),
         },
         _ => (),
-    }
+    };
 });
 ```
 
@@ -102,18 +100,18 @@ Here is our full program:
 use glium::Surface;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect("event loop building");
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 
     let mut frame = display.draw();
     frame.clear_color(0.0, 0.0, 1.0, 1.0);
     frame.finish().unwrap();
 
-    event_loop.run(move |event, _, control_flow| {
+    let _ = event_loop.run(move |event, window_target| {
         match event {
             winit::event::Event::WindowEvent { event, .. } => match event {
-                winit::event::WindowEvent::CloseRequested => control_flow.set_exit(),
-                _ => (),
+	        winit::event::WindowEvent::CloseRequested => window_target.exit(),
+	        _ => (),
             },
             _ => (),
         };
