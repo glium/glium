@@ -115,7 +115,7 @@ glium = &quot;0.33&quot;
 </ol>
 <p>This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 }
 </code></pre></pre>
@@ -123,16 +123,14 @@ glium = &quot;0.33&quot;
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-event_loop.run(move |ev, _, control_flow| {
-    match ev {
+let _ = event_loop.run(move |event, window_target| {
+    match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; {
-                *control_flow =  winit::event_loop::ControlFlow::Exit;
-            },
-            _ =&gt; (),
+        winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+        _ =&gt; (),
         },
         _ =&gt; (),
-    }
+    };
 });
 #}</code></pre></pre>
 <p>If you run the program now you should see an nice little window. The contents of the window, however, are not not very appealing. Depending on your system, it can appear black, show a random image, or just noise. We are expected to draw on the window, so the system doesn't initialize its color to a specific value.</p>
@@ -169,18 +167,18 @@ target.finish().unwrap();
 <pre><pre class="playpen"><code class="language-rust">use glium::Surface;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 
     let mut frame = display.draw();
     frame.clear_color(0.0, 0.0, 1.0, 1.0);
     frame.finish().unwrap();
 
-    event_loop.run(move |event, _, control_flow| {
+    let _ = event_loop.run(move |event, window_target| {
         match event {
             winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-                winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
-                _ =&gt; (),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            _ =&gt; (),
             },
             _ =&gt; (),
         };
@@ -253,7 +251,7 @@ let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList
 # #![allow(unused_variables)]
 #fn main() {
 let vertex_shader_src = r#&quot;
-    ##version 140
+    #version 140
 
     in vec2 position;
 
@@ -270,7 +268,7 @@ let vertex_shader_src = r#&quot;
 # #![allow(unused_variables)]
 #fn main() {
 let fragment_shader_src = r#&quot;
-    ##version 140
+    #version 140
 
     out vec4 color;
 
@@ -313,14 +311,14 @@ target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // Move the draw code here!
+            },
             _ =&gt; (),
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // Move the draw code here!
         },
         _ =&gt; (),
     };
@@ -330,17 +328,17 @@ event_loop.run(move |event, _, control_flow| {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // Move the draw code here!
+            },
             _ =&gt; (),
         },
-        winit::event::Event::RedrawEventsCleared =&gt; {
+        winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // Move the draw code here!
         },
         _ =&gt; (),
     };
@@ -352,20 +350,20 @@ event_loop.run(move |event, _, control_flow| {
 # #![allow(unused_variables)]
 #fn main() {
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // Move the draw code here!
+            },
             _ =&gt; (),
         },
-        winit::event::Event::RedrawEventsCleared =&gt; {
+        winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // Move the draw code here!
         },
         _ =&gt; (),
     };
@@ -378,36 +376,36 @@ event_loop.run(move |event, _, control_flow| {
 # #![allow(unused_variables)]
 #fn main() {
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // We update `t`
+                t += 0.02;
+                // We use the sine of t as an offset, this way we get a nice smooth animation
+                let x_off = t.sin() * 0.5;
+
+                let shape = vec![
+                    Vertex { position: [-0.5 + x_off, -0.5] },
+                    Vertex { position: [ 0.0 + x_off,  0.5] },
+                    Vertex { position: [ 0.5 + x_off, -0.25] }
+                ];
+                let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
+
+                let mut target = display.draw();
+                target.clear_color(0.0, 0.0, 1.0, 1.0);
+                target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
+                        &amp;Default::default()).unwrap();
+                target.finish().unwrap();
+            },
             _ =&gt; (),
         },
-        winit::event::Event::RedrawEventsCleared =&gt; {
+        winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // We update `t`
-            t += 0.02;
-            // We use the sine of t as an offset, this way we get a nice smooth animation
-            let x_off = t.sin() * 0.5;
-
-            let shape = vec![
-                Vertex { position: [-0.5 + x_off, -0.5] },
-                Vertex { position: [ 0.0 + x_off,  0.5] },
-                Vertex { position: [ 0.5 + x_off, -0.25] }
-            ];
-            let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
-
-            let mut target = display.draw();
-            target.clear_color(0.0, 0.0, 1.0, 1.0);
-            target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
-                    &amp;Default::default()).unwrap();
-            target.finish().unwrap();
         },
         _ =&gt; (),
     };
@@ -430,29 +428,29 @@ event_loop.run(move |event, _, control_flow| {
 # #![allow(unused_variables)]
 #fn main() {
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
-            _ =&gt; (),
-        },
-        winit::event::Event::RedrawEventsCleared =&gt; {
-            window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
+        winit::event::WindowEvent::RedrawRequested =&gt; {
             // We update `t`
             t += 0.02;
-            // We use the sine of t as an offset, this way we get a nice smooth animation
-            let x = t.sin() * 0.5;
+                // We use the sine of t as an offset, this way we get a nice smooth animation
+            let x_off = t.sin() * 0.5;
 
             let mut target = display.draw();
             target.clear_color(0.0, 0.0, 1.0, 1.0);
             target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
-                    &amp;Default::default()).unwrap();
+                &amp;Default::default()).unwrap();
             target.finish().unwrap();
+        },
+            _ =&gt; (),
+        },
+        winit::event::Event::AboutToWait =&gt; {
+            window.request_redraw();
         },
         _ =&gt; (),
     };
@@ -480,7 +478,7 @@ let vertex_shader_src = r#&quot;
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { x: x },
+target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { x: x_off },
             &amp;Default::default()).unwrap();
 #}</code></pre></pre>
 <p>Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of <code>x_off</code> (a single float) instead of the whole shape.</p>
@@ -499,7 +497,7 @@ target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { x: x
 # #![allow(unused_variables)]
 #fn main() {
 let vertex_shader_src = r#&quot;
-    ##version 140
+    #version 140
 
     in vec2 position;
 
@@ -616,7 +614,7 @@ let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_r
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-let texture = glium::texture::SrgbTexture2d::new(&amp;display, image).unwrap();
+let texture = glium::texture::Texture2d::new(&amp;display, image).unwrap();
 #}</code></pre></pre>
 <a class="header" href="print.html#using-the-texture" id="using-the-texture"><h1>Using the texture</h1></a>
 <p>There is no automatic way to display a texture over a shape with OpenGL. Just like any other rendering techniques, it must be done manually. This means that we must manually load color values from our texture and set them within our fragment shader.</p>
@@ -680,7 +678,7 @@ let uniforms = uniform! {
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],
         [0.0, 0.0, 1.0, 0.0],
-        [ t , 0.0, 0.0, 1.0f32],
+        [ x , 0.0, 0.0, 1.0f32],
     ],
     tex: &amp;texture,
 };
@@ -1399,7 +1397,7 @@ let image = image::load(Cursor::new(&amp;include_bytes!(&quot;../book/tuto-14-di
                         image::JPEG).unwrap().to_rgba8();
 let image_dimensions = image.dimensions();
 let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_raw(), image_dimensions);
-let diffuse_texture = glium::texture::SrgbTexture2d::new(&amp;display, image).unwrap();
+let diffuse_texture = glium::texture::Texture2d::new(&amp;display, image).unwrap();
 #}</code></pre></pre>
 <p>Adding the texture coordinates is also very easy:</p>
 <pre><pre class="playpen"><code class="language-rust">

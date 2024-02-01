@@ -105,7 +105,7 @@ let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_r
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-let texture = glium::texture::SrgbTexture2d::new(&amp;display, image).unwrap();
+let texture = glium::texture::Texture2d::new(&amp;display, image).unwrap();
 #}</code></pre></pre>
 <a class="header" href="tuto-06-texture.html#using-the-texture" id="using-the-texture"><h1>Using the texture</h1></a>
 <p>There is no automatic way to display a texture over a shape with OpenGL. Just like any other rendering techniques, it must be done manually. This means that we must manually load color values from our texture and set them within our fragment shader.</p>
@@ -169,7 +169,7 @@ let uniforms = uniform! {
         [1.0, 0.0, 0.0, 0.0],
         [0.0, 1.0, 0.0, 0.0],
         [0.0, 0.0, 1.0, 0.0],
-        [ t , 0.0, 0.0, 1.0f32],
+        [ x , 0.0, 0.0, 1.0f32],
     ],
     tex: &amp;texture,
 };

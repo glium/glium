@@ -92,14 +92,14 @@
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // Move the draw code here!
+            },
             _ =&gt; (),
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // Move the draw code here!
         },
         _ =&gt; (),
     };
@@ -109,17 +109,17 @@ event_loop.run(move |event, _, control_flow| {
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // Move the draw code here!
+            },
             _ =&gt; (),
         },
-        winit::event::Event::RedrawEventsCleared =&gt; {
+        winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // Move the draw code here!
         },
         _ =&gt; (),
     };
@@ -131,20 +131,20 @@ event_loop.run(move |event, _, control_flow| {
 # #![allow(unused_variables)]
 #fn main() {
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // Move the draw code here!
+            },
             _ =&gt; (),
         },
-        winit::event::Event::RedrawEventsCleared =&gt; {
+        winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // Move the draw code here!
         },
         _ =&gt; (),
     };
@@ -157,36 +157,36 @@ event_loop.run(move |event, _, control_flow| {
 # #![allow(unused_variables)]
 #fn main() {
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
+            winit::event::WindowEvent::RedrawRequested =&gt; {
+                // We update `t`
+                t += 0.02;
+                // We use the sine of t as an offset, this way we get a nice smooth animation
+                let x_off = t.sin() * 0.5;
+
+                let shape = vec![
+                    Vertex { position: [-0.5 + x_off, -0.5] },
+                    Vertex { position: [ 0.0 + x_off,  0.5] },
+                    Vertex { position: [ 0.5 + x_off, -0.25] }
+                ];
+                let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
+
+                let mut target = display.draw();
+                target.clear_color(0.0, 0.0, 1.0, 1.0);
+                target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
+                        &amp;Default::default()).unwrap();
+                target.finish().unwrap();
+            },
             _ =&gt; (),
         },
-        winit::event::Event::RedrawEventsCleared =&gt; {
+        winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
-            // We update `t`
-            t += 0.02;
-            // We use the sine of t as an offset, this way we get a nice smooth animation
-            let x_off = t.sin() * 0.5;
-
-            let shape = vec![
-                Vertex { position: [-0.5 + x_off, -0.5] },
-                Vertex { position: [ 0.0 + x_off,  0.5] },
-                Vertex { position: [ 0.5 + x_off, -0.25] }
-            ];
-            let vertex_buffer = glium::VertexBuffer::new(&amp;display, &amp;shape).unwrap();
-
-            let mut target = display.draw();
-            target.clear_color(0.0, 0.0, 1.0, 1.0);
-            target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
-                    &amp;Default::default()).unwrap();
-            target.finish().unwrap();
         },
         _ =&gt; (),
     };
@@ -209,29 +209,29 @@ event_loop.run(move |event, _, control_flow| {
 # #![allow(unused_variables)]
 #fn main() {
 let mut t: f32 = 0.0;
-event_loop.run(move |event, _, control_flow| {
+let _ = event_loop.run(move |event, window_target| {
     match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
             winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
-            _ =&gt; (),
-        },
-        winit::event::Event::RedrawEventsCleared =&gt; {
-            window.request_redraw();
-        },
-        winit::event::Event::RedrawRequested(_) =&gt; {
+        winit::event::WindowEvent::RedrawRequested =&gt; {
             // We update `t`
             t += 0.02;
-            // We use the sine of t as an offset, this way we get a nice smooth animation
-            let x = t.sin() * 0.5;
+                // We use the sine of t as an offset, this way we get a nice smooth animation
+            let x_off = t.sin() * 0.5;
 
             let mut target = display.draw();
             target.clear_color(0.0, 0.0, 1.0, 1.0);
             target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms::EmptyUniforms,
-                    &amp;Default::default()).unwrap();
+                &amp;Default::default()).unwrap();
             target.finish().unwrap();
+        },
+            _ =&gt; (),
+        },
+        winit::event::Event::AboutToWait =&gt; {
+            window.request_redraw();
         },
         _ =&gt; (),
     };
@@ -259,7 +259,7 @@ let vertex_shader_src = r#&quot;
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { x: x },
+target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;uniform! { x: x_off },
             &amp;Default::default()).unwrap();
 #}</code></pre></pre>
 <p>Using uniform variables solves our two problems above. The CPU doesn't have to do any calculation, and all that it uploaded is the value of <code>x_off</code> (a single float) instead of the whole shape.</p>

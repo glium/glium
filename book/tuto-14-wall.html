@@ -137,7 +137,7 @@ let image = image::load(Cursor::new(&amp;include_bytes!(&quot;../book/tuto-14-di
                         image::JPEG).unwrap().to_rgba8();
 let image_dimensions = image.dimensions();
 let image = glium::texture::RawImage2d::from_raw_rgba_reversed(&amp;image.into_raw(), image_dimensions);
-let diffuse_texture = glium::texture::SrgbTexture2d::new(&amp;display, image).unwrap();
+let diffuse_texture = glium::texture::Texture2d::new(&amp;display, image).unwrap();
 #}</code></pre></pre>
 <p>Adding the texture coordinates is also very easy:</p>
 <pre><pre class="playpen"><code class="language-rust">

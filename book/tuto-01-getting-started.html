@@ -112,7 +112,7 @@ glium = &quot;0.33&quot;
 </ol>
 <p>This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 }
 </code></pre></pre>
@@ -120,16 +120,14 @@ glium = &quot;0.33&quot;
 <pre><pre class="playpen"><code class="language-rust">
 # #![allow(unused_variables)]
 #fn main() {
-event_loop.run(move |ev, _, control_flow| {
-    match ev {
+let _ = event_loop.run(move |event, window_target| {
+    match event {
         winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; {
-                *control_flow =  winit::event_loop::ControlFlow::Exit;
-            },
-            _ =&gt; (),
+        winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+        _ =&gt; (),
         },
         _ =&gt; (),
-    }
+    };
 });
 #}</code></pre></pre>
 <p>If you run the program now you should see an nice little window. The contents of the window, however, are not not very appealing. Depending on your system, it can appear black, show a random image, or just noise. We are expected to draw on the window, so the system doesn't initialize its color to a specific value.</p>
@@ -166,18 +164,18 @@ target.finish().unwrap();
 <pre><pre class="playpen"><code class="language-rust">use glium::Surface;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build();
+    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 
     let mut frame = display.draw();
     frame.clear_color(0.0, 0.0, 1.0, 1.0);
     frame.finish().unwrap();
 
-    event_loop.run(move |event, _, control_flow| {
+    let _ = event_loop.run(move |event, window_target| {
         match event {
             winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-                winit::event::WindowEvent::CloseRequested =&gt; control_flow.set_exit(),
-                _ =&gt; (),
+            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            _ =&gt; (),
             },
             _ =&gt; (),
         };
