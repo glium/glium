@@ -238,16 +238,16 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// # fn example<T>(display: glium::Display<T>) where T: SurfaceTypeTrait + ResizeableSurface {
     /// use std::borrow::Cow;
     ///
-    /// let bindings = Cow::Owned(vec![(
-    ///         Cow::Borrowed("position"), 0,
+    /// const BINDINGS: glium::vertex::VertexFormat = &[(
+    ///         Cow::Borrowed("position"), 0, -1,
     ///         glium::vertex::AttributeType::F32F32,
     ///         false,
     ///     ), (
-    ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(),
+    ///         Cow::Borrowed("color"), 2 * ::std::mem::size_of::<f32>(), -1,
     ///         glium::vertex::AttributeType::F32,
     ///         false,
     ///     ),
-    /// ]);
+    /// ];
     ///
     /// let data = vec![
     ///     1.0, -0.3, 409.0,
@@ -255,7 +255,7 @@ impl<T> VertexBuffer<T> where T: Copy {
     /// ];
     ///
     /// let vertex_buffer = unsafe {
-    ///     glium::VertexBuffer::new_raw(&display, &data, bindings, 3 * ::std::mem::size_of::<f32>())
+    ///     glium::VertexBuffer::new_raw(&display, &data, BINDINGS, 3 * ::std::mem::size_of::<f32>())
     /// };
     /// # }
     /// ```
