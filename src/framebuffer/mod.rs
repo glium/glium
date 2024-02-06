@@ -134,7 +134,7 @@ impl<'a> SimpleFrameBuffer<'a> {
                                     Some(depth.to_depth_attachment()), None, None)
     }
 
-    /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
+    /// Creates a `SimpleFrameBuffer` with a depth buffer and no color attachment
     /// nor stencil buffer.
     #[inline]
     pub fn depth_only<F: ?Sized, D>(facade: &F, depth: D)
@@ -160,8 +160,8 @@ impl<'a> SimpleFrameBuffer<'a> {
                                     Some(stencil.to_stencil_attachment()), None)
     }
 
-    /// Creates a `SimpleFrameBuffer` with a single color attachment and no depth
-    /// nor stencil buffer.
+    /// Creates a `SimpleFrameBuffer` with a depth buffer and a stencil buffer,
+    /// but no color attachment.
     #[inline]
     pub fn depth_and_stencil_only<F: ?Sized, D, S>(facade: &F, depth: D, stencil: S)
                                            -> Result<SimpleFrameBuffer<'a>, ValidationError>
@@ -184,8 +184,8 @@ impl<'a> SimpleFrameBuffer<'a> {
                                     Some(stencil.to_stencil_attachment()), None)
     }
 
-    /// Creates a `SimpleFrameBuffer` with a single color attachment and a stencil
-    /// buffer, but no depth buffer.
+    /// Creates a `SimpleFrameBuffer` with a stencil buffer and no color attachment
+    /// nor depth buffer.
     #[inline]
     pub fn stencil_only<F: ?Sized, S>(facade: &F, stencil: S)
                               -> Result<SimpleFrameBuffer<'a>, ValidationError>
@@ -206,7 +206,7 @@ impl<'a> SimpleFrameBuffer<'a> {
                                     Some(depthstencil.to_depth_stencil_attachment()))
     }
 
-    /// Creates a `SimpleFrameBuffer` with a single color attachment and a depth-stencil buffer.
+    /// Creates a `SimpleFrameBuffer` with a depth-stencil buffer and no color attachment.
     #[inline]
     pub fn depth_stencil_only<F: ?Sized, D>(facade: &F, depthstencil: D)
                                     -> Result<SimpleFrameBuffer<'a>, ValidationError>
@@ -354,7 +354,7 @@ impl<'a> FboAttachments for SimpleFrameBuffer<'a> {
     }
 }
 
-/// This struct is useless for the moment.
+/// A framebuffer which has multiple color attachments.
 pub struct MultiOutputFrameBuffer<'a> {
     context: Rc<Context>,
     example_attachments: fbo::ValidatedAttachments<'a>,
