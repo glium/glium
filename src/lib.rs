@@ -4,7 +4,7 @@ Easy-to-use, high-level, OpenGL3+ wrapper.
 Glium is based on glutin - a cross-platform crate for building an OpenGL window and handling
 application events.
 
-Glium provides a [**Display**](`Display`) which extends the [**glutin::WindowedContext**](`glutin::WindowedContext`) with a high-level, safe API.
+Glium provides a [`Display`] which uses `glutin` for the Window and its associated GL Context.
 
 # Initialization
 
