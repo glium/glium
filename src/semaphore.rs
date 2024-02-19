@@ -39,7 +39,7 @@ impl std::fmt::Display for SemaphoreCreationError {
 
 impl std::error::Error for SemaphoreCreationError {}
 
-/// Describes a Vulkan image layout that a texture can be in. See https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkImageLayout.html
+/// Describes a Vulkan image layout that a texture can be in. See <https://www.khronos.org/registry/vulkan/specs/1.2-extensions/man/html/VkImageLayout.html>
 #[derive(Debug, Clone, Copy)]
 pub enum TextureLayout {
     /// Corresponds to VK_IMAGE_LAYOUT_UNDEFINED
