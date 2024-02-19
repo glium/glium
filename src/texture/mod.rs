@@ -524,7 +524,7 @@ impl<'a, T: Clone + 'a> RawImage2d<'a, T> {
         RawImage2d::from_raw_rgba(data, dimensions)
     }
 
-    ///Transforms a Vec<RawImage1d> into a RawImage2d
+    /// Transforms a `Vec<RawImage1d>` into a `RawImage2d`
     pub fn from_vec_raw1d(arr: &Vec<RawImage1d<'a, T>>) -> RawImage2d<'a, T> {
         let width   = arr[0].width;
         let height  = arr.len() as u32;
@@ -728,7 +728,7 @@ pub struct RawImage3d<'a, T: Clone> {
 }
 
 impl<'a, T: Clone + 'a> RawImage3d<'a, T> {
-    ///Transforms a Vec<RawImage2d> into a RawImage3d
+    /// Transforms a `Vec<RawImage2d>` into a `RawImage3d`
     pub fn from_vec_raw2d(arr: &Vec<RawImage2d<'a, T>>) -> RawImage3d<'a, T> {
         let depth   = arr.len() as u32;
         let width   = arr[0].width;
