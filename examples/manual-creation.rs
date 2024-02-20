@@ -17,7 +17,6 @@ There are three concepts in play:
 
 */
 
-use glium::{self};
 use winit::event_loop::EventLoopBuilder;
 use winit::window::WindowBuilder;
 use glium::Surface;

@@ -5,7 +5,7 @@ Test supports module.
 
 #![allow(dead_code)]
 
-use glium::{self, Display};
+use glium::Display;
 use glium::backend::Facade;
 use glium::index::PrimitiveType;
 
