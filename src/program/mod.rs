@@ -278,7 +278,7 @@ pub enum ProgramCreationInput<'a> {
         /// The data.
         data: Binary,
 
-        /// See `SourceCode::outputs_srgb`.
+        /// See [`ProgramCreationInput::SourceCode::outputs_srgb`].
         outputs_srgb: bool,
 
         /// Whether the shader uses point size.
@@ -313,7 +313,7 @@ pub struct SpirvProgram<'a> {
     /// `None`, then you won't be able to use transform feedback.
     pub transform_feedback_varyings: Option<(Vec<String>, TransformFeedbackMode)>,
 
-    /// See `SourceCode::outputs_srgb`.
+    /// See [`ProgramCreationInput::SourceCode::outputs_srgb`].
     pub outputs_srgb: bool,
 
     /// Whether the shader uses point size.

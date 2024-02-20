@@ -1034,13 +1034,13 @@ pub enum CompressedFormat {
     /// BPTC format with three components (no alpha) represented as unsigned floats.
     BptcUnsignedFloat3,
 
-    /// S3TC DXT1 without alpha, see https://www.opengl.org/wiki/S3_Texture_Compression.
+    /// S3TC DXT1 without alpha, see <https://www.opengl.org/wiki/S3_Texture_Compression>.
     S3tcDxt1NoAlpha,
-    /// S3TC DXT1 with 1-bit alpha, see https://www.opengl.org/wiki/S3_Texture_Compression.
+    /// S3TC DXT1 with 1-bit alpha, see <https://www.opengl.org/wiki/S3_Texture_Compression>.
     S3tcDxt1Alpha,
-    /// S3TC DXT3, see https://www.opengl.org/wiki/S3_Texture_Compression.
+    /// S3TC DXT3, see <https://www.opengl.org/wiki/S3_Texture_Compression>.
     S3tcDxt3Alpha,
-    /// S3TC DXT5, see https://www.opengl.org/wiki/S3_Texture_Compression.
+    /// S3TC DXT5, see <https://www.opengl.org/wiki/S3_Texture_Compression>.
     S3tcDxt5Alpha,
 }
 
