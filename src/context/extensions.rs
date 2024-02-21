@@ -9,6 +9,7 @@ macro_rules! extensions {
         #[derive(Debug, Clone, Copy)]
         pub struct ExtensionsList {
             $(
+                #[allow(missing_docs)]
                 pub $field: bool,
             )+
         }
