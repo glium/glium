@@ -12,7 +12,6 @@ use winit::keyboard::{PhysicalKey, KeyCode};
 mod screenshot {
     use glium::Surface;
     use std::collections::VecDeque;
-    use std::vec::Vec;
     use std::borrow::Cow;
 
     // Container that holds image data as vector of (u8, u8, u8, u8).

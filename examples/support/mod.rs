@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use std::num::NonZeroU32;
-use glium::{self, Display};
+use glium::Display;
 use glutin::prelude::*;
 use glutin::display::GetGlDisplay;
 use glutin::surface::WindowSurface;
