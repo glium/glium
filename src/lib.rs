@@ -114,7 +114,7 @@ pub use crate::backend::glutin::glutin;
 pub use crate::context::{Capabilities, ExtensionsList, Profile, UuidError};
 pub use crate::draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use crate::draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};
-pub use crate::draw_parameters::{Smooth};
+pub use crate::draw_parameters::Smooth;
 pub use crate::index::IndexBuffer;
 pub use crate::vertex::{VertexBuffer, Vertex, VertexFormat};
 pub use crate::program::{Program, ProgramCreationError};
