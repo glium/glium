@@ -407,7 +407,8 @@ impl AttributeType {
 ///
 /// The first element is the name of the binding, the second element
 /// is the offset from the start of each vertex to this element, the
-/// third element is the type and the fourth element indicates whether
+/// third element is the layout location specified in the shader, the
+/// fourth element is the type and the fifth element indicates whether
 /// or not the element should use fixed-point normalization when
 /// binding in a VAO.
 pub type VertexFormat = &'static [(Cow<'static, str>, usize, i32, AttributeType, bool)];
