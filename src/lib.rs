@@ -106,9 +106,6 @@ result to the user.
     clippy::wrong_self_convention,
 )]
 
-#[macro_use]
-extern crate lazy_static;
-
 #[cfg(feature = "glutin")]
 pub use crate::backend::glutin::glutin;
 pub use crate::context::{Capabilities, ExtensionsList, Profile, UuidError};
