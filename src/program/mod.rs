@@ -57,10 +57,7 @@ pub fn is_subroutine_supported<C: ?Sized>(ctxt: &C) -> bool where C: Capabilitie
 
 // Some shader compilers have race-condition issues, so we lock this mutex
 // in the GL thread every time we compile a shader or link a program.
-// TODO: replace by a StaticMutex
-lazy_static! {
-    static ref COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
-}
+static COMPILER_GLOBAL_LOCK: Mutex<()> = Mutex::new(());
 
 /// Used in ProgramCreationError::CompilationError to explain which shader stage failed compilation
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
