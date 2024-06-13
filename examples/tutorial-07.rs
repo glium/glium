@@ -6,7 +6,7 @@ use glium::Surface;
 mod teapot;
 
 fn main() {
-    let event_loop = glium::winit::event_loop::EventLoopBuilder::new()
+    let event_loop = glium::winit::event_loop::EventLoop::builder()
         .build()
         .expect("event loop building");
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
@@ -44,6 +44,7 @@ fn main() {
     let program = glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src,
                                             None).unwrap();
 
+    #[allow(deprecated)]
     event_loop.run(move |ev, window_target| {
         match ev {
             glium::winit::event::Event::WindowEvent { event, .. } => match event {

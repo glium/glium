@@ -4,7 +4,11 @@ use glium::Display;
 use glutin::prelude::*;
 use glutin::display::GetGlDisplay;
 use glutin::surface::WindowSurface;
-use raw_window_handle::HasRawWindowHandle;
+use raw_window_handle::HasWindowHandle;
+use winit::event_loop::ActiveEventLoop;
+use winit::event::WindowEvent;
+use winit::window::WindowId;
+use winit::application::ApplicationHandler;
 
 pub mod camera;
 
@@ -98,14 +102,77 @@ pub struct State<T> {
     pub context: T,
 }
 
+struct App<T> {
+    state: Option<State<T>>,
+    visible: bool,
+    close_promptly: bool,
+}
+
+impl<T: ApplicationContext + 'static> ApplicationHandler<()> for App<T> {
+    // The resumed/suspended handlers are mostly for Android compatiblity since the context can get lost there at any point.
+    // For convenience's sake, the resumed handler is also called on other platforms on program startup.
+    fn resumed(&mut self, event_loop: &ActiveEventLoop) {
+        self.state = Some(State::new(event_loop, self.visible));
+    }
+    fn suspended(&mut self, _event_loop: &ActiveEventLoop) {
+        self.state = None;
+    }
+
+    fn window_event(&mut self,
+        event_loop: &ActiveEventLoop,
+        _window_id: WindowId,
+        event: WindowEvent,
+    ) {
+        match event {
+            glium::winit::event::WindowEvent::Resized(new_size) => {
+                if let Some(state) = &self.state {
+                    state.display.resize(new_size.into());
+                }
+            },
+            glium::winit::event::WindowEvent::RedrawRequested => {
+                if let Some(state) = &mut self.state {
+                    state.context.update();
+                    state.context.draw_frame(&state.display);
+                    if self.close_promptly {
+                        event_loop.exit();
+                    }
+                }
+            },
+            // Exit the event loop when requested (by closing the window for example) or when
+            // pressing the Esc key.
+            glium::winit::event::WindowEvent::CloseRequested
+            | glium::winit::event::WindowEvent::KeyboardInput { event: glium::winit::event::KeyEvent {
+                state: glium::winit::event::ElementState::Pressed,
+                logical_key: glium::winit::keyboard::Key::Named(glium::winit::keyboard::NamedKey::Escape),
+                ..
+            }, ..} => {
+                event_loop.exit()
+            },
+            // Every other event
+            ev => {
+                if let Some(state) = &mut self.state {
+                    state.context.handle_window_event(&ev, &state.window);
+                }
+            },
+        }
+    }
+
+    fn about_to_wait(&mut self, _event_loop: &ActiveEventLoop) {
+        if let Some(state) = &self.state {
+            state.window.request_redraw();
+        }
+    }
+}
+
 impl<T: ApplicationContext + 'static> State<T> {
-    pub fn new<W>(
-        event_loop: &glium::winit::event_loop::EventLoopWindowTarget<W>,
+    pub fn new(
+        event_loop: &glium::winit::event_loop::ActiveEventLoop,
         visible: bool,
     ) -> Self {
-        let window_builder = glium::winit::window::WindowBuilder::new().with_title(T::WINDOW_TITLE).with_visible(visible);
+        let window_attributes = winit::window::Window::default_attributes()
+            .with_title(T::WINDOW_TITLE).with_visible(visible);
         let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
-        let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
+        let display_builder = glutin_winit::DisplayBuilder::new().with_window_attributes(Some(window_attributes));
 
         // First we create a window
         let (window, gl_config) = display_builder
@@ -119,11 +186,11 @@ impl<T: ApplicationContext + 'static> State<T> {
         // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
         // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
         // If you depend on features available in modern OpenGL Versions you need to request a specific, modern, version. Otherwise things will very likely fail.
-        let raw_window_handle = window.raw_window_handle();
-        let context_attributes = glutin::context::ContextAttributesBuilder::new().build(Some(raw_window_handle));
+        let window_handle = window.window_handle().expect("couldn't obtain window handle");
+        let context_attributes = glutin::context::ContextAttributesBuilder::new().build(Some(window_handle.into()));
         let fallback_context_attributes = glutin::context::ContextAttributesBuilder::new()
             .with_context_api(glutin::context::ContextApi::Gles(None))
-            .build(Some(raw_window_handle));
+            .build(Some(window_handle.into()));
 
         let not_current_gl_context = Some(unsafe {
             gl_config.display().create_context(&gl_config, &context_attributes).unwrap_or_else(|_| {
@@ -136,7 +203,7 @@ impl<T: ApplicationContext + 'static> State<T> {
         // Determine our framebuffer size based on the window size, or default to 800x600 if it's invisible
         let (width, height): (u32, u32) = if visible { window.inner_size().into() } else { (800, 600) };
         let attrs = glutin::surface::SurfaceAttributesBuilder::<WindowSurface>::new().build(
-            raw_window_handle,
+            window_handle.into(),
             NonZeroU32::new(width).unwrap(),
             NonZeroU32::new(height).unwrap(),
         );
@@ -162,68 +229,29 @@ impl<T: ApplicationContext + 'static> State<T> {
 
     /// Start the event_loop and keep rendering frames until the program is closed
     pub fn run_loop() {
-        let event_loop = glium::winit::event_loop::EventLoopBuilder::new()
+        let event_loop = glium::winit::event_loop::EventLoop::builder()
             .build()
             .expect("event loop building");
-        let mut state: Option<State<T>> = None;
-
-        let result = event_loop.run(move |event, window_target| {
-            match event {
-                // The Resumed/Suspended events are mostly for Android compatiblity since the context can get lost there at any point.
-                // For convenience's sake the Resumed event is also delivered on other platforms on program startup.
-                glium::winit::event::Event::Resumed => {
-                    state = Some(State::new(window_target, true));
-                },
-                glium::winit::event::Event::Suspended => state = None,
-                // By requesting a redraw in response to a AboutToWait event we get continuous rendering.
-                // For applications that only change due to user input you could remove this handler.
-                glium::winit::event::Event::AboutToWait => {
-                    if let Some(state) = &state {
-                        state.window.request_redraw();
-                    }
-                }
-                glium::winit::event::Event::WindowEvent { event, .. } => match event {
-                    glium::winit::event::WindowEvent::Resized(new_size) => {
-                        if let Some(state) = &state {
-                            state.display.resize(new_size.into());
-                        }
-                    },
-                    glium::winit::event::WindowEvent::RedrawRequested => {
-                        if let Some(state) = &mut state {
-                            state.context.update();
-                            state.context.draw_frame(&state.display);
-                        }
-                    },
-                    // Exit the event loop when requested (by closing the window for example) or when
-                    // pressing the Esc key.
-                    glium::winit::event::WindowEvent::CloseRequested
-                    | glium::winit::event::WindowEvent::KeyboardInput { event: glium::winit::event::KeyEvent {
-                        state: glium::winit::event::ElementState::Pressed,
-                        logical_key: glium::winit::keyboard::Key::Named(glium::winit::keyboard::NamedKey::Escape),
-                        ..
-                    }, ..} => {
-                        window_target.exit()
-                    },
-                    // Every other event
-                    ev => {
-                        if let Some(state) = &mut state {
-                            state.context.handle_window_event(&ev, &state.window);
-                        }
-                    },
-                },
-                _ => (),
-            };
-        });
+        let mut app = App::<T> {
+            state: None,
+            visible: true,
+            close_promptly: false,
+        };
+        let result = event_loop.run_app(&mut app);
         result.unwrap();
     }
 
     /// Create a context and draw a single frame
     pub fn run_once(visible: bool) {
-        let event_loop = glium::winit::event_loop::EventLoopBuilder::new()
+        let event_loop = glium::winit::event_loop::EventLoop::builder()
             .build()
             .expect("event loop building");
-        let mut state:State<T> = State::new(&event_loop, visible);
-        state.context.update();
-        state.context.draw_frame(&state.display);
+        let mut app = App::<T> {
+            state: None,
+            visible,
+            close_promptly: true,
+        };
+        let result = event_loop.run_app(&mut app);
+        result.unwrap();
     }
 }

@@ -305,7 +305,7 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
 #[cfg(feature = "simple_window_builder")]
 /// Builder to simplify glium/glutin context creation.
 pub struct SimpleWindowBuilder {
-    builder: winit::window::WindowBuilder,
+    attributes: winit::window::WindowAttributes,
     config_template_builder: glutin::config::ConfigTemplateBuilder,
 }
 
@@ -314,7 +314,7 @@ impl SimpleWindowBuilder {
     /// Initializes a new builder with default values.
     pub fn new() -> Self {
         Self {
-            builder: winit::window::WindowBuilder::new()
+            attributes: winit::window::Window::default_attributes()
                 .with_title("Simple Glium Window")
                 .with_inner_size(winit::dpi::PhysicalSize::new(800, 480)),
             config_template_builder: glutin::config::ConfigTemplateBuilder::new(),
@@ -325,22 +325,22 @@ impl SimpleWindowBuilder {
     /// Requests the window to be of a certain size.
     /// If this is not set, the builder defaults to 800x480.
     pub fn with_inner_size(mut self, width: u32, height: u32) -> Self {
-        self.builder = self
-            .builder
+        self.attributes = self
+            .attributes
             .with_inner_size(winit::dpi::PhysicalSize::new(width, height));
         self
     }
 
     /// Set the initial title for the window.
     pub fn with_title(mut self, title: &str) -> Self {
-        self.builder = self.builder.with_title(title);
+        self.attributes = self.attributes.with_title(title);
         self
     }
 
     /// Replace the used [`WindowBuilder`](winit::window::WindowBuilder),
     /// do this before you set other parameters or you'll overwrite the parameters.
-    pub fn set_window_builder(mut self, window_builder: winit::window::WindowBuilder) -> Self {
-        self.builder = window_builder;
+    pub fn set_window_builder(mut self, window_attributes: winit::window::WindowAttributes) -> Self {
+        self.attributes = window_attributes;
         self
     }
 
@@ -352,8 +352,8 @@ impl SimpleWindowBuilder {
     }
 
     /// Returns the inner [`WindowBuilder`](winit::window::WindowBuilder).
-    pub fn into_window_builder(self) -> winit::window::WindowBuilder {
-        self.builder
+    pub fn into_window_builder(self) -> winit::window::WindowAttributes {
+        self.attributes
     }
 
     /// Create a new [`Window`](winit::window::Window) and [`Display`]
@@ -366,13 +366,14 @@ impl SimpleWindowBuilder {
         Display<glutin::surface::WindowSurface>,
     ) {
         use glutin::prelude::*;
-        use raw_window_handle::HasRawWindowHandle;
+        use raw_window_handle::HasWindowHandle;
 
         // First we start by opening a new Window
         let display_builder =
-            glutin_winit::DisplayBuilder::new().with_window_builder(Some(self.builder));
+            glutin_winit::DisplayBuilder::new().with_window_attributes(Some(self.attributes));
+        let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
         let (window, gl_config) = display_builder
-            .build(&event_loop, self.config_template_builder, |mut configs| {
+            .build(event_loop, self.config_template_builder, |mut configs| {
                 // Just use the first configuration since we don't have any special preferences here
                 configs.next().unwrap()
             })
@@ -384,7 +385,7 @@ impl SimpleWindowBuilder {
         let attrs =
             glutin::surface::SurfaceAttributesBuilder::<glutin::surface::WindowSurface>::new()
                 .build(
-                    window.raw_window_handle(),
+                    window.window_handle().expect("couldn't obtain raw window handle").into(),
                     NonZeroU32::new(width).unwrap(),
                     NonZeroU32::new(height).unwrap(),
                 );
@@ -397,7 +398,7 @@ impl SimpleWindowBuilder {
                 .unwrap()
         };
         let context_attributes = glutin::context::ContextAttributesBuilder::new()
-            .build(Some(window.raw_window_handle()));
+            .build(Some(window.window_handle().expect("couldn't obtain raw window handle").into()));
         let current_context = Some(unsafe {
             gl_config
                 .display()

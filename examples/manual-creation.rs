@@ -17,8 +17,7 @@ There are three concepts in play:
 
 */
 
-use glium::winit::event_loop::EventLoopBuilder;
-use glium::winit::window::WindowBuilder;
+use winit::event_loop::EventLoop;
 use glium::Surface;
 use glutin::surface::WindowSurface;
 use glutin::config::ConfigTemplateBuilder;
@@ -27,7 +26,7 @@ use glutin::display::GetGlDisplay;
 use glutin::prelude::*;
 use glutin::surface::SurfaceAttributesBuilder;
 use glutin_winit::DisplayBuilder;
-use raw_window_handle::HasRawWindowHandle;
+use raw_window_handle::HasWindowHandle;
 
 use takeable_option::Takeable;
 use std::ffi::CString;
@@ -37,12 +36,12 @@ use std::num::NonZeroU32;
 use std::os::raw::c_void;
 
 fn main() {
-    let event_loop = EventLoopBuilder::new()
+    let event_loop = EventLoop::builder()
         .build()
         .expect("event loop building");
-    let window_builder = WindowBuilder::new();
+    let window_attributes = winit::window::Window::default_attributes();
     let config_template_builder = ConfigTemplateBuilder::new();
-    let display_builder = DisplayBuilder::new().with_window_builder(Some(window_builder));
+    let display_builder = DisplayBuilder::new().with_window_attributes(Some(window_attributes));
 
     // First we create a window
     let (window, gl_config) = display_builder
@@ -56,11 +55,11 @@ fn main() {
     // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
     // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
     // If you depend on features available in modern OpenGL Versions you need to request a specific, modern, version. Otherwise things will very likely fail.
-    let raw_window_handle = window.raw_window_handle();
-    let context_attributes = ContextAttributesBuilder::new().build(Some(raw_window_handle));
+    let window_handle = window.window_handle().unwrap();
+    let context_attributes = ContextAttributesBuilder::new().build(Some(window_handle.into()));
     let fallback_context_attributes = ContextAttributesBuilder::new()
         .with_context_api(ContextApi::Gles(None))
-        .build(Some(raw_window_handle));
+        .build(Some(window_handle.into()));
 
 
     let not_current_gl_context = Some(unsafe {
@@ -74,7 +73,7 @@ fn main() {
     // Determine our framebuffer size based on the window size, or default to 800x600 if it's invisible
     let (width, height): (u32, u32) = window.inner_size().into();
     let attrs = SurfaceAttributesBuilder::<WindowSurface>::new().build(
-        raw_window_handle,
+        window_handle.into(),
         NonZeroU32::new(width).unwrap(),
         NonZeroU32::new(height).unwrap(),
     );
@@ -156,6 +155,7 @@ fn main() {
     target.finish().unwrap();
 
     // the window is still available
+    #[allow(deprecated)]
     event_loop.run(|event, window_target| {
         match event {
             glium::winit::event::Event::WindowEvent { event, .. } => match event {
