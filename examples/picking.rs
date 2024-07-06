@@ -258,9 +258,9 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
+    fn handle_window_event(&mut self, event: &glium::winit::event::WindowEvent, _window: &glium::winit::window::Window) {
         match event {
-            winit::event::WindowEvent::CursorMoved { position, .. } => {
+            glium::winit::event::WindowEvent::CursorMoved { position, .. } => {
                 self.cursor_position = Some(position.cast::<i32>().into());
             }
             ev => self.camera.process_input(ev),

@@ -16,9 +16,9 @@ use glutin::prelude::*;
 use glutin::surface::{SurfaceAttributesBuilder, WindowSurface};
 use glutin_winit::DisplayBuilder;
 use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
-use winit::event::Event;
-use winit::event_loop::{EventLoopBuilder, EventLoopProxy};
-use winit::window::{Window, WindowBuilder, WindowId};
+use glium::winit::event::Event;
+use glium::winit::event_loop::{EventLoopBuilder, EventLoopProxy};
+use glium::winit::window::{Window, WindowBuilder, WindowId};
 
 use std::collections::HashMap;
 use std::env;
@@ -31,9 +31,9 @@ use std::thread;
 
 // There is a Wayland version of this extension trait but the X11 version also works on Wayland
 #[cfg(unix)]
-use winit::platform::x11::EventLoopBuilderExtX11;
+use glium::winit::platform::x11::EventLoopBuilderExtX11;
 #[cfg(windows)]
-use winit::platform::windows::EventLoopBuilderExtWindows;
+use glium::winit::platform::windows::EventLoopBuilderExtWindows;
 
 // Thread communication
 static mut EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
@@ -220,8 +220,8 @@ pub fn rebuild_display(_display: &glium::Display<WindowSurface>) {
     todo!();
     /*
     let version = parse_version();
-    let event_loop = winit::event_loop::EventLoop::new();
-    let wb = winit::window::WindowBuilder::new().with_visible(false);
+    let event_loop = glium::winit::event_loop::EventLoop::new();
+    let wb = glium::winit::window::WindowBuilder::new().with_visible(false);
     let cb = glutin::ContextBuilder::new()
         .with_gl_debug_flag(true)
         .with_gl(version);

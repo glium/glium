@@ -29,6 +29,9 @@ pub use crate::context::ReleaseBehavior;
 #[cfg(feature = "glutin")]
 pub mod glutin;
 
+#[cfg(feature = "simple_window_builder")]
+pub use winit;
+
 /// Trait for types that can be used as a backend for a glium context.
 ///
 /// This trait is unsafe, as you can get undefined behaviors or crashes if you don't implement

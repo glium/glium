@@ -189,11 +189,11 @@ impl ApplicationContext for Application {
         frame.finish().unwrap();
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
-        use winit::keyboard::{PhysicalKey, KeyCode};
+    fn handle_window_event(&mut self, event: &glium::winit::event::WindowEvent, _window: &glium::winit::window::Window) {
+        use glium::winit::keyboard::{PhysicalKey, KeyCode};
         match event {
-            winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
-                winit::event::ElementState::Pressed => match event.physical_key {
+            glium::winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
+                glium::winit::event::ElementState::Pressed => match event.physical_key {
                     PhysicalKey::Code(KeyCode::ArrowUp) => {
                         self.tess_level += 1;
                         println!("New tessellation level: {}", self.tess_level);

@@ -38,9 +38,11 @@ Initializing a simple OpenGL window with the default winit/glutin backend can be
 
 This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.
 
+The following examples require the `simple_window_builder` feature, and provide a re-export of winit to prevent version mismatches.
+
 ```rust
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect("event loop building");
+    let event_loop = glium::winit::event_loop::EventLoopBuilder::new().build().expect("event loop building");
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 }
 ```
@@ -50,8 +52,8 @@ If you try to run this example with `cargo run` you'll encounter a problem: as s
 ```rust
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } => match event {
-	    winit::event::WindowEvent::CloseRequested => window_target.exit(),
+        glium::winit::event::Event::WindowEvent { event, .. } => match event {
+	    glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
 	    _ => (),
         },
         _ => (),
@@ -100,7 +102,7 @@ Here is our full program:
 use glium::Surface;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect("event loop building");
+    let event_loop = glium::winit::event_loop::EventLoopBuilder::new().build().expect("event loop building");
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&event_loop);
 
     let mut frame = display.draw();
@@ -109,8 +111,8 @@ fn main() {
 
     let _ = event_loop.run(move |event, window_target| {
         match event {
-            winit::event::Event::WindowEvent { event, .. } => match event {
-	        winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            glium::winit::event::Event::WindowEvent { event, .. } => match event {
+	        glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
 	        _ => (),
             },
             _ => (),
