@@ -6,13 +6,6 @@ use glium::{Display};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
 
-#[derive(Copy, Clone)]
-struct Vertex {
-    position: [f32; 2],
-    color: [f32; 3],
-}
-implement_vertex!(Vertex, position, color);
-
 struct Application { }
 
 impl ApplicationContext for Application {
