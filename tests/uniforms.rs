@@ -11,13 +11,6 @@ const RED_HALF_ALPHA: (u8, u8, u8, u8) = if cfg!(windows) {
     (255, 0, 0, 128)
 };
 
-#[derive(Copy, Clone)]
-struct Vertex {
-    position: [f32; 2],
-}
-
-implement_vertex!(Vertex, position);
-
 #[test]
 fn uniforms_storage_single_value() {
     let display = support::build_display();

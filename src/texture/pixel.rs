@@ -1,6 +1,3 @@
-#[cfg(feature = "image")]
-use image;
-
 /// A trait that must be implemented for any type that can represent the value of a pixel.
 pub unsafe trait PixelValue: Copy + Clone + Send + 'static {
     /// Returns corresponding client format.
@@ -203,66 +200,3 @@ unsafe impl PixelValue for (f32, f32, f32, f32) {
     }
 }
 
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::Rgb<u8> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::U8U8U8
-    }
-}
-
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::Rgba<u8> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::U8U8U8U8
-    }
-}
-
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::Luma<u8> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::U8
-    }
-}
-
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::Luma<u16> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::U16
-    }
-}
-
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::Luma<f32> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::F32
-    }
-}
-
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::LumaA<u8> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::U8U8
-    }
-}
-
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::LumaA<u16> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::U16U16
-    }
-}
-
-#[cfg(feature = "image")]
-unsafe impl PixelValue for image::LumaA<f32> {
-    #[inline]
-    fn get_format() -> super::ClientFormat {
-        super::ClientFormat::F32F32
-    }
-}
