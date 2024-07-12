@@ -114,8 +114,9 @@ glium = &quot;0.33&quot;
 <li>Calling the <code>build</code> method of the <code>SimpleWindowBuilder</code> with a reference to the event_loop to get the <code>Window</code> and <code>Display</code>.</li>
 </ol>
 <p>This will open a new window, register it with the given event_loop and create a (glutin) OpenGL context and glium Display while finally returning both the window and display to you.</p>
+<p>The following examples require the <code>simple_window_builder</code> feature, and provide a re-export of winit to prevent version mismatches.</p>
 <pre><pre class="playpen"><code class="language-rust">fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
+    let event_loop = glium::winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 }
 </code></pre></pre>
@@ -125,8 +126,8 @@ glium = &quot;0.33&quot;
 #fn main() {
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-        winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+        glium::winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+        glium::winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
         _ =&gt; (),
         },
         _ =&gt; (),
@@ -167,7 +168,7 @@ target.finish().unwrap();
 <pre><pre class="playpen"><code class="language-rust">use glium::Surface;
 
 fn main() {
-    let event_loop = winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
+    let event_loop = glium::winit::event_loop::EventLoopBuilder::new().build().expect(&quot;event loop building&quot;);
     let (_window, display) = glium::backend::glutin::SimpleWindowBuilder::new().build(&amp;event_loop);
 
     let mut frame = display.draw();
@@ -176,8 +177,8 @@ fn main() {
 
     let _ = event_loop.run(move |event, window_target| {
         match event {
-            winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            glium::winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glium::winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
             _ =&gt; (),
             },
             _ =&gt; (),
@@ -313,9 +314,9 @@ target.draw(&amp;vertex_buffer, &amp;indices, &amp;program, &amp;glium::uniforms
 #fn main() {
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
-            winit::event::WindowEvent::RedrawRequested =&gt; {
+        glium::winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glium::winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            glium::winit::event::WindowEvent::RedrawRequested =&gt; {
                 // Move the draw code here!
             },
             _ =&gt; (),
@@ -330,14 +331,14 @@ let _ = event_loop.run(move |event, window_target| {
 #fn main() {
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
-            winit::event::WindowEvent::RedrawRequested =&gt; {
+        glium::winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glium::winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            glium::winit::event::WindowEvent::RedrawRequested =&gt; {
                 // Move the draw code here!
             },
             _ =&gt; (),
         },
-        winit::event::Event::AboutToWait =&gt; {
+        glium::winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
         },
         _ =&gt; (),
@@ -352,17 +353,17 @@ let _ = event_loop.run(move |event, window_target| {
 let mut t: f32 = 0.0;
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
-            winit::event::WindowEvent::Resized(window_size) =&gt; {
+        glium::winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glium::winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            glium::winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
-            winit::event::WindowEvent::RedrawRequested =&gt; {
+            glium::winit::event::WindowEvent::RedrawRequested =&gt; {
                 // Move the draw code here!
             },
             _ =&gt; (),
         },
-        winit::event::Event::AboutToWait =&gt; {
+        glium::winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
         },
         _ =&gt; (),
@@ -378,12 +379,12 @@ let _ = event_loop.run(move |event, window_target| {
 let mut t: f32 = 0.0;
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
-            winit::event::WindowEvent::Resized(window_size) =&gt; {
+        glium::winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glium::winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            glium::winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
-            winit::event::WindowEvent::RedrawRequested =&gt; {
+            glium::winit::event::WindowEvent::RedrawRequested =&gt; {
                 // We update `t`
                 t += 0.02;
                 // We use the sine of t as an offset, this way we get a nice smooth animation
@@ -404,7 +405,7 @@ let _ = event_loop.run(move |event, window_target| {
             },
             _ =&gt; (),
         },
-        winit::event::Event::AboutToWait =&gt; {
+        glium::winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
         },
         _ =&gt; (),
@@ -430,12 +431,12 @@ let _ = event_loop.run(move |event, window_target| {
 let mut t: f32 = 0.0;
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } =&gt; match event {
-            winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
-            winit::event::WindowEvent::Resized(window_size) =&gt; {
+        glium::winit::event::Event::WindowEvent { event, .. } =&gt; match event {
+            glium::winit::event::WindowEvent::CloseRequested =&gt; window_target.exit(),
+            glium::winit::event::WindowEvent::Resized(window_size) =&gt; {
                 display.resize(window_size.into());
             },
-        winit::event::WindowEvent::RedrawRequested =&gt; {
+        glium::winit::event::WindowEvent::RedrawRequested =&gt; {
             // We update `t`
             t += 0.02;
                 // We use the sine of t as an offset, this way we get a nice smooth animation
@@ -449,7 +450,7 @@ let _ = event_loop.run(move |event, window_target| {
         },
             _ =&gt; (),
         },
-        winit::event::Event::AboutToWait =&gt; {
+        glium::winit::event::Event::AboutToWait =&gt; {
             window.request_redraw();
         },
         _ =&gt; (),
