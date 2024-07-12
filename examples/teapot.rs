@@ -164,7 +164,7 @@ impl ApplicationContext for Application {
         frame.finish().unwrap();
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
+    fn handle_window_event(&mut self, event: &glium::winit::event::WindowEvent, _window: &glium::winit::window::Window) {
         self.camera.process_input(&event);
     }
 

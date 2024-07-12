@@ -7,9 +7,9 @@ So far we have only ever rendered a single frame and then waited for the program
 ```rust
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => window_target.exit(),
-            winit::event::WindowEvent::RedrawRequested => {
+        glium::winit::event::Event::WindowEvent { event, .. } => match event {
+            glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            glium::winit::event::WindowEvent::RedrawRequested => {
                 // Move the draw code here!
             },
             _ => (),
@@ -24,14 +24,14 @@ What exactly triggers this event is platform specific, but in order to draw our 
 ```rust
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => window_target.exit(),
-            winit::event::WindowEvent::RedrawRequested => {
+        glium::winit::event::Event::WindowEvent { event, .. } => match event {
+            glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            glium::winit::event::WindowEvent::RedrawRequested => {
                 // Move the draw code here!
             },
             _ => (),
         },
-        winit::event::Event::AboutToWait => {
+        glium::winit::event::Event::AboutToWait => {
             window.request_redraw();
         },
         _ => (),
@@ -47,17 +47,17 @@ While we are working on our event_loop there is one more event that we should ha
 let mut t: f32 = 0.0;
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => window_target.exit(),
-            winit::event::WindowEvent::Resized(window_size) => {
+        glium::winit::event::Event::WindowEvent { event, .. } => match event {
+            glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            glium::winit::event::WindowEvent::Resized(window_size) => {
                 display.resize(window_size.into());
             },
-            winit::event::WindowEvent::RedrawRequested => {
+            glium::winit::event::WindowEvent::RedrawRequested => {
                 // Move the draw code here!
             },
             _ => (),
         },
-        winit::event::Event::AboutToWait => {
+        glium::winit::event::Event::AboutToWait => {
             window.request_redraw();
         },
         _ => (),
@@ -75,12 +75,12 @@ Our first approach will be to create a variable named `t` which represents the s
 let mut t: f32 = 0.0;
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => window_target.exit(),
-            winit::event::WindowEvent::Resized(window_size) => {
+        glium::winit::event::Event::WindowEvent { event, .. } => match event {
+            glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            glium::winit::event::WindowEvent::Resized(window_size) => {
                 display.resize(window_size.into());
             },
-            winit::event::WindowEvent::RedrawRequested => {
+            glium::winit::event::WindowEvent::RedrawRequested => {
                 // We update `t`
                 t += 0.02;
                 // We use the sine of t as an offset, this way we get a nice smooth animation
@@ -101,7 +101,7 @@ let _ = event_loop.run(move |event, window_target| {
             },
             _ => (),
         },
-        winit::event::Event::AboutToWait => {
+        glium::winit::event::Event::AboutToWait => {
             window.request_redraw();
         },
         _ => (),
@@ -127,12 +127,12 @@ Let's remove the two `let`'s that redefine our shape and vertex_buffer from our 
 let mut t: f32 = 0.0;
 let _ = event_loop.run(move |event, window_target| {
     match event {
-        winit::event::Event::WindowEvent { event, .. } => match event {
-            winit::event::WindowEvent::CloseRequested => window_target.exit(),
-            winit::event::WindowEvent::Resized(window_size) => {
+        glium::winit::event::Event::WindowEvent { event, .. } => match event {
+            glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            glium::winit::event::WindowEvent::Resized(window_size) => {
                 display.resize(window_size.into());
             },
-	    winit::event::WindowEvent::RedrawRequested => {
+	    glium::winit::event::WindowEvent::RedrawRequested => {
 	        // We update `t`
 	        t += 0.02;
                 // We use the sine of t as an offset, this way we get a nice smooth animation
@@ -146,7 +146,7 @@ let _ = event_loop.run(move |event, window_target| {
 	    },
             _ => (),
         },
-        winit::event::Event::AboutToWait => {
+        glium::winit::event::Event::AboutToWait => {
             window.request_redraw();
         },
         _ => (),

@@ -1,12 +1,12 @@
 #[macro_use]
 extern crate glium;
 
-use std::{cell::RefCell};
+use std::cell::RefCell;
 
 use glium::{Display, Surface, framebuffer::SimpleFrameBuffer};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
-use winit::keyboard::{PhysicalKey, KeyCode};
+use glium::winit::keyboard::{PhysicalKey, KeyCode};
 
 mod support;
 
@@ -275,12 +275,12 @@ impl ApplicationContext for Application {
         target.finish().unwrap();
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
+    fn handle_window_event(&mut self, event: &glium::winit::event::WindowEvent, _window: &glium::winit::window::Window) {
         self.camera.process_input(&event);
 
         match event {
-            winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
-                winit::event::ElementState::Pressed => match event.physical_key {
+            glium::winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
+                glium::winit::event::ElementState::Pressed => match event.physical_key {
                     PhysicalKey::Code(KeyCode::Space) => {
                         self.fxaa_enabled = !self.fxaa_enabled;
                         println!("FXAA is now {}", if self.fxaa_enabled { "enabled" } else { "disabled" });

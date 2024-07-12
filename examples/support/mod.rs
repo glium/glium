@@ -88,22 +88,22 @@ pub trait ApplicationContext {
     fn draw_frame(&mut self, _display: &Display<WindowSurface>) { }
     fn new(display: &Display<WindowSurface>) -> Self;
     fn update(&mut self) { }
-    fn handle_window_event(&mut self, _event: &winit::event::WindowEvent, _window: &winit::window::Window) { }
+    fn handle_window_event(&mut self, _event: &glium::winit::event::WindowEvent, _window: &glium::winit::window::Window) { }
     const WINDOW_TITLE:&'static str;
 }
 
 pub struct State<T> {
     pub display: glium::Display<WindowSurface>,
-    pub window: winit::window::Window,
+    pub window: glium::winit::window::Window,
     pub context: T,
 }
 
 impl<T: ApplicationContext + 'static> State<T> {
     pub fn new<W>(
-        event_loop: &winit::event_loop::EventLoopWindowTarget<W>,
+        event_loop: &glium::winit::event_loop::EventLoopWindowTarget<W>,
         visible: bool,
     ) -> Self {
-        let window_builder = winit::window::WindowBuilder::new().with_title(T::WINDOW_TITLE).with_visible(visible);
+        let window_builder = glium::winit::window::WindowBuilder::new().with_title(T::WINDOW_TITLE).with_visible(visible);
         let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
         let display_builder = glutin_winit::DisplayBuilder::new().with_window_builder(Some(window_builder));
 
@@ -150,7 +150,7 @@ impl<T: ApplicationContext + 'static> State<T> {
 
     pub fn from_display_window(
         display: glium::Display<WindowSurface>,
-        window: winit::window::Window,
+        window: glium::winit::window::Window,
     ) -> Self {
         let context = T::new(&display);
         Self {
@@ -162,7 +162,7 @@ impl<T: ApplicationContext + 'static> State<T> {
 
     /// Start the event_loop and keep rendering frames until the program is closed
     pub fn run_loop() {
-        let event_loop = winit::event_loop::EventLoopBuilder::new()
+        let event_loop = glium::winit::event_loop::EventLoopBuilder::new()
             .build()
             .expect("event loop building");
         let mut state: Option<State<T>> = None;
@@ -171,24 +171,24 @@ impl<T: ApplicationContext + 'static> State<T> {
             match event {
                 // The Resumed/Suspended events are mostly for Android compatiblity since the context can get lost there at any point.
                 // For convenience's sake the Resumed event is also delivered on other platforms on program startup.
-                winit::event::Event::Resumed => {
+                glium::winit::event::Event::Resumed => {
                     state = Some(State::new(window_target, true));
                 },
-                winit::event::Event::Suspended => state = None,
+                glium::winit::event::Event::Suspended => state = None,
                 // By requesting a redraw in response to a AboutToWait event we get continuous rendering.
                 // For applications that only change due to user input you could remove this handler.
-                winit::event::Event::AboutToWait => {
+                glium::winit::event::Event::AboutToWait => {
                     if let Some(state) = &state {
                         state.window.request_redraw();
                     }
                 }
-                winit::event::Event::WindowEvent { event, .. } => match event {
-                    winit::event::WindowEvent::Resized(new_size) => {
+                glium::winit::event::Event::WindowEvent { event, .. } => match event {
+                    glium::winit::event::WindowEvent::Resized(new_size) => {
                         if let Some(state) = &state {
                             state.display.resize(new_size.into());
                         }
                     },
-                    winit::event::WindowEvent::RedrawRequested => {
+                    glium::winit::event::WindowEvent::RedrawRequested => {
                         if let Some(state) = &mut state {
                             state.context.update();
                             state.context.draw_frame(&state.display);
@@ -196,10 +196,10 @@ impl<T: ApplicationContext + 'static> State<T> {
                     },
                     // Exit the event loop when requested (by closing the window for example) or when
                     // pressing the Esc key.
-                    winit::event::WindowEvent::CloseRequested
-                    | winit::event::WindowEvent::KeyboardInput { event: winit::event::KeyEvent {
-                        state: winit::event::ElementState::Pressed,
-                        logical_key: winit::keyboard::Key::Named(winit::keyboard::NamedKey::Escape),
+                    glium::winit::event::WindowEvent::CloseRequested
+                    | glium::winit::event::WindowEvent::KeyboardInput { event: glium::winit::event::KeyEvent {
+                        state: glium::winit::event::ElementState::Pressed,
+                        logical_key: glium::winit::keyboard::Key::Named(glium::winit::keyboard::NamedKey::Escape),
                         ..
                     }, ..} => {
                         window_target.exit()
@@ -219,7 +219,7 @@ impl<T: ApplicationContext + 'static> State<T> {
 
     /// Create a context and draw a single frame
     pub fn run_once(visible: bool) {
-        let event_loop = winit::event_loop::EventLoopBuilder::new()
+        let event_loop = glium::winit::event_loop::EventLoopBuilder::new()
             .build()
             .expect("event loop building");
         let mut state:State<T> = State::new(&event_loop, visible);

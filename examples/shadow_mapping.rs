@@ -2,7 +2,7 @@
 extern crate glium;
 
 use cgmath::SquareMatrix;
-use winit::keyboard::{PhysicalKey, KeyCode};
+use glium::winit::keyboard::{PhysicalKey, KeyCode};
 use std::time::Instant;
 use glium::{Surface, Display, VertexBuffer, IndexBuffer, Program, texture::DepthTexture2d};
 use glutin::surface::WindowSurface;
@@ -275,9 +275,9 @@ impl ApplicationContext for Application {
         }
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, _window: &winit::window::Window) {
+    fn handle_window_event(&mut self, event: &glium::winit::event::WindowEvent, _window: &glium::winit::window::Window) {
         match event {
-            winit::event::WindowEvent::KeyboardInput { event, .. } => if event.state == winit::event::ElementState::Pressed {
+            glium::winit::event::WindowEvent::KeyboardInput { event, .. } => if event.state == glium::winit::event::ElementState::Pressed {
                 if let PhysicalKey::Code(code) = event.physical_key {
                     match code {
                         KeyCode::KeyC => self.camera_rotating = !self.camera_rotating,

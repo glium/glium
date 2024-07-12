@@ -12,7 +12,9 @@ The initialisation of a simple glium display occurs in two steps.
 
 ```no_run
 extern crate glium;
-extern crate winit;
+// Use the re-exported winit dependency to avoid version mismatches.
+// Requires the `simple_window_builder` feature.
+use glium::winit;
 
 fn main() {
     // 1. The **winit::EventLoop** for handling events.
@@ -108,6 +110,8 @@ result to the user.
 
 #[cfg(feature = "glutin")]
 pub use crate::backend::glutin::glutin;
+#[cfg(feature = "simple_window_builder")]
+pub use crate::backend::winit;
 pub use crate::context::{Capabilities, ExtensionsList, Profile, UuidError};
 pub use crate::draw_parameters::{Blend, BlendingFunction, LinearBlendingFactor, BackfaceCullingMode};
 pub use crate::draw_parameters::{Depth, DepthTest, PolygonMode, DrawParameters, StencilTest, StencilOperation};

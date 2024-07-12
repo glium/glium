@@ -8,7 +8,7 @@ use glium::index::PrimitiveType;
 use glium::{Display, Frame, Surface};
 use glutin::surface::WindowSurface;
 use support::{ApplicationContext, State};
-use winit::{window::Fullscreen, keyboard::{PhysicalKey, KeyCode}};
+use glium::winit::{window::Fullscreen, keyboard::{PhysicalKey, KeyCode}};
 
 mod support;
 
@@ -29,7 +29,7 @@ struct Application {
 }
 
 impl Application {
-    fn toggle_fullscreen(&mut self, window: &winit::window::Window) {
+    fn toggle_fullscreen(&mut self, window: &glium::winit::window::Window) {
         if self.fullscreen {
             window.set_fullscreen(None);
             self.fullscreen = false;
@@ -123,10 +123,10 @@ impl ApplicationContext for Application {
         frame.finish().unwrap();
     }
 
-    fn handle_window_event(&mut self, event: &winit::event::WindowEvent, window: &winit::window::Window) {
+    fn handle_window_event(&mut self, event: &glium::winit::event::WindowEvent, window: &glium::winit::window::Window) {
         match event {
-            winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
-                winit::event::ElementState::Pressed => match event.physical_key {
+            glium::winit::event::WindowEvent::KeyboardInput { event, .. } => match event.state {
+                glium::winit::event::ElementState::Pressed => match event.physical_key {
                     PhysicalKey::Code(KeyCode::Enter) => {
                         self.toggle_fullscreen(window);
                     }

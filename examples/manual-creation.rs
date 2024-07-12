@@ -17,8 +17,8 @@ There are three concepts in play:
 
 */
 
-use winit::event_loop::EventLoopBuilder;
-use winit::window::WindowBuilder;
+use glium::winit::event_loop::EventLoopBuilder;
+use glium::winit::window::WindowBuilder;
 use glium::Surface;
 use glutin::surface::WindowSurface;
 use glutin::config::ConfigTemplateBuilder;
@@ -158,8 +158,8 @@ fn main() {
     // the window is still available
     event_loop.run(|event, window_target| {
         match event {
-            winit::event::Event::WindowEvent { event, .. } => match event {
-                winit::event::WindowEvent::CloseRequested => window_target.exit(),
+            glium::winit::event::Event::WindowEvent { event, .. } => match event {
+                glium::winit::event::WindowEvent::CloseRequested => window_target.exit(),
                 _ => (),
             },
             _ => (),
