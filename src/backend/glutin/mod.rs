@@ -306,6 +306,7 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
 /// Builder to simplify glium/glutin context creation.
 pub struct SimpleWindowBuilder {
     builder: winit::window::WindowBuilder,
+    config_template_builder: glutin::config::ConfigTemplateBuilder,
 }
 
 #[cfg(feature = "simple_window_builder")]
@@ -316,6 +317,8 @@ impl SimpleWindowBuilder {
             builder: winit::window::WindowBuilder::new()
                 .with_title("Simple Glium Window")
                 .with_inner_size(winit::dpi::PhysicalSize::new(800, 480)),
+            config_template_builder: glutin::config::ConfigTemplateBuilder::new(),
+
         }
     }
 
@@ -341,6 +344,13 @@ impl SimpleWindowBuilder {
         self
     }
 
+    /// Replace the used [`ConfigTemplateBuilder`](glutin::config::ConfigTemplateBuilder),
+    /// Can be used to configure among other things buffer sizes and number of samples for the window.
+    pub fn with_config_template_builder(mut self, config_template_builder: glutin::config::ConfigTemplateBuilder) -> Self {
+        self.config_template_builder = config_template_builder;
+        self
+    }
+
     /// Returns the inner [`WindowBuilder`](winit::window::WindowBuilder).
     pub fn into_window_builder(self) -> winit::window::WindowBuilder {
         self.builder
@@ -361,9 +371,8 @@ impl SimpleWindowBuilder {
         // First we start by opening a new Window
         let display_builder =
             glutin_winit::DisplayBuilder::new().with_window_builder(Some(self.builder));
-        let config_template_builder = glutin::config::ConfigTemplateBuilder::new();
         let (window, gl_config) = display_builder
-            .build(&event_loop, config_template_builder, |mut configs| {
+            .build(&event_loop, self.config_template_builder, |mut configs| {
                 // Just use the first configuration since we don't have any special preferences here
                 configs.next().unwrap()
             })
