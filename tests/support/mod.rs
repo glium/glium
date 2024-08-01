@@ -15,10 +15,10 @@ use glutin::display::GetGlDisplay;
 use glutin::prelude::*;
 use glutin::surface::{SurfaceAttributesBuilder, WindowSurface};
 use glutin_winit::DisplayBuilder;
-use raw_window_handle::{HasRawWindowHandle, RawWindowHandle};
+use raw_window_handle::{HasWindowHandle, WindowHandle, RawWindowHandle};
 use glium::winit::event::Event;
-use glium::winit::event_loop::{EventLoopBuilder, EventLoopProxy};
-use glium::winit::window::{Window, WindowBuilder, WindowId};
+use glium::winit::event_loop::{EventLoop, EventLoopProxy};
+use glium::winit::window::{Window, WindowId};
 
 use std::collections::HashMap;
 use std::env;
@@ -45,21 +45,21 @@ static mut SEND_PROXY: Once = Once::new();
 
 #[derive(Debug)]
 enum HandleOrWindow {
-    SendHandle(RawWindowHandle),
+    SendHandle(WindowHandle<'static>),
     RefWindow(&'static Window),
 }
 
 impl From<&'static Window> for HandleOrWindow {
     fn from(window: &'static Window) -> Self {
-        let raw_window_handle = window.raw_window_handle();
+        let window_handle = window.window_handle().unwrap();
 
-        match raw_window_handle {
+        match window_handle.as_raw() {
             RawWindowHandle::Xlib(_) |
             RawWindowHandle::Xcb(_) |
             // n.b. `Window` is `!Send` and `!Sync` for wasm32
             RawWindowHandle::Web(_) |
             RawWindowHandle::Drm(_)
-                => HandleOrWindow::SendHandle(raw_window_handle),
+                => HandleOrWindow::SendHandle(window_handle),
             RawWindowHandle::UiKit(_) |
             RawWindowHandle::AppKit(_) |
             RawWindowHandle::Orbital(_) |
@@ -78,10 +78,11 @@ impl From<&'static Window> for HandleOrWindow {
 
 impl From<HandleOrWindow> for RawWindowHandle {
     fn from(handle: HandleOrWindow) -> Self {
-        match handle {
+        let handle = match handle {
             HandleOrWindow::SendHandle(handle) => handle,
-            HandleOrWindow::RefWindow(window) => window.raw_window_handle(),
-        }
+            HandleOrWindow::RefWindow(window) => window.window_handle().unwrap(),
+        };
+        handle.as_raw()
     }
 }
 
@@ -106,23 +107,23 @@ unsafe fn initialize_event_loop() {
                 WINDOWS = Some(HashMap::new());
 
                 let event_loop_res = if cfg!(unix) || cfg!(windows) {
-                    EventLoopBuilder::new().with_any_thread(true).build()
+                    EventLoop::builder().with_any_thread(true).build()
                 } else {
-                    EventLoopBuilder::new().build()
+                    EventLoop::builder().build()
                 };
                 let event_loop = event_loop_res.expect("event loop building");
                 let proxy = event_loop.create_proxy();
 
+                #[allow(deprecated)]
                 event_loop.run(move |event, window_target| {
                     match event {
                         Event::UserEvent(_) => {
-                            let window_builder = WindowBuilder::new().with_visible(false);
-
+                            let window_attributes = Window::default_attributes().with_visible(false);
                             let config_template_builder = ConfigTemplateBuilder::new();
                             let display_builder =
-                                DisplayBuilder::new().with_window_builder(Some(window_builder));
+                                DisplayBuilder::new().with_window_attributes(Some(window_attributes));
                             let (window, gl_config) = display_builder
-                                .build(&window_target, config_template_builder, |mut configs| {
+                                .build(window_target, config_template_builder, |mut configs| {
                                     // Just use the first configuration since we don't have any special preferences here
                                     configs.next().unwrap()
                                 })

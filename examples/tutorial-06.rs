@@ -3,7 +3,7 @@ extern crate glium;
 use glium::Surface;
 
 fn main() {
-    let event_loop = glium::winit::event_loop::EventLoopBuilder::new()
+    let event_loop = glium::winit::event_loop::EventLoop::builder()
         .build()
         .expect("event loop building");
     let (window, display) = glium::backend::glutin::SimpleWindowBuilder::new()
@@ -65,6 +65,7 @@ fn main() {
 
     let mut t:f32 = 0.0;
 
+    #[allow(deprecated)]
     event_loop.run(move |ev, window_target| {
         match ev {
             glium::winit::event::Event::WindowEvent { event, .. } => match event {
