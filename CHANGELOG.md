@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.35.0 (2024-08-04)
+
+- Updated glutin to version 0.32.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0320).
+
 ## Version 0.34.0 (2024-01-03)
 
 - Updated glutin to version 0.31.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0310).
