@@ -207,8 +207,8 @@ impl<'t, T: 't> Sampler<'t, T> {
     }
 
     /// Changes the border color of the sampler.
-    pub fn border_color<S: Into<Option<BorderColor>>>(mut self, color: S) -> Sampler<'t, T> {
-        self.1.border_color = color.into();
+    pub fn border_color<S: Into<BorderColor>>(mut self, color: Option<S>) -> Sampler<'t, T> {
+        self.1.border_color = color.map(Into::into);
         self
     }
 }

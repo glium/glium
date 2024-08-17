@@ -390,7 +390,7 @@ impl ApplicationContext for Application {
                     .minify_filter(glium::uniforms::MinifySamplerFilter::Nearest)
                     .depth_texture_comparison(Some(glium::uniforms::DepthTextureComparison::LessOrEqual))
                     .wrap_function(glium::uniforms::SamplerWrapFunction::BorderClamp)
-                    .border_color(Some([1.0, 1.0, 1.0, 1.0].into())),
+                    .border_color(Some([1.0, 1.0, 1.0, 1.0])),
             };
 
             target.draw(
