@@ -142,6 +142,10 @@ impl ToGlEnum for DepthTextureComparison {
 
 
 /// The border color to use for `SamplerWrapFunction::BorderClamp`.
+///
+/// This type encapsulates `[f32; 4]` internally as `[u32; 4]` so that
+/// it implements Hash and Eq. The conversions to and from `[f32; 4]`
+/// are provided by the `From` trait.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct BorderColor([u32; 4]);
 
