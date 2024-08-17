@@ -388,7 +388,9 @@ impl ApplicationContext for Application {
                 shadow_map: glium::uniforms::Sampler::new(&self.shadow_texture)
                     .magnify_filter(glium::uniforms::MagnifySamplerFilter::Nearest)
                     .minify_filter(glium::uniforms::MinifySamplerFilter::Nearest)
-                    .depth_texture_comparison(Some(glium::uniforms::DepthTextureComparison::LessOrEqual)),
+                    .depth_texture_comparison(Some(glium::uniforms::DepthTextureComparison::LessOrEqual))
+                    .wrap_function(glium::uniforms::SamplerWrapFunction::BorderClamp)
+                    .border_color(Some([1.0, 1.0, 1.0, 1.0].into())),
             };
 
             target.draw(
