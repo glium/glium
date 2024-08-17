@@ -159,6 +159,13 @@ impl From<BorderColor> for [f32; 4] {
     }
 }
 
+impl BorderColor {
+    #[inline]
+    pub(crate) fn as_f32_array(&self) -> &[f32; 4] {
+        unsafe { std::mem::transmute(&self.0) }
+    }
+}
+
 /// A sampler.
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Sampler<'t, T>(pub &'t T, pub SamplerBehavior);
