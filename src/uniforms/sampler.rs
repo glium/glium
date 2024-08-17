@@ -140,6 +140,25 @@ impl ToGlEnum for DepthTextureComparison {
     }
 }
 
+
+/// The border color to use for `SamplerWrapFunction::BorderClamp`.
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct BorderColor([u32; 4]);
+
+impl From<[f32; 4]> for BorderColor {
+    #[inline]
+    fn from(value: [f32; 4]) -> BorderColor {
+        BorderColor(unsafe { std::mem::transmute(value) })
+    }
+}
+
+impl From<BorderColor> for [f32; 4] {
+    #[inline]
+    fn from(value: BorderColor) -> [f32; 4] {
+        unsafe { std::mem::transmute(value.0) }
+    }
+}
+
 /// A sampler.
 #[derive(Debug, Hash, PartialEq, Eq)]
 pub struct Sampler<'t, T>(pub &'t T, pub SamplerBehavior);
@@ -179,6 +198,12 @@ impl<'t, T: 't> Sampler<'t, T> {
         self.1.max_anisotropy = level;
         self
     }
+
+    /// Changes the border color of the sampler.
+    pub fn border_color<S: Into<Option<BorderColor>>>(mut self, color: S) -> Sampler<'t, T> {
+        self.1.border_color = color.into();
+        self
+    }
 }
 
 impl<'t, T: 't> Copy for Sampler<'t, T> {}
@@ -190,7 +215,7 @@ impl<'t, T: 't> Clone for Sampler<'t, T> {
 }
 
 /// Behavior of a sampler.
-// TODO: GL_TEXTURE_BORDER_COLOR, GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS
+// TODO: GL_TEXTURE_MIN_LOD, GL_TEXTURE_MAX_LOD, GL_TEXTURE_LOD_BIAS
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct SamplerBehavior {
     /// Functions to use for the X, Y, and Z coordinates.
@@ -215,7 +240,11 @@ pub struct SamplerBehavior {
     /// If you set the value to a value higher than what the hardware supports, it will
     /// be clamped.
     pub max_anisotropy: u16,
+
+    /// The border color to use for `SamplerWrapFunction::BorderClamp`.
+    pub border_color: Option<BorderColor>,
 }
+
 
 impl Default for SamplerBehavior {
     #[inline]
@@ -230,6 +259,7 @@ impl Default for SamplerBehavior {
             magnify_filter: MagnifySamplerFilter::Linear,
             depth_texture_comparison: None,
             max_anisotropy: 1,
+            border_color: None,
         }
     }
 }
