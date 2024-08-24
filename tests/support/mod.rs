@@ -56,17 +56,19 @@ impl From<&'static Window> for HandleOrWindow {
         match window_handle.as_raw() {
             RawWindowHandle::Xlib(_) |
             RawWindowHandle::Xcb(_) |
-            // n.b. `Window` is `!Send` and `!Sync` for wasm32
-            RawWindowHandle::Web(_) |
-            RawWindowHandle::Drm(_)
+            RawWindowHandle::Drm(_) |
+            RawWindowHandle::Win32(_) |
+            RawWindowHandle::Web(_)
                 => HandleOrWindow::SendHandle(window_handle),
             RawWindowHandle::UiKit(_) |
             RawWindowHandle::AppKit(_) |
             RawWindowHandle::Orbital(_) |
+            RawWindowHandle::OhosNdk(_) |
             RawWindowHandle::Wayland(_) |
             RawWindowHandle::Gbm(_) |
-            RawWindowHandle::Win32(_) |
             RawWindowHandle::WinRt(_) |
+            RawWindowHandle::WebCanvas(_) |
+            RawWindowHandle::WebOffscreenCanvas(_) |
             RawWindowHandle::AndroidNdk(_) |
             RawWindowHandle::Haiku(_)
                 => HandleOrWindow::RefWindow(window),
