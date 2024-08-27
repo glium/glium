@@ -113,6 +113,9 @@ impl<T: ApplicationContext + 'static> ApplicationHandler<()> for App<T> {
     // For convenience's sake, the resumed handler is also called on other platforms on program startup.
     fn resumed(&mut self, event_loop: &ActiveEventLoop) {
         self.state = Some(State::new(event_loop, self.visible));
+        if !self.visible && self.close_promptly {
+            event_loop.exit();
+        }
     }
     fn suspended(&mut self, _event_loop: &ActiveEventLoop) {
         self.state = None;
