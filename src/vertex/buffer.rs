@@ -85,7 +85,7 @@ impl<'b, T: 'b> VertexBufferSlice<'b, T> where T: Copy + Content {
     /// The attributes are still passed to the vertex shader, but each entry is passed
     /// for each different instance.
     #[inline]
-    pub fn per_instance(&'b self) -> Result<PerInstance<'_>, InstancingNotSupported> {
+    pub fn per_instance(&'b self) -> Result<PerInstance<'b>, InstancingNotSupported> {
         // TODO: don't check this here
         if !(self.get_context().get_version() >= &Version(Api::Gl, 3, 3)) &&
             !(self.get_context().get_version() >= &Version(Api::GlEs, 3, 0)) &&
