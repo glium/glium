@@ -108,6 +108,8 @@ impl Semaphore {
             if ctxt.gl.IsSemaphoreEXT(sem.id) == gl::FALSE {
                 Err(SemaphoreCreationError::NullResult)
             } else {
+                std::mem::forget(fd);
+
                 Ok(sem)
             }
         } else {

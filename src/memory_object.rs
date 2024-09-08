@@ -86,6 +86,8 @@ impl MemoryObject {
                 fd.as_raw_fd(),
             );
 
+            std::mem::forget(fd);
+
             Ok(mem_obj)
         }
     }
