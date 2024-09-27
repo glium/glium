@@ -105,26 +105,26 @@ impl SimpleWindowBuilder {
         self
     }
 
-    /// Replace the used [`WindowBuilder`](WindowBuilder),
+    /// Replace the used [`WindowAttributes`],
     /// do this before you set other parameters or you'll overwrite the parameters.
     pub fn set_window_builder(mut self, window_attributes: WindowAttributes) -> Self {
         self.attributes = window_attributes;
         self
     }
 
-    /// Replace the used [`ConfigTemplateBuilder`](ConfigTemplateBuilder),
+    /// Replace the used [`ConfigTemplateBuilder`],
     /// Can be used to configure among other things buffer sizes and number of samples for the window.
     pub fn with_config_template_builder(mut self, config_template_builder: ConfigTemplateBuilder) -> Self {
         self.config_template_builder = config_template_builder;
         self
     }
 
-    /// Returns the inner [`WindowBuilder`](WindowBuilder).
+    /// Returns the inner [`WindowAttributes`].
     pub fn into_window_builder(self) -> WindowAttributes {
         self.attributes
     }
 
-    /// Create a new [`Window`](Window) and [`Display`]
+    /// Create a new [`Window`] and [`Display`]
     /// with the specified parameters.
     pub fn build(
         self,
