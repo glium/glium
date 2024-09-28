@@ -36,12 +36,12 @@ use glium::winit::platform::x11::EventLoopBuilderExtX11;
 use glium::winit::platform::windows::EventLoopBuilderExtWindows;
 
 // Thread communication
-static mut EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
-static mut WINDOW_RECEIVER: Mutex<Option<Receiver<(HandleOrWindow, Config)>>> = Mutex::new(None);
+static EVENT_LOOP_PROXY: RwLock<Option<EventLoopProxy<()>>> = RwLock::new(None);
+static WINDOW_RECEIVER: Mutex<Option<Receiver<(HandleOrWindow, Config)>>> = Mutex::new(None);
 
 // Initialization
-static mut INIT_EVENT_LOOP: Once = Once::new();
-static mut SEND_PROXY: Once = Once::new();
+static INIT_EVENT_LOOP: Once = Once::new();
+static SEND_PROXY: Once = Once::new();
 
 #[derive(Debug)]
 enum HandleOrWindow {
@@ -135,7 +135,9 @@ unsafe fn initialize_event_loop() {
                             // SAFETY
                             // The event loop is a single thread
                             // The `HashMap` only grows so references to its values stay valid
+                            #[allow(static_mut_refs)]
                             WINDOWS.as_mut().unwrap().insert(key, window);
+                            #[allow(static_mut_refs)]
                             let window = &WINDOWS.as_ref().unwrap()[&key];
 
                             sender.send((window.into(), gl_config)).unwrap();
