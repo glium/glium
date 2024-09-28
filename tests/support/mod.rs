@@ -173,20 +173,17 @@ pub fn build_display() -> Display<WindowSurface> {
     unsafe { initialize_event_loop(); }
 
     // Tell event loop to create a window and config for creating a display
-    unsafe {
-        EVENT_LOOP_PROXY
-            .read().unwrap()
-            .as_ref().unwrap()
-            .send_event(()).unwrap();
-    }
+    EVENT_LOOP_PROXY
+        .read().unwrap()
+        .as_ref().unwrap()
+        .send_event(()).unwrap();
 
     // Receive said window and config one thread at a time
-    let (handle_or_window, gl_config) = unsafe {
+    let (handle_or_window, gl_config) =
         WINDOW_RECEIVER
             .lock().unwrap()
             .as_ref().unwrap()
-            .recv().unwrap()
-    };
+            .recv().unwrap();
 
     // Then the configuration which decides which OpenGL version we'll end up using, here we just use the default which is currently 3.3 core
     // When this fails we'll try and create an ES context, this is mainly used on mobile devices or various ARM SBC's
