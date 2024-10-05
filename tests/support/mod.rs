@@ -18,9 +18,8 @@ use glutin_winit::DisplayBuilder;
 use raw_window_handle::{HasWindowHandle, WindowHandle, RawWindowHandle};
 use glium::winit::event::Event;
 use glium::winit::event_loop::{EventLoop, EventLoopProxy};
-use glium::winit::window::{Window, WindowId};
+use glium::winit::window::Window;
 
-use std::collections::HashMap;
 use std::env;
 use std::num::NonZeroU32;
 use std::sync::{mpsc::Receiver, Mutex, Once, RwLock};
@@ -102,12 +101,6 @@ unsafe fn initialize_event_loop() {
         let builder = thread::Builder::new().name("event_loop".into());
         builder
             .spawn(|| {
-                // Scoping the static mut here as it is only static for the `Window` references to bypass the borrow checker
-                // The choice to use static references simplifies the combined platform solution
-                static mut WINDOWS: Option<HashMap<WindowId, Window>> = None;
-                // safety: initialize before (exclusive) use in event loop
-                WINDOWS = Some(HashMap::new());
-
                 let event_loop_res = if cfg!(unix) || cfg!(windows) {
                     EventLoop::builder().with_any_thread(true).build()
                 } else {
@@ -131,18 +124,11 @@ unsafe fn initialize_event_loop() {
                                 })
                                 .unwrap();
 
-                            let window = window.unwrap();
-                            let key = window.id();
+                            // Leak the window object to obtain a static reference
+                            let boxed_window = Box::new(window.unwrap());
+                            let window = Box::leak(boxed_window);
 
-                            // SAFETY
-                            // The event loop is a single thread
-                            // The `HashMap` only grows so references to its values stay valid
-                            #[allow(static_mut_refs)]
-                            WINDOWS.as_mut().unwrap().insert(key, window);
-                            #[allow(static_mut_refs)]
-                            let window = &WINDOWS.as_ref().unwrap()[&key];
-
-                            sender.send((window.into(), gl_config)).unwrap();
+                            sender.send(((&*window).into(), gl_config)).unwrap();
                         }
                         _ => {
                             // Send event loop proxy ASAP
