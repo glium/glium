@@ -152,14 +152,14 @@ pub struct BorderColor([u32; 4]);
 impl From<[f32; 4]> for BorderColor {
     #[inline]
     fn from(value: [f32; 4]) -> BorderColor {
-        BorderColor(unsafe { std::mem::transmute(value) })
+        BorderColor(value.map(f32::to_bits))
     }
 }
 
 impl From<BorderColor> for [f32; 4] {
     #[inline]
     fn from(value: BorderColor) -> [f32; 4] {
-        unsafe { std::mem::transmute(value.0) }
+        value.0.map(f32::from_bits)
     }
 }
 
