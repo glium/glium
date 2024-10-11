@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 0.36.0 (2024-10-11)
+
+- Fix UB around FDs being closed
+- Fix static mut ref warnings in tests
+- Make `SimpleWindowBuilder` accept `ActiveEventLoop`
+
 ## Version 0.35.0 (2024-08-04)
 
 - Updated glutin to version 0.32.0. See the glutin release notes [here](https://github.com/rust-windowing/glutin/blob/master/CHANGELOG.md#version-0320).
