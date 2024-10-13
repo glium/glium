@@ -345,6 +345,10 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
             program.set_uniform(ctxt, location, &RawUniformValue::Mat4(val));
             Ok(())
         },
+        UniformValue::Mat4x3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat4x3(val));
+            Ok(())
+        },
         UniformValue::Vec2(val) => {
             program.set_uniform(ctxt, location, &RawUniformValue::Vec2(val));
             Ok(())

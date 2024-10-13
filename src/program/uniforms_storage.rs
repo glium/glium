@@ -90,6 +90,7 @@ impl UniformsStorage {
             (&RawUniformValue::Mat2(a), &mut Some(RawUniformValue::Mat2(b))) if a == b => (),
             (&RawUniformValue::Mat3(a), &mut Some(RawUniformValue::Mat3(b))) if a == b => (),
             (&RawUniformValue::Mat4(a), &mut Some(RawUniformValue::Mat4(b))) if a == b => (),
+            (&RawUniformValue::Mat4x3(a), &mut Some(RawUniformValue::Mat4x3(b))) if a == b => (),
             (&RawUniformValue::Vec2(a), &mut Some(RawUniformValue::Vec2(b))) if a == b => (),
             (&RawUniformValue::Vec3(a), &mut Some(RawUniformValue::Vec3(b))) if a == b => (),
             (&RawUniformValue::Vec4(a), &mut Some(RawUniformValue::Vec4(b))) if a == b => (),
@@ -157,6 +158,14 @@ impl UniformsStorage {
                 *target = Some(RawUniformValue::Mat4(v));
                 uniform!(ctxt, UniformMatrix4fv, UniformMatrix4fvARB,
                          location, 1, gl::FALSE, v.as_ptr() as *const f32);
+            },
+
+            (&RawUniformValue::Mat4x3(v), target) => {
+                *target = Some(RawUniformValue::Mat4x3(v));
+                unsafe {
+                    // TODO: If OpenGL <3.0 support is required, add panic branch
+                    ctxt.gl.UniformMatrix4x3fv(location, 1, gl::FALSE, v.as_ptr() as *const f32);
+                }
             },
 
             (&RawUniformValue::Vec2(v), target) => {

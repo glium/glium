@@ -157,6 +157,8 @@ pub enum UniformValue<'a> {
     Mat3([[f32; 3]; 3]),
     /// 4x4 column-major matrix.
     Mat4([[f32; 4]; 4]),
+    /// 4x3 column-major matrix.
+    Mat4x3([[f32; 3]; 4]),
     Vec2([f32; 2]),
     Vec3([f32; 3]),
     Vec4([f32; 4]),
@@ -287,6 +289,7 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::Mat2(_), UniformType::FloatMat2) => true,
             (&UniformValue::Mat3(_), UniformType::FloatMat3) => true,
             (&UniformValue::Mat4(_), UniformType::FloatMat4) => true,
+            (&UniformValue::Mat4x3(_), UniformType::FloatMat4x3) => true,
             (&UniformValue::Vec2(_), UniformType::FloatVec2) => true,
             (&UniformValue::Vec3(_), UniformType::FloatVec3) => true,
             (&UniformValue::Vec4(_), UniformType::FloatVec4) => true,
@@ -698,6 +701,15 @@ impl AsUniformValue for [[f32; 4]; 4] {
 }
 
 impl_uniform_block_basic!([[f32; 4]; 4], UniformType::FloatMat4);
+
+impl AsUniformValue for [[f32; 3]; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::Mat4x3(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f32; 3]; 4], UniformType::FloatMat4x3);
 
 impl AsUniformValue for (f32, f32) {
     #[inline]
