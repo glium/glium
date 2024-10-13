@@ -345,6 +345,26 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
             program.set_uniform(ctxt, location, &RawUniformValue::Mat4(val));
             Ok(())
         },
+        UniformValue::Mat2x3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat2x3(val));
+            Ok(())
+        },
+        UniformValue::Mat2x4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat2x4(val));
+            Ok(())
+        },
+        UniformValue::Mat3x2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat3x2(val));
+            Ok(())
+        },
+        UniformValue::Mat3x4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat3x4(val));
+            Ok(())
+        },
+        UniformValue::Mat4x2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat4x2(val));
+            Ok(())
+        },
         UniformValue::Mat4x3(val) => {
             program.set_uniform(ctxt, location, &RawUniformValue::Mat4x3(val));
             Ok(())

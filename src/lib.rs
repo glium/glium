@@ -440,6 +440,16 @@ pub enum RawUniformValue {
     Mat3([[gl::types::GLfloat; 3]; 3]),
     /// 4x4 column-major matrix.
     Mat4([[gl::types::GLfloat; 4]; 4]),
+    /// 2x3 column-major matrix.
+    Mat2x3([[gl::types::GLfloat; 3]; 2]),
+    /// 2x4 column-major matrix.
+    Mat2x4([[gl::types::GLfloat; 4]; 2]),
+    /// 3x2 column-major matrix.
+    Mat3x2([[gl::types::GLfloat; 2]; 3]),
+    /// 3x4 column-major matrix.
+    Mat3x4([[gl::types::GLfloat; 4]; 3]),
+    /// 4x2 column-major matrix.
+    Mat4x2([[gl::types::GLfloat; 2]; 4]),
     /// 4x3 column-major matrix.
     Mat4x3([[gl::types::GLfloat; 3]; 4]),
     Vec2([gl::types::GLfloat; 2]),

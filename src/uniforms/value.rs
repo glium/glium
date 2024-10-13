@@ -157,6 +157,16 @@ pub enum UniformValue<'a> {
     Mat3([[f32; 3]; 3]),
     /// 4x4 column-major matrix.
     Mat4([[f32; 4]; 4]),
+    /// 2x3 column-major matrix.
+    Mat2x3([[f32; 3]; 2]),
+    /// 2x4 column-major matrix.
+    Mat2x4([[f32; 4]; 2]),
+    /// 3x2 column-major matrix.
+    Mat3x2([[f32; 2]; 3]),
+    /// 3x4 column-major matrix.
+    Mat3x4([[f32; 4]; 3]),
+    /// 4x2 column-major matrix.
+    Mat4x2([[f32; 2]; 4]),
     /// 4x3 column-major matrix.
     Mat4x3([[f32; 3]; 4]),
     Vec2([f32; 2]),
@@ -289,6 +299,11 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::Mat2(_), UniformType::FloatMat2) => true,
             (&UniformValue::Mat3(_), UniformType::FloatMat3) => true,
             (&UniformValue::Mat4(_), UniformType::FloatMat4) => true,
+            (&UniformValue::Mat2x3(_), UniformType::FloatMat2x3) => true,
+            (&UniformValue::Mat2x4(_), UniformType::FloatMat2x4) => true,
+            (&UniformValue::Mat3x2(_), UniformType::FloatMat3x2) => true,
+            (&UniformValue::Mat3x4(_), UniformType::FloatMat3x4) => true,
+            (&UniformValue::Mat4x2(_), UniformType::FloatMat4x2) => true,
             (&UniformValue::Mat4x3(_), UniformType::FloatMat4x3) => true,
             (&UniformValue::Vec2(_), UniformType::FloatVec2) => true,
             (&UniformValue::Vec3(_), UniformType::FloatVec3) => true,
@@ -701,6 +716,51 @@ impl AsUniformValue for [[f32; 4]; 4] {
 }
 
 impl_uniform_block_basic!([[f32; 4]; 4], UniformType::FloatMat4);
+
+impl AsUniformValue for [[f32; 3]; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::Mat2x3(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f32; 3]; 2], UniformType::FloatMat2x3);
+
+impl AsUniformValue for [[f32; 4]; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::Mat2x4(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f32; 4]; 2], UniformType::FloatMat2x4);
+
+impl AsUniformValue for [[f32; 2]; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::Mat3x2(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f32; 2]; 3], UniformType::FloatMat3x2);
+
+impl AsUniformValue for [[f32; 4]; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::Mat3x4(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f32; 4]; 3], UniformType::FloatMat3x4);
+
+impl AsUniformValue for [[f32; 2]; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::Mat4x2(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f32; 2]; 4], UniformType::FloatMat4x2);
 
 impl AsUniformValue for [[f32; 3]; 4] {
     #[inline]
