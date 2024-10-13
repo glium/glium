@@ -186,9 +186,24 @@ pub enum UniformValue<'a> {
     DoubleVec2([f64; 2]),
     DoubleVec3([f64; 3]),
     DoubleVec4([f64; 4]),
-    DoubleMat2([[f64;2]; 2]),
-    DoubleMat3([[f64;3]; 3]),
-    DoubleMat4([[f64;4]; 4]),
+    /// 2x2 column-major double-precision matrix.
+    DoubleMat2([[f64; 2]; 2]),
+    /// 3x3 column-major double-precision matrix.
+    DoubleMat3([[f64; 3]; 3]),
+    /// 4x4 column-major double-precision matrix.
+    DoubleMat4([[f64; 4]; 4]),
+    /// 2x3 column-major double-precision matrix.
+    DoubleMat2x3([[f64; 3]; 2]),
+    /// 2x4 column-major double-precision matrix.
+    DoubleMat2x4([[f64; 4]; 2]),
+    /// 3x2 column-major double-precision matrix.
+    DoubleMat3x2([[f64; 2]; 3]),
+    /// 3x4 column-major double-precision matrix.
+    DoubleMat3x4([[f64; 4]; 3]),
+    /// 4x2 column-major double-precision matrix.
+    DoubleMat4x2([[f64; 2]; 4]),
+    /// 4x3 column-major double-precision matrix.
+    DoubleMat4x3([[f64; 3]; 4]),
     Int64(i64),
     Int64Vec2([i64; 2]),
     Int64Vec3([i64; 3]),
@@ -321,6 +336,12 @@ impl<'a> UniformValue<'a> {
             (&UniformValue::DoubleMat2(_), UniformType::DoubleMat2) => true,
             (&UniformValue::DoubleMat3(_), UniformType::DoubleMat3) => true,
             (&UniformValue::DoubleMat4(_), UniformType::DoubleMat4) => true,
+            (&UniformValue::DoubleMat2x3(_), UniformType::DoubleMat2x3) => true,
+            (&UniformValue::DoubleMat2x4(_), UniformType::DoubleMat2x4) => true,
+            (&UniformValue::DoubleMat3x2(_), UniformType::DoubleMat3x2) => true,
+            (&UniformValue::DoubleMat3x4(_), UniformType::DoubleMat3x4) => true,
+            (&UniformValue::DoubleMat4x2(_), UniformType::DoubleMat4x2) => true,
+            (&UniformValue::DoubleMat4x3(_), UniformType::DoubleMat4x3) => true,
             (&UniformValue::DoubleVec2(_), UniformType::DoubleVec2) => true,
             (&UniformValue::DoubleVec3(_), UniformType::DoubleVec3) => true,
             (&UniformValue::DoubleVec4(_), UniformType::DoubleVec4) => true,
@@ -916,6 +937,60 @@ impl AsUniformValue for [[f64; 4]; 4] {
 }
 
 impl_uniform_block_basic!([[f64; 4]; 4], UniformType::DoubleMat4);
+
+impl AsUniformValue for [[f64; 3]; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::DoubleMat2x3(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 3]; 2], UniformType::DoubleMat2x3);
+
+impl AsUniformValue for [[f64; 4]; 2] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::DoubleMat2x4(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 4]; 2], UniformType::DoubleMat2x4);
+
+impl AsUniformValue for [[f64; 2]; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::DoubleMat3x2(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 2]; 3], UniformType::DoubleMat3x2);
+
+impl AsUniformValue for [[f64; 4]; 3] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::DoubleMat3x4(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 4]; 3], UniformType::DoubleMat3x4);
+
+impl AsUniformValue for [[f64; 2]; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::DoubleMat4x2(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 2]; 4], UniformType::DoubleMat4x2);
+
+impl AsUniformValue for [[f64; 3]; 4] {
+    #[inline]
+    fn as_uniform_value(&self) -> UniformValue<'_> {
+        UniformValue::DoubleMat4x3(*self)
+    }
+}
+
+impl_uniform_block_basic!([[f64; 3]; 4], UniformType::DoubleMat4x3);
 
 impl AsUniformValue for i64 {
     #[inline]

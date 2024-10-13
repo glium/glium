@@ -464,9 +464,24 @@ pub enum RawUniformValue {
 
     // Double precision primitives
     Double(gl::types::GLdouble),
+    /// 2x2 column-major double-precision matrix.
     DoubleMat2([[gl::types::GLdouble; 2]; 2]),
+    /// 3x3 column-major double-precision matrix.
     DoubleMat3([[gl::types::GLdouble; 3]; 3]),
+    /// 4x4 column-major double-precision matrix.
     DoubleMat4([[gl::types::GLdouble; 4]; 4]),
+    /// 2x3 column-major double-precision matrix.
+    DoubleMat2x3([[gl::types::GLdouble; 3]; 2]),
+    /// 2x4 column-major double-precision matrix.
+    DoubleMat2x4([[gl::types::GLdouble; 4]; 2]),
+    /// 3x2 column-major double-precision matrix.
+    DoubleMat3x2([[gl::types::GLdouble; 2]; 3]),
+    /// 3x4 column-major double-precision matrix.
+    DoubleMat3x4([[gl::types::GLdouble; 4]; 3]),
+    /// 4x2 column-major double-precision matrix.
+    DoubleMat4x2([[gl::types::GLdouble; 2]; 4]),
+    /// 4x3 column-major double-precision matrix.
+    DoubleMat4x3([[gl::types::GLdouble; 3]; 4]),
     DoubleVec2([gl::types::GLdouble; 2]),
     DoubleVec3([gl::types::GLdouble; 3]),
     DoubleVec4([gl::types::GLdouble; 4]),
