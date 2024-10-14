@@ -76,6 +76,7 @@ impl GliumEventLoop for winit::event_loop::ActiveEventLoop {
 pub struct SimpleWindowBuilder {
     attributes: WindowAttributes,
     config_template_builder: ConfigTemplateBuilder,
+    vsync: bool
 }
 
 impl SimpleWindowBuilder {
@@ -86,6 +87,7 @@ impl SimpleWindowBuilder {
                 .with_title("Simple Glium Window")
                 .with_inner_size(winit::dpi::PhysicalSize::new(800, 480)),
             config_template_builder: ConfigTemplateBuilder::new(),
+            vsync: true
 
         }
     }
@@ -122,6 +124,12 @@ impl SimpleWindowBuilder {
     /// Returns the inner [`WindowAttributes`].
     pub fn into_window_builder(self) -> WindowAttributes {
         self.attributes
+    }
+
+    /// Replace the used vsync configuration
+    pub fn with_vsync(mut self, vsync: bool) -> Self {
+        self.vsync = vsync;
+        self
     }
 
     /// Create a new [`Window`] and [`Display`]
@@ -175,6 +183,14 @@ impl SimpleWindowBuilder {
         .unwrap()
         .make_current(&surface)
         .unwrap();
+
+        let swap_interval = if self.vsync {
+            glutin::surface::SwapInterval::Wait(std::num::NonZeroU32::new(1).unwrap())
+        } else {
+            glutin::surface::SwapInterval::DontWait
+        };
+        surface.set_swap_interval(&current_context, swap_interval).unwrap();
+
         let display = Display::from_context_surface(current_context, surface).unwrap();
 
         (window, display)
