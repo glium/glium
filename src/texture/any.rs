@@ -130,10 +130,6 @@ unsafe fn generate_mipmaps(ctxt: &CommandContext<'_>,
 }
 
 /// Builds a new texture.
-///
-/// # Panic
-///
-/// Panics if the size of the data doesn't match the texture dimensions.
 pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
                              data: Option<(ClientFormatAny, Cow<'a, [P]>)>,
                              mipmaps: MipmapsOption, ty: Dimensions)
@@ -153,7 +149,7 @@ pub fn new_texture<'a, F: ?Sized, P>(facade: &F, format: TextureFormatRequest,
     if let Some((_, ref data)) = data {
         if data.len() * mem::size_of::<P>() != data_bufsize
         {
-            panic!("Texture data size mismatch");
+            return Err(TextureCreationError::DataSizeMismatch);
         }
     }
 

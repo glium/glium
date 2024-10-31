@@ -805,6 +805,9 @@ pub enum TextureCreationError {
 
     /// The texture format is not supported by the backend.
     TypeNotSupported,
+
+    /// The size of the data doesn't match the texture dimensions.
+    DataSizeMismatch,
 }
 
 impl fmt::Display for TextureCreationError {
@@ -817,6 +820,8 @@ impl fmt::Display for TextureCreationError {
                 "The requested texture dimensions are not supported",
             TypeNotSupported =>
                 "The texture format is not supported by the backend",
+            DataSizeMismatch =>
+                "The size of the data doesn't match the texture dimensions",
         };
         fmt.write_str(desc)
     }
