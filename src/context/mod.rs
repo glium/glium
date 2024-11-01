@@ -1,6 +1,6 @@
 //! Contains everything related to the interface between glium and the OpenGL implementation.
 
-use crate::gl;
+use crate::{gl, buffer::{Inserter, FenceInserters}};
 
 use std::collections::HashMap;
 use std::mem;
@@ -97,6 +97,15 @@ pub struct Context {
     /// List of images handles that are resident. We need to call `MakeImageHandleResidentARB`
     /// when rebuilding the context.
     resident_image_handles: RefCell<Vec<(gl::types::GLuint64, gl::types::GLenum)>>,
+
+    /// A cached Vec used for fences. Used to reduce memory allocations.
+    fences_cache: RefCell<Vec<Inserter<'static>>>,
+}
+
+impl Context {
+    pub(crate) fn get_fences<'a>(&self) -> FenceInserters<'a> {
+        FenceInserters::new(self.fences_cache.borrow_mut())
+    }
 }
 
 /// This struct is a guard that is returned when you want to access the OpenGL backend.
@@ -212,6 +221,7 @@ impl Context {
             samplers,
             resident_texture_handles,
             resident_image_handles,
+            fences_cache: Default::default(),
         });
 
         if context.debug_callback.is_some() {
