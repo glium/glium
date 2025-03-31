@@ -185,6 +185,9 @@ unsafe impl glium::backend::Backend for DummyBackend {
         (800, 600)
     }
 
+    fn resize(&self, _: (u32, u32)) {
+    }
+
     fn is_current(&self) -> bool {
         true
     }
