@@ -72,6 +72,11 @@ unsafe impl glium::backend::Backend for DummyBackend {
                 delete as *const _
             },
 
+            "glDrawArrays" => {
+                extern "system" fn draw_arr(_: u32, _: i32, _: isize) {}
+                draw_arr as *const _
+            },
+
             "glEnable" | "glDisable" => {
                 extern "system" fn enable(_: u32) {}
                 enable as *const _
@@ -175,6 +180,11 @@ unsafe impl glium::backend::Backend for DummyBackend {
             "glUseProgram" => {
                 extern "system" fn use_program(_: u32) {}
                 use_program as *const _
+            },
+
+            "glViewport" => {
+                extern "system" fn viewport(_: i32, _: i32, _: isize, _: isize) {}
+                viewport as *const _
             },
 
             _name => ptr::null()
