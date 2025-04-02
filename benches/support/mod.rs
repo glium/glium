@@ -129,6 +129,7 @@ unsafe impl glium::backend::Backend for DummyBackend {
                 extern "system" fn get_integerv(name: u32, out: *mut i32) {
                     match name {
                         0x821D /* GL_NUM_EXTENSIONS */ => unsafe { *out = 0; },
+                        0x0D3A /* GL_MAX_VIEWPORT_DIMS */ => unsafe { *out = 800; *out.add(1) = 600; },
                         _ => unsafe { *out = 0; },
                     }
                 }

@@ -64,7 +64,6 @@ fn create_program(b: &mut Bencher) {
 }
 
 #[bench]
-#[ignore]       // TODO: segfaults
 fn draw_triangle(b: &mut Bencher) {
     let display = support::build_context();
 
