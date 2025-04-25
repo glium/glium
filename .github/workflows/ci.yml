@@ -30,6 +30,33 @@ jobs:
         RUSTFLAGS: -D warnings
       run: |
          cargo test --all --all-targets --no-run
+    - name: Install Xvfb
+      if: (matrix.os == 'ubuntu-latest')
+      run: |
+        sudo apt-get install libxkbcommon-x11-0
+        sudo apt-get install xvfb
+    - name: Run the tests (X11)
+      if: (matrix.os == 'ubuntu-latest')
+      env:
+        RUST_BACKTRACE: 1
+        RUSTFLAGS: -D warnings
+      run: xvfb-run cargo test --all --all-targets
+    - name: Set up Mesa
+      if: (matrix.os == 'windows-latest')
+      run: |
+        $url = 'https://github.com/pal1000/mesa-dist-win/releases/download/25.0.3/mesa3d-25.0.3-release-msvc.7z'
+        curl.exe -L --output mesa.7z --url $url
+        7z e mesa.7z -otarget\debug\deps `
+            x64\opengl32.dll `
+            x64\libgallium_wgl.dll `
+            x64\dxil.dll `
+            x64\d3d10warp.dll
+    - name: Run the tests (Windows)
+      if: (matrix.os == 'windows-latest')
+      env:
+        RUST_BACKTRACE: 1
+        RUSTFLAGS: -D warnings
+      run: cargo test --all --all-targets
     - name: Run cargo doc
       env:
         RUSTFLAGS: -D warnings
