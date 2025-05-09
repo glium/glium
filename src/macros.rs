@@ -431,7 +431,7 @@ macro_rules! implement_uniform_block {
                             }
                         }
 
-                        fn matches_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: &T,
+                        fn matches_from_ty<T: $crate::uniforms::UniformBlock + ?Sized>(_: Option<&T>,
                             layout: &$crate::program::BlockLayout, base_offset: usize)
                             -> ::std::result::Result<(), $crate::uniforms::LayoutMismatchError>
                         {
@@ -449,15 +449,11 @@ macro_rules! implement_uniform_block {
                                     name: stringify!($field_name).to_owned(),
                                 })
                             };
-                            let dummy: *const $struct_name = unsafe { mem::zeroed() };
-                            let input_offset = {
-                                let possibly_fat_pointer_to_field=unsafe{&(*dummy).$field_name};
-                                let pointer_to_possibly_fat_pointer_to_field:&u64=unsafe{mem::transmute( &possibly_fat_pointer_to_field )};
-                                let pointer_to_field=*pointer_to_possibly_fat_pointer_to_field;
-                                pointer_to_field as usize
-                            };
 
-                            match matches_from_ty(unsafe{&(*dummy).$field_name}, reflected_ty, input_offset) {
+                            let input_offset = mem::offset_of!($struct_name, $field_name);
+                            let dummy_field = None::<&$struct_name>.map(|v| &v.$field_name);
+
+                            match matches_from_ty(dummy_field, reflected_ty, input_offset) {
                                 Ok(_) => (),
                                 Err(e) => return Err(LayoutMismatchError::MemberMismatch {
                                     member: stringify!($field_name).to_owned(),
