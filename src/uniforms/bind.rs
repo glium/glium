@@ -345,6 +345,30 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
             program.set_uniform(ctxt, location, &RawUniformValue::Mat4(val));
             Ok(())
         },
+        UniformValue::Mat2x3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat2x3(val));
+            Ok(())
+        },
+        UniformValue::Mat2x4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat2x4(val));
+            Ok(())
+        },
+        UniformValue::Mat3x2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat3x2(val));
+            Ok(())
+        },
+        UniformValue::Mat3x4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat3x4(val));
+            Ok(())
+        },
+        UniformValue::Mat4x2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat4x2(val));
+            Ok(())
+        },
+        UniformValue::Mat4x3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::Mat4x3(val));
+            Ok(())
+        },
         UniformValue::Vec2(val) => {
             program.set_uniform(ctxt, location, &RawUniformValue::Vec2(val));
             Ok(())
@@ -410,6 +434,30 @@ fn bind_uniform<P>(ctxt: &mut context::CommandContext,
         },
         UniformValue::DoubleMat4(val) => {
             program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat4(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat2x3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat2x3(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat2x4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat2x4(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat3x2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat3x2(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat3x4(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat3x4(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat4x2(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat4x2(val));
+            Ok(())
+        },
+        UniformValue::DoubleMat4x3(val) => {
+            program.set_uniform(ctxt, location, &RawUniformValue::DoubleMat4x3(val));
             Ok(())
         },
         UniformValue::DoubleVec2(val) => {
