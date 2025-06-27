@@ -197,6 +197,16 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> Display<T> {
         self.gl_context.borrow().as_ref().unwrap().resize(new_size)
     }
 
+    #[inline]
+    /// Set swap interval for the surface.
+    pub fn set_swap_interval(&self, interval: SwapInterval) -> Result<(), glutin::error::Error> {
+        self.gl_context
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .set_swap_interval(interval)
+    }
+
     /// Start drawing on the backbuffer.
     ///
     /// This function returns a `Frame`, which can be used to draw on it. When the `Frame` is
