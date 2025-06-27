@@ -10,6 +10,7 @@ Only available if the 'glutin' feature is enabled.
 */
 pub use glutin;
 use glutin::surface::Surface;
+use glutin::surface::SwapInterval;
 
 use crate::backend;
 use crate::backend::Backend;
@@ -59,9 +60,15 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> ContextSurfacePair<T> {
     }
 
     #[inline]
-    /// Return the stored framebuffer dimensions
+    /// Swaps the underlying back buffers when the surface is not single buffered.
     pub fn swap_buffers(&self) -> Result<(), glutin::error::Error> {
         self.surface.swap_buffers(&self.context)
+    }
+
+    #[inline]
+    /// Set swap interval for the surface.
+    pub fn set_swap_interval(&self, interval: SwapInterval) -> Result<(), glutin::error::Error> {
+        self.surface.set_swap_interval(&self.context, interval)
     }
 
     #[inline]
