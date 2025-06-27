@@ -300,6 +300,15 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
     }
 
     #[inline]
+    fn set_swap_interval(&self, interval: SwapInterval) {
+        self.borrow()
+            .as_ref()
+            .unwrap()
+            .set_swap_interval(interval)
+            .unwrap()
+    }
+
+    #[inline]
     fn is_current(&self) -> bool {
         self.borrow().as_ref().unwrap().is_current()
     }

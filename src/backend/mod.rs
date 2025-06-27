@@ -12,9 +12,9 @@ There are three concepts in play:
    that implements this trait. It is implemented on `Rc<Context>`.
 
 */
-use std::rc::Rc;
 use std::ops::Deref;
 use std::os::raw::c_void;
+use std::rc::Rc;
 
 use crate::CapabilitiesSource;
 use crate::SwapBuffersError;
@@ -29,6 +29,7 @@ pub use crate::context::ReleaseBehavior;
 #[cfg(feature = "glutin")]
 pub mod glutin;
 
+use ::glutin::surface::SwapInterval;
 #[cfg(feature = "simple_window_builder")]
 pub use winit;
 
@@ -49,7 +50,10 @@ pub unsafe trait Backend {
     fn get_framebuffer_dimensions(&self) -> (u32, u32);
 
     /// Resizes the underlying surface, should be called when the window's size has changed for example.
-    fn resize(&self, new_size:(u32, u32));
+    fn resize(&self, new_size: (u32, u32));
+
+    /// Set swap interval for the surface.
+    fn set_swap_interval(&self, interval: SwapInterval);
 
     /// Returns true if the OpenGL context is the current one in the thread.
     fn is_current(&self) -> bool;
@@ -58,7 +62,10 @@ pub unsafe trait Backend {
     unsafe fn make_current(&self);
 }
 
-unsafe impl<T> Backend for Rc<T> where T: Backend {
+unsafe impl<T> Backend for Rc<T>
+where
+    T: Backend,
+{
     fn swap_buffers(&self) -> Result<(), SwapBuffersError> {
         self.deref().swap_buffers()
     }
@@ -71,8 +78,12 @@ unsafe impl<T> Backend for Rc<T> where T: Backend {
         self.deref().get_framebuffer_dimensions()
     }
 
-    fn resize(&self, new_size:(u32, u32)) {
+    fn resize(&self, new_size: (u32, u32)) {
         self.deref().resize(new_size);
+    }
+
+    fn set_swap_interval(&self, interval: SwapInterval) {
+        self.deref().set_swap_interval(interval);
     }
 
     fn is_current(&self) -> bool {
@@ -90,7 +101,10 @@ pub trait Facade {
     fn get_context(&self) -> &Rc<Context>;
 }
 
-impl<T: ?Sized> CapabilitiesSource for T where T: Facade {
+impl<T: ?Sized> CapabilitiesSource for T
+where
+    T: Facade,
+{
     fn get_version(&self) -> &Version {
         self.get_context().deref().get_opengl_version()
     }
