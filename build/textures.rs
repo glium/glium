@@ -420,21 +420,21 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                 (writeln!(dest, "
                             impl<'a> AsUniformValue for &'a {myname} {{
                                 #[inline]
-                                fn as_uniform_value(&self) -> UniformValue {{
+                                fn as_uniform_value(&self) -> UniformValue<'_> {{
                                     UniformValue::{myname}(*self, None)
                                 }}
                             }}
 
                             impl AsUniformValue for {myname} {{
                                 #[inline]
-                                fn as_uniform_value(&self) -> UniformValue {{
+                                fn as_uniform_value(&self) -> UniformValue<'_> {{
                                     UniformValue::{myname}(self, None)
                                 }}
                             }}
 
                             impl<'a> AsUniformValue for Sampler<'a, {myname}> {{
                                 #[inline]
-                                fn as_uniform_value(&self) -> UniformValue {{
+                                fn as_uniform_value(&self) -> UniformValue<'_> {{
                                     UniformValue::{myname}(self.0, Some(self.1))
                                 }}
                             }}
@@ -454,7 +454,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                                 /// # }}
                                 /// ```
                                 #[inline]
-                                pub fn sampled(&self) -> Sampler<{myname}> {{
+                                pub fn sampled(&self) -> Sampler<'_, {myname}> {{
                                     Sampler(self, Default::default())
                                 }}
                             }}
@@ -471,7 +471,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         writeln!(dest, "
                     impl<'a> AsUniformValue for ImageUnit<'a, {myname}> {{
                         #[inline]
-                        fn as_uniform_value(&self) -> UniformValue  {{
+                        fn as_uniform_value(&self) -> UniformValue<'_>  {{
                             UniformValue::{valname}(self.0, Some(self.1))
                         }}
                     }}
@@ -480,7 +480,7 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
                         /// Builds an image unit marker object that allows you to indicate how the
                         /// texture should be bound to an image unit.
                         #[inline]
-                        pub fn image_unit(&self, format: ImageUnitFormat) -> Result<ImageUnit<{myname}>, ImageUnitError> {{
+                        pub fn image_unit(&self, format: ImageUnitFormat) -> Result<ImageUnit<'_, {myname}>, ImageUnitError> {{
                              ImageUnit::new(self, format)
                         }}
                     }}
@@ -1071,13 +1071,13 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
         (write!(dest, r#"
                 /// Access the first layer of this texture.
                 #[inline]
-                pub fn first_layer(&self) -> {name}Layer {{
+                pub fn first_layer(&self) -> {name}Layer<'_> {{
                     self.layer(0).unwrap()
                 }}
 
                 /// Access a single layer of this texture.
                 #[inline]
-                pub fn layer(&self, layer: u32) -> Option<{name}Layer> {{
+                pub fn layer(&self, layer: u32) -> Option<{name}Layer<'_>> {{
                     self.0.layer(layer).map(|l| {name}Layer(l, self))
                 }}
             "#, name = name)).unwrap();
@@ -1086,13 +1086,13 @@ fn build_texture<W: Write>(dest: &mut W, ty: TextureType, dimensions: TextureDim
     (write!(dest, r#"
             /// Access a single mipmap level of this texture.
             #[inline]
-            pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap> {{
+            pub fn mipmap(&self, level: u32) -> Option<{name}Mipmap<'_>> {{
                 self.0.mipmap(level).map(|m| {name}Mipmap(m, self))
             }}
 
             /// Access the main mipmap level of this texture.
             #[inline]
-            pub fn main_level(&self) -> {name}Mipmap {{
+            pub fn main_level(&self) -> {name}Mipmap<'_> {{
                 self.mipmap(0).unwrap()
             }}
         "#, name = name)).unwrap();
