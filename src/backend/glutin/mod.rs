@@ -10,6 +10,7 @@ Only available if the 'glutin' feature is enabled.
 */
 pub use glutin;
 use glutin::surface::Surface;
+use glutin::surface::SwapInterval;
 
 use crate::backend;
 use crate::backend::Backend;
@@ -59,9 +60,15 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> ContextSurfacePair<T> {
     }
 
     #[inline]
-    /// Return the stored framebuffer dimensions
+    /// Swaps the underlying back buffers when the surface is not single buffered.
     pub fn swap_buffers(&self) -> Result<(), glutin::error::Error> {
         self.surface.swap_buffers(&self.context)
+    }
+
+    #[inline]
+    /// Set swap interval for the surface.
+    pub fn set_swap_interval(&self, interval: SwapInterval) -> Result<(), glutin::error::Error> {
+        self.surface.set_swap_interval(&self.context, interval)
     }
 
     #[inline]
@@ -190,6 +197,16 @@ impl<T: SurfaceTypeTrait + ResizeableSurface> Display<T> {
         self.gl_context.borrow().as_ref().unwrap().resize(new_size)
     }
 
+    #[inline]
+    /// Set swap interval for the surface.
+    pub fn set_swap_interval(&self, interval: SwapInterval) -> Result<(), glutin::error::Error> {
+        self.gl_context
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .set_swap_interval(interval)
+    }
+
     /// Start drawing on the backbuffer.
     ///
     /// This function returns a `Frame`, which can be used to draw on it. When the `Frame` is
@@ -290,6 +307,15 @@ unsafe impl<T: SurfaceTypeTrait + ResizeableSurface> Backend for GlutinBackend<T
     #[inline]
     fn resize(&self, new_size: (u32, u32)) {
         self.borrow().as_ref().unwrap().resize(new_size)
+    }
+
+    #[inline]
+    fn set_swap_interval(&self, interval: SwapInterval) {
+        self.borrow()
+            .as_ref()
+            .unwrap()
+            .set_swap_interval(interval)
+            .unwrap()
     }
 
     #[inline]
