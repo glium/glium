@@ -78,4 +78,4 @@ jobs:
       with:
         branch: gh-pages
         folder: book/gh-pages
-      if: github.event_name == 'push'
+      if: github.event.repository.owner.login == 'glium' && github.event_name == 'push'
