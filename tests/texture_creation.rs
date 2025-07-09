@@ -98,7 +98,7 @@ fn texture_2d_as_uniform_value_lifetime() {
 
     // A function that takes texture reference should be able to return UniformValue (with lifetime
     // inherited from the reference).
-    fn get_uniforms(texture: &glium::texture::Texture2d) -> glium::uniforms::UniformValue {
+    fn get_uniforms(texture: &glium::texture::Texture2d) -> glium::uniforms::UniformValue<'_> {
         use glium::uniforms::AsUniformValue;
         texture.as_uniform_value()
     }

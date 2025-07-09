@@ -161,7 +161,7 @@ fn main() {
             let pair = &self.gl_window.borrow();
             let context = &pair.0;
             let window = &pair.1;
-            window.set_swap_interval(context, interval)
+            window.set_swap_interval(context, interval).unwrap();
         }
     }
 
