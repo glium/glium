@@ -72,6 +72,11 @@ unsafe impl glium::backend::Backend for DummyBackend {
                 delete as *const _
             },
 
+            "glDrawArrays" => {
+                extern "system" fn draw_arr(_: u32, _: i32, _: isize) {}
+                draw_arr as *const _
+            },
+
             "glEnable" | "glDisable" => {
                 extern "system" fn enable(_: u32) {}
                 enable as *const _
@@ -124,6 +129,7 @@ unsafe impl glium::backend::Backend for DummyBackend {
                 extern "system" fn get_integerv(name: u32, out: *mut i32) {
                     match name {
                         0x821D /* GL_NUM_EXTENSIONS */ => unsafe { *out = 0; },
+                        0x0D3A /* GL_MAX_VIEWPORT_DIMS */ => unsafe { *out = 800; *out.add(1) = 600; },
                         _ => unsafe { *out = 0; },
                     }
                 }
@@ -177,12 +183,23 @@ unsafe impl glium::backend::Backend for DummyBackend {
                 use_program as *const _
             },
 
+            "glViewport" => {
+                extern "system" fn viewport(_: i32, _: i32, _: isize, _: isize) {}
+                viewport as *const _
+            },
+
             _name => ptr::null()
         }
     }
 
     fn get_framebuffer_dimensions(&self) -> (u32, u32) {
         (800, 600)
+    }
+
+    fn resize(&self, _: (u32, u32)) {
+    }
+
+    fn set_swap_interval(&self, _: glutin::surface::SwapInterval) {
     }
 
     fn is_current(&self) -> bool {
