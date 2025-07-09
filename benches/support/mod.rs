@@ -199,6 +199,9 @@ unsafe impl glium::backend::Backend for DummyBackend {
     fn resize(&self, _: (u32, u32)) {
     }
 
+    fn set_swap_interval(&self, _: glutin::surface::SwapInterval) {
+    }
+
     fn is_current(&self) -> bool {
         true
     }
