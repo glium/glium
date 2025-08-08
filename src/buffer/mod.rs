@@ -50,6 +50,7 @@ pub use self::view::{BufferSlice, BufferAnySlice};
 pub use self::alloc::{Mapping, WriteMapping, ReadMapping, ReadError, CopyError};
 pub use self::alloc::{is_buffer_read_supported};
 pub use self::fences::Inserter;
+pub use self::fences::FenceInserters;
 
 /// DEPRECATED. Only here for backwards compatibility.
 #[deprecated(note = "Only here for backwards compatibility")]
