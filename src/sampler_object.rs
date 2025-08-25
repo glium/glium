@@ -57,6 +57,11 @@ impl SamplerObject {
 
                 ctxt.gl.SamplerParameterf(sampler, gl::TEXTURE_MAX_ANISOTROPY_EXT, value);
             }
+
+            if let Some(border_color) = behavior.border_color {
+                ctxt.gl.SamplerParameterfv(sampler, gl::TEXTURE_BORDER_COLOR,
+                                           border_color.as_f32_array().as_ptr());
+            }
         }
 
         SamplerObject {
