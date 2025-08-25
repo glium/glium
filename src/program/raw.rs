@@ -562,15 +562,13 @@ impl RawProgram {
 
         TimeElapsedQuery::end_conditional_render(&mut ctxt);
 
-        let mut fences = Vec::with_capacity(0);
+        let mut fences = self.context.get_fences();
 
         self.use_program(&mut ctxt);
         uniforms.bind_uniforms(&mut ctxt, self, &mut fences)?;
         ctxt.gl.DispatchCompute(x, y, z);
 
-        for fence in fences {
-            fence.insert(&mut ctxt);
-        }
+        fences.fulfill(&mut ctxt);
 
         ctxt.state.next_draw_call_id += 1;
 
@@ -608,14 +606,13 @@ impl RawProgram {
 
         self.use_program(&mut ctxt);
 
-        let mut fences = Vec::with_capacity(0);
+        let mut fences = self.context.get_fences();
+
         uniforms.bind_uniforms(&mut ctxt, self, &mut fences)?;
 
         ctxt.gl.DispatchComputeIndirect(offset as gl::types::GLintptr);
 
-        for fence in fences {
-            fence.insert(&mut ctxt);
-        }
+        fences.fulfill(&mut ctxt);
 
         ctxt.state.next_draw_call_id += 1;
 
