@@ -149,6 +149,7 @@ pub mod index;
 pub mod memory_object;
 pub mod pixel_buffer;
 pub mod program;
+pub mod timer;
 pub mod uniforms;
 pub mod vertex;
 pub mod semaphore;
