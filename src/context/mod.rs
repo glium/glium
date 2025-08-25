@@ -542,6 +542,22 @@ impl Context {
         action()
     }
 
+    /// Execute an arbitrary closure with the OpenGL context active and mutable access to
+    /// glium's internal state. Useful if another component needs to directly manipulate
+    /// OpenGL state or if another component already has.
+    ///
+    /// **`action` takes full responsibility for keeping OpenGL state in sync with the
+    /// context's state.**
+    #[inline]
+    pub unsafe fn exec_with_context<'a, T, F>(&self, action: F) -> T
+    where
+        T: Send + 'static,
+        F: FnOnce(&mut CommandContext<'_>) -> T + 'a,
+    {
+        let mut ctxt = self.make_current();
+        action(&mut ctxt)
+    }
+
     /// Asserts that there are no OpenGL errors pending.
     ///
     /// This function should be used in tests.
