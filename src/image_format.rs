@@ -205,7 +205,6 @@ impl ClientFormat {
 /// Some formats are marked as "guaranteed to be supported". What this means is that you are
 /// certain that the backend will use exactly these formats. If you try to use a format that
 /// is not supported by the backend, it will automatically fall back to a larger format.
-// TODO: missing RGB565
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum UncompressedFloatFormat {
     ///
@@ -246,6 +245,8 @@ pub enum UncompressedFloatFormat {
     U4U4U4,
     ///
     U5U5U5,
+    ///
+    U5U6U5,
     ///
     ///
     /// Guaranteed to be supported for textures.
@@ -435,6 +436,9 @@ impl UncompressedFloatFormat {
             UncompressedFloatFormat::U5U5U5 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
+            UncompressedFloatFormat::U5U6U5 => {
+                version >= &Version(Api::Gl, 4, 0) || version >= &Version(Api::GlEs, 2, 0)
+            },
             UncompressedFloatFormat::U8U8U8 => {
                 version >= &Version(Api::Gl, 1, 1) || version >= &Version(Api::GlEs, 3, 0)
             },
@@ -557,7 +561,9 @@ impl UncompressedFloatFormat {
             UncompressedFloatFormat::U8U8 => {
                 version >= &Version(Api::GlEs, 3, 0) || extensions.gl_arb_texture_rg
             },
-            //&UncompressedFloatFormat::U5U6U5 => true,
+            UncompressedFloatFormat::U5U6U5 => {
+                version >= &Version(Api::GlEs, 2, 0) || extensions.gl_arb_es2_compatibility
+            }
             UncompressedFloatFormat::U8U8U8 => {
                 version >= &Version(Api::GlEs, 3, 0) || extensions.gl_oes_rgb8_rgba8
             },
@@ -592,6 +598,7 @@ impl UncompressedFloatFormat {
             UncompressedFloatFormat::U3U3U2 => gl::R3_G3_B2,
             UncompressedFloatFormat::U4U4U4 => gl::RGB4,
             UncompressedFloatFormat::U5U5U5 => gl::RGB5,
+            UncompressedFloatFormat::U5U6U5 => gl::RGB565,
             UncompressedFloatFormat::U8U8U8 => gl::RGB8,
             UncompressedFloatFormat::I8I8I8 => gl::RGB8_SNORM,
             UncompressedFloatFormat::U10U10U10 => gl::RGB10,
