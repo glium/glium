@@ -12,7 +12,7 @@ use crate::version::Version;
 use crate::gl;
 
 
-pub fn clear(context: &Context, framebuffer: Option<&ValidatedAttachments<'_>>,
+pub fn clear(context: &Context, framebuffer: Result<&ValidatedAttachments<'_>, u32>,
              rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
 {

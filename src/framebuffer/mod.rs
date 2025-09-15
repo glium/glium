@@ -275,7 +275,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
     fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
-        ops::clear(&self.context, Some(&self.attachments), rect, color, color_srgb, depth, stencil);
+        ops::clear(&self.context, Ok(&self.attachments), rect, color, color_srgb, depth, stencil);
     }
 
     #[inline]
@@ -317,7 +317,7 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
             }
         }
 
-        ops::draw(&self.context, Some(&self.attachments), vb,
+        ops::draw(&self.context, Ok(&self.attachments), vb,
                   ib.into(), program, uniforms, draw_parameters, self.get_dimensions())
     }
 
@@ -330,7 +330,8 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
 
     #[inline]
     fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
-        ops::blit(&self.context, None, self.get_attachments(),
+        // TODO: 0
+        ops::blit(&self.context, Err(0), self.get_attachments(),
                   mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
@@ -349,8 +350,8 @@ impl<'a> Surface for SimpleFrameBuffer<'a> {
 
 impl<'a> FboAttachments for SimpleFrameBuffer<'a> {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
-        Some(&self.attachments)
+    fn get_attachments(&self) -> Result<&fbo::ValidatedAttachments<'_>, u32> {
+        Ok(&self.attachments)
     }
 }
 
@@ -534,7 +535,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
     fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
-        ops::clear(&self.context, Some(&self.example_attachments), rect,
+        ops::clear(&self.context, Ok(&self.example_attachments), rect,
                    color, color_srgb, depth, stencil);
     }
 
@@ -577,7 +578,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
             }
         }
 
-        ops::draw(&self.context, Some(&self.build_attachments(program)), vb,
+        ops::draw(&self.context, Ok(&self.build_attachments(program)), vb,
                   ib.into(), program, uniforms, draw_parameters, self.get_dimensions())
     }
 
@@ -590,7 +591,8 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
 
     #[inline]
     fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
-        ops::blit(&self.context, None, self.get_attachments(),
+        // TODO: 0
+        ops::blit(&self.context, Err(0), self.get_attachments(),
                   mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
@@ -609,7 +611,7 @@ impl<'a> Surface for MultiOutputFrameBuffer<'a> {
 
 impl<'a> FboAttachments for MultiOutputFrameBuffer<'a> {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
+    fn get_attachments(&self) -> Result<&fbo::ValidatedAttachments<'_>, u32> {
         unimplemented!();
     }
 }
@@ -696,7 +698,7 @@ impl Surface for EmptyFrameBuffer {
     fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
-        ops::clear(&self.context, Some(&self.attachments), rect, color, color_srgb, depth, stencil);
+        ops::clear(&self.context, Ok(&self.attachments), rect, color, color_srgb, depth, stencil);
     }
 
     #[inline]
@@ -738,7 +740,7 @@ impl Surface for EmptyFrameBuffer {
             }
         }
 
-        ops::draw(&self.context, Some(&self.attachments), vb,
+        ops::draw(&self.context, Ok(&self.attachments), vb,
                   ib.into(), program, uniforms, draw_parameters, self.get_dimensions())
     }
 
@@ -753,7 +755,8 @@ impl Surface for EmptyFrameBuffer {
     fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget,
                        filter: uniforms::MagnifySamplerFilter, mask: BlitMask)
     {
-        ops::blit(&self.context, None, self.get_attachments(),
+        // TODO: 0
+        ops::blit(&self.context, Err(0), self.get_attachments(),
                   mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
@@ -779,8 +782,8 @@ impl Surface for EmptyFrameBuffer {
 
 impl FboAttachments for EmptyFrameBuffer {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
-        Some(&self.attachments)
+    fn get_attachments(&self) -> Result<&fbo::ValidatedAttachments<'_>, u32> {
+        Ok(&self.attachments)
     }
 }
 

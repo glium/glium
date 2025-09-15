@@ -25,7 +25,7 @@ use crate::version::Version;
 use crate::version::Api;
 
 /// Draws everything.
-pub fn draw<'a, U, V>(context: &Context, framebuffer: Option<&ValidatedAttachments<'_>>,
+pub fn draw<'a, U, V>(context: &Context, framebuffer: Result<&ValidatedAttachments<'_>, u32>,
                       vertex_buffers: V, indices: IndicesSource<'_>,
                       program: &Program, uniforms: &U, draw_parameters: &DrawParameters<'_>,
                       dimensions: (u32, u32)) -> Result<(), DrawError>

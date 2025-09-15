@@ -60,7 +60,8 @@ impl Surface for DefaultFramebuffer {
              depth: Option<f32>, stencil: Option<i32>)
     {
         // TODO: wrong attachment
-        ops::clear(&self.context, None, None, color, color_srgb, depth, stencil);
+        // TODO: fix 0
+        ops::clear(&self.context, Err(0), None, color, color_srgb, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
@@ -101,7 +102,8 @@ impl Surface for DefaultFramebuffer {
         }
 
         // TODO: wrong attachment
-        ops::draw(&self.context, None, vertex_buffer, index_buffer.into(), program,
+        // TODO: 0
+        ops::draw(&self.context, Err(0), vertex_buffer, index_buffer.into(), program,
                   uniforms, draw_parameters, self.get_dimensions())
     }
 
@@ -114,7 +116,8 @@ impl Surface for DefaultFramebuffer {
 
     #[inline]
     fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
-        ops::blit(&self.context, None, self.get_attachments(),
+        // TODO: 0
+        ops::blit(&self.context, Err(0), self.get_attachments(),
                   mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
@@ -133,7 +136,8 @@ impl Surface for DefaultFramebuffer {
 
 impl FboAttachments for DefaultFramebuffer {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
-        None
+    fn get_attachments(&self) -> Result<&fbo::ValidatedAttachments<'_>, u32> {
+        // TODO: 0
+        Err(0)
     }
 }

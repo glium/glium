@@ -959,7 +959,7 @@ pub trait Surface {
 /// Private trait for framebuffer-like objects that provide attachments.
 trait FboAttachments {
     /// Returns the list of attachments of this FBO, or `None` if it is the default framebuffer.
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>>;
+    fn get_attachments(&self) -> Result<&fbo::ValidatedAttachments<'_>, u32>;
 }
 
 /// Error that can happen while drawing.
@@ -1244,6 +1244,7 @@ impl fmt::Display for SwapBuffersError {
 pub struct Frame {
     context: Rc<Context>,
     dimensions: (u32, u32),
+    framebuffer_id: u32,
     destroyed: bool,        // TODO: use a linear type instead.
 }
 
@@ -1254,6 +1255,18 @@ impl Frame {
         Frame {
             context,
             dimensions,
+            framebuffer_id: 0,
+            destroyed: false,
+        }
+    }
+
+    /// Allows user to create a frame with framebuffer ID different from 0.
+    #[inline]
+    pub fn new_with_id(context: Rc<Context>, dimensions: (u32, u32), framebuffer_id: u32) -> Frame {
+        Frame {
+            context,
+            dimensions,
+            framebuffer_id,
             destroyed: false,
         }
     }
@@ -1286,7 +1299,7 @@ impl Surface for Frame {
     fn clear(&mut self, rect: Option<&Rect>, color: Option<(f32, f32, f32, f32)>, color_srgb: bool,
              depth: Option<f32>, stencil: Option<i32>)
     {
-        ops::clear(&self.context, None, rect, color, color_srgb, depth, stencil);
+        ops::clear(&self.context, Err(self.framebuffer_id), rect, color, color_srgb, depth, stencil);
     }
 
     fn get_dimensions(&self) -> (u32, u32) {
@@ -1326,7 +1339,7 @@ impl Surface for Frame {
             }
         }
 
-        ops::draw(&self.context, None, vertex_buffer, index_buffer.into(), program,
+        ops::draw(&self.context, Err(self.framebuffer_id), vertex_buffer, index_buffer.into(), program,
                   uniforms, draw_parameters, self.dimensions)
     }
 
@@ -1338,7 +1351,7 @@ impl Surface for Frame {
     }
 
     fn blit_buffers_from_frame(&self, source_rect: &Rect, target_rect: &BlitTarget, filter: MagnifySamplerFilter, mask: BlitMask) {
-        ops::blit(&self.context, None, self.get_attachments(),
+        ops::blit(&self.context, Err(self.framebuffer_id), self.get_attachments(),
                   mask.to_glenum(), source_rect, target_rect, filter.to_glenum())
     }
 
@@ -1362,8 +1375,8 @@ impl Surface for Frame {
 
 impl FboAttachments for Frame {
     #[inline]
-    fn get_attachments(&self) -> Option<&fbo::ValidatedAttachments<'_>> {
-        None
+    fn get_attachments(&self) -> Result<&fbo::ValidatedAttachments<'_>, u32> {
+        Err(self.framebuffer_id)
     }
 }
 
