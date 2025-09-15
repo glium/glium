@@ -11,8 +11,8 @@ use crate::gl;
 use crate::version::Version;
 use crate::version::Api;
 
-pub fn blit(context: &Context, source: Option<&ValidatedAttachments<'_>>,
-            target: Option<&ValidatedAttachments<'_>>, mask: gl::types::GLbitfield,
+pub fn blit(context: &Context, source: Result<&ValidatedAttachments<'_>, u32>,
+            target: Result<&ValidatedAttachments<'_>, u32>, mask: gl::types::GLbitfield,
             src_rect: &Rect, target_rect: &BlitTarget, filter: gl::types::GLenum)
 {
     assert!(

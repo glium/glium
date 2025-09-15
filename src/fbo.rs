@@ -810,14 +810,13 @@ impl FramebuffersContainer {
     /// After calling this function, you **must** make sure to call `purge_texture`
     /// and/or `purge_renderbuffer` when one of the attachment is destroyed.
     #[inline]
-    pub fn get_framebuffer_for_drawing(ctxt: &mut CommandContext<'_>,
-                                       attachments: Option<&ValidatedAttachments<'_>>)
+        pub fn get_framebuffer_for_drawing(ctxt: &mut CommandContext<'_>,
+                                       attachments: Result<&ValidatedAttachments<'_>, u32>)
                                        -> gl::types::GLuint
     {
-        if let Some(attachments) = attachments {
-            FramebuffersContainer::get_framebuffer(ctxt, attachments)
-        } else {
-            0
+        match attachments {
+            Ok(attachments) => FramebuffersContainer::get_framebuffer(ctxt, attachments),
+            Err(id) => id
         }
     }
 
@@ -854,7 +853,7 @@ impl FramebuffersContainer {
             depth_stencil: DepthStencilAttachments::None,
         }).validate(ctxt).unwrap();
 
-        let framebuffer = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Some(&attachments));
+        let framebuffer = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Ok(&attachments));
         bind_framebuffer(ctxt, framebuffer, false, true);
         ctxt.gl.ReadBuffer(gl::COLOR_ATTACHMENT0);     // TODO: cache
     }
@@ -881,7 +880,7 @@ impl FramebuffersContainer {
             colors: { let mut v = SmallVec::new(); v.push((0, *attachment)); v },
             depth_stencil: DepthStencilAttachments::None,
         }).validate(ctxt).unwrap();
-        let fb = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Some(&fb));
+        let fb = FramebuffersContainer::get_framebuffer_for_drawing(ctxt, Ok(&fb));
 
         // TODO: use DSA if supported
         // TODO: what if glClearBuffer is not supported?
@@ -1124,6 +1123,15 @@ impl FrameBufferObject {
         FrameBufferObject {
             id,
             current_read_buffer: gl::BACK,
+        }
+    }
+
+    fn new_from_id(
+        id: gl::types::GLuint,
+        current_read_buffer: Option<gl::types::GLenum>) -> FrameBufferObject {
+        FrameBufferObject {
+            id,
+            current_read_buffer: current_read_buffer.unwrap_or(gl::BACK),
         }
     }
 
