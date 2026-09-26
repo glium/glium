@@ -27,7 +27,7 @@ exclude = ["doc"]
 edition = "2021"
 
 [features]
-default = ["glutin_backend", "simple_window_builder", "glutin/default", "winit/default", "glutin-winit/default"]
+default = ["backtrace", "glutin_backend", "simple_window_builder", "glutin/default", "winit/default", "glutin-winit/default"]
 glutin_backend = ["glutin"]
 unstable = [] # used for benchmarks
 vk_interop = [] # used for texture import from Vulkan
@@ -59,7 +59,7 @@ default-features = false
 
 [dependencies]
 memoffset = "0.9.0"
-backtrace = "0.3.2"
+backtrace = { version = "0.3.2", optional = true }
 smallvec = "1.0"
 fnv = "1.0.5"
 

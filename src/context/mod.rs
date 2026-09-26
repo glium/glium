@@ -842,34 +842,41 @@ fn default_debug_callback(_: debug::Source, ty: debug::MessageType, severity: de
 
     if report_debug_output_errors {
         eprint!("Debug message with high or medium severity: `{}`.\n\
-                 Please report this error: https://github.com/glium/glium/issues\n\
-                 Backtrace:",
+                 Please report this error: https://github.com/glium/glium/issues",
                  message);
 
-        let mut frame_id = 1;
-        backtrace::trace(|frame| {
-            let ip = frame.ip();
-            print!("\n{:>#4} - {:p}", frame_id, ip);
-
-            backtrace::resolve(ip, |symbol| {
-                let name = symbol.name()
-                                 .map(|n| n.as_str().unwrap_or("<not-utf8>"))
-                                 .unwrap_or("<unknown>");
-                let filename = symbol.filename()
-                                     .map(|p| p.to_str().unwrap_or("<not-utf8>"))
-                                     .unwrap_or("<unknown>");
-                let line = symbol.lineno().map(|l| l.to_string())
-                                          .unwrap_or_else(|| "??".to_owned());
-
-                print!("\n         {} at {}:{}", name, filename, line);
-            });
-
-            frame_id += 1;
-            true
-        });
+        #[cfg(feature = "backtrace")]
+        print_backtrace();
 
         eprintln!("\n");
     }
+}
+
+#[cfg(feature = "backtrace")]
+fn print_backtrace() {
+    eprint!("\nBacktrace:");
+
+    let mut frame_id = 1;
+    backtrace::trace(|frame| {
+        let ip = frame.ip();
+        print!("\n{:>#4} - {:p}", frame_id, ip);
+
+        backtrace::resolve(ip, |symbol| {
+            let name = symbol.name()
+                             .map(|n| n.as_str().unwrap_or("<not-utf8>"))
+                             .unwrap_or("<unknown>");
+            let filename = symbol.filename()
+                                 .map(|p| p.to_str().unwrap_or("<not-utf8>"))
+                                 .unwrap_or("<unknown>");
+            let line = symbol.lineno().map(|l| l.to_string())
+                                      .unwrap_or_else(|| "??".to_owned());
+
+            print!("\n         {} at {}:{}", name, filename, line);
+        });
+
+        frame_id += 1;
+        true
+    });
 }
 
 /// The callback corresponding to `DebugMessageOnError`.
