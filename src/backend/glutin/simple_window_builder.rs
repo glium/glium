@@ -16,6 +16,7 @@ use super::*;
 use crate::glutin::config::{Config, ConfigTemplateBuilder};
 use crate::winit::window::Window;
 use crate::winit::window::WindowAttributes;
+use glutin::context::ContextAttributesBuilder;
 use glutin_winit::DisplayBuilder;
 use std::error::Error;
 use std::num::NonZeroU32;
@@ -76,6 +77,7 @@ impl GliumEventLoop for winit::event_loop::ActiveEventLoop {
 pub struct SimpleWindowBuilder {
     attributes: WindowAttributes,
     config_template_builder: ConfigTemplateBuilder,
+    context_attributes_builder: ContextAttributesBuilder,
     vsync: bool
 }
 
@@ -87,8 +89,8 @@ impl SimpleWindowBuilder {
                 .with_title("Simple Glium Window")
                 .with_inner_size(winit::dpi::PhysicalSize::new(800, 480)),
             config_template_builder: ConfigTemplateBuilder::new(),
+            context_attributes_builder: ContextAttributesBuilder::default(),
             vsync: true
-
         }
     }
 
@@ -108,7 +110,7 @@ impl SimpleWindowBuilder {
     }
 
     /// Replace the used [`WindowAttributes`],
-    /// do this before you set other parameters or you'll overwrite the parameters.
+    /// do this before you set other parameters, or you'll overwrite the parameters.
     pub fn set_window_builder(mut self, window_attributes: WindowAttributes) -> Self {
         self.attributes = window_attributes;
         self
@@ -118,6 +120,12 @@ impl SimpleWindowBuilder {
     /// Can be used to configure among other things buffer sizes and number of samples for the window.
     pub fn with_config_template_builder(mut self, config_template_builder: ConfigTemplateBuilder) -> Self {
         self.config_template_builder = config_template_builder;
+        self
+    }
+
+    /// Can be used to configure OpenGL version and mode (core vs compatibility) .
+    pub fn with_context_attributes_builder(mut self, context_attributes_builder: ContextAttributesBuilder) -> Self {
+        self.context_attributes_builder = context_attributes_builder;
         self
     }
 
@@ -157,6 +165,7 @@ impl SimpleWindowBuilder {
 
         // Now we get the window size to use as the initial size of the Surface
         let (width, height): (u32, u32) = window.inner_size().into();
+
         let attrs =
             glutin::surface::SurfaceAttributesBuilder::<glutin::surface::WindowSurface>::new()
                 .build(
@@ -172,8 +181,10 @@ impl SimpleWindowBuilder {
                 .create_window_surface(&gl_config, &attrs)
                 .unwrap()
         };
-        let context_attributes = glutin::context::ContextAttributesBuilder::new()
+
+        let context_attributes = self.context_attributes_builder
             .build(Some(window.window_handle().expect("couldn't obtain raw window handle").into()));
+
         let current_context = Some(unsafe {
             gl_config
                 .display()
@@ -185,9 +196,9 @@ impl SimpleWindowBuilder {
         .unwrap();
 
         let swap_interval = if self.vsync {
-            glutin::surface::SwapInterval::Wait(std::num::NonZeroU32::new(1).unwrap())
+            SwapInterval::Wait(NonZeroU32::new(1).unwrap())
         } else {
-            glutin::surface::SwapInterval::DontWait
+            SwapInterval::DontWait
         };
         surface.set_swap_interval(&current_context, swap_interval).unwrap();
 
