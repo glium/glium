@@ -175,8 +175,6 @@ impl SimpleWindowBuilder {
                     NonZeroU32::new(height).unwrap(),
                 );
 
-        
-
         // Finally we can create a Surface, use it to make a PossiblyCurrentContext and create the glium Display
         let surface = unsafe {
             gl_config
@@ -185,9 +183,7 @@ impl SimpleWindowBuilder {
                 .unwrap()
         };
 
-        let context_attributes = ContextAttributesBuilder::new()
-            .with_context_api(ContextApi::OpenGl(Some(Version::new(4, 6))))
-            .with_profile(GlProfile::Core)
+        let context_attributes = self.context_attributes_builder
             .build(Some(window.window_handle().expect("couldn't obtain raw window handle").into()));
 
         let current_context = Some(unsafe {
