@@ -16,11 +16,10 @@ use super::*;
 use crate::glutin::config::{Config, ConfigTemplateBuilder};
 use crate::winit::window::Window;
 use crate::winit::window::WindowAttributes;
+use glutin::context::ContextAttributesBuilder;
 use glutin_winit::DisplayBuilder;
 use std::error::Error;
 use std::num::NonZeroU32;
-use glutin::context::{ContextApi, ContextAttributes, ContextAttributesBuilder, GlProfile, Version};
-use raw_window_handle::HasWindowHandle;
 
 /// A `winit::event_loop::EventLoop`-like Window provider suitable for [`DisplayBuilder`].
 ///
@@ -197,9 +196,9 @@ impl SimpleWindowBuilder {
         .unwrap();
 
         let swap_interval = if self.vsync {
-            glutin::surface::SwapInterval::Wait(std::num::NonZeroU32::new(1).unwrap())
+            SwapInterval::Wait(NonZeroU32::new(1).unwrap())
         } else {
-            glutin::surface::SwapInterval::DontWait
+            SwapInterval::DontWait
         };
         surface.set_swap_interval(&current_context, swap_interval).unwrap();
 
