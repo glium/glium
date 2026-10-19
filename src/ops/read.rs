@@ -73,6 +73,9 @@ pub enum ReadError {
     /// Clamping the values is not supported by the implementation.
     ClampingNotSupported,
 
+    /// Rect dimensions are too large for the buffer.
+    DimensionsTooLarge
+
     // TODO: context lost
 }
 
@@ -86,6 +89,8 @@ impl fmt::Display for ReadError {
                 "The implementation doesn't support reading a depth, depth-stencil or stencil attachment",
             ClampingNotSupported =>
                 "Clamping the values is not supported by the implementation",
+            DimensionsTooLarge =>
+                "Rect dimensions are too large for the buffer",
         };
         fmt.write_str(desc)
     }
@@ -109,7 +114,8 @@ pub fn read<'a, S, D, T>(mut ctxt: &mut CommandContext<'_>, source: S, rect: &Re
     let dest = dest.into();
     let output_pixel_format = <T as PixelValue>::get_format();
 
-    let pixels_to_read = rect.width * rect.height;
+    let pixels_to_read = rect.width.checked_mul(rect.height)
+                                   .ok_or(ReadError::DimensionsTooLarge)?;
 
     // checking that the output format is supported
     // OpenGL supported everything, while OpenGL ES only supports U8U8U8U8 plus an additional
