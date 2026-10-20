@@ -1,8 +1,6 @@
 #[macro_use]
 extern crate glium;
 
-use glium::Surface;
-
 mod support;
 
 #[test]
@@ -22,7 +20,5 @@ fn test_read() {
         height: 8_388_608,
     };
 
-    let real_pixels = rect.width as u64 * rect.height as u64;
-
-    let pixels: Vec<Vec<(u8, u8, u8, u8)>> = image.raw_read(&rect);
+    let _pixels: Vec<Vec<(u8, u8, u8, u8)>> = image.raw_read(&rect);
 }
